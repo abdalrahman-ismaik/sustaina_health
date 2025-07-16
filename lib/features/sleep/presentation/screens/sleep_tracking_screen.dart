@@ -207,19 +207,19 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                 icon: Icons.wb_sunny,
                 title: 'Natural Light Exposure',
                 value: naturalLight,
-                onChanged: (val) => setState(() => naturalLight = val),
+                onChanged: (val) => setState(() => naturalLight = val ?? false),
               ),
               _SustainabilityTile(
                 icon: Icons.eco,
                 title: 'Eco-Friendly Sleep Environment',
                 value: ecoFriendly,
-                onChanged: (val) => setState(() => ecoFriendly = val),
+                onChanged: (val) => setState(() => ecoFriendly = val ?? false),
               ),
               _SustainabilityTile(
                 icon: Icons.lightbulb,
                 title: 'Energy-Efficient Practices',
                 value: energyEfficient,
-                onChanged: (val) => setState(() => energyEfficient = val),
+                onChanged: (val) => setState(() => energyEfficient = val ?? false),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -323,7 +323,7 @@ class _SustainabilityTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool?> onChanged;
   const _SustainabilityTile({required this.icon, required this.title, required this.value, required this.onChanged, Key? key}) : super(key: key);
 
   @override

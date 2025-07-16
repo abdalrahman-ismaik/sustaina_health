@@ -1,7 +1,60 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _loadingAnimation;
+  double _loadingProgress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Initialize animation controller
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+    
+    // Create loading animation
+    _loadingAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    
+    // Listen to animation updates
+    _loadingAnimation.addListener(() {
+      setState(() {
+        _loadingProgress = _loadingAnimation.value;
+      });
+    });
+    
+    // Start the animation
+    _animationController.forward();
+    
+    // Navigate to home screen after 3 seconds
+    Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +103,8 @@ class SplashScreen extends StatelessWidget {
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Text(
+                        children: [
+                          const Text(
                             'Loading...',
                             style: TextStyle(
                               color: Color(0xFF111714),
@@ -60,7 +113,14 @@ class SplashScreen extends StatelessWidget {
                               // fontFamily: 'Lexend',
                             ),
                           ),
-                          SizedBox(width: 8),
+                          Text(
+                            '${(_loadingProgress * 100).toInt()}%',
+                            style: const TextStyle(
+                              color: Color(0xFF111714),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -72,7 +132,7 @@ class SplashScreen extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: FractionallySizedBox(
-                              widthFactor: 0.0, // Set to 0 for static, animate for real loading
+                              widthFactor: _loadingProgress,
                               child: Container(
                                 height: 8,
                                 decoration: BoxDecoration(
