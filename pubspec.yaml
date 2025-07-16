@@ -1,0 +1,73 @@
+name: sustaina_health
+description: An AI-powered health and sustainability mobile application.
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^0.13.3
+  dio: any
+  provider: ^5.0.0
+  riverpod: any
+  flutter_riverpod: any
+  riverpod_annotation: any
+  firebase_core: any
+  firebase_auth: any
+  cloud_firestore: any
+  firebase_storage: any
+  flutter_hooks: any
+  hooks_riverpod: any
+  hive: any
+  hive_flutter: any
+  path_provider: any
+  camera: any
+  image_picker: any
+  shared_preferences: any
+  permission_handler: any
+  flutter_local_notifications: any
+  charts_flutter: any
+  fl_chart: any
+  cached_network_image: any
+  shimmer: any
+  lottie: any
+  go_router: any
+  freezed_annotation: any
+  json_annotation: any
+  flutter_svg: any
+  intl: any
+  uuid: any
+  sensors_plus: any
+  connectivity_plus: any
+  package_info_plus: any
+  device_info_plus: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: any
+  freezed: any
+  json_serializable: any
+  riverpod_generator: any
+  custom_lint: any
+  riverpod_lint: any
+  mockito: any
+  fake_async: any
+  flutter_lints: any
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/lottie/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
