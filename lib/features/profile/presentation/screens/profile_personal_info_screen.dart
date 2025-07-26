@@ -9,7 +9,7 @@ class ProfilePersonalInfoScreen extends StatefulWidget {
 }
 
 class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _selectedAge;
   String? _selectedGender;
   String _heightUnit = 'cm';
@@ -18,13 +18,13 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
   String? _weight;
   String? _selectedActivity;
 
-  final List<String> ageOptions = [
+  final List<String> ageOptions = <String>[
     '16-18', '19-25', '26-35', '36-45', '46-55', '56-65', '65+',
   ];
-  final List<String> genderOptions = [
+  final List<String> genderOptions = <String>[
     'Male', 'Female', 'Other', 'Prefer not to say',
   ];
-  final List<String> activityOptions = [
+  final List<String> activityOptions = <String>[
     'Sedentary', 'Lightly active', 'Moderately active', 'Very active',
   ];
 
@@ -37,12 +37,12 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: <Widget>[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Row(
-                    children: [
+                    children: <Widget>[
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
                         color: const Color(0xFF121714),
@@ -71,10 +71,10 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
                       value: _selectedAge,
                       decoration: _inputDecoration('Age'),
                       items: ageOptions
-                          .map((age) => DropdownMenuItem(value: age, child: Text(age)))
+                          .map((String age) => DropdownMenuItem(value: age, child: Text(age)))
                           .toList(),
-                      onChanged: (val) => setState(() => _selectedAge = val),
-                      validator: (val) => val == null ? 'Required' : null,
+                      onChanged: (String? val) => setState(() => _selectedAge = val),
+                      validator: (String? val) => val == null ? 'Required' : null,
                     ),
                   ),
                   Padding(
@@ -83,17 +83,17 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
                       value: _selectedGender,
                       decoration: _inputDecoration('Gender'),
                       items: genderOptions
-                          .map((gender) => DropdownMenuItem(value: gender, child: Text(gender)))
+                          .map((String gender) => DropdownMenuItem(value: gender, child: Text(gender)))
                           .toList(),
-                      onChanged: (val) => setState(() => _selectedGender = val),
-                      validator: (val) => val == null ? 'Required' : null,
+                      onChanged: (String? val) => setState(() => _selectedGender = val),
+                      validator: (String? val) => val == null ? 'Required' : null,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
-                      children: [
-                        _unitToggle('cm', 'ft-in', _heightUnit, (val) => setState(() => _heightUnit = val)),
+                      children: <Widget>[
+                        _unitToggle('cm', 'ft-in', _heightUnit, (String val) => setState(() => _heightUnit = val)),
                       ],
                     ),
                   ),
@@ -102,15 +102,15 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
                     child: TextFormField(
                       decoration: _inputDecoration('Height'),
                       keyboardType: TextInputType.number,
-                      onChanged: (val) => _height = val,
-                      validator: (val) => (val == null || val.isEmpty) ? 'Required' : null,
+                      onChanged: (String val) => _height = val,
+                      validator: (String? val) => (val == null || val.isEmpty) ? 'Required' : null,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
-                      children: [
-                        _unitToggle('kg', 'lbs', _weightUnit, (val) => setState(() => _weightUnit = val)),
+                      children: <Widget>[
+                        _unitToggle('kg', 'lbs', _weightUnit, (String val) => setState(() => _weightUnit = val)),
                       ],
                     ),
                   ),
@@ -119,8 +119,8 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
                     child: TextFormField(
                       decoration: _inputDecoration('Weight'),
                       keyboardType: TextInputType.number,
-                      onChanged: (val) => _weight = val,
-                      validator: (val) => (val == null || val.isEmpty) ? 'Required' : null,
+                      onChanged: (String val) => _weight = val,
+                      validator: (String? val) => (val == null || val.isEmpty) ? 'Required' : null,
                     ),
                   ),
                   Padding(
@@ -129,10 +129,10 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
                       value: _selectedActivity,
                       decoration: _inputDecoration('Activity level'),
                       items: activityOptions
-                          .map((activity) => DropdownMenuItem(value: activity, child: Text(activity)))
+                          .map((String activity) => DropdownMenuItem(value: activity, child: Text(activity)))
                           .toList(),
-                      onChanged: (val) => setState(() => _selectedActivity = val),
-                      validator: (val) => val == null ? 'Required' : null,
+                      onChanged: (String? val) => setState(() => _selectedActivity = val),
+                      validator: (String? val) => val == null ? 'Required' : null,
                     ),
                   ),
                 ],
@@ -147,7 +147,7 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
                       if (_formKey.currentState?.validate() ?? false) {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ProfileHealthGoalsScreen()),
+                          MaterialPageRoute(builder: (BuildContext context) => const ProfileHealthGoalsScreen()),
                         );
                       }
                     },
@@ -202,7 +202,7 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           _toggleButton(left, groupValue == left, () => onChanged(left)),
           _toggleButton(right, groupValue == right, () => onChanged(right)),
         ],
@@ -220,8 +220,8 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
           color: selected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           boxShadow: selected
-              ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
-              : [],
+              ? <BoxShadow>[BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
+              : <BoxShadow>[],
         ),
         alignment: Alignment.center,
         child: Text(

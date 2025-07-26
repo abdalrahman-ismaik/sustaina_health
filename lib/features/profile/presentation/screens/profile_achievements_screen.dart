@@ -5,15 +5,15 @@ class ProfileAchievementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
-    final cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final accentColor = isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
-    final tileBg = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
+    final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
+    final Color borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final Color accentColor = isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
+    final Color tileBg = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
 
-    final categories = [
+    final List<_AchievementCategory> categories = <_AchievementCategory>[
       _AchievementCategory(
         icon: Icons.fitness_center,
         label: 'Exercise Milestones',
@@ -32,7 +32,7 @@ class ProfileAchievementsScreen extends StatelessWidget {
       ),
     ];
 
-    final badgeImages = [
+    final List<String> badgeImages = <String>[
       'https://lh3.googleusercontent.com/aida-public/AB6AXuBuS0i2VJHDvs_o-rC3_gYfhIb66_V9gHcqr_Db_IkZ51wHiUCwFio4HDxGt6cGyq-DxBD_bbXRoedMzTgNhVh0D5Q940MtUwiYmKZY3RIKwZt1IG4fJ1S-Kehs0Kh7WQ0cEOr1-Ovum6G4YOiGRnT1Ii7sV2K6qCqjWVgnP_Nkp4_oDSFxLYRMes9UQFvL79TGP2CrQfS-Nk8xNSVtFc0RX_06my4LJD5vmZ5a5XXwZw-TQOAiOjju6F45Ypo224Lawa122XLePLK2',
       'https://lh3.googleusercontent.com/aida-public/AB6AXuDdhBiDWUGUDtCRLuuBgTi9qaqo8A_z15Z36h3nEnd_Jc6Hif2g2NOR402Ai3-ptxAESLkkrCHT2EnJni9V3DkaJL7m_8dnI3BwIeNyt06HYtP7xu1EA8U9EIkkEASnlX9GSSQPHKh8lkR1ws52vBWdVFzU9LvndR9W9u7MPk7L2ew7IXx9J4EuikriVXo78Uygfy_l_64TzoSIsTskEPItUW3SQjE_KAqAeNY2Cf9wJpe8KHcXaNUJNDl2walZzLTdPmfZ8sR8JJxI',
       'https://lh3.googleusercontent.com/aida-public/AB6AXuAD_Mx2_NO1B8i37VyXvhWN72dD47JwtwNmrw_xxZce4m7jGmFifvL3PkvN3N_QbUQdJ54hwUwTS4NI5WbkzY0iUDAhNFsmctwtJqYJla8obUXW5i44u3-AjsAw9YfEPPavdUMUQXjptIaGBA2V92SKHv36nOtFu3uGPAdqslOsNqEygHTth5lsymsXHsoKF3hJBNTFCulb2eYn5LOvM0Q30C6KueOJnxuTtTpH9DYiUnkCm0bEzovoeI2Pa8GrUOmFwU9xVm8aBw7L',
@@ -64,7 +64,7 @@ class ProfileAchievementsScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -101,7 +101,7 @@ class ProfileAchievementsScreen extends StatelessWidget {
                   childAspectRatio: 1,
                 ),
                 itemCount: badgeImages.length,
-                itemBuilder: (context, i) => GestureDetector(
+                itemBuilder: (BuildContext context, int i) => GestureDetector(
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -144,10 +144,10 @@ class _AchievementCategory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
+    final Color borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
     return Container(
       decoration: BoxDecoration(
         color: cardColor,
@@ -156,7 +156,7 @@ class _AchievementCategory extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
-        children: [
+        children: <Widget>[
           Icon(icon, color: textColor),
           const SizedBox(width: 12),
           Expanded(
@@ -174,11 +174,11 @@ class _ProfileBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return BottomNavigationBar(
       backgroundColor: isDark ? const Color(0xFF1e2f25) : const Color(0xFFF8FBFA),
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -200,7 +200,7 @@ class _ProfileBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c),
       unselectedItemColor: isDark ? Colors.white : const Color(0xFF51946c),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

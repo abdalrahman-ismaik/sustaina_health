@@ -9,14 +9,14 @@ class ProfileHealthGoalsScreen extends StatefulWidget {
 }
 
 class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
-  final List<String> allGoals = [
+  final List<String> allGoals = <String>[
     'Weight management',
     'Fitness improvement',
     'Better sleep quality',
     'Stress reduction',
     'Sustainable living',
   ];
-  final List<String> selectedGoals = [];
+  final List<String> selectedGoals = <String>[];
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +25,14 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          children: <Widget>[
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Row(
-                      children: [
+                      children: <Widget>[
                         IconButton(
                           icon: const Icon(Icons.arrow_back),
                           color: const Color(0xFF121714),
@@ -80,10 +80,10 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Column(
-                        children: allGoals.map((goal) {
+                        children: allGoals.map((String goal) {
                           return CheckboxListTile(
                             value: selectedGoals.contains(goal),
-                            onChanged: (checked) {
+                            onChanged: (bool? checked) {
                               setState(() {
                                 if (checked == true) {
                                   selectedGoals.add(goal);
@@ -109,7 +109,7 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                         }).toList(),
                       ),
                     ),
-                    if (selectedGoals.isNotEmpty) ...[
+                    if (selectedGoals.isNotEmpty) ...<Widget>[
                       const Padding(
                         padding: EdgeInsets.fromLTRB(16, 24, 16, 0),
                         child: Text(
@@ -137,15 +137,15 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                         child: ReorderableListView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          onReorder: (oldIndex, newIndex) {
+                          onReorder: (int oldIndex, int newIndex) {
                             setState(() {
                               if (newIndex > oldIndex) newIndex--;
-                              final item = selectedGoals.removeAt(oldIndex);
+                              final String item = selectedGoals.removeAt(oldIndex);
                               selectedGoals.insert(newIndex, item);
                             });
                           },
-                          children: [
-                            for (final goal in selectedGoals)
+                          children: <Widget>[
+                            for (final String goal in selectedGoals)
                               ListTile(
                                 key: ValueKey(goal),
                                 title: Text(
@@ -174,7 +174,7 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                   onPressed: selectedGoals.isNotEmpty ? () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const ProfileSustainabilityScreen()),
+                      MaterialPageRoute(builder: (BuildContext context) => const ProfileSustainabilityScreen()),
                     );
                   } : null,
                   style: ElevatedButton.styleFrom(

@@ -10,11 +10,11 @@ class OnboardingAIScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          children: <Widget>[
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
-                  children: [
+                  children: <Widget>[
                     const SizedBox(height: 0),
                     // Background image
                     Padding(
@@ -85,7 +85,7 @@ class OnboardingAIScreen extends StatelessWidget {
             ),
             // Get Started button
             Column(
-              children: [
+              children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
                   child: SizedBox(
@@ -135,7 +135,7 @@ class _FeatureCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Container(
             width: 48,
             height: 48,
@@ -149,7 +149,7 @@ class _FeatureCard extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   title,
                   style: const TextStyle(

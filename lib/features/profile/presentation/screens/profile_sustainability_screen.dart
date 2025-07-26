@@ -8,13 +8,13 @@ class ProfileSustainabilityScreen extends StatefulWidget {
 }
 
 class _ProfileSustainabilityScreenState extends State<ProfileSustainabilityScreen> {
-  final List<String> concerns = [
+  final List<String> concerns = <String>[
     'Carbon footprint reduction',
     'Sustainable food choices',
     'Eco-friendly transportation',
     'Waste reduction',
   ];
-  final Set<String> selectedConcerns = {};
+  final Set<String> selectedConcerns = <String>{};
   double commitmentLevel = 5;
 
   @override
@@ -24,14 +24,14 @@ class _ProfileSustainabilityScreenState extends State<ProfileSustainabilityScree
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          children: <Widget>[
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Row(
-                      children: [
+                      children: <Widget>[
                         IconButton(
                           icon: const Icon(Icons.arrow_back),
                           color: const Color(0xFF121714),
@@ -57,10 +57,10 @@ class _ProfileSustainabilityScreenState extends State<ProfileSustainabilityScree
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Column(
-                        children: concerns.map((concern) {
+                        children: concerns.map((String concern) {
                           return CheckboxListTile(
                             value: selectedConcerns.contains(concern),
-                            onChanged: (checked) {
+                            onChanged: (bool? checked) {
                               setState(() {
                                 if (checked == true) {
                                   selectedConcerns.add(concern);
@@ -100,7 +100,7 @@ class _ProfileSustainabilityScreenState extends State<ProfileSustainabilityScree
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Row(
-                        children: [
+                        children: <Widget>[
                           Expanded(
                             child: Slider(
                               value: commitmentLevel,
@@ -108,7 +108,7 @@ class _ProfileSustainabilityScreenState extends State<ProfileSustainabilityScree
                               max: 10,
                               divisions: 9,
                               label: commitmentLevel.round().toString(),
-                              onChanged: (value) {
+                              onChanged: (double value) {
                                 setState(() {
                                   commitmentLevel = value;
                                 });

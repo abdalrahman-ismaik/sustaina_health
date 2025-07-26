@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-final authStateProvider = StreamProvider<User?>((ref) {
+final StreamProvider<dynamic> authStateProvider = StreamProvider<User?>((StreamProviderRef<dynamic> ref) {
   return FirebaseAuth.instance.authStateChanges();
 });
 
-final authProvider = Provider<FirebaseAuth>((ref) {
+final Provider<dynamic> authProvider = Provider<FirebaseAuth>((ProviderRef<dynamic> ref) {
   return FirebaseAuth.instance;
 }); 

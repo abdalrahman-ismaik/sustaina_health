@@ -30,7 +30,7 @@ class SleepAnalysisScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               const Text(
                 'Weekly Trends',
                 style: TextStyle(
@@ -54,7 +54,7 @@ class SleepAnalysisScreen extends StatelessWidget {
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: const <Widget>[
                   _SummaryStat(title: 'Total Hours', value: '52h'),
                   _SummaryStat(title: 'Avg. Quality', value: '8.2/10'),
                   _SummaryStat(title: 'Best Night', value: '9h'),
@@ -146,7 +146,7 @@ class _SummaryStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
+      children: <Widget>[
         Text(title, style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
         const SizedBox(height: 4),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
@@ -161,7 +161,7 @@ class _SleepStageBreakdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
+      children: const <Widget>[
         _SleepStageRow(stage: 'Light Sleep', value: '24h'),
         _SleepStageRow(stage: 'Deep Sleep', value: '12h'),
         _SleepStageRow(stage: 'REM', value: '10h'),
@@ -182,7 +182,7 @@ class _SleepStageRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+        children: <Widget>[
           Text(stage, style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
           Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)),
         ],
@@ -200,7 +200,7 @@ class _SleepBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       backgroundColor: const Color(0xFF1e2f25),
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -222,7 +222,7 @@ class _SleepBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.white,
       unselectedItemColor: const Color(0xFF9bbfaa),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

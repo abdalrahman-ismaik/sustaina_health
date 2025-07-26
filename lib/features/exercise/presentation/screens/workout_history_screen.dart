@@ -9,23 +9,23 @@ class WorkoutHistoryScreen extends StatefulWidget {
 
 class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   String _selectedTab = 'Month';
-  final List<Map<String, dynamic>> _workoutEntries = [
-    {
+  final List<Map<String, dynamic>> _workoutEntries = <Map<String, dynamic>>[
+    <String, dynamic>{
       'date': 'July 29, 2024',
       'duration': '30 min',
       'ecoScore': 95,
     },
-    {
+    <String, dynamic>{
       'date': 'July 28, 2024',
       'duration': '45 min',
       'ecoScore': 88,
     },
-    {
+    <String, dynamic>{
       'date': 'July 27, 2024',
       'duration': '60 min',
       'ecoScore': 92,
     },
-    {
+    <String, dynamic>{
       'date': 'July 26, 2024',
       'duration': '40 min',
       'ecoScore': 90,
@@ -38,12 +38,12 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
-          children: [
+          children: <Widget>[
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: Color(0xFF121714)),
                     onPressed: () => Navigator.of(context).pop(),
@@ -70,7 +70,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                children: [
+                children: <Widget>[
                   _TabButton(
                     label: 'Month',
                     selected: _selectedTab == 'Month',
@@ -93,10 +93,10 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
-                    children: [
+                    children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                        children: <Widget>[
                           IconButton(
                             icon: const Icon(Icons.chevron_left, color: Color(0xFF121714)),
                             onPressed: () {},
@@ -140,7 +140,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
               child: Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: const [
+                children: const <Widget>[
                   _StatCard(title: 'Workouts Completed', value: '25'),
                   _StatCard(title: 'Favorite Workout', value: 'Yoga'),
                   _StatCard(title: 'Avg. Duration', value: '45 min'),
@@ -161,7 +161,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                 ),
               ),
             ),
-            ..._workoutEntries.map((entry) => Padding(
+            ..._workoutEntries.map((Map<String, dynamic> entry) => Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Card(
                     color: Colors.white,
@@ -201,14 +201,14 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF121714),
         unselectedItemColor: const Color(0xFF688273),
-        items: const [
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Exercise'),
           BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: 'Nutrition'),
           BottomNavigationBarItem(icon: Icon(Icons.nightlight_round), label: 'Sleep'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        onTap: (index) {
+        onTap: (int index) {
           // TODO: Implement navigation
         },
       ),
@@ -256,12 +256,12 @@ class _CalendarGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Mocked calendar grid for July 2024
-    final days = List.generate(31, (i) => i + 1);
+    final List<int> days = List.generate(31, (int i) => i + 1);
     return Column(
-      children: [
+      children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
+          children: const <Widget>[
             _CalendarDayLabel('S'),
             _CalendarDayLabel('M'),
             _CalendarDayLabel('T'),
@@ -275,8 +275,8 @@ class _CalendarGrid extends StatelessWidget {
         Wrap(
           spacing: 0,
           runSpacing: 0,
-          children: days.map((day) {
-            final isToday = day == 5; // Highlight 5th as example
+          children: days.map((int day) {
+            final bool isToday = day == 5; // Highlight 5th as example
             return Container(
               width: 40,
               height: 40,
@@ -342,7 +342,7 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(title, style: const TextStyle(color: Color(0xFF121714), fontSize: 16, fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
           Text(value, style: const TextStyle(color: Color(0xFF121714), fontSize: 22, fontWeight: FontWeight.bold)),

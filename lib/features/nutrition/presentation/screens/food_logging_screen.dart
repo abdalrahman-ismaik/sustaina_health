@@ -9,7 +9,7 @@ class FoodLoggingScreen extends StatefulWidget {
 
 class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
   String inputMethod = 'Manual';
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String foodName = '';
   String servingSize = '';
   String nutritionInfo = '';
@@ -54,7 +54,7 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               // Input Methods
               const Text(
                 'Add Food Using:',
@@ -67,7 +67,7 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   _InputMethodButton(
                     label: 'Camera',
                     icon: Icons.camera_alt,
@@ -115,7 +115,7 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     const Text(
                       'Food Details',
                       style: TextStyle(
@@ -130,12 +130,12 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                         labelText: 'Food Name',
                         border: OutlineInputBorder(),
                       ),
-                      onChanged: (val) => foodName = val,
-                      validator: (val) => val == null || val.isEmpty ? 'Enter food name' : null,
+                      onChanged: (String val) => foodName = val,
+                      validator: (String? val) => val == null || val.isEmpty ? 'Enter food name' : null,
                     ),
                     const SizedBox(height: 12),
                     Row(
-                      children: [
+                      children: <Widget>[
                         Container(
                           width: 64,
                           height: 64,
@@ -152,8 +152,8 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                               labelText: 'Serving Size',
                               border: OutlineInputBorder(),
                             ),
-                            onChanged: (val) => servingSize = val,
-                            validator: (val) => val == null || val.isEmpty ? 'Enter serving size' : null,
+                            onChanged: (String val) => servingSize = val,
+                            validator: (String? val) => val == null || val.isEmpty ? 'Enter serving size' : null,
                           ),
                         ),
                       ],
@@ -164,7 +164,7 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                         labelText: 'Nutrition Info (C/P/F)',
                         border: OutlineInputBorder(),
                       ),
-                      onChanged: (val) => nutritionInfo = val,
+                      onChanged: (String val) => nutritionInfo = val,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -172,7 +172,7 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                         labelText: 'Sustainability Score',
                         border: OutlineInputBorder(),
                       ),
-                      onChanged: (val) => sustainabilityScore = val,
+                      onChanged: (String val) => sustainabilityScore = val,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -180,7 +180,7 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                         labelText: 'Notes',
                         border: OutlineInputBorder(),
                       ),
-                      onChanged: (val) => notes = val,
+                      onChanged: (String val) => notes = val,
                       maxLines: 2,
                     ),
                   ],
@@ -247,7 +247,7 @@ class _InputMethodButton extends StatelessWidget {
           ),
         ),
         child: Column(
-          children: [
+          children: <Widget>[
             Icon(icon, color: selected ? const Color(0xFF121714) : const Color(0xFF688273)),
             const SizedBox(height: 4),
             Text(
@@ -273,7 +273,7 @@ class _NutritionBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -295,7 +295,7 @@ class _NutritionBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF121714),
       unselectedItemColor: const Color(0xFF688273),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

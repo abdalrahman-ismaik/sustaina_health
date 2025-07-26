@@ -5,13 +5,13 @@ class ProfileSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
-    final cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final accentColor = isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
-    final tileBg = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
+    final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
+    final Color borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final Color accentColor = isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
+    final Color tileBg = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -36,7 +36,7 @@ class ProfileSettingsScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             const SizedBox(height: 8),
             _SectionHeader(title: 'Account'),
             _SettingsTile(
@@ -88,7 +88,7 @@ class ProfileSettingsScreen extends StatelessWidget {
               subtitle: 'Customize your notification settings',
               trailing: Switch(
                 value: true,
-                onChanged: (val) {},
+                onChanged: (bool val) {},
                 activeColor: accentColor,
                 inactiveTrackColor: tileBg,
               ),
@@ -127,8 +127,8 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
       child: Text(
@@ -153,10 +153,10 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
-    final textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final subtitleColor = isDark ? const Color(0xFF9bbfaa) : const Color(0xFF51946c);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final Color subtitleColor = isDark ? const Color(0xFF9bbfaa) : const Color(0xFF51946c);
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -167,23 +167,23 @@ class _SettingsTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
-          children: [
+          children: <Widget>[
             Icon(icon, color: textColor),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(title, style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
                   Text(subtitle, style: TextStyle(color: subtitleColor, fontSize: 14)),
                 ],
               ),
             ),
-            if (trailing != null) ...[
+            if (trailing != null) ...<Widget>[
               const SizedBox(width: 8),
               trailing!,
-            ] else ...[
+            ] else ...<Widget>[
               const Icon(Icons.arrow_forward_ios, size: 18),
             ],
           ],
@@ -199,11 +199,11 @@ class _ProfileBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return BottomNavigationBar(
       backgroundColor: isDark ? const Color(0xFF1e2f25) : const Color(0xFFF8FBFA),
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -225,7 +225,7 @@ class _ProfileBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c),
       unselectedItemColor: isDark ? Colors.white : const Color(0xFF51946c),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

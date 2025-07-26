@@ -30,7 +30,7 @@ class NutritionInsightsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               // Weekly Trends
               const Text(
                 'Weekly Trends',
@@ -85,7 +85,7 @@ class NutritionInsightsScreen extends StatelessWidget {
               _GoalProgress(title: 'Sustainability', progress: 0.85, color: Color(0xFFdde4e0)),
               const SizedBox(height: 16),
               Row(
-                children: [
+                children: <Widget>[
                   _AchievementBadge(label: '7-Day Streak'),
                   const SizedBox(width: 12),
                   _AchievementBadge(label: 'Eco Hero'),
@@ -116,7 +116,7 @@ class _MockChart extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Text(
             title,
             style: const TextStyle(
@@ -156,7 +156,7 @@ class _AISuggestionCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             title,
             style: const TextStyle(
@@ -191,7 +191,7 @@ class _GoalProgress extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             title,
             style: const TextStyle(
@@ -246,7 +246,7 @@ class _NutritionBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -268,7 +268,7 @@ class _NutritionBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF121714),
       unselectedItemColor: const Color(0xFF688273),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

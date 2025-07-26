@@ -1,3 +1,3 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final bottomNavIndexProvider = StateProvider<int>((ref) => 0); 
+final StateProvider<int> bottomNavIndexProvider = StateProvider<int>((StateProviderRef<int> ref) => 0); 

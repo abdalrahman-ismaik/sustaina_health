@@ -28,16 +28,16 @@ class NutritionHomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Daily Overview
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                    children: <Widget>[
                       _OverviewCard(
                         title: 'Calories',
                         value: '1,350/2,000 kcal',
@@ -55,7 +55,7 @@ class NutritionHomeScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                    children: <Widget>[
                       _OverviewCard(
                         title: 'Water',
                         value: '1.5L',
@@ -78,7 +78,7 @@ class NutritionHomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   _MealSection(meal: 'Breakfast'),
                   _MealSection(meal: 'Lunch'),
                   _MealSection(meal: 'Dinner'),
@@ -92,7 +92,7 @@ class NutritionHomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   const Text(
                     'AI Suggestions',
                     style: TextStyle(
@@ -153,7 +153,7 @@ class _OverviewCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Icon(icon, color: color, size: 28),
             const SizedBox(height: 8),
             Text(
@@ -190,7 +190,7 @@ class _MealSection extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+        children: <Widget>[
           Text(
             meal,
             style: const TextStyle(
@@ -248,7 +248,7 @@ class _AISuggestionCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
               title,
               style: const TextStyle(
@@ -280,7 +280,7 @@ class _NutritionBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -302,7 +302,7 @@ class _NutritionBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF121714),
       unselectedItemColor: const Color(0xFF688273),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

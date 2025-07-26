@@ -5,13 +5,13 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
-    final cardColor = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
-    final textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final accentColor = isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
-    final barBg = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final barFg = isDark ? const Color(0xFF94e0b2) : const Color(0xFF38e07b);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
+    final Color cardColor = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final Color accentColor = isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
+    final Color barBg = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
+    final Color barFg = isDark ? const Color(0xFF94e0b2) : const Color(0xFF38e07b);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -36,7 +36,7 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             const SizedBox(height: 8),
             // Impact Metrics
             Padding(
@@ -44,7 +44,7 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
               child: Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: const [
+                children: const <Widget>[
                   _ImpactMetricCard(title: 'Carbon Footprint Saved', value: '250 kg'),
                   _ImpactMetricCard(title: 'Eco-Friendly Meals', value: '150'),
                   _ImpactMetricCard(title: 'Sustainable Workouts', value: '75'),
@@ -103,9 +103,9 @@ class _ImpactMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
-    final textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color cardColor = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
+    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
     return Container(
       width: 170,
       padding: const EdgeInsets.all(18),
@@ -115,7 +115,7 @@ class _ImpactMetricCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(title, style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w500)),
           const SizedBox(height: 6),
           Text(value, style: TextStyle(color: textColor, fontSize: 22, fontWeight: FontWeight.bold)),
@@ -138,17 +138,17 @@ class _EcoScoreBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
       child: Column(
-        children: [
+        children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: <Widget>[
               Text(label, style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w500)),
               Text('$value/100', style: TextStyle(color: textColor, fontSize: 14)),
             ],
           ),
           const SizedBox(height: 4),
           Stack(
-            children: [
+            children: <Widget>[
               Container(
                 height: 8,
                 decoration: BoxDecoration(
@@ -189,7 +189,7 @@ class _RecommendationTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Icon(icon, color: textColor),
           const SizedBox(width: 16),
           Expanded(
@@ -207,11 +207,11 @@ class _ProfileBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return BottomNavigationBar(
       backgroundColor: isDark ? const Color(0xFF1e2f25) : const Color(0xFFF8FBFA),
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -233,7 +233,7 @@ class _ProfileBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c),
       unselectedItemColor: isDark ? Colors.white : const Color(0xFF51946c),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

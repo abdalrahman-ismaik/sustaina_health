@@ -28,7 +28,7 @@ class SleepHomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -45,7 +45,7 @@ class SleepHomeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
-                children: const [
+                children: const <Widget>[
                   _SleepStatCard(title: 'Sleep Score', value: '85'),
                 ],
               ),
@@ -55,7 +55,7 @@ class SleepHomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: const <Widget>[
                   Text('Duration', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
                   Text('7h 30m (Target: 8h)', style: TextStyle(color: Colors.white, fontSize: 14)),
                 ],
@@ -71,7 +71,7 @@ class SleepHomeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
-                children: const [
+                children: const <Widget>[
                   _SleepStatCard(title: 'Sustainability Score', value: '92', border: true),
                 ],
               ),
@@ -138,7 +138,7 @@ class _SleepStatCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
             const SizedBox(height: 4),
             Text(value, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
@@ -156,12 +156,12 @@ class _SleepPatternSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         const Text('Sleep Pattern', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
         const SizedBox(height: 4),
         const Text('7h 30m', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
         Row(
-          children: const [
+          children: const <Widget>[
             Text('Last Night', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
             SizedBox(width: 8),
             Text('-6%', style: TextStyle(color: Color(0xFFfa5538), fontSize: 14, fontWeight: FontWeight.w600)),
@@ -183,7 +183,7 @@ class _SleepPatternSection extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const [
+          children: const <Widget>[
             Text('10PM', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 13, fontWeight: FontWeight.bold)),
             Text('12AM', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 13, fontWeight: FontWeight.bold)),
             Text('2AM', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 13, fontWeight: FontWeight.bold)),
@@ -202,7 +202,7 @@ class _SleepStagesBreakdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
+      children: const <Widget>[
         _SleepStageRow(stage: 'Light Sleep', value: '4h 15m'),
         _SleepStageRow(stage: 'Deep Sleep', value: '1h 45m'),
         _SleepStageRow(stage: 'REM', value: '1h 30m'),
@@ -223,7 +223,7 @@ class _SleepStageRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+        children: <Widget>[
           Text(stage, style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
           Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)),
         ],
@@ -238,7 +238,7 @@ class _QuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
+      children: <Widget>[
         _QuickActionButton(
           label: 'Log Sleep Manually',
           onTap: () {
@@ -302,7 +302,7 @@ class _SleepBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       backgroundColor: const Color(0xFF1e2f25),
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -324,7 +324,7 @@ class _SleepBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.white,
       unselectedItemColor: const Color(0xFF9bbfaa),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

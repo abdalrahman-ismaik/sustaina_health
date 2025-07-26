@@ -11,12 +11,12 @@ class PasswordRecoveryScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          children: <Widget>[
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Row(
-                  children: [
+                  children: <Widget>[
                     IconButton(
                       icon: const Icon(Icons.arrow_back),
                       color: const Color(0xFF111714),
@@ -79,7 +79,7 @@ class PasswordRecoveryScreen extends StatelessWidget {
               ],
             ),
             Column(
-              children: [
+              children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: SizedBox(

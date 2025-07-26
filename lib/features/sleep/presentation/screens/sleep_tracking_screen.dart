@@ -46,7 +46,7 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               const Text(
                 'How did you sleep?',
                 style: TextStyle(
@@ -62,7 +62,7 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                 subtitle: 'Track your sleep automatically',
                 trailing: Switch(
                   value: autoTracking,
-                  onChanged: (val) => setState(() => autoTracking = val),
+                  onChanged: (bool val) => setState(() => autoTracking = val),
                   activeColor: const Color(0xFF94e0b2),
                   inactiveTrackColor: const Color(0xFF2a4133),
                 ),
@@ -86,7 +86,7 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   const Text('Sleep Quality (1-10)', style: TextStyle(color: Colors.white)),
                   Text(sleepQuality.round().toString(), style: const TextStyle(color: Colors.white)),
                 ],
@@ -99,7 +99,7 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                 label: sleepQuality.round().toString(),
                 activeColor: const Color(0xFF94e0b2),
                 inactiveColor: const Color(0xFF3c5d49),
-                onChanged: (val) => setState(() => sleepQuality = val),
+                onChanged: (double val) => setState(() => sleepQuality = val),
               ),
               const SizedBox(height: 20),
               const Text(
@@ -113,8 +113,8 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
-                children: [
-                  for (final m in ['Great', 'Good', 'Okay', 'Not Great', 'Poor'])
+                children: <Widget>[
+                  for (final String m in <String>['Great', 'Good', 'Okay', 'Not Great', 'Poor'])
                     ChoiceChip(
                       label: Text(m),
                       selected: mood == m,
@@ -147,7 +147,7 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                   label: roomTemp.round().toString(),
                   activeColor: const Color(0xFF94e0b2),
                   inactiveColor: const Color(0xFF3c5d49),
-                  onChanged: (val) => setState(() => roomTemp = val),
+                  onChanged: (double val) => setState(() => roomTemp = val),
                 ),
               ),
               _EnvFactorTile(
@@ -158,10 +158,10 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                   value: noise,
                   dropdownColor: const Color(0xFF2a4133),
                   style: const TextStyle(color: Colors.white),
-                  items: ['Low', 'Medium', 'High']
-                      .map((n) => DropdownMenuItem(value: n, child: Text(n)))
+                  items: <String>['Low', 'Medium', 'High']
+                      .map((String n) => DropdownMenuItem(value: n, child: Text(n)))
                       .toList(),
-                  onChanged: (val) => setState(() => noise = val ?? 'Low'),
+                  onChanged: (String? val) => setState(() => noise = val ?? 'Low'),
                 ),
               ),
               _EnvFactorTile(
@@ -172,10 +172,10 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                   value: light,
                   dropdownColor: const Color(0xFF2a4133),
                   style: const TextStyle(color: Colors.white),
-                  items: ['Dark', 'Dim', 'Bright']
-                      .map((l) => DropdownMenuItem(value: l, child: Text(l)))
+                  items: <String>['Dark', 'Dim', 'Bright']
+                      .map((String l) => DropdownMenuItem(value: l, child: Text(l)))
                       .toList(),
-                  onChanged: (val) => setState(() => light = val ?? 'Dark'),
+                  onChanged: (String? val) => setState(() => light = val ?? 'Dark'),
                 ),
               ),
               _EnvFactorTile(
@@ -190,7 +190,7 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                   label: screenTime.round().toString(),
                   activeColor: const Color(0xFF94e0b2),
                   inactiveColor: const Color(0xFF3c5d49),
-                  onChanged: (val) => setState(() => screenTime = val),
+                  onChanged: (double val) => setState(() => screenTime = val),
                 ),
               ),
               const SizedBox(height: 20),
@@ -207,19 +207,19 @@ class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
                 icon: Icons.wb_sunny,
                 title: 'Natural Light Exposure',
                 value: naturalLight,
-                onChanged: (val) => setState(() => naturalLight = val ?? false),
+                onChanged: (bool? val) => setState(() => naturalLight = val ?? false),
               ),
               _SustainabilityTile(
                 icon: Icons.eco,
                 title: 'Eco-Friendly Sleep Environment',
                 value: ecoFriendly,
-                onChanged: (val) => setState(() => ecoFriendly = val ?? false),
+                onChanged: (bool? val) => setState(() => ecoFriendly = val ?? false),
               ),
               _SustainabilityTile(
                 icon: Icons.lightbulb,
                 title: 'Energy-Efficient Practices',
                 value: energyEfficient,
-                onChanged: (val) => setState(() => energyEfficient = val ?? false),
+                onChanged: (bool? val) => setState(() => energyEfficient = val ?? false),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -296,7 +296,7 @@ class _EnvFactorTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         ListTile(
           leading: Container(
             decoration: BoxDecoration(
@@ -359,7 +359,7 @@ class _SleepBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       backgroundColor: const Color(0xFF1e2f25),
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -381,7 +381,7 @@ class _SleepBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.white,
       unselectedItemColor: const Color(0xFF9bbfaa),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

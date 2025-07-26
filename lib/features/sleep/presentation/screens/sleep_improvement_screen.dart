@@ -12,10 +12,10 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
   bool _reminderEnabled = false;
 
   void _pickTime() async {
-    final picked = await showTimePicker(
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _bedtime,
-      builder: (context, child) => Theme(
+      builder: (BuildContext context, Widget? child) => Theme(
         data: ThemeData.dark().copyWith(
           colorScheme: const ColorScheme.dark(
             primary: Color(0xFF94e0b2),
@@ -58,7 +58,7 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               const Text(
                 'Personalized Tips',
                 style: TextStyle(
@@ -68,7 +68,7 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              ...[
+              ...<Widget>[
                 _TipTile(
                   icon: Icons.bedtime,
                   text: 'Stick to a consistent sleep schedule.',
@@ -97,10 +97,10 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
               ),
               const SizedBox(height: 12),
               Row(
-                children: [
+                children: <Widget>[
                   Switch(
                     value: _reminderEnabled,
-                    onChanged: (val) => setState(() => _reminderEnabled = val),
+                    onChanged: (bool val) => setState(() => _reminderEnabled = val),
                     activeColor: const Color(0xFF94e0b2),
                     inactiveTrackColor: const Color(0xFF2a4133),
                   ),
@@ -108,10 +108,10 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                   const Text('Enable Reminder', style: TextStyle(color: Colors.white, fontSize: 16)),
                 ],
               ),
-              if (_reminderEnabled) ...[
+              if (_reminderEnabled) ...<Widget>[
                 const SizedBox(height: 12),
                 Row(
-                  children: [
+                  children: <Widget>[
                     const Icon(Icons.access_time, color: Color(0xFF94e0b2)),
                     const SizedBox(width: 8),
                     Text(
@@ -141,7 +141,7 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              ...[
+              ...<Widget>[
                 _TipTile(
                   icon: Icons.eco,
                   text: 'Use organic or bamboo bedding.',
@@ -204,7 +204,7 @@ class _TipTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
-        children: [
+        children: <Widget>[
           Icon(icon, color: const Color(0xFF94e0b2)),
           const SizedBox(width: 12),
           Expanded(
@@ -228,7 +228,7 @@ class _SleepBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       backgroundColor: const Color(0xFF1e2f25),
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -250,7 +250,7 @@ class _SleepBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.white,
       unselectedItemColor: const Color(0xFF9bbfaa),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

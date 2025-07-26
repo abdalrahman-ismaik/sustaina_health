@@ -45,7 +45,7 @@ class _CameraView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
+      children: <Widget>[
         Container(
           margin: const EdgeInsets.all(24),
           height: 220,
@@ -59,7 +59,7 @@ class _CameraView extends StatelessWidget {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             ElevatedButton.icon(
               onPressed: onCapture,
               icon: const Icon(Icons.camera, color: Color(0xFF121714)),
@@ -99,7 +99,7 @@ class _RecognitionResult extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Container(
               height: 120,
               width: double.infinity,
@@ -128,7 +128,7 @@ class _RecognitionResult extends StatelessWidget {
             _ResultRow(label: 'Sustainability', value: 'High'),
             const SizedBox(height: 16),
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: ElevatedButton(
                     onPressed: onEdit,
@@ -172,7 +172,7 @@ class _ResultRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+        children: <Widget>[
           Text(
             label,
             style: const TextStyle(
@@ -202,7 +202,7 @@ class _NutritionBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
-      onTap: (index) {
+      onTap: (int index) {
         switch (index) {
           case 0:
             Navigator.of(context).pushNamed('/home');
@@ -224,7 +224,7 @@ class _NutritionBottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF121714),
       unselectedItemColor: const Color(0xFF688273),
-      items: const [
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',

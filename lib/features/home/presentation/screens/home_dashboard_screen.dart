@@ -9,13 +9,13 @@ class HomeDashboardScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
-          children: [
+          children: <Widget>[
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   CircleAvatar(
                     backgroundImage: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBbMPNPoDJYRmGhiSiLcBUy7iaIrueGkMwr1g-E_TMeDL2ZglWXus-L-IStzb_2xPNyGSAxIdzKXWPDheMkf2uUhXif-dHU_NNYr8BbeywOJKrcnOhZx_YjYC0ndS6x2Wipoje7o5A4EFW73AtlmwdDXpkU2n1B9QrIjcvkuJdgLQUlWwacXOF9FFSyveX3lDdJKl2cqAjofJgvIpiAfXb3Gm4YCM7uGisgQV4o7uWB9Z__tFg5CmrqCzZKeds7nD63GvPVeVaJWSqz'),
                     radius: 20,
@@ -60,7 +60,7 @@ class HomeDashboardScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.all(16),
@@ -70,7 +70,7 @@ class HomeDashboardScreen extends StatelessWidget {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: const <Widget>[
                           Text('Sustainability Score', style: TextStyle(color: Color(0xFF111714), fontSize: 16, fontWeight: FontWeight.w500)),
                           SizedBox(height: 8),
                           Text('85', style: TextStyle(color: Color(0xFF111714), fontSize: 28, fontWeight: FontWeight.bold)),
@@ -96,7 +96,7 @@ class HomeDashboardScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
-                children: [
+                children: <Widget>[
                   _StatCard(title: 'Steps', value: '7,234', change: '+15%'),
                   const SizedBox(width: 8),
                   _StatCard(title: 'Water', value: '2L', change: '+10%'),
@@ -150,7 +150,7 @@ class HomeDashboardScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   _QuickActionButton(label: 'Log Meal', icon: Icons.camera_alt, onTap: () {}),
                   _QuickActionButton(label: 'Start Workout', icon: Icons.fitness_center, onTap: () {}),
                 ],
@@ -160,7 +160,7 @@ class HomeDashboardScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   _QuickActionButton(label: 'Log Sleep', icon: Icons.nightlight_round, onTap: () {}),
                   _QuickActionButton(label: 'View Challenges', icon: Icons.emoji_events, onTap: () {}),
                 ],
@@ -201,14 +201,14 @@ class HomeDashboardScreen extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF111714),
         unselectedItemColor: const Color(0xFF648772),
-        items: const [
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Exercise'),
           BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: 'Nutrition'),
           BottomNavigationBarItem(icon: Icon(Icons.nightlight_round), label: 'Sleep'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        onTap: (index) {
+        onTap: (int index) {
           // TODO: Implement navigation
         },
       ),
@@ -233,7 +233,7 @@ class _StatCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(title, style: const TextStyle(color: Color(0xFF111714), fontSize: 16, fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             Text(value, style: const TextStyle(color: Color(0xFF111714), fontSize: 24, fontWeight: FontWeight.bold)),
@@ -272,7 +272,7 @@ class _InsightCard extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors: [
+              colors: <Color>[
                 Colors.black.withOpacity(0.4),
                 Colors.transparent,
               ],
@@ -280,7 +280,7 @@ class _InsightCard extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(title, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text(description, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
@@ -328,7 +328,7 @@ class _ActivityFeedItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
-        children: [
+        children: <Widget>[
           Container(
             decoration: BoxDecoration(
               color: const Color(0xFFF0F4F2),
@@ -341,7 +341,7 @@ class _ActivityFeedItem extends StatelessWidget {
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(title, style: const TextStyle(color: Color(0xFF111714), fontSize: 16, fontWeight: FontWeight.w500)),
               Text(subtitle, style: const TextStyle(color: Color(0xFF648772), fontSize: 14)),
             ],

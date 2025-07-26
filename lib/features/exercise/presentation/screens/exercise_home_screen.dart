@@ -10,13 +10,13 @@ class ExerciseHomeScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
-          children: [
+          children: <Widget>[
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   const Icon(Icons.list, color: Color(0xFF121714), size: 32),
                   const Expanded(
                     child: Padding(
@@ -41,11 +41,11 @@ class ExerciseHomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   const Text('Weekly Workout Completion', style: TextStyle(color: Color(0xFF121714), fontSize: 16, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   Stack(
-                    children: [
+                    children: <Widget>[
                       Container(
                         height: 8,
                         decoration: BoxDecoration(
@@ -73,12 +73,12 @@ class ExerciseHomeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const WorkoutHistoryScreen()),
+                        MaterialPageRoute(builder: (BuildContext context) => const WorkoutHistoryScreen()),
                       );
                     },
                     child: _StatCard(title: 'Current Streak', value: '5 days'),
@@ -88,7 +88,7 @@ class ExerciseHomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const WorkoutHistoryScreen()),
+                        MaterialPageRoute(builder: (BuildContext context) => const WorkoutHistoryScreen()),
                       );
                     },
                     child: _StatCard(title: 'Calories Burned Today', value: '350 kcal'),
@@ -99,7 +99,7 @@ class ExerciseHomeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   _StatCard(title: 'Sustainability Score', value: '85/100'),
                   const SizedBox(width: 8),
                   _StatCard(title: 'Workout Duration', value: '45 min'),
@@ -153,7 +153,7 @@ class ExerciseHomeScreen extends StatelessWidget {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: const [
+                  children: const <Widget>[
                     _TagChip(label: 'Recent Workout: Yoga'),
                     SizedBox(width: 8),
                     _TagChip(label: 'Recent Workout: Running'),
@@ -181,7 +181,7 @@ class ExerciseHomeScreen extends StatelessWidget {
               child: Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: const [
+                children: const <Widget>[
                   _CategoryCard(icon: Icons.favorite, label: 'Cardio'),
                   _CategoryCard(icon: Icons.fitness_center, label: 'Strength'),
                   _CategoryCard(icon: Icons.self_improvement, label: 'Flexibility'),
@@ -198,14 +198,14 @@ class ExerciseHomeScreen extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF121714),
         unselectedItemColor: const Color(0xFF688273),
-        items: const [
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Exercise'),
           BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: 'Nutrition'),
           BottomNavigationBarItem(icon: Icon(Icons.nightlight_round), label: 'Sleep'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        onTap: (index) {
+        onTap: (int index) {
           // TODO: Implement navigation
         },
       ),
@@ -229,7 +229,7 @@ class _StatCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(title, style: const TextStyle(color: Color(0xFF121714), fontSize: 16, fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             Text(value, style: const TextStyle(color: Color(0xFF121714), fontSize: 22, fontWeight: FontWeight.bold)),
@@ -280,7 +280,7 @@ class _CategoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Icon(icon, color: const Color(0xFF121714)),
           const SizedBox(width: 12),
           Text(
