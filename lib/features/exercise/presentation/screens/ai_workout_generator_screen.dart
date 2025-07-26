@@ -32,18 +32,18 @@ class _AIWorkoutGeneratorScreenState extends State<AIWorkoutGeneratorScreen> {
         return;
       }
       // Mock workout generation logic
-      _generatedWorkout = {
+      _generatedWorkout = <String, dynamic>{
         'name': '${_selectedType ?? ''} Workout',
         'duration': _selectedTime,
         'intensity': _selectedIntensity,
         'equipment': _selectedEquipment,
         'location': _selectedLocation,
         'eco': _ecoFriendly ? 'Eco-friendly' : 'Standard',
-        'exercises': [
-          {'name': 'Squats', 'reps': '12 reps'},
-          {'name': 'Push-ups', 'reps': '10 reps'},
-          {'name': 'Lunges', 'reps': '15 reps'},
-          {'name': 'Plank', 'reps': '1 min'},
+        'exercises': <Map<String, String>>[
+          <String, String>{'name': 'Squats', 'reps': '12 reps'},
+          <String, String>{'name': 'Push-ups', 'reps': '10 reps'},
+          <String, String>{'name': 'Lunges', 'reps': '15 reps'},
+          <String, String>{'name': 'Plank', 'reps': '1 min'},
         ],
       };
     });
@@ -55,12 +55,12 @@ class _AIWorkoutGeneratorScreenState extends State<AIWorkoutGeneratorScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
-          children: [
+          children: <Widget>[
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: Color(0xFF121714)),
                     onPressed: () => Navigator.of(context).pop(),
@@ -86,43 +86,43 @@ class _AIWorkoutGeneratorScreenState extends State<AIWorkoutGeneratorScreen> {
             // Available Time
             const _SectionTitle('Available Time'),
             _RadioGroup(
-              options: ['15 minutes', '30 minutes', '45 minutes', '60+ minutes'],
+              options: <String>['15 minutes', '30 minutes', '45 minutes', '60+ minutes'],
               groupValue: _selectedTime,
-              onChanged: (val) => setState(() => _selectedTime = val),
+              onChanged: (String? val) => setState(() => _selectedTime = val),
             ),
             // Equipment
             const _SectionTitle('Equipment Available'),
             _RadioGroup(
-              options: ['None', 'Minimal', 'Full Gym'],
+              options: <String>['None', 'Minimal', 'Full Gym'],
               groupValue: _selectedEquipment,
-              onChanged: (val) => setState(() => _selectedEquipment = val),
+              onChanged: (String? val) => setState(() => _selectedEquipment = val),
             ),
             // Workout Type
             const _SectionTitle('Workout Type Preference'),
             _RadioGroup(
-              options: ['Cardio', 'Strength', 'Yoga', 'Mixed'],
+              options: <String>['Cardio', 'Strength', 'Yoga', 'Mixed'],
               groupValue: _selectedType,
-              onChanged: (val) => setState(() => _selectedType = val),
+              onChanged: (String? val) => setState(() => _selectedType = val),
             ),
             // Intensity
             const _SectionTitle('Intensity Level'),
             _RadioGroup(
-              options: ['Low', 'Moderate', 'High'],
+              options: <String>['Low', 'Moderate', 'High'],
               groupValue: _selectedIntensity,
-              onChanged: (val) => setState(() => _selectedIntensity = val),
+              onChanged: (String? val) => setState(() => _selectedIntensity = val),
             ),
             // Location
             const _SectionTitle('Location'),
             _RadioGroup(
-              options: ['Home', 'Gym', 'Outdoor'],
+              options: <String>['Home', 'Gym', 'Outdoor'],
               groupValue: _selectedLocation,
-              onChanged: (val) => setState(() => _selectedLocation = val),
+              onChanged: (String? val) => setState(() => _selectedLocation = val),
             ),
             // Eco-friendly toggle
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   const Expanded(
                     child: Text(
                       'Prioritize eco-friendly exercises',
@@ -135,7 +135,7 @@ class _AIWorkoutGeneratorScreenState extends State<AIWorkoutGeneratorScreen> {
                   Switch(
                     value: _ecoFriendly,
                     activeColor: const Color(0xFF94E0B2),
-                    onChanged: (val) => setState(() => _ecoFriendly = val),
+                    onChanged: (bool val) => setState(() => _ecoFriendly = val),
                   ),
                 ],
               ),
@@ -183,7 +183,7 @@ class _AIWorkoutGeneratorScreenState extends State<AIWorkoutGeneratorScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WorkoutDetailScreen(workout: _generatedWorkout!),
+                        builder: (BuildContext context) => WorkoutDetailScreen(workoutId: _generatedWorkout!['id'] ?? 'ai'),
                       ),
                     );
                   },
@@ -194,7 +194,7 @@ class _AIWorkoutGeneratorScreenState extends State<AIWorkoutGeneratorScreen> {
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: <Widget>[
                           Text(
                             _generatedWorkout!['name'],
                             style: const TextStyle(
@@ -243,14 +243,14 @@ class _AIWorkoutGeneratorScreenState extends State<AIWorkoutGeneratorScreen> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF121714),
         unselectedItemColor: const Color(0xFF688273),
-        items: const [
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Exercise'),
           BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: 'Nutrition'),
           BottomNavigationBarItem(icon: Icon(Icons.nightlight_round), label: 'Sleep'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        onTap: (index) {
+        onTap: (int index) {
           // TODO: Implement navigation
         },
       ),
@@ -292,7 +292,7 @@ class _RadioGroup extends StatelessWidget {
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
-        children: options.map((option) {
+        children: options.map((String option) {
           return ChoiceChip(
             label: Text(option, style: const TextStyle(color: Color(0xFF121714), fontWeight: FontWeight.w500)),
             selected: groupValue == option,
@@ -324,10 +324,10 @@ class _PreviousWorkoutItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          children: <Widget>[
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(title, style: const TextStyle(color: Color(0xFF121714), fontSize: 16, fontWeight: FontWeight.w500)),
                 Text(subtitle, style: const TextStyle(color: Color(0xFF688273), fontSize: 14)),
               ],

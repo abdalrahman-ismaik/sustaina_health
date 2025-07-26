@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:async';
 
 class SplashScreen extends StatefulWidget {
@@ -43,9 +44,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     _animationController.forward();
     
     // Navigate to home screen after 3 seconds
+    // Use GoRouter for navigation
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        // Import go_router at the top if not already
+        context.go('/home');
       }
     });
   }
@@ -63,9 +66,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          children: <Widget>[
             Column(
-              children: [
+              children: <Widget>[
                 const SizedBox(height: 32),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -100,10 +103,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+                    children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                        children: <Widget>[
                           const Text(
                             'Loading...',
                             style: TextStyle(
@@ -150,7 +153,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               ],
             ),
             Column(
-              children: [
+              children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
