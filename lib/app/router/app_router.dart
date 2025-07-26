@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/onboarding_ai_screen.dart';
 import '../../features/auth/presentation/screens/password_recovery_screen.dart';
+import '../../features/auth/presentation/screens/sign_in_screen.dart';
+import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/profile/presentation/screens/profile_personal_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_health_goals_screen.dart';
 import '../../features/profile/presentation/screens/profile_sustainability_screen.dart';
@@ -26,11 +28,33 @@ import '../../features/profile/presentation/screens/profile_settings_screen.dart
 import '../../features/profile/presentation/screens/profile_achievements_screen.dart';
 import '../../features/profile/presentation/screens/profile_sustainability_dashboard_screen.dart';
 import 'route_names.dart';
+import '../providers/auth_state_provider.dart';
 
 
 final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoRouter> ref) {
+  final authState = ref.watch(authStateProvider);
   return GoRouter(
     initialLocation: RouteNames.splash,
+    redirect: (context, state) {
+      final isLoggedIn = authState.hasValue && authState.value != null;
+      final isOnAuthPage = [
+        RouteNames.splash,
+        RouteNames.onboarding,
+        RouteNames.login,
+        RouteNames.register,
+        RouteNames.forgotPassword,
+      ].contains(state.uri.path);
+
+      // If not logged in and not on auth pages, redirect to login
+      if (!isLoggedIn && !isOnAuthPage) {
+        return RouteNames.login;
+      }
+      // If logged in and on auth pages, redirect to home
+      if (isLoggedIn && isOnAuthPage) {
+        return RouteNames.home;
+      }
+      return null;
+    },
     routes: [
       // Authentication and onboarding
       GoRoute(
@@ -40,6 +64,14 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoR
       GoRoute(
         path: RouteNames.onboarding,
         builder: (context, state) => const OnboardingAIScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.login,
+        builder: (context, state) => const SignInScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.register,
+        builder: (context, state) => const SignUpScreen(),
       ),
       GoRoute(
         path: RouteNames.forgotPassword,

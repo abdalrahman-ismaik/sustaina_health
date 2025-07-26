@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_auth: ^4.17.4
+  firebase_core: ^2.30.0
   
   # State Management
   provider: ^6.1.1
