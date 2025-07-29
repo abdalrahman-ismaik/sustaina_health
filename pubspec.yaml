@@ -1,3 +1,4 @@
+  # analyzer must be under dev_dependencies, not dependencies
 name: sustaina_health
 description: An AI-powered health and sustainability mobile application.
 publish_to: 'none'
@@ -68,6 +69,8 @@ dependencies:
   # Code Generation
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
+  google_sign_in: ^7.1.1
+  flutter_facebook_auth: ^7.1.0
 
 dev_dependencies:
   flutter_test:
@@ -78,10 +81,13 @@ dev_dependencies:
   freezed: ^2.4.6
   json_serializable: ^6.7.1
   riverpod_generator: ^2.3.9
+
+  # Analyzer for codegen compatibility
+  analyzer: ^5.13.0
   
   # Linting
-  custom_lint: ^0.5.7
-  riverpod_lint: ^2.3.7
+  # custom_lint: ^0.5.7
+  # riverpod_lint: ^2.3.7
   flutter_lints: ^3.0.1
   
   # Testing

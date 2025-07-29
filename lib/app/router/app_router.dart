@@ -32,12 +32,12 @@ import '../providers/auth_state_provider.dart';
 
 
 final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoRouter> ref) {
-  final authState = ref.watch(authStateProvider);
+  final AsyncValue<User?> authState = ref.watch(authStateProvider);
   return GoRouter(
     initialLocation: RouteNames.splash,
-    redirect: (context, state) {
-      final isLoggedIn = authState.hasValue && authState.value != null;
-      final isOnAuthPage = [
+    redirect: (BuildContext context, GoRouterState state) {
+      final bool isLoggedIn = authState.hasValue && authState.value != null;
+      final bool isOnAuthPage = <String>[
         RouteNames.splash,
         RouteNames.onboarding,
         RouteNames.login,
@@ -55,128 +55,128 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoR
       }
       return null;
     },
-    routes: [
+    routes: <RouteBase>[
       // Authentication and onboarding
       GoRoute(
         path: RouteNames.splash,
-        builder: (context, state) => const SplashScreen(),
+        builder: (BuildContext context, GoRouterState state) => const SplashScreen(),
       ),
       GoRoute(
         path: RouteNames.onboarding,
-        builder: (context, state) => const OnboardingAIScreen(),
+        builder: (BuildContext context, GoRouterState state) => const OnboardingAIScreen(),
       ),
       GoRoute(
         path: RouteNames.login,
-        builder: (context, state) => const SignInScreen(),
+        builder: (BuildContext context, GoRouterState state) => const SignInScreen(),
       ),
       GoRoute(
         path: RouteNames.register,
-        builder: (context, state) => const SignUpScreen(),
+        builder: (BuildContext context, GoRouterState state) => const SignUpScreen(),
       ),
       GoRoute(
         path: RouteNames.forgotPassword,
-        builder: (context, state) => const PasswordRecoveryScreen(),
+        builder: (BuildContext context, GoRouterState state) => const PasswordRecoveryScreen(),
       ),
 
       // Profile setup
       GoRoute(
         path: RouteNames.personalInfo,
-        builder: (context, state) => ProfilePersonalInfoScreen(),
+        builder: (BuildContext context, GoRouterState state) => ProfilePersonalInfoScreen(),
       ),
       GoRoute(
         path: RouteNames.healthGoals,
-        builder: (context, state) => ProfileHealthGoalsScreen(),
+        builder: (BuildContext context, GoRouterState state) => ProfileHealthGoalsScreen(),
       ),
       GoRoute(
         path: RouteNames.sustainabilityPrefs,
-        builder: (context, state) => ProfileSustainabilityScreen(),
+        builder: (BuildContext context, GoRouterState state) => ProfileSustainabilityScreen(),
       ),
 
       // Main app shell
       ShellRoute(
-        builder: (context, state, child) => MainNavigationWrapper(child: child),
-        routes: [
+        builder: (BuildContext context, GoRouterState state, Widget child) => MainNavigationWrapper(child: child),
+        routes: <RouteBase>[
           // Home
           GoRoute(
             path: RouteNames.home,
-            builder: (context, state) => HomeDashboardScreen(),
+            builder: (BuildContext context, GoRouterState state) => HomeDashboardScreen(),
           ),
           // Exercise
           GoRoute(
             path: RouteNames.exercise,
-            builder: (context, state) => ExerciseHomeScreen(),
-            routes: [
+            builder: (BuildContext context, GoRouterState state) => ExerciseHomeScreen(),
+            routes: <RouteBase>[
               GoRoute(
                 path: 'ai-generator',
-                builder: (context, state) => AIWorkoutGeneratorScreen(),
+                builder: (BuildContext context, GoRouterState state) => AIWorkoutGeneratorScreen(),
               ),
               GoRoute(
                 path: 'workout/:workoutId',
-                builder: (context, state) {
-                  final workoutId = state.pathParameters['workoutId']!;
+                builder: (BuildContext context, GoRouterState state) {
+                  final String workoutId = state.pathParameters['workoutId']!;
                   return WorkoutDetailScreen(workoutId: workoutId);
                 },
               ),
               GoRoute(
                 path: 'history',
-                builder: (context, state) => WorkoutHistoryScreen(),
+                builder: (BuildContext context, GoRouterState state) => WorkoutHistoryScreen(),
               ),
             ],
           ),
           // Nutrition
           GoRoute(
             path: RouteNames.nutrition,
-            builder: (context, state) => NutritionHomeScreen(),
-            routes: [
+            builder: (BuildContext context, GoRouterState state) => NutritionHomeScreen(),
+            routes: <RouteBase>[
               GoRoute(
                 path: 'food-logging',
-                builder: (context, state) => FoodLoggingScreen(),
+                builder: (BuildContext context, GoRouterState state) => FoodLoggingScreen(),
               ),
               GoRoute(
                 path: 'ai-recognition',
-                builder: (context, state) => AIFoodRecognitionScreen(),
+                builder: (BuildContext context, GoRouterState state) => AIFoodRecognitionScreen(),
               ),
               GoRoute(
                 path: 'insights',
-                builder: (context, state) => NutritionInsightsScreen(),
+                builder: (BuildContext context, GoRouterState state) => NutritionInsightsScreen(),
               ),
             ],
           ),
           // Sleep
           GoRoute(
             path: RouteNames.sleep,
-            builder: (context, state) => SleepHomeScreen(),
-            routes: [
+            builder: (BuildContext context, GoRouterState state) => SleepHomeScreen(),
+            routes: <RouteBase>[
               GoRoute(
                 path: 'tracking',
-                builder: (context, state) => SleepTrackingScreen(),
+                builder: (BuildContext context, GoRouterState state) => SleepTrackingScreen(),
               ),
               GoRoute(
                 path: 'analysis',
-                builder: (context, state) => SleepAnalysisScreen(),
+                builder: (BuildContext context, GoRouterState state) => SleepAnalysisScreen(),
               ),
               GoRoute(
                 path: 'improvement',
-                builder: (context, state) => SleepImprovementScreen(),
+                builder: (BuildContext context, GoRouterState state) => SleepImprovementScreen(),
               ),
             ],
           ),
           // Profile
           GoRoute(
             path: RouteNames.profile,
-            builder: (context, state) => ProfileHomeScreen(),
-            routes: [
+            builder: (BuildContext context, GoRouterState state) => ProfileHomeScreen(),
+            routes: <RouteBase>[
               GoRoute(
                 path: 'settings',
-                builder: (context, state) => ProfileSettingsScreen(),
+                builder: (BuildContext context, GoRouterState state) => ProfileSettingsScreen(),
               ),
               GoRoute(
                 path: 'achievements',
-                builder: (context, state) => ProfileAchievementsScreen(),
+                builder: (BuildContext context, GoRouterState state) => ProfileAchievementsScreen(),
               ),
               GoRoute(
                 path: 'sustainability',
-                builder: (context, state) => ProfileSustainabilityDashboardScreen(),
+                builder: (BuildContext context, GoRouterState state) => ProfileSustainabilityDashboardScreen(),
               ),
             ],
           ),

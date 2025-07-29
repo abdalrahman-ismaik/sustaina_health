@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../providers/auth_provider.dart';
+import 'package:sustaina_health/features/auth/domain/repositories/auth_repository.dart';
+import '../providers/auth_providers.dart';
+import '../../data/models/auth_models.dart';
 import 'package:go_router/go_router.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -12,10 +13,10 @@ class SignUpScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _agreeTerms = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -36,7 +37,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       _loading = true;
       _error = null;
     });
-    final auth = ref.read(authProvider);
+    final AuthRepository repo = ref.read(authRepositoryProvider);
     if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
       setState(() {
         _error = "Passwords do not match.";
@@ -52,14 +53,19 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       return;
     }
     try {
-      await auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+      await repo.registerWithEmailAndPassword(
+        RegisterRequest(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          displayName: _nameController.text.trim(),
+        ),
       );
-      // On success, GoRouter will redirect based on authStateProvider
-    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        GoRouter.of(context).go('/'); // Redirect to home or main page
+      }
+    } catch (e) {
       setState(() {
-        _error = e.message;
+        _error = e.toString();
       });
     } finally {
       setState(() {
@@ -75,13 +81,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          children: <Widget>[
             Column(
-              children: [
+              children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   child: Row(
-                    children: [
+                    children: <Widget>[
                       Icon(Icons.close, color: Color(0xFF121714), size: 28),
                       Expanded(
                         child: Center(
@@ -172,7 +178,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         'Password Strength',
                         style: TextStyle(
@@ -223,7 +229,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   child: Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: Text(
                           'I agree to the Terms and Conditions',
@@ -233,7 +239,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       Checkbox(
                         value: _agreeTerms,
                         activeColor: Color(0xFF94E0B2),
-                        onChanged: (val) {
+                        onChanged: (bool? val) {
                           setState(() {
                             _agreeTerms = val ?? false;
                           });
@@ -276,7 +282,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               ],
             ),
             Column(
-              children: [
+              children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: GestureDetector(
