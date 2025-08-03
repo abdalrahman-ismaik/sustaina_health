@@ -6,18 +6,18 @@ class SleepHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF141f18),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF141f18),
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.menu, color: Color(0xFF121714)),
+          onPressed: () {},
         ),
         title: const Text(
           'Sleep',
           style: TextStyle(
-            color: Colors.white,
+            color: Color(0xFF121714),
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -35,7 +35,7 @@ class SleepHomeScreen extends StatelessWidget {
               child: Text(
                 'Last Night',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFF121714),
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
                 ),
@@ -56,8 +56,10 @@ class SleepHomeScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const <Widget>[
-                  Text('Duration', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
-                  Text('7h 30m (Target: 8h)', style: TextStyle(color: Colors.white, fontSize: 14)),
+                  Text('Duration',
+                      style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
+                  Text('7h 30m (Target: 8h)',
+                      style: TextStyle(color: Color(0xFF121714), fontSize: 14)),
                 ],
               ),
             ),
@@ -72,7 +74,8 @@ class SleepHomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: const <Widget>[
-                  _SleepStatCard(title: 'Sustainability Score', value: '92', border: true),
+                  _SleepStatCard(
+                      title: 'Sustainability Score', value: '92', border: true),
                 ],
               ),
             ),
@@ -82,7 +85,7 @@ class SleepHomeScreen extends StatelessWidget {
               child: Text(
                 'Sleep Stages',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFF121714),
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -99,7 +102,7 @@ class SleepHomeScreen extends StatelessWidget {
               child: Text(
                 'Quick Actions',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFF121714),
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -114,7 +117,6 @@ class SleepHomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const _SleepBottomNavBar(selectedIndex: 3),
     );
   }
 }
@@ -123,7 +125,9 @@ class _SleepStatCard extends StatelessWidget {
   final String title;
   final String value;
   final bool border;
-  const _SleepStatCard({required this.title, required this.value, this.border = false, Key? key}) : super(key: key);
+  const _SleepStatCard(
+      {required this.title, required this.value, this.border = false, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -132,16 +136,26 @@ class _SleepStatCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: border ? Colors.transparent : const Color(0xFF2a4133),
+          color: border ? Colors.transparent : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: border ? Border.all(color: const Color(0xFF3c5d49), width: 1) : null,
+          border: border
+              ? Border.all(color: const Color(0xFFD1E6D9), width: 1)
+              : Border.all(color: const Color(0xFFD1E6D9), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
+            Text(title,
+                style: const TextStyle(
+                    color: Color(0xFF121714),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500)),
             const SizedBox(height: 4),
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(value,
+                style: const TextStyle(
+                    color: Color(0xFF121714),
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -157,14 +171,27 @@ class _SleepPatternSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const Text('Sleep Pattern', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
+        const Text('Sleep Pattern',
+            style: TextStyle(
+                color: Color(0xFF121714),
+                fontSize: 16,
+                fontWeight: FontWeight.w500)),
         const SizedBox(height: 4),
-        const Text('7h 30m', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+        const Text('7h 30m',
+            style: TextStyle(
+                color: Color(0xFF121714),
+                fontSize: 32,
+                fontWeight: FontWeight.bold)),
         Row(
           children: const <Widget>[
-            Text('Last Night', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
+            Text('Last Night',
+                style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
             SizedBox(width: 8),
-            Text('-6%', style: TextStyle(color: Color(0xFFfa5538), fontSize: 14, fontWeight: FontWeight.w600)),
+            Text('-6%',
+                style: TextStyle(
+                    color: Color(0xFFfa5538),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600)),
           ],
         ),
         const SizedBox(height: 12),
@@ -173,22 +200,43 @@ class _SleepPatternSection extends StatelessWidget {
           height: 120,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: const Color(0xFF2a4133),
+            color: const Color(0xFFF0F4F2),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Center(
-            child: Text('Pattern Visualization', style: TextStyle(color: Color(0xFF9bbfaa))),
+            child: Text('Pattern Visualization',
+                style: TextStyle(color: Color(0xFF688273))),
           ),
         ),
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: const <Widget>[
-            Text('10PM', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 13, fontWeight: FontWeight.bold)),
-            Text('12AM', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 13, fontWeight: FontWeight.bold)),
-            Text('2AM', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 13, fontWeight: FontWeight.bold)),
-            Text('4AM', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 13, fontWeight: FontWeight.bold)),
-            Text('6AM', style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 13, fontWeight: FontWeight.bold)),
+            Text('10PM',
+                style: TextStyle(
+                    color: Color(0xFF9bbfaa),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold)),
+            Text('12AM',
+                style: TextStyle(
+                    color: Color(0xFF9bbfaa),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold)),
+            Text('2AM',
+                style: TextStyle(
+                    color: Color(0xFF9bbfaa),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold)),
+            Text('4AM',
+                style: TextStyle(
+                    color: Color(0xFF9bbfaa),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold)),
+            Text('6AM',
+                style: TextStyle(
+                    color: Color(0xFF9bbfaa),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       ],
@@ -215,7 +263,8 @@ class _SleepStagesBreakdown extends StatelessWidget {
 class _SleepStageRow extends StatelessWidget {
   final String stage;
   final String value;
-  const _SleepStageRow({required this.stage, required this.value, Key? key}) : super(key: key);
+  const _SleepStageRow({required this.stage, required this.value, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -224,8 +273,10 @@ class _SleepStageRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(stage, style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)),
+          Text(stage,
+              style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
+          Text(value,
+              style: const TextStyle(color: Color(0xFF121714), fontSize: 14)),
         ],
       ),
     );
@@ -267,7 +318,8 @@ class _QuickActions extends StatelessWidget {
 class _QuickActionButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
-  const _QuickActionButton({required this.label, required this.onTap, Key? key}) : super(key: key);
+  const _QuickActionButton({required this.label, required this.onTap, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -275,15 +327,16 @@ class _QuickActionButton extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2a4133),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: const Color(0xFF94E0B2),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
         onPressed: onTap,
         child: Text(
           label,
           style: const TextStyle(
-            color: Colors.white,
+            color: Color(0xFF121714),
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -293,59 +346,4 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-class _SleepBottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  const _SleepBottomNavBar({required this.selectedIndex, Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: const Color(0xFF1e2f25),
-      currentIndex: selectedIndex,
-      onTap: (int index) {
-        switch (index) {
-          case 0:
-            Navigator.of(context).pushNamed('/home');
-            break;
-          case 1:
-            Navigator.of(context).pushNamed('/exercise');
-            break;
-          case 2:
-            Navigator.of(context).pushNamed('/nutrition');
-            break;
-          case 3:
-            Navigator.of(context).pushNamed('/sleep');
-            break;
-          case 4:
-            Navigator.of(context).pushNamed('/profile');
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.white,
-      unselectedItemColor: const Color(0xFF9bbfaa),
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.fitness_center),
-          label: 'Exercise',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.restaurant_menu),
-          label: 'Nutrition',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.nightlight_round),
-          label: 'Sleep',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
-    );
-  }
-} 

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 
-class HomeDashboardScreen extends StatelessWidget {
+class HomeDashboardScreen extends ConsumerWidget {
   const HomeDashboardScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsyncValue = ref.watch(currentUserProvider);
+    final user = userAsyncValue.value;
+    print('DEBUG HomeScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -17,7 +22,9 @@ class HomeDashboardScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   CircleAvatar(
-                    backgroundImage: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBbMPNPoDJYRmGhiSiLcBUy7iaIrueGkMwr1g-E_TMeDL2ZglWXus-L-IStzb_2xPNyGSAxIdzKXWPDheMkf2uUhXif-dHU_NNYr8BbeywOJKrcnOhZx_YjYC0ndS6x2Wipoje7o5A4EFW73AtlmwdDXpkU2n1B9QrIjcvkuJdgLQUlWwacXOF9FFSyveX3lDdJKl2cqAjofJgvIpiAfXb3Gm4YCM7uGisgQV4o7uWB9Z__tFg5CmrqCzZKeds7nD63GvPVeVaJWSqz'),
+                    backgroundImage: user?.photoURL != null 
+                      ? NetworkImage(user!.photoURL!)
+                      : NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBbMPNPoDJYRmGhiSiLcBUy7iaIrueGkMwr1g-E_TMeDL2ZglWXus-L-IStzb_2xPNyGSAxIdzKXWPDheMkf2uUhXif-dHU_NNYr8BbeywOJKrcnOhZx_YjYC0ndS6x2Wipoje7o5A4EFW73AtlmwdDXpkU2n1B9QrIjcvkuJdgLQUlWwacXOF9FFSyveX3lDdJKl2cqAjofJgvIpiAfXb3Gm4YCM7uGisgQV4o7uWB9Z__tFg5CmrqCzZKeds7nD63GvPVeVaJWSqz'),
                     radius: 20,
                   ),
                   const Text(
@@ -36,10 +43,10 @@ class HomeDashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Text(
-                'Welcome back, Olivia',
+                'Hi, ${user?.displayName ?? 'User'}',
                 style: TextStyle(
                   color: Color(0xFF111714),
                   fontWeight: FontWeight.bold,
@@ -193,24 +200,9 @@ class HomeDashboardScreen extends StatelessWidget {
               title: 'Sleep',
               subtitle: '8 hours of sleep',
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 80), // Extra space for bottom navigation
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF111714),
-        unselectedItemColor: const Color(0xFF648772),
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Exercise'),
-          BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: 'Nutrition'),
-          BottomNavigationBarItem(icon: Icon(Icons.nightlight_round), label: 'Sleep'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-        onTap: (int index) {
-          // TODO: Implement navigation
-        },
       ),
     );
   }

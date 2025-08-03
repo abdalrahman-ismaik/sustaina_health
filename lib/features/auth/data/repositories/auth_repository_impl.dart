@@ -67,11 +67,13 @@ class AuthRepositoryImpl implements AuthRepository {
     }
     
     try {
-      // Use authenticate() instead of signIn() for newer versions
+      // Try to authenticate with Google
       final GoogleSignInAccount? googleUser = await _googleSignIn!.authenticate();
-      if (googleUser == null) return null;
+      if (googleUser == null) return null; // User cancelled the sign-in
       
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      
+      // Create credential with idToken
       final OAuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
@@ -85,9 +87,15 @@ class AuthRepositoryImpl implements AuthRepository {
         isNewUser: userCredential.additionalUserInfo?.isNewUser ?? false,
       );
     } catch (e) {
+      print('Google Sign-In Error: $e'); // Add logging for debugging
+      
       // Handle specific Google Sign-In errors
-      if (e.toString().contains('serverClientId')) {
-        throw Exception('Google Sign-In configuration error. Please check your Firebase configuration.');
+      if (e.toString().contains('serverClientId') || 
+          e.toString().contains('configuration') ||
+          e.toString().contains('DEVELOPER_ERROR') ||
+          e.toString().contains('GoogleSignIn') ||
+          e.runtimeType.toString().contains('GoogleSignIn')) {
+        throw Exception('Google Sign-In configuration error. Please check your Firebase configuration, SHA-1 fingerprint, and google-services.json file.');
       }
       rethrow;
     }

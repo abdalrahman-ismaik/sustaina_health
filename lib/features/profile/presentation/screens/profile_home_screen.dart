@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 
-class ProfileHomeScreen extends StatelessWidget {
+class ProfileHomeScreen extends ConsumerWidget {
   const ProfileHomeScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsyncValue = ref.watch(currentUserProvider);
+    final user = userAsyncValue.value;
+    print('DEBUG ProfileScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color bgColor = isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
-    final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final Color borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
     final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
     final Color accentColor = isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
     final Color badgeBg = isDark ? const Color(0xFF2a4133) : const Color(0xFFE8F2EC);
@@ -45,14 +48,14 @@ class ProfileHomeScreen extends StatelessWidget {
                 children: <Widget>[
                   CircleAvatar(
                     radius: 64,
-                    backgroundImage: NetworkImage(
-                      'https://lh3.googleusercontent.com/aida-public/AB6AXuBw9_JpxeDSu4VKkIeDY9KjNmyJQ8CVOZSU8N8cYKmBHvz6KHFmN7_G2GO_PodfOOWMGM-QzuwFo4TeXILm8EsITKn8ZT-A2q41NZGQg6VIspvz_rA2dMiF7VoBO--UKa9UUxWD9dw7uPcDgbHkiBY-CUh_NEEupbXbgQPyqJLrM20vMe4UZO57czhNuAj-yPIYZYyazcx8_8tZo2_j3WFf8p-K46684W3ZPDZbOJp3paE49Vjatm0-vTTFFCNcL3sKCraIu8mkGIcn',
-                    ),
+                    backgroundImage: user?.photoURL != null 
+                      ? NetworkImage(user!.photoURL!)
+                      : NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBw9_JpxeDSu4VKkIeDY9KjNmyJQ8CVOZSU8N8cYKmBHvz6KHFmN7_G2GO_PodfOOWMGM-QzuwFo4TeXILm8EsITKn8ZT-A2q41NZGQg6VIspvz_rA2dMiF7VoBO--UKa9UUxWD9dw7uPcDgbHkiBY-CUh_NEEupbXbgQPyqJLrM20vMe4UZO57czhNuAj-yPIYZYyazcx8_8tZo2_j3WFf8p-K46684W3ZPDZbOJp3paE49Vjatm0-vTTFFCNcL3sKCraIu8mkGIcn'),
                   ),
                   const SizedBox(height: 12),
-                  Text('Sophia Carter', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor)),
+                  Text(user?.displayName ?? 'User', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor)),
                   Text('Premium Member', style: TextStyle(fontSize: 16, color: accentColor)),
-                  Text('Joined 6 months ago', style: TextStyle(fontSize: 16, color: accentColor)),
+                  Text(user?.email ?? 'No email', style: TextStyle(fontSize: 14, color: accentColor)),
                 ],
               ),
             ),
@@ -133,11 +136,56 @@ class ProfileHomeScreen extends StatelessWidget {
               trailing: const Icon(Icons.arrow_forward_ios, size: 18),
               onTap: () => Navigator.of(context).pushNamed('/profile/settings/app'),
             ),
+            _QuickSettingTile(
+              icon: Icons.logout,
+              label: 'Logout',
+              trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+              onTap: () async {
+                // Show confirmation dialog
+                final bool? shouldLogout = await showDialog<bool>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Logout'),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Logout'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (shouldLogout == true) {
+                  try {
+                    await ref.read(authRepositoryProvider).logout();
+                    // Invalidate all auth-related providers to ensure clean state
+                    ref.invalidate(authStateProvider);
+                    ref.invalidate(currentUserProvider);
+                    print('DEBUG: Logout successful, providers invalidated');
+                    // Navigation will be handled automatically by the auth state change
+                  } catch (e) {
+                    // Show error message
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to logout: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+            ),
             const SizedBox(height: 80),
           ],
         ),
       ),
-      bottomNavigationBar: const _ProfileBottomNavBar(selectedIndex: 4),
     );
   }
 }
@@ -210,60 +258,4 @@ class _QuickSettingTile extends StatelessWidget {
   }
 }
 
-class _ProfileBottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  const _ProfileBottomNavBar({required this.selectedIndex, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    return BottomNavigationBar(
-      backgroundColor: isDark ? const Color(0xFF1e2f25) : const Color(0xFFF8FBFA),
-      currentIndex: selectedIndex,
-      onTap: (int index) {
-        switch (index) {
-          case 0:
-            Navigator.of(context).pushNamed('/home');
-            break;
-          case 1:
-            Navigator.of(context).pushNamed('/exercise');
-            break;
-          case 2:
-            Navigator.of(context).pushNamed('/nutrition');
-            break;
-          case 3:
-            Navigator.of(context).pushNamed('/sleep');
-            break;
-          case 4:
-            Navigator.of(context).pushNamed('/profile');
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c),
-      unselectedItemColor: isDark ? Colors.white : const Color(0xFF51946c),
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.fitness_center),
-          label: 'Exercise',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.restaurant_menu),
-          label: 'Nutrition',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.nightlight_round),
-          label: 'Sleep',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
-    );
-  }
-} 
+ 

@@ -33,7 +33,6 @@ class _AIFoodRecognitionScreenState extends State<AIFoodRecognitionScreen> {
         centerTitle: true,
       ),
       body: hasResult ? _RecognitionResult(onEdit: () => setState(() => hasResult = false)) : _CameraView(onCapture: () => setState(() => hasResult = true)),
-      bottomNavigationBar: _NutritionBottomNavBar(selectedIndex: 2),
     );
   }
 }

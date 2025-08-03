@@ -91,7 +91,6 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const _ProfileBottomNavBar(selectedIndex: 4),
     );
   }
 }
@@ -201,60 +200,4 @@ class _RecommendationTile extends StatelessWidget {
   }
 }
 
-class _ProfileBottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  const _ProfileBottomNavBar({required this.selectedIndex, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    return BottomNavigationBar(
-      backgroundColor: isDark ? const Color(0xFF1e2f25) : const Color(0xFFF8FBFA),
-      currentIndex: selectedIndex,
-      onTap: (int index) {
-        switch (index) {
-          case 0:
-            Navigator.of(context).pushNamed('/home');
-            break;
-          case 1:
-            Navigator.of(context).pushNamed('/exercise');
-            break;
-          case 2:
-            Navigator.of(context).pushNamed('/nutrition');
-            break;
-          case 3:
-            Navigator.of(context).pushNamed('/sleep');
-            break;
-          case 4:
-            Navigator.of(context).pushNamed('/profile');
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c),
-      unselectedItemColor: isDark ? Colors.white : const Color(0xFF51946c),
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.fitness_center),
-          label: 'Exercise',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.restaurant_menu),
-          label: 'Nutrition',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.nightlight_round),
-          label: 'Sleep',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
-    );
-  }
-} 
+ 

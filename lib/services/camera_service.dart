@@ -17,7 +17,6 @@ class CameraService {
         imageQuality: 85,
         preferredCameraDevice: CameraDevice.rear,
       );
-      
       if (image != null) {
         return File(image.path);
       }
@@ -36,7 +35,7 @@ class CameraService {
         source: ImageSource.gallery,
         imageQuality: 85,
       );
-      
+
       if (image != null) {
         return File(image.path);
       }
@@ -54,7 +53,7 @@ class CameraService {
       final List<XFile> images = await _picker.pickMultiImage(
         imageQuality: 85,
       );
-      
+
       if (images.isNotEmpty) {
         return images.map((image) => File(image.path)).toList();
       }
@@ -77,7 +76,7 @@ class CameraService {
 class CameraException implements Exception {
   final String message;
   CameraException(this.message);
-  
+
   @override
   String toString() => 'CameraException: $message';
 }

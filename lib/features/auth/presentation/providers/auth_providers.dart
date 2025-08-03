@@ -31,10 +31,15 @@ final Provider<AuthRepository> authRepositoryProvider = Provider<AuthRepository>
 
 // Stream provider for auth state changes
 final StreamProvider<UserEntity?> authStateProvider = StreamProvider<UserEntity?>((StreamProviderRef<UserEntity?> ref) {
-  return ref.watch(authRepositoryProvider).authStateChanges;
+  final authRepo = ref.watch(authRepositoryProvider);
+  return authRepo.authStateChanges;
 });
 
-// Provider for current user
-final Provider<UserEntity?> currentUserProvider = Provider<UserEntity?>((ProviderRef<UserEntity?> ref) {
-  return ref.watch(authRepositoryProvider).currentUser;
+// Stream provider for current user - directly watches auth state changes
+final StreamProvider<UserEntity?> currentUserProvider = StreamProvider<UserEntity?>((StreamProviderRef<UserEntity?> ref) {
+  final authRepo = ref.watch(authRepositoryProvider);
+  return authRepo.authStateChanges.map((user) {
+    print('DEBUG: Current user stream updated: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
+    return user;
+  });
 });

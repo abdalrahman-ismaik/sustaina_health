@@ -117,11 +117,10 @@ class NutritionHomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 80), // For bottom nav spacing
+            const SizedBox(height: 80), // Extra space for bottom navigation
           ],
         ),
       ),
-      bottomNavigationBar: _NutritionBottomNavBar(selectedIndex: 2),
     );
   }
 }
@@ -268,62 +267,6 @@ class _AISuggestionCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _NutritionBottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  const _NutritionBottomNavBar({required this.selectedIndex, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: selectedIndex,
-      onTap: (int index) {
-        switch (index) {
-          case 0:
-            Navigator.of(context).pushNamed('/home');
-            break;
-          case 1:
-            Navigator.of(context).pushNamed('/exercise');
-            break;
-          case 2:
-            Navigator.of(context).pushNamed('/nutrition');
-            break;
-          case 3:
-            Navigator.of(context).pushNamed('/sleep');
-            break;
-          case 4:
-            Navigator.of(context).pushNamed('/profile');
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFF121714),
-      unselectedItemColor: const Color(0xFF688273),
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.fitness_center),
-          label: 'Exercise',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.restaurant_menu),
-          label: 'Nutrition',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.nightlight_round),
-          label: 'Sleep',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
     );
   }
 } 

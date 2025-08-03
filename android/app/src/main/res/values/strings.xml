@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TODO: Replace with your web client ID -->
+    <string name="default_web_client_id" translatable="false">756851986463-disop1vbec9rfisqcn5fg4sgb9usv346.apps.googleusercontent.com</string>
+</resources>

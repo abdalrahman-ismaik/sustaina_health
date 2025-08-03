@@ -220,7 +220,6 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: _NutritionBottomNavBar(selectedIndex: 2),
     );
   }
 }

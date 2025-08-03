@@ -96,7 +96,6 @@ class NutritionInsightsScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _NutritionBottomNavBar(selectedIndex: 2),
     );
   }
 }

@@ -133,7 +133,6 @@ class SleepAnalysisScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const _SleepBottomNavBar(selectedIndex: 3),
     );
   }
 }
@@ -191,59 +190,4 @@ class _SleepStageRow extends StatelessWidget {
   }
 }
 
-class _SleepBottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  const _SleepBottomNavBar({required this.selectedIndex, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: const Color(0xFF1e2f25),
-      currentIndex: selectedIndex,
-      onTap: (int index) {
-        switch (index) {
-          case 0:
-            Navigator.of(context).pushNamed('/home');
-            break;
-          case 1:
-            Navigator.of(context).pushNamed('/exercise');
-            break;
-          case 2:
-            Navigator.of(context).pushNamed('/nutrition');
-            break;
-          case 3:
-            Navigator.of(context).pushNamed('/sleep');
-            break;
-          case 4:
-            Navigator.of(context).pushNamed('/profile');
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.white,
-      unselectedItemColor: const Color(0xFF9bbfaa),
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.fitness_center),
-          label: 'Exercise',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.restaurant_menu),
-          label: 'Nutrition',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.nightlight_round),
-          label: 'Sleep',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
-    );
-  }
-} 
+ 

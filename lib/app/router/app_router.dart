@@ -32,10 +32,11 @@ import '../../features/profile/presentation/screens/profile_sustainability_dashb
 import 'route_names.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import 'package:sustaina_health/features/auth/domain/entities/user_entity.dart';
+import '../../core/widgets/main_navigation_wrapper.dart';
 
-
-  final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoRouter> ref) {
+final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoRouter> ref) {
   final AsyncValue<UserEntity?> authState = ref.watch(authStateProvider);
+  
   return GoRouter(
     initialLocation: RouteNames.splash,
     redirect: (BuildContext context, GoRouterState state) {
@@ -272,12 +273,4 @@ import 'package:sustaina_health/features/auth/domain/entities/user_entity.dart';
       ),
     ],
   );
-});
-
-// Placeholder for MainNavigationWrapper
-class MainNavigationWrapper extends StatelessWidget {
-  final Widget child;
-  const MainNavigationWrapper({super.key, required this.child});
-  @override
-  Widget build(BuildContext context) => child;
-} 
+}); 
