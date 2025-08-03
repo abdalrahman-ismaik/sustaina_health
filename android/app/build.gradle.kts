@@ -24,13 +24,16 @@ android {
     compileSdk = 35  // Updated to 35 as required by AndroidX dependencies
     // ndkVersion = flutter.ndkVersion  // Commented out to avoid NDK issues
 
+    compileSdk = 36
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = "1.8"
     }
 
     defaultConfig {

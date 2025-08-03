@@ -43,12 +43,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     // Start the animation
     _animationController.forward();
     
-    // Navigate to home screen after 3 seconds
+    // Navigate to onboarding screen after 3 seconds
     // Use GoRouter for navigation
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
         // Import go_router at the top if not already
-        context.go('/home');
+        context.go('/onboarding/welcome');
       }
     });
   }

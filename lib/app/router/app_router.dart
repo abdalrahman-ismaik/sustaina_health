@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 // Placeholder imports for screens
 import '../../features/auth/presentation/screens/splash_screen.dart';
+import '../../features/auth/presentation/screens/onboarding_welcome_screen.dart';
 import '../../features/auth/presentation/screens/onboarding_ai_screen.dart';
+import '../../features/auth/presentation/screens/onboarding_sustainability_screen.dart';
 import '../../features/auth/presentation/screens/password_recovery_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
@@ -28,18 +30,21 @@ import '../../features/profile/presentation/screens/profile_settings_screen.dart
 import '../../features/profile/presentation/screens/profile_achievements_screen.dart';
 import '../../features/profile/presentation/screens/profile_sustainability_dashboard_screen.dart';
 import 'route_names.dart';
-import '../providers/auth_state_provider.dart';
+import '../../features/auth/presentation/providers/auth_providers.dart';
+import 'package:sustaina_health/features/auth/domain/entities/user_entity.dart';
 
 
-final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoRouter> ref) {
-  final AsyncValue<User?> authState = ref.watch(authStateProvider);
+  final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoRouter> ref) {
+  final AsyncValue<UserEntity?> authState = ref.watch(authStateProvider);
   return GoRouter(
     initialLocation: RouteNames.splash,
     redirect: (BuildContext context, GoRouterState state) {
       final bool isLoggedIn = authState.hasValue && authState.value != null;
       final bool isOnAuthPage = <String>[
         RouteNames.splash,
-        RouteNames.onboarding,
+        RouteNames.onboardingWelcome,
+        RouteNames.onboardingAIFeatures,
+        RouteNames.onboardingSustainability,
         RouteNames.login,
         RouteNames.register,
         RouteNames.forgotPassword,
@@ -49,8 +54,8 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoR
       if (!isLoggedIn && !isOnAuthPage) {
         return RouteNames.login;
       }
-      // If logged in and on auth pages, redirect to home
-      if (isLoggedIn && isOnAuthPage) {
+      // If logged in and on auth pages (except splash), redirect to home
+      if (isLoggedIn && isOnAuthPage && state.uri.path != RouteNames.splash) {
         return RouteNames.home;
       }
       return null;
@@ -62,12 +67,80 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoR
         builder: (BuildContext context, GoRouterState state) => const SplashScreen(),
       ),
       GoRoute(
-        path: RouteNames.onboarding,
-        builder: (BuildContext context, GoRouterState state) => const OnboardingAIScreen(),
+        path: RouteNames.onboardingWelcome,
+        pageBuilder: (BuildContext context, GoRouterState state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const OnboardingWelcomeScreen(),
+          transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.onboardingAIFeatures,
+        pageBuilder: (BuildContext context, GoRouterState state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const OnboardingAIScreen(),
+          transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.onboardingSustainability,
+        pageBuilder: (BuildContext context, GoRouterState state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const OnboardingSustainabilityScreen(),
+          transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              )),
+              child: child,
+            );
+          },
+        ),
       ),
       GoRoute(
         path: RouteNames.login,
-        builder: (BuildContext context, GoRouterState state) => const SignInScreen(),
+        pageBuilder: (BuildContext context, GoRouterState state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const SignInScreen(),
+          transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              )),
+              child: child,
+            );
+          },
+        ),
       ),
       GoRoute(
         path: RouteNames.register,
@@ -75,7 +148,22 @@ final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ProviderRef<GoR
       ),
       GoRoute(
         path: RouteNames.forgotPassword,
-        builder: (BuildContext context, GoRouterState state) => const PasswordRecoveryScreen(),
+        pageBuilder: (BuildContext context, GoRouterState state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const PasswordRecoveryScreen(),
+          transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              )),
+              child: child,
+            );
+          },
+        ),
       ),
 
       // Profile setup

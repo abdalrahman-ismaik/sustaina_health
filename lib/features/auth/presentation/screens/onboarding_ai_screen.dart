@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/widgets/onboarding_progress_bar.dart';
+import '../providers/onboarding_progress_provider.dart';
 
-class OnboardingAIScreen extends StatelessWidget {
+class OnboardingAIScreen extends ConsumerWidget {
   const OnboardingAIScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Set the current step to 2 for AI features screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(onboardingProgressProvider.notifier).setStep(2);
+    });
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -15,7 +24,9 @@ class OnboardingAIScreen extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    const SizedBox(height: 0),
+                    // Progress bar
+                    const OnboardingProgressBar(currentStep: 2),
+                    const SizedBox(height: 20),
                     // Background image
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -104,7 +115,9 @@ class OnboardingAIScreen extends StatelessWidget {
                           letterSpacing: 0.015,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        context.go('/onboarding/sustainability');
+                      },
                       child: const Text('Get Started', overflow: TextOverflow.ellipsis),
                     ),
                   ),
