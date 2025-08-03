@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sustaina_health/features/auth/domain/repositories/auth_repository.dart';
 import '../../data/models/auth_models.dart';
 import '../providers/auth_providers.dart';
+import '../providers/onboarding_progress_provider.dart';
 import '../../domain/entities/user_entity.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/widgets/onboarding_progress_bar.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -59,6 +61,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<UserEntity?> authState = ref.watch(authStateProvider);
+    
+    // Set the current step to 4 for sign-in screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(onboardingProgressProvider.notifier).setStep(4);
+    });
+    
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -142,6 +150,9 @@ class _SignInForm extends StatelessWidget {
       children: <Widget>[
         Column(
           children: <Widget>[
+            // Progress bar
+            const OnboardingProgressBar(currentStep: 4),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Center(
@@ -254,12 +265,15 @@ class _SignInForm extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 8),
-              child: Text(
-                'Forgot Password?',
-                style: TextStyle(
-                  color: Color(0xFF688273),
-                  fontSize: 14,
-                  decoration: TextDecoration.underline,
+              child: GestureDetector(
+                onTap: () => GoRouter.of(context).go('/forgot-password'),
+                child: Text(
+                  'Forgot Password?',
+                  style: TextStyle(
+                    color: Color(0xFF688273),
+                    fontSize: 14,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ),

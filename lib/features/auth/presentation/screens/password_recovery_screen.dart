@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/auth_providers.dart';
 
 class PasswordRecoveryScreen extends ConsumerStatefulWidget {
@@ -136,7 +137,7 @@ class _PasswordRecoveryScreenState extends ConsumerState<PasswordRecoveryScreen>
                   ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pop(); // Back to login
+                    GoRouter.of(context).go('/login'); // Back to login
                   },
                   child: const Padding(
                     padding: EdgeInsets.only(top: 4, bottom: 12),

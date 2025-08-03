@@ -45,9 +45,7 @@ app.*.map.json
 /android/app/release
 
 # Firebase/Google/Facebook keys
-android/app/google-services.json
-ios/Runner/GoogleService-Info.plist
+/android/app/google-services.json
 
 # api keys
-lib/core/config/firebase_options.dart
-android\app\google-services.json
+/lib/core/config/firebase_options.dart

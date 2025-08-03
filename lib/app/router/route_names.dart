@@ -1,7 +1,9 @@
 class RouteNames {
   // Authentication Routes
   static const String splash = '/';
-  static const String onboarding = '/onboarding';
+  static const String onboardingWelcome = '/onboarding/welcome';
+  static const String onboardingAIFeatures = '/onboarding/ai-features';
+  static const String onboardingSustainability = '/onboarding/sustainability';
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';

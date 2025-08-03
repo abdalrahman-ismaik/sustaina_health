@@ -65,19 +65,32 @@ class AuthRepositoryImpl implements AuthRepository {
     if (_googleSignIn == null) {
       throw UnsupportedError('Google sign-in is not supported on this platform.');
     }
-    final GoogleSignInAccount? googleUser = await _googleSignIn!.authenticate();
-    if (googleUser == null) return null;
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final OAuthCredential credential = GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
-    );
-    final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
-    if (userCredential.user == null) return null;
-    final UserModel userModel = UserModel.fromFirebaseUser(userCredential.user!);
-    return AuthResult(
-      user: userModel.toEntity(),
-      isNewUser: userCredential.additionalUserInfo?.isNewUser ?? false,
-    );
+    
+    try {
+      // Use authenticate() instead of signIn() for newer versions
+      final GoogleSignInAccount? googleUser = await _googleSignIn!.authenticate();
+      if (googleUser == null) return null;
+      
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+      
+      final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+      if (userCredential.user == null) return null;
+      
+      final UserModel userModel = UserModel.fromFirebaseUser(userCredential.user!);
+      return AuthResult(
+        user: userModel.toEntity(),
+        isNewUser: userCredential.additionalUserInfo?.isNewUser ?? false,
+      );
+    } catch (e) {
+      // Handle specific Google Sign-In errors
+      if (e.toString().contains('serverClientId')) {
+        throw Exception('Google Sign-In configuration error. Please check your Firebase configuration.');
+      }
+      rethrow;
+    }
   }
 
   @override
