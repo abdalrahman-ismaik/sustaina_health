@@ -1,4 +1,5 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "cmake.sourceDirectory": "C:/Users/4bais/Downloads/SMAC/sustaina_health/windows"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "cmake.sourceDirectory": "C:/Users/4bais/Downloads/SMAC/sustaina_health/windows",
+  "cmake.ignoreCMakeListsMissing": true
 }
