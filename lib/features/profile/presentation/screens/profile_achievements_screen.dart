@@ -6,12 +6,16 @@ class ProfileAchievementsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor = isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
+    final Color bgColor =
+        isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
     final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final Color borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
+    final Color borderColor =
+        isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
     final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final Color accentColor = isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
-    final Color tileBg = isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
+    final Color accentColor =
+        isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
+    final Color tileBg =
+        isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
 
     final List<_AchievementCategory> categories = <_AchievementCategory>[
       _AchievementCategory(
@@ -68,7 +72,11 @@ class ProfileAchievementsScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Achievement Categories', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor)),
+              child: Text('Achievement Categories',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: textColor)),
             ),
             const SizedBox(height: 8),
             Padding(
@@ -86,7 +94,11 @@ class ProfileAchievementsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Badge Collection', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor)),
+              child: Text('Badge Collection',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: textColor)),
             ),
             const SizedBox(height: 8),
             Padding(
@@ -105,7 +117,8 @@ class ProfileAchievementsScreen extends StatelessWidget {
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Badge ${i + 1}: Achievement details (mock)'),
+                        content:
+                            Text('Badge ${i + 1}: Achievement details (mock)'),
                         backgroundColor: cardColor,
                       ),
                     );
@@ -126,7 +139,9 @@ class ProfileAchievementsScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Tap on a badge to view achievement details and progress toward the next level.', style: TextStyle(color: textColor, fontSize: 14)),
+              child: Text(
+                  'Tap on a badge to view achievement details and progress toward the next level.',
+                  style: TextStyle(color: textColor, fontSize: 14)),
             ),
             const SizedBox(height: 80),
           ],
@@ -139,13 +154,16 @@ class ProfileAchievementsScreen extends StatelessWidget {
 class _AchievementCategory extends StatelessWidget {
   final IconData icon;
   final String label;
-  const _AchievementCategory({required this.icon, required this.label, Key? key}) : super(key: key);
+  const _AchievementCategory(
+      {required this.icon, required this.label, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final Color borderColor = isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
+    final Color borderColor =
+        isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
     final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
     return Container(
       decoration: BoxDecoration(
@@ -159,12 +177,14 @@ class _AchievementCategory extends StatelessWidget {
           Icon(icon, color: textColor),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(label, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 15)),
+            child: Text(label,
+                style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15)),
           ),
         ],
       ),
     );
   }
 }
-
- 

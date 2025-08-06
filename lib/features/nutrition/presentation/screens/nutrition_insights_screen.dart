@@ -43,9 +43,11 @@ class NutritionInsightsScreen extends StatelessWidget {
               const SizedBox(height: 12),
               _MockChart(title: 'Calories Consumed', color: Color(0xFF94e0b2)),
               const SizedBox(height: 8),
-              _MockChart(title: 'Macronutrient Balance', color: Color(0xFF688273)),
+              _MockChart(
+                  title: 'Macronutrient Balance', color: Color(0xFF688273)),
               const SizedBox(height: 8),
-              _MockChart(title: 'Sustainability Score', color: Color(0xFFdde4e0)),
+              _MockChart(
+                  title: 'Sustainability Score', color: Color(0xFFdde4e0)),
               const SizedBox(height: 24),
               // AI Recommendations
               const Text(
@@ -63,11 +65,13 @@ class NutritionInsightsScreen extends StatelessWidget {
               ),
               _AISuggestionCard(
                 title: 'Sustainable Swap',
-                description: 'Try oat milk instead of dairy for a lower carbon footprint.',
+                description:
+                    'Try oat milk instead of dairy for a lower carbon footprint.',
               ),
               _AISuggestionCard(
                 title: 'Meal Plan',
-                description: 'Here’s a 3-day plant-based meal plan tailored for you.',
+                description:
+                    'Here’s a 3-day plant-based meal plan tailored for you.',
               ),
               const SizedBox(height: 24),
               // Goals Tracking
@@ -80,9 +84,18 @@ class NutritionInsightsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              _GoalProgress(title: 'Calorie Goal', progress: 0.7, color: Color(0xFF94e0b2)),
-              _GoalProgress(title: 'Protein Goal', progress: 0.5, color: Color(0xFF688273)),
-              _GoalProgress(title: 'Sustainability', progress: 0.85, color: Color(0xFFdde4e0)),
+              _GoalProgress(
+                  title: 'Calorie Goal',
+                  progress: 0.7,
+                  color: Color(0xFF94e0b2)),
+              _GoalProgress(
+                  title: 'Protein Goal',
+                  progress: 0.5,
+                  color: Color(0xFF688273)),
+              _GoalProgress(
+                  title: 'Sustainability',
+                  progress: 0.85,
+                  color: Color(0xFFdde4e0)),
               const SizedBox(height: 16),
               Row(
                 children: <Widget>[
@@ -103,7 +116,8 @@ class NutritionInsightsScreen extends StatelessWidget {
 class _MockChart extends StatelessWidget {
   final String title;
   final Color color;
-  const _MockChart({required this.title, required this.color, Key? key}) : super(key: key);
+  const _MockChart({required this.title, required this.color, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +156,9 @@ class _MockChart extends StatelessWidget {
 class _AISuggestionCard extends StatelessWidget {
   final String title;
   final String description;
-  const _AISuggestionCard({required this.title, required this.description, Key? key}) : super(key: key);
+  const _AISuggestionCard(
+      {required this.title, required this.description, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +198,12 @@ class _GoalProgress extends StatelessWidget {
   final String title;
   final double progress;
   final Color color;
-  const _GoalProgress({required this.title, required this.progress, required this.color, Key? key}) : super(key: key);
+  const _GoalProgress(
+      {required this.title,
+      required this.progress,
+      required this.color,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +260,8 @@ class _AchievementBadge extends StatelessWidget {
 
 class _NutritionBottomNavBar extends StatelessWidget {
   final int selectedIndex;
-  const _NutritionBottomNavBar({required this.selectedIndex, Key? key}) : super(key: key);
+  const _NutritionBottomNavBar({required this.selectedIndex, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -291,4 +313,4 @@ class _NutritionBottomNavBar extends StatelessWidget {
       ],
     );
   }
-} 
+}

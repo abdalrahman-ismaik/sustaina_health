@@ -104,15 +104,18 @@ class NutritionHomeScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   _AISuggestionCard(
                     title: 'Meal Recommendation',
-                    description: 'Try a quinoa salad with seasonal veggies for lunch!',
+                    description:
+                        'Try a quinoa salad with seasonal veggies for lunch!',
                   ),
                   _AISuggestionCard(
                     title: 'Sustainable Alternative',
-                    description: 'Swap beef for lentils to reduce your carbon footprint.',
+                    description:
+                        'Swap beef for lentils to reduce your carbon footprint.',
                   ),
                   _AISuggestionCard(
                     title: 'Seasonal Produce',
-                    description: 'Strawberries, spinach, and asparagus are in season!',
+                    description:
+                        'Strawberries, spinach, and asparagus are in season!',
                   ),
                 ],
               ),
@@ -228,7 +231,9 @@ class _MealSection extends StatelessWidget {
 class _AISuggestionCard extends StatelessWidget {
   final String title;
   final String description;
-  const _AISuggestionCard({required this.title, required this.description, Key? key}) : super(key: key);
+  const _AISuggestionCard(
+      {required this.title, required this.description, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -269,4 +274,4 @@ class _AISuggestionCard extends StatelessWidget {
       ),
     );
   }
-} 
+}

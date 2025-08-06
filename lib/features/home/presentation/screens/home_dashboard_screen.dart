@@ -9,7 +9,8 @@ class HomeDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsyncValue = ref.watch(currentUserProvider);
     final user = userAsyncValue.value;
-    print('DEBUG HomeScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
+    print(
+        'DEBUG HomeScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -22,9 +23,10 @@ class HomeDashboardScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   CircleAvatar(
-                    backgroundImage: user?.photoURL != null 
-                      ? NetworkImage(user!.photoURL!)
-                      : NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBbMPNPoDJYRmGhiSiLcBUy7iaIrueGkMwr1g-E_TMeDL2ZglWXus-L-IStzb_2xPNyGSAxIdzKXWPDheMkf2uUhXif-dHU_NNYr8BbeywOJKrcnOhZx_YjYC0ndS6x2Wipoje7o5A4EFW73AtlmwdDXpkU2n1B9QrIjcvkuJdgLQUlWwacXOF9FFSyveX3lDdJKl2cqAjofJgvIpiAfXb3Gm4YCM7uGisgQV4o7uWB9Z__tFg5CmrqCzZKeds7nD63GvPVeVaJWSqz'),
+                    backgroundImage: user?.photoURL != null
+                        ? NetworkImage(user!.photoURL!)
+                        : NetworkImage(
+                            'https://lh3.googleusercontent.com/aida-public/AB6AXuBbMPNPoDJYRmGhiSiLcBUy7iaIrueGkMwr1g-E_TMeDL2ZglWXus-L-IStzb_2xPNyGSAxIdzKXWPDheMkf2uUhXif-dHU_NNYr8BbeywOJKrcnOhZx_YjYC0ndS6x2Wipoje7o5A4EFW73AtlmwdDXpkU2n1B9QrIjcvkuJdgLQUlWwacXOF9FFSyveX3lDdJKl2cqAjofJgvIpiAfXb3Gm4YCM7uGisgQV4o7uWB9Z__tFg5CmrqCzZKeds7nD63GvPVeVaJWSqz'),
                     radius: 20,
                   ),
                   const Text(
@@ -78,9 +80,17 @@ class HomeDashboardScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const <Widget>[
-                          Text('Sustainability Score', style: TextStyle(color: Color(0xFF111714), fontSize: 16, fontWeight: FontWeight.w500)),
+                          Text('Sustainability Score',
+                              style: TextStyle(
+                                  color: Color(0xFF111714),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500)),
                           SizedBox(height: 8),
-                          Text('85', style: TextStyle(color: Color(0xFF111714), fontSize: 28, fontWeight: FontWeight.bold)),
+                          Text('85',
+                              style: TextStyle(
+                                  color: Color(0xFF111714),
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -128,18 +138,24 @@ class HomeDashboardScreen extends ConsumerWidget {
             ),
             _InsightCard(
               title: 'Personalized Recommendation',
-              description: 'Try a 30-minute yoga session to improve flexibility and reduce stress.',
-              imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAN8tJnzpGuNSKc3ud4WgNYqhpIqu_ip3H_COmOKPKlfCcLPMyxh8SrcJjVp5aAsSySDKT_0nPrcH3GhOg3daTSahLZSiroKxiNsxiJtfEL9WP_ONHguYZZgbFHbZbK8FW6RA07WH58c4-sT2VifqeRIOCbH6pmW9l7IepgjYOWMLoVkNwACAoKqod3VwFvTyCZL9LpfnDM1costlueX8yUb4yKqvBRE_2KSTLDHT_0E0qW49BeVRZBZ5HOVjRvcmhc8HCLou2Evw-c',
+              description:
+                  'Try a 30-minute yoga session to improve flexibility and reduce stress.',
+              imageUrl:
+                  'https://lh3.googleusercontent.com/aida-public/AB6AXuAN8tJnzpGuNSKc3ud4WgNYqhpIqu_ip3H_COmOKPKlfCcLPMyxh8SrcJjVp5aAsSySDKT_0nPrcH3GhOg3daTSahLZSiroKxiNsxiJtfEL9WP_ONHguYZZgbFHbZbK8FW6RA07WH58c4-sT2VifqeRIOCbH6pmW9l7IepgjYOWMLoVkNwACAoKqod3VwFvTyCZL9LpfnDM1costlueX8yUb4yKqvBRE_2KSTLDHT_0E0qW49BeVRZBZ5HOVjRvcmhc8HCLou2Evw-c',
             ),
             _InsightCard(
               title: 'Progress Highlights',
-              description: "You've maintained a consistent sleep schedule for the past week. Keep it up!",
-              imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAIuGzQreUW19QGoBqDbfYbdTaVZ-RLL08y3_MCnS525Iu_9ky3RJ03EJ5ZaOJQyQl33xhkoMvLyqBpOJ5Aghg6KHA9Lt422Am55me1A83pqgWzT-t0ItXIOi-CH5FXndonTRghYKEaOy1h9pUXy_WS8WlvWYLz9nRBb2r_Lga9s4ADnFFyut_niSVUOSqn8pj0CLNfhWOlMK6Tu8u2YtIbgX8oIpoOCMj0PWMhPUXLsCOKz7V6Tpcc8wXP5YvfK8CKzj6R9mF8_wtL',
+              description:
+                  "You've maintained a consistent sleep schedule for the past week. Keep it up!",
+              imageUrl:
+                  'https://lh3.googleusercontent.com/aida-public/AB6AXuAIuGzQreUW19QGoBqDbfYbdTaVZ-RLL08y3_MCnS525Iu_9ky3RJ03EJ5ZaOJQyQl33xhkoMvLyqBpOJ5Aghg6KHA9Lt422Am55me1A83pqgWzT-t0ItXIOi-CH5FXndonTRghYKEaOy1h9pUXy_WS8WlvWYLz9nRBb2r_Lga9s4ADnFFyut_niSVUOSqn8pj0CLNfhWOlMK6Tu8u2YtIbgX8oIpoOCMj0PWMhPUXLsCOKz7V6Tpcc8wXP5YvfK8CKzj6R9mF8_wtL',
             ),
             _InsightCard(
               title: 'Eco-Tip of the Day',
-              description: 'Reduce your carbon footprint by opting for plant-based meals today.',
-              imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAoxTI4wExdaChZHR_Kqq0GiugZjr-i_tlNr_mdvMJ0C5Vp2pfqti6EAFzODY1ypeHQDlta6AyMdA2RFweDiEzLtNQjk9UML5Fyx9Uh_c_0yNbw3olecmCbOcFECWkeetvZY_dKnKBLh8NCmq27ikZQoZzeuprYUK1tM7l9HYIhkOj9ghPC8iCy-KdEzadB45rvWaHfw-_yLfzGaJzh2IRH-WhHnEuICz3pD-tPO2EKqtf1f99HbMPMQnNxFHUx8vxGeFIHddYxpzrz',
+              description:
+                  'Reduce your carbon footprint by opting for plant-based meals today.',
+              imageUrl:
+                  'https://lh3.googleusercontent.com/aida-public/AB6AXuAoxTI4wExdaChZHR_Kqq0GiugZjr-i_tlNr_mdvMJ0C5Vp2pfqti6EAFzODY1ypeHQDlta6AyMdA2RFweDiEzLtNQjk9UML5Fyx9Uh_c_0yNbw3olecmCbOcFECWkeetvZY_dKnKBLh8NCmq27ikZQoZzeuprYUK1tM7l9HYIhkOj9ghPC8iCy-KdEzadB45rvWaHfw-_yLfzGaJzh2IRH-WhHnEuICz3pD-tPO2EKqtf1f99HbMPMQnNxFHUx8vxGeFIHddYxpzrz',
             ),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -158,8 +174,12 @@ class HomeDashboardScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  _QuickActionButton(label: 'Log Meal', icon: Icons.camera_alt, onTap: () {}),
-                  _QuickActionButton(label: 'Start Workout', icon: Icons.fitness_center, onTap: () {}),
+                  _QuickActionButton(
+                      label: 'Log Meal', icon: Icons.camera_alt, onTap: () {}),
+                  _QuickActionButton(
+                      label: 'Start Workout',
+                      icon: Icons.fitness_center,
+                      onTap: () {}),
                 ],
               ),
             ),
@@ -168,8 +188,14 @@ class HomeDashboardScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  _QuickActionButton(label: 'Log Sleep', icon: Icons.nightlight_round, onTap: () {}),
-                  _QuickActionButton(label: 'View Challenges', icon: Icons.emoji_events, onTap: () {}),
+                  _QuickActionButton(
+                      label: 'Log Sleep',
+                      icon: Icons.nightlight_round,
+                      onTap: () {}),
+                  _QuickActionButton(
+                      label: 'View Challenges',
+                      icon: Icons.emoji_events,
+                      onTap: () {}),
                 ],
               ),
             ),
@@ -212,7 +238,8 @@ class _StatCard extends StatelessWidget {
   final String title;
   final String value;
   final String change;
-  const _StatCard({required this.title, required this.value, required this.change});
+  const _StatCard(
+      {required this.title, required this.value, required this.change});
 
   @override
   Widget build(BuildContext context) {
@@ -226,11 +253,23 @@ class _StatCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(title, style: const TextStyle(color: Color(0xFF111714), fontSize: 16, fontWeight: FontWeight.w500)),
+            Text(title,
+                style: const TextStyle(
+                    color: Color(0xFF111714),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
-            Text(value, style: const TextStyle(color: Color(0xFF111714), fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(value,
+                style: const TextStyle(
+                    color: Color(0xFF111714),
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text(change, style: const TextStyle(color: Color(0xFF078829), fontSize: 14, fontWeight: FontWeight.w500)),
+            Text(change,
+                style: const TextStyle(
+                    color: Color(0xFF078829),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -242,7 +281,8 @@ class _InsightCard extends StatelessWidget {
   final String title;
   final String description;
   final String imageUrl;
-  const _InsightCard({required this.title, required this.description, required this.imageUrl});
+  const _InsightCard(
+      {required this.title, required this.description, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +294,8 @@ class _InsightCard extends StatelessWidget {
           image: DecorationImage(
             image: NetworkImage(imageUrl),
             fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.4), BlendMode.darken),
+            colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.4), BlendMode.darken),
           ),
         ),
         child: Container(
@@ -273,9 +314,17 @@ class _InsightCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(title, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(title,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              Text(description, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
+              Text(description,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500)),
             ],
           ),
         ),
@@ -288,7 +337,8 @@ class _QuickActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
-  const _QuickActionButton({required this.label, required this.icon, required this.onTap});
+  const _QuickActionButton(
+      {required this.label, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -296,7 +346,9 @@ class _QuickActionButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: onTap,
         icon: Icon(icon, color: const Color(0xFF111714)),
-        label: Text(label, style: const TextStyle(color: Color(0xFF111714), fontWeight: FontWeight.bold)),
+        label: Text(label,
+            style: const TextStyle(
+                color: Color(0xFF111714), fontWeight: FontWeight.bold)),
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF38E07B),
           shape: RoundedRectangleBorder(
@@ -313,7 +365,8 @@ class _ActivityFeedItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  const _ActivityFeedItem({required this.icon, required this.title, required this.subtitle});
+  const _ActivityFeedItem(
+      {required this.icon, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -334,12 +387,18 @@ class _ActivityFeedItem extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(title, style: const TextStyle(color: Color(0xFF111714), fontSize: 16, fontWeight: FontWeight.w500)),
-              Text(subtitle, style: const TextStyle(color: Color(0xFF648772), fontSize: 14)),
+              Text(title,
+                  style: const TextStyle(
+                      color: Color(0xFF111714),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500)),
+              Text(subtitle,
+                  style:
+                      const TextStyle(color: Color(0xFF648772), fontSize: 14)),
             ],
           ),
         ],
       ),
     );
   }
-} 
+}

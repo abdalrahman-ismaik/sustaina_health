@@ -3,13 +3,9 @@ import '../../data/models/workout_models.dart';
 
 class WorkoutDetailScreen extends StatefulWidget {
   final WorkoutPlan workout;
-  final SavedWorkoutPlan? savedWorkout;
 
-  const WorkoutDetailScreen({
-    Key? key, 
-    required this.workout,
-    this.savedWorkout,
-  }) : super(key: key);
+  const WorkoutDetailScreen({Key? key, required this.workout})
+      : super(key: key);
 
   @override
   State<WorkoutDetailScreen> createState() => _WorkoutDetailScreenState();
@@ -18,6 +14,7 @@ class WorkoutDetailScreen extends StatefulWidget {
 class _WorkoutDetailScreenState extends State<WorkoutDetailScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  int _currentSessionIndex = 0;
 
   @override
   void initState() {

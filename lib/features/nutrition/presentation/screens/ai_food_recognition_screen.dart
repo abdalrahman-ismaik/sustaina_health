@@ -4,7 +4,8 @@ class AIFoodRecognitionScreen extends StatefulWidget {
   const AIFoodRecognitionScreen({Key? key}) : super(key: key);
 
   @override
-  State<AIFoodRecognitionScreen> createState() => _AIFoodRecognitionScreenState();
+  State<AIFoodRecognitionScreen> createState() =>
+      _AIFoodRecognitionScreenState();
 }
 
 class _AIFoodRecognitionScreenState extends State<AIFoodRecognitionScreen> {
@@ -32,7 +33,9 @@ class _AIFoodRecognitionScreenState extends State<AIFoodRecognitionScreen> {
         ),
         centerTitle: true,
       ),
-      body: hasResult ? _RecognitionResult(onEdit: () => setState(() => hasResult = false)) : _CameraView(onCapture: () => setState(() => hasResult = true)),
+      body: hasResult
+          ? _RecognitionResult(onEdit: () => setState(() => hasResult = false))
+          : _CameraView(onCapture: () => setState(() => hasResult = true)),
     );
   }
 }
@@ -62,22 +65,28 @@ class _CameraView extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onCapture,
               icon: const Icon(Icons.camera, color: Color(0xFF121714)),
-              label: const Text('Capture', style: TextStyle(color: Color(0xFF121714))),
+              label: const Text('Capture',
+                  style: TextStyle(color: Color(0xFF121714))),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF94e0b2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
             ),
             const SizedBox(width: 16),
             OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.photo_library, color: Color(0xFF688273)),
-              label: const Text('Gallery', style: TextStyle(color: Color(0xFF688273))),
+              label: const Text('Gallery',
+                  style: TextStyle(color: Color(0xFF688273))),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFFdde4e0)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
             ),
           ],
@@ -133,9 +142,11 @@ class _RecognitionResult extends StatelessWidget {
                     onPressed: onEdit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFf1f4f2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
                     ),
-                    child: const Text('Edit Foods', style: TextStyle(color: Color(0xFF121714))),
+                    child: const Text('Edit Foods',
+                        style: TextStyle(color: Color(0xFF121714))),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -146,9 +157,11 @@ class _RecognitionResult extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF94e0b2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
                     ),
-                    child: const Text('Add to Log', style: TextStyle(color: Color(0xFF121714))),
+                    child: const Text('Add to Log',
+                        style: TextStyle(color: Color(0xFF121714))),
                   ),
                 ),
               ],
@@ -163,7 +176,8 @@ class _RecognitionResult extends StatelessWidget {
 class _ResultRow extends StatelessWidget {
   final String label;
   final String value;
-  const _ResultRow({required this.label, required this.value, Key? key}) : super(key: key);
+  const _ResultRow({required this.label, required this.value, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +209,8 @@ class _ResultRow extends StatelessWidget {
 
 class _NutritionBottomNavBar extends StatelessWidget {
   final int selectedIndex;
-  const _NutritionBottomNavBar({required this.selectedIndex, Key? key}) : super(key: key);
+  const _NutritionBottomNavBar({required this.selectedIndex, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -247,4 +262,4 @@ class _NutritionBottomNavBar extends StatelessWidget {
       ],
     );
   }
-} 
+}

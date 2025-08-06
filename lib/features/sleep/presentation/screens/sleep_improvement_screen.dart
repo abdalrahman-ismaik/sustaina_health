@@ -100,12 +100,14 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                 children: <Widget>[
                   Switch(
                     value: _reminderEnabled,
-                    onChanged: (bool val) => setState(() => _reminderEnabled = val),
+                    onChanged: (bool val) =>
+                        setState(() => _reminderEnabled = val),
                     activeColor: const Color(0xFF94e0b2),
                     inactiveTrackColor: const Color(0xFF2a4133),
                   ),
                   const SizedBox(width: 8),
-                  const Text('Enable Reminder', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  const Text('Enable Reminder',
+                      style: TextStyle(color: Colors.white, fontSize: 16)),
                 ],
               ),
               if (_reminderEnabled) ...<Widget>[
@@ -122,11 +124,14 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2a4133),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                       ),
                       onPressed: _pickTime,
-                      child: const Text('Change', style: TextStyle(color: Colors.white)),
+                      child: const Text('Change',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -161,7 +166,8 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF94e0b2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: () {
@@ -196,7 +202,8 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
 class _TipTile extends StatelessWidget {
   final IconData icon;
   final String text;
-  const _TipTile({required this.icon, required this.text, Key? key}) : super(key: key);
+  const _TipTile({required this.icon, required this.text, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -217,5 +224,3 @@ class _TipTile extends StatelessWidget {
     );
   }
 }
-
- 

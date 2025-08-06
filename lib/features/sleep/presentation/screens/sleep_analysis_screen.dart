@@ -48,7 +48,8 @@ class SleepAnalysisScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Center(
-                  child: Text('Sleep Trends Chart', style: TextStyle(color: Color(0xFF9bbfaa))),
+                  child: Text('Sleep Trends Chart',
+                      style: TextStyle(color: Color(0xFF9bbfaa))),
                 ),
               ),
               const SizedBox(height: 20),
@@ -79,7 +80,8 @@ class SleepAnalysisScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Center(
-                  child: Text('Bar/Pie Chart Placeholder', style: TextStyle(color: Color(0xFF9bbfaa))),
+                  child: Text('Bar/Pie Chart Placeholder',
+                      style: TextStyle(color: Color(0xFF9bbfaa))),
                 ),
               ),
               const SizedBox(height: 20),
@@ -140,15 +142,21 @@ class SleepAnalysisScreen extends StatelessWidget {
 class _SummaryStat extends StatelessWidget {
   final String title;
   final String value;
-  const _SummaryStat({required this.title, required this.value, Key? key}) : super(key: key);
+  const _SummaryStat({required this.title, required this.value, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Text(title, style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
+        Text(title,
+            style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(value,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -173,7 +181,8 @@ class _SleepStageBreakdown extends StatelessWidget {
 class _SleepStageRow extends StatelessWidget {
   final String stage;
   final String value;
-  const _SleepStageRow({required this.stage, required this.value, Key? key}) : super(key: key);
+  const _SleepStageRow({required this.stage, required this.value, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -182,12 +191,12 @@ class _SleepStageRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(stage, style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)),
+          Text(stage,
+              style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
+          Text(value,
+              style: const TextStyle(color: Colors.white, fontSize: 14)),
         ],
       ),
     );
   }
 }
-
- 

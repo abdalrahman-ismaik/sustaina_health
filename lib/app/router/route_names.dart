@@ -12,7 +12,8 @@ class RouteNames {
   static const String profileSetup = '/profile-setup';
   static const String personalInfo = '/profile-setup/personal-info';
   static const String healthGoals = '/profile-setup/health-goals';
-  static const String sustainabilityPrefs = '/profile-setup/sustainability-prefs';
+  static const String sustainabilityPrefs =
+      '/profile-setup/sustainability-prefs';
 
   // Main App Routes
   static const String home = '/home';
@@ -23,7 +24,6 @@ class RouteNames {
 
   // Exercise Sub-routes
   static const String aiWorkoutGenerator = '/exercise/ai-generator';
-  static const String workoutDetail = '/exercise/workout/:workoutId';
   static const String workoutSession = '/exercise/session/:sessionId';
   static const String exerciseHistory = '/exercise/history';
 

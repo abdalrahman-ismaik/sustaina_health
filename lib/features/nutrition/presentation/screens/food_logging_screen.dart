@@ -74,7 +74,8 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                     selected: inputMethod == 'Camera',
                     onTap: () {
                       setState(() => inputMethod = 'Camera');
-                      Navigator.of(context).pushNamed('/nutrition/ai-recognition');
+                      Navigator.of(context)
+                          .pushNamed('/nutrition/ai-recognition');
                     },
                   ),
                   _InputMethodButton(
@@ -84,7 +85,8 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                     onTap: () {
                       setState(() => inputMethod = 'Barcode');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Barcode scanning coming soon!')),
+                        const SnackBar(
+                            content: Text('Barcode scanning coming soon!')),
                       );
                     },
                   ),
@@ -103,7 +105,8 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                     onTap: () {
                       setState(() => inputMethod = 'Recent');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Recent foods coming soon!')),
+                        const SnackBar(
+                            content: Text('Recent foods coming soon!')),
                       );
                     },
                   ),
@@ -131,7 +134,8 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (String val) => foodName = val,
-                      validator: (String? val) => val == null || val.isEmpty ? 'Enter food name' : null,
+                      validator: (String? val) =>
+                          val == null || val.isEmpty ? 'Enter food name' : null,
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -143,7 +147,8 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                             color: const Color(0xFFf1f4f2),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.image, size: 32, color: Color(0xFF688273)),
+                          child: const Icon(Icons.image,
+                              size: 32, color: Color(0xFF688273)),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -153,7 +158,10 @@ class _FoodLoggingScreenState extends State<FoodLoggingScreen> {
                               border: OutlineInputBorder(),
                             ),
                             onChanged: (String val) => servingSize = val,
-                            validator: (String? val) => val == null || val.isEmpty ? 'Enter serving size' : null,
+                            validator: (String? val) =>
+                                val == null || val.isEmpty
+                                    ? 'Enter serving size'
+                                    : null,
                           ),
                         ),
                       ],
@@ -229,7 +237,13 @@ class _InputMethodButton extends StatelessWidget {
   final IconData icon;
   final bool selected;
   final VoidCallback onTap;
-  const _InputMethodButton({required this.label, required this.icon, required this.selected, required this.onTap, Key? key}) : super(key: key);
+  const _InputMethodButton(
+      {required this.label,
+      required this.icon,
+      required this.selected,
+      required this.onTap,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -247,12 +261,17 @@ class _InputMethodButton extends StatelessWidget {
         ),
         child: Column(
           children: <Widget>[
-            Icon(icon, color: selected ? const Color(0xFF121714) : const Color(0xFF688273)),
+            Icon(icon,
+                color: selected
+                    ? const Color(0xFF121714)
+                    : const Color(0xFF688273)),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: selected ? const Color(0xFF121714) : const Color(0xFF688273),
+                color: selected
+                    ? const Color(0xFF121714)
+                    : const Color(0xFF688273),
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),
@@ -266,7 +285,8 @@ class _InputMethodButton extends StatelessWidget {
 
 class _NutritionBottomNavBar extends StatelessWidget {
   final int selectedIndex;
-  const _NutritionBottomNavBar({required this.selectedIndex, Key? key}) : super(key: key);
+  const _NutritionBottomNavBar({required this.selectedIndex, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -318,4 +338,4 @@ class _NutritionBottomNavBar extends StatelessWidget {
       ],
     );
   }
-} 
+}

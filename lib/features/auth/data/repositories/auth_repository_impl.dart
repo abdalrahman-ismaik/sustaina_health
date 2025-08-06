@@ -33,7 +33,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthResult> loginWithEmailAndPassword(LoginRequest request) async {
-    final UserCredential credential = await _firebaseAuth.signInWithEmailAndPassword(
+    final UserCredential credential =
+        await _firebaseAuth.signInWithEmailAndPassword(
       email: request.email,
       password: request.password,
     );
@@ -45,8 +46,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResult> registerWithEmailAndPassword(RegisterRequest request) async {
-    final UserCredential credential = await _firebaseAuth.createUserWithEmailAndPassword(
+  Future<AuthResult> registerWithEmailAndPassword(
+      RegisterRequest request) async {
+    final UserCredential credential =
+        await _firebaseAuth.createUserWithEmailAndPassword(
       email: request.email,
       password: request.password,
     );
@@ -63,39 +66,45 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AuthResult?> loginWithGoogle() async {
     if (_googleSignIn == null) {
-      throw UnsupportedError('Google sign-in is not supported on this platform.');
+      throw UnsupportedError(
+          'Google sign-in is not supported on this platform.');
     }
-    
+
     try {
       // Try to authenticate with Google
-      final GoogleSignInAccount? googleUser = await _googleSignIn!.authenticate();
+      final GoogleSignInAccount? googleUser =
+          await _googleSignIn!.authenticate();
       if (googleUser == null) return null; // User cancelled the sign-in
-      
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
       // Create credential with idToken
       final OAuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
-      
-      final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+
+      final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user == null) return null;
-      
-      final UserModel userModel = UserModel.fromFirebaseUser(userCredential.user!);
+
+      final UserModel userModel =
+          UserModel.fromFirebaseUser(userCredential.user!);
       return AuthResult(
         user: userModel.toEntity(),
         isNewUser: userCredential.additionalUserInfo?.isNewUser ?? false,
       );
     } catch (e) {
       print('Google Sign-In Error: $e'); // Add logging for debugging
-      
+
       // Handle specific Google Sign-In errors
-      if (e.toString().contains('serverClientId') || 
+      if (e.toString().contains('serverClientId') ||
           e.toString().contains('configuration') ||
           e.toString().contains('DEVELOPER_ERROR') ||
           e.toString().contains('GoogleSignIn') ||
           e.runtimeType.toString().contains('GoogleSignIn')) {
-        throw Exception('Google Sign-In configuration error. Please check your Firebase configuration, SHA-1 fingerprint, and google-services.json file.');
+        throw Exception(
+            'Google Sign-In configuration error. Please check your Firebase configuration, SHA-1 fingerprint, and google-services.json file.');
       }
       rethrow;
     }
@@ -105,10 +114,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<AuthResult?> loginWithFacebook() async {
     final LoginResult result = await FacebookAuth.instance.login();
     if (result.status != LoginStatus.success) return null;
-    final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(result.accessToken!.tokenString);
-    final UserCredential userCredential = await _firebaseAuth.signInWithCredential(facebookAuthCredential);
+    final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(result.accessToken!.tokenString);
+    final UserCredential userCredential =
+        await _firebaseAuth.signInWithCredential(facebookAuthCredential);
     if (userCredential.user == null) return null;
-    final UserModel userModel = UserModel.fromFirebaseUser(userCredential.user!);
+    final UserModel userModel =
+        UserModel.fromFirebaseUser(userCredential.user!);
     return AuthResult(
       user: userModel.toEntity(),
       isNewUser: userCredential.additionalUserInfo?.isNewUser ?? false,

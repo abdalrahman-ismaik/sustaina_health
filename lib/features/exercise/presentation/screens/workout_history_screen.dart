@@ -45,7 +45,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Color(0xFF121714)),
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF121714)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   const Expanded(
@@ -89,7 +90,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
               padding: const EdgeInsets.all(16),
               child: Card(
                 color: const Color(0xFFF1F4F2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -98,7 +100,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           IconButton(
-                            icon: const Icon(Icons.chevron_left, color: Color(0xFF121714)),
+                            icon: const Icon(Icons.chevron_left,
+                                color: Color(0xFF121714)),
                             onPressed: () {},
                           ),
                           const Text(
@@ -110,7 +113,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.chevron_right, color: Color(0xFF121714)),
+                            icon: const Icon(Icons.chevron_right,
+                                color: Color(0xFF121714)),
                             onPressed: () {},
                           ),
                         ],
@@ -144,7 +148,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                   _StatCard(title: 'Workouts Completed', value: '25'),
                   _StatCard(title: 'Favorite Workout', value: 'Yoga'),
                   _StatCard(title: 'Avg. Duration', value: '45 min'),
-                  _StatCard(title: 'Sustainability Impact', value: '15 kg CO2 saved'),
+                  _StatCard(
+                      title: 'Sustainability Impact', value: '15 kg CO2 saved'),
                 ],
               ),
             ),
@@ -162,12 +167,15 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
               ),
             ),
             ..._workoutEntries.map((Map<String, dynamic> entry) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Card(
                     color: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     child: ListTile(
-                      leading: const Icon(Icons.fitness_center, color: Color(0xFF121714)),
+                      leading: const Icon(Icons.fitness_center,
+                          color: Color(0xFF121714)),
                       title: Text(
                         entry['date'],
                         style: const TextStyle(
@@ -205,7 +213,8 @@ class _TabButton extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const _TabButton({required this.label, required this.selected, required this.onTap});
+  const _TabButton(
+      {required this.label, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +235,8 @@ class _TabButton extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: selected ? const Color(0xFF121714) : const Color(0xFF688273),
+              color:
+                  selected ? const Color(0xFF121714) : const Color(0xFF688273),
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -328,11 +338,19 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(title, style: const TextStyle(color: Color(0xFF121714), fontSize: 16, fontWeight: FontWeight.w500)),
+          Text(title,
+              style: const TextStyle(
+                  color: Color(0xFF121714),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
-          Text(value, style: const TextStyle(color: Color(0xFF121714), fontSize: 22, fontWeight: FontWeight.bold)),
+          Text(value,
+              style: const TextStyle(
+                  color: Color(0xFF121714),
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
-} 
+}

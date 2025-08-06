@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/workout_providers.dart';
 import '../../data/models/workout_models.dart';
 import '../../../profile/data/models/user_profile_model.dart';
-import '../../../auth/presentation/providers/auth_providers.dart';
-import 'workout_detail_screen.dart';
+import 'workout_detail_screen_new.dart';
 
 class AIWorkoutGeneratorScreen extends ConsumerStatefulWidget {
   const AIWorkoutGeneratorScreen({Key? key}) : super(key: key);
@@ -573,7 +572,17 @@ class _AIWorkoutGeneratorScreenState
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () => _showSaveWorkoutDialog(context, workout),
+                  onPressed: () {
+                    ref
+                        .read(savedWorkoutsProvider.notifier)
+                        .saveWorkout(workout);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Workout saved successfully!'),
+                        backgroundColor: Color(0xFF94E0B2),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     side: const BorderSide(color: Color(0xFF94E0B2)),
@@ -594,120 +603,6 @@ class _AIWorkoutGeneratorScreenState
           ),
         ],
       ),
-    );
-  }
-
-  void _showSaveWorkoutDialog(BuildContext context, WorkoutPlan workout) {
-    final user = ref.read(authStateProvider).value;
-    
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please sign in to save workouts'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    final TextEditingController nameController = TextEditingController();
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            'Save Workout Plan',
-            style: TextStyle(
-              color: Color(0xFF121714),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Give your workout plan a name:',
-                style: TextStyle(color: Color(0xFF121714)),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  hintText: 'e.g., "Full Body Strength Training"',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFF94E0B2)),
-                  ),
-                ),
-                textCapitalization: TextCapitalization.words,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final name = nameController.text.trim();
-                if (name.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a workout name'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-
-                try {
-                  final workoutId = await ref
-                      .read(savedWorkoutPlansProvider.notifier)
-                      .saveWorkout(name: name, workout: workout);
-                  
-                  if (workoutId != null) {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Workout "$name" saved successfully!'),
-                        backgroundColor: const Color(0xFF94E0B2),
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to save workout: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94E0B2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'Save',
-                style: TextStyle(
-                  color: Color(0xFF121714),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

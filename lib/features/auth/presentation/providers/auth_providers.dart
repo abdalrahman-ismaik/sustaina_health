@@ -8,12 +8,14 @@ import '../../domain/repositories/auth_repository.dart';
 import '../../domain/entities/user_entity.dart';
 
 // Provider for FirebaseAuth instance
-final Provider<FirebaseAuth> firebaseAuthProvider = Provider<FirebaseAuth>((ProviderRef<FirebaseAuth> ref) {
+final Provider<FirebaseAuth> firebaseAuthProvider =
+    Provider<FirebaseAuth>((ProviderRef<FirebaseAuth> ref) {
   return FirebaseAuth.instance;
 });
 
 // Provider for GoogleSignIn instance
-final Provider<GoogleSignIn?> googleSignInProvider = Provider<GoogleSignIn?>((ProviderRef<GoogleSignIn?> ref) {
+final Provider<GoogleSignIn?> googleSignInProvider =
+    Provider<GoogleSignIn?>((ProviderRef<GoogleSignIn?> ref) {
   // GoogleSignIn is not supported on Windows or Linux
   if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
     return GoogleSignIn.instance;
@@ -22,7 +24,8 @@ final Provider<GoogleSignIn?> googleSignInProvider = Provider<GoogleSignIn?>((Pr
 });
 
 // Provider for AuthRepository
-final Provider<AuthRepository> authRepositoryProvider = Provider<AuthRepository>((ProviderRef<AuthRepository> ref) {
+final Provider<AuthRepository> authRepositoryProvider =
+    Provider<AuthRepository>((ProviderRef<AuthRepository> ref) {
   return AuthRepositoryImpl(
     firebaseAuth: ref.watch(firebaseAuthProvider),
     googleSignIn: ref.watch(googleSignInProvider),
@@ -30,16 +33,19 @@ final Provider<AuthRepository> authRepositoryProvider = Provider<AuthRepository>
 });
 
 // Stream provider for auth state changes
-final StreamProvider<UserEntity?> authStateProvider = StreamProvider<UserEntity?>((StreamProviderRef<UserEntity?> ref) {
+final StreamProvider<UserEntity?> authStateProvider =
+    StreamProvider<UserEntity?>((StreamProviderRef<UserEntity?> ref) {
   final authRepo = ref.watch(authRepositoryProvider);
   return authRepo.authStateChanges;
 });
 
 // Stream provider for current user - directly watches auth state changes
-final StreamProvider<UserEntity?> currentUserProvider = StreamProvider<UserEntity?>((StreamProviderRef<UserEntity?> ref) {
+final StreamProvider<UserEntity?> currentUserProvider =
+    StreamProvider<UserEntity?>((StreamProviderRef<UserEntity?> ref) {
   final authRepo = ref.watch(authRepositoryProvider);
   return authRepo.authStateChanges.map((user) {
-    print('DEBUG: Current user stream updated: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
+    print(
+        'DEBUG: Current user stream updated: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
     return user;
   });
 });

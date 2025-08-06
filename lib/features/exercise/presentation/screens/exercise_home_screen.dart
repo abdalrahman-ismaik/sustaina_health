@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'workout_history_screen.dart';
+import 'ai_workout_generator_screen.dart';
+import 'saved_workout_plans_screen.dart';
 
 class ExerciseHomeScreen extends StatelessWidget {
   const ExerciseHomeScreen({Key? key}) : super(key: key);
@@ -42,7 +44,11 @@ class ExerciseHomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text('Weekly Workout Completion', style: TextStyle(color: Color(0xFF121714), fontSize: 16, fontWeight: FontWeight.w500)),
+                  const Text('Weekly Workout Completion',
+                      style: TextStyle(
+                          color: Color(0xFF121714),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   Stack(
                     children: <Widget>[
@@ -66,7 +72,8 @@ class ExerciseHomeScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text('3/4 workouts completed', style: TextStyle(color: Color(0xFF688273), fontSize: 14)),
+                  const Text('3/4 workouts completed',
+                      style: TextStyle(color: Color(0xFF688273), fontSize: 14)),
                 ],
               ),
             ),
@@ -78,7 +85,9 @@ class ExerciseHomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (BuildContext context) => const WorkoutHistoryScreen()),
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const WorkoutHistoryScreen()),
                       );
                     },
                     child: _StatCard(title: 'Current Streak', value: '5 days'),
@@ -88,10 +97,13 @@ class ExerciseHomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (BuildContext context) => const WorkoutHistoryScreen()),
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const WorkoutHistoryScreen()),
                       );
                     },
-                    child: _StatCard(title: 'Calories Burned Today', value: '350 kcal'),
+                    child: _StatCard(
+                        title: 'Calories Burned Today', value: '350 kcal'),
                   ),
                 ],
               ),
@@ -121,30 +133,73 @@ class ExerciseHomeScreen extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: SizedBox(
-                width: double.infinity,
-                height: 44,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: Navigate to AI Workout Generator
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF94E0B2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 44,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AIWorkoutGeneratorScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF94E0B2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Start AI Workout',
+                          style: TextStyle(
+                            color: Color(0xFF121714),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            letterSpacing: 0.015,
+                          ),
+                        ),
+                      ),
                     ),
-                    elevation: 0,
                   ),
-                  child: const Text(
-                    'Start AI Workout',
-                    style: TextStyle(
-                      color: Color(0xFF121714),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      letterSpacing: 0.015,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 44,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SavedWorkoutPlansScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          side: const BorderSide(color: Color(0xFF94E0B2)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'My Plans',
+                          style: TextStyle(
+                            color: Color(0xFF94E0B2),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            letterSpacing: 0.015,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
             // Recent Workouts & Outdoor Suggestions
@@ -184,9 +239,11 @@ class ExerciseHomeScreen extends StatelessWidget {
                 children: const <Widget>[
                   _CategoryCard(icon: Icons.favorite, label: 'Cardio'),
                   _CategoryCard(icon: Icons.fitness_center, label: 'Strength'),
-                  _CategoryCard(icon: Icons.self_improvement, label: 'Flexibility'),
+                  _CategoryCard(
+                      icon: Icons.self_improvement, label: 'Flexibility'),
                   _CategoryCard(icon: Icons.park, label: 'Outdoor'),
-                  _CategoryCard(icon: Icons.directions_bike, label: 'Eco-friendly'),
+                  _CategoryCard(
+                      icon: Icons.directions_bike, label: 'Eco-friendly'),
                 ],
               ),
             ),
@@ -215,9 +272,17 @@ class _StatCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(title, style: const TextStyle(color: Color(0xFF121714), fontSize: 16, fontWeight: FontWeight.w500)),
+            Text(title,
+                style: const TextStyle(
+                    color: Color(0xFF121714),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
-            Text(value, style: const TextStyle(color: Color(0xFF121714), fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(value,
+                style: const TextStyle(
+                    color: Color(0xFF121714),
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -268,16 +333,20 @@ class _CategoryCard extends StatelessWidget {
         children: <Widget>[
           Icon(icon, color: const Color(0xFF121714)),
           const SizedBox(width: 12),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF121714),
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFF121714),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],
       ),
     );
   }
-} 
+}
