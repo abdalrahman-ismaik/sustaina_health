@@ -599,7 +599,7 @@ class _AIWorkoutGeneratorScreenState
 
   void _showSaveWorkoutDialog(BuildContext context, WorkoutPlan workout) {
     final user = ref.read(authStateProvider).value;
-    
+
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -611,7 +611,7 @@ class _AIWorkoutGeneratorScreenState
     }
 
     final TextEditingController nameController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -672,7 +672,7 @@ class _AIWorkoutGeneratorScreenState
                   final workoutId = await ref
                       .read(savedWorkoutPlansProvider.notifier)
                       .saveWorkout(name: name, workout: workout);
-                  
+
                   if (workoutId != null) {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(

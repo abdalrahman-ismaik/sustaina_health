@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import '../../data/models/workout_models.dart';
+import '../providers/workout_providers.dart';
+import 'active_workout_screen.dart';
 
-class WorkoutDetailScreen extends StatefulWidget {
+class WorkoutDetailScreen extends ConsumerStatefulWidget {
   final WorkoutPlan workout;
   final SavedWorkoutPlan? savedWorkout;
 
   const WorkoutDetailScreen({
-    Key? key, 
+    Key? key,
     required this.workout,
     this.savedWorkout,
   }) : super(key: key);
 
   @override
-  State<WorkoutDetailScreen> createState() => _WorkoutDetailScreenState();
+  ConsumerState<WorkoutDetailScreen> createState() =>
+      _WorkoutDetailScreenState();
 }
 
-class _WorkoutDetailScreenState extends State<WorkoutDetailScreen>
+class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
@@ -209,15 +214,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen>
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: Navigate to workout execution screen
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Workout execution coming soon!'),
-                        backgroundColor: Color(0xFF94E0B2),
-                      ),
-                    );
-                  },
+                  onPressed: () => _startWorkout(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF94E0B2),
                     shape: RoundedRectangleBorder(
@@ -416,5 +413,137 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen>
         ),
       ],
     );
+  }
+
+  void _startWorkout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Start Workout Session',
+            style: TextStyle(
+              color: Color(0xFF121714),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Which workout session would you like to start?',
+                style: TextStyle(color: Color(0xFF121714)),
+              ),
+              const SizedBox(height: 16),
+              // Show available workout sessions
+              ...widget.workout.workoutSessions.asMap().entries.map((entry) {
+                final index = entry.key;
+                final session = entry.value;
+                return Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ElevatedButton(
+                    onPressed: () =>
+                        _startWorkoutSession(context, index, session),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF94E0B2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      'Session ${index + 1} (${session.exercises.length} exercises)',
+                      style: const TextStyle(
+                        color: Color(0xFF121714),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _startWorkoutSession(
+      BuildContext context, int sessionIndex, WorkoutSession session) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFF94E0B2),
+            ),
+          );
+        },
+      );
+
+      final workoutName = widget.savedWorkout?.name ??
+          'AI Generated Workout Session ${sessionIndex + 1}';
+
+      // Create the session directly for immediate navigation
+      final activeSession = ActiveWorkoutSession.fromWorkoutSession(
+        id: const Uuid().v4(),
+        workoutName: workoutName,
+        workoutSession: session,
+      );
+
+      // Start the workout in the provider (async, no need to wait)
+      ref
+          .read(activeWorkoutSessionProvider.notifier)
+          .startWorkout(
+            workoutName: workoutName,
+            workoutSession: session,
+          )
+          .catchError((e) {
+        print('Background workout start error: $e');
+      });
+
+      // Dismiss dialogs and navigate immediately with the created session
+      Navigator.of(context).pop(); // Close loading dialog
+      Navigator.of(context).pop(); // Close selection dialog
+
+      // Navigate immediately with the session we created
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ActiveWorkoutScreen(
+            workoutSession: activeSession,
+          ),
+        ),
+      );
+    } catch (e) {
+      // Dismiss loading dialog if still showing
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(); // Close loading dialog
+      }
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(); // Close selection dialog
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to start workout: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      print('Error starting workout: $e'); // Debug print
+    }
   }
 }

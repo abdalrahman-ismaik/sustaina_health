@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/services/workout_api_service.dart';
 import '../../data/services/local_workout_storage_service.dart';
+import '../../data/services/workout_session_service.dart';
 import '../../data/repositories/workout_repository_impl.dart';
 import '../../domain/repositories/workout_repository.dart';
 import '../../data/models/workout_models.dart';
 import '../../../profile/data/models/user_profile_model.dart';
+import 'package:uuid/uuid.dart';
 
 // API Service Provider
 final workoutApiServiceProvider = Provider<WorkoutApiService>((ref) {
@@ -12,8 +14,14 @@ final workoutApiServiceProvider = Provider<WorkoutApiService>((ref) {
 });
 
 // Local Workout Storage Service Provider
-final localWorkoutStorageServiceProvider = Provider<LocalWorkoutStorageService>((ref) {
+final localWorkoutStorageServiceProvider =
+    Provider<LocalWorkoutStorageService>((ref) {
   return LocalWorkoutStorageService();
+});
+
+// Workout Session Service Provider
+final workoutSessionServiceProvider = Provider<WorkoutSessionService>((ref) {
+  return WorkoutSessionService();
 });
 
 // Repository Provider
@@ -122,17 +130,17 @@ final apiHealthProvider = FutureProvider<bool>((ref) async {
 });
 
 // Saved Workouts Provider (Local Storage)
-final savedWorkoutPlansProvider =
-    StateNotifierProvider<SavedWorkoutPlansNotifier, AsyncValue<List<SavedWorkoutPlan>>>(
-        (ref) {
-  return SavedWorkoutPlansNotifier(ref.watch(localWorkoutStorageServiceProvider));
+final savedWorkoutPlansProvider = StateNotifierProvider<
+    SavedWorkoutPlansNotifier, AsyncValue<List<SavedWorkoutPlan>>>((ref) {
+  return SavedWorkoutPlansNotifier(
+      ref.watch(localWorkoutStorageServiceProvider));
 });
 
 class SavedWorkoutPlansNotifier
     extends StateNotifier<AsyncValue<List<SavedWorkoutPlan>>> {
   final LocalWorkoutStorageService _localStorageService;
 
-  SavedWorkoutPlansNotifier(this._localStorageService) 
+  SavedWorkoutPlansNotifier(this._localStorageService)
       : super(const AsyncValue.loading()) {
     loadSavedWorkouts();
   }
@@ -234,3 +242,208 @@ class SavedWorkoutsNotifier
     }
   }
 }
+
+// Active Workout Session Provider
+final activeWorkoutSessionProvider =
+    StateNotifierProvider<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?>(
+        (ref) {
+  return ActiveWorkoutSessionNotifier(ref.watch(workoutSessionServiceProvider));
+});
+
+class ActiveWorkoutSessionNotifier
+    extends StateNotifier<ActiveWorkoutSession?> {
+  final WorkoutSessionService _sessionService;
+  final Uuid _uuid = const Uuid();
+
+  ActiveWorkoutSessionNotifier(this._sessionService) : super(null) {
+    _loadActiveWorkout();
+  }
+
+  Future<void> _loadActiveWorkout() async {
+    try {
+      final activeWorkout = await _sessionService.getActiveWorkout();
+      state = activeWorkout;
+    } catch (e) {
+      print('Error loading active workout: $e');
+    }
+  }
+
+  Future<void> startWorkout({
+    required String workoutName,
+    required WorkoutSession workoutSession,
+  }) async {
+    try {
+      print(
+          'Starting workout: $workoutName with ${workoutSession.exercises.length} exercises'); // Debug
+
+      final session = ActiveWorkoutSession.fromWorkoutSession(
+        id: _uuid.v4(),
+        workoutName: workoutName,
+        workoutSession: workoutSession,
+      );
+
+      print(
+          'Created session with ${session.exercises.length} exercises'); // Debug
+
+      await _sessionService.saveActiveWorkout(session);
+      state = session;
+
+      print('Workout started successfully, state updated'); // Debug
+    } catch (e) {
+      print('Error in startWorkout: $e'); // Debug
+      throw Exception('Failed to start workout: $e');
+    }
+  }
+
+  void setActiveSession(ActiveWorkoutSession session) {
+    try {
+      print('Setting active session: ${session.workoutName}'); // Debug
+      state = session;
+    } catch (e) {
+      print('Error setting active session: $e'); // Debug
+    }
+  }
+
+  Future<void> addSet({
+    required int exerciseIndex,
+    required int reps,
+    double? weight,
+    int? duration,
+    String? notes,
+  }) async {
+    if (state == null) return;
+
+    try {
+      final newSet = ExerciseSet(
+        reps: reps,
+        weight: weight,
+        duration: duration,
+        completedAt: DateTime.now(),
+        notes: notes,
+      );
+
+      final updatedExercises = List<CompletedExercise>.from(state!.exercises);
+      final exercise = updatedExercises[exerciseIndex];
+
+      updatedExercises[exerciseIndex] = exercise.copyWith(
+        sets: [...exercise.sets, newSet],
+      );
+
+      final updatedSession = state!.copyWith(exercises: updatedExercises);
+      await _sessionService.saveActiveWorkout(updatedSession);
+      state = updatedSession;
+    } catch (e) {
+      throw Exception('Failed to add set: $e');
+    }
+  }
+
+  Future<void> markExerciseComplete(int exerciseIndex) async {
+    if (state == null) return;
+
+    try {
+      final updatedExercises = List<CompletedExercise>.from(state!.exercises);
+      updatedExercises[exerciseIndex] =
+          updatedExercises[exerciseIndex].copyWith(
+        isCompleted: true,
+      );
+
+      final updatedSession = state!.copyWith(exercises: updatedExercises);
+      await _sessionService.saveActiveWorkout(updatedSession);
+      state = updatedSession;
+    } catch (e) {
+      throw Exception('Failed to mark exercise complete: $e');
+    }
+  }
+
+  Future<void> updateWorkoutTimer() async {
+    if (state == null) return;
+
+    try {
+      final now = DateTime.now();
+      final duration = now.difference(state!.startTime);
+
+      final updatedSession = state!.copyWith(totalDuration: duration);
+      await _sessionService.saveActiveWorkout(updatedSession);
+      state = updatedSession;
+    } catch (e) {
+      // Don't throw error for timer updates
+      print('Failed to update timer: $e');
+    }
+  }
+
+  Future<void> completeWorkout({String? notes}) async {
+    if (state == null) return;
+
+    try {
+      final now = DateTime.now();
+      final totalDuration = now.difference(state!.startTime);
+
+      final completedSession = state!.copyWith(
+        endTime: now,
+        totalDuration: totalDuration,
+        isCompleted: true,
+        notes: notes,
+      );
+
+      // Save to completed workouts
+      await _sessionService.saveCompletedWorkout(completedSession);
+
+      // Clear active workout
+      await _sessionService.clearActiveWorkout();
+
+      state = null;
+    } catch (e) {
+      throw Exception('Failed to complete workout: $e');
+    }
+  }
+
+  Future<void> cancelWorkout() async {
+    try {
+      await _sessionService.clearActiveWorkout();
+      state = null;
+    } catch (e) {
+      throw Exception('Failed to cancel workout: $e');
+    }
+  }
+}
+
+// Completed Workouts Provider
+final completedWorkoutsProvider = StateNotifierProvider<
+    CompletedWorkoutsNotifier, AsyncValue<List<ActiveWorkoutSession>>>((ref) {
+  return CompletedWorkoutsNotifier(ref.watch(workoutSessionServiceProvider));
+});
+
+class CompletedWorkoutsNotifier
+    extends StateNotifier<AsyncValue<List<ActiveWorkoutSession>>> {
+  final WorkoutSessionService _sessionService;
+
+  CompletedWorkoutsNotifier(this._sessionService)
+      : super(const AsyncValue.loading()) {
+    loadCompletedWorkouts();
+  }
+
+  Future<void> loadCompletedWorkouts() async {
+    state = const AsyncValue.loading();
+    try {
+      final workouts = await _sessionService.getCompletedWorkouts();
+      state = AsyncValue.data(workouts);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
+  }
+
+  Future<void> deleteWorkout(String workoutId) async {
+    try {
+      await _sessionService.deleteCompletedWorkout(workoutId);
+      await loadCompletedWorkouts(); // Refresh the list
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
+  }
+}
+
+// Workout Stats Provider
+final workoutStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  final sessionService = ref.watch(workoutSessionServiceProvider);
+  return await sessionService.getWorkoutStats();
+});

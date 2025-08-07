@@ -15,7 +15,8 @@ class FirebaseWorkoutService {
   String get _userId {
     final user = _auth.currentUser;
     if (user == null) {
-      throw Exception('User not authenticated. Please sign in to save workouts.');
+      throw Exception(
+          'User not authenticated. Please sign in to save workouts.');
     }
     return user.uid;
   }
@@ -32,9 +33,9 @@ class FirebaseWorkoutService {
     try {
       print('Attempting to save workout plan: $name');
       print('User ID: $_userId');
-      
+
       final docRef = _workoutPlansCollection.doc();
-      
+
       final savedWorkout = SavedWorkoutPlan(
         id: docRef.id,
         userId: _userId,
@@ -47,7 +48,7 @@ class FirebaseWorkoutService {
       print('Saving workout to Firestore...');
       await docRef.set(savedWorkout.toJson());
       print('Workout saved successfully with ID: ${docRef.id}');
-      
+
       return docRef.id;
     } catch (e) {
       print('Error saving workout plan: $e');
@@ -59,14 +60,14 @@ class FirebaseWorkoutService {
   Future<List<SavedWorkoutPlan>> getSavedWorkoutPlans() async {
     try {
       print('Fetching saved workout plans for user: $_userId');
-      
+
       final querySnapshot = await _workoutPlansCollection
           .where('userId', isEqualTo: _userId)
           .orderBy('createdAt', descending: true)
           .get();
 
       print('Found ${querySnapshot.docs.length} workout plans');
-      
+
       return querySnapshot.docs
           .map((doc) => SavedWorkoutPlan.fromJson({
                 ...doc.data() as Map<String, dynamic>,
@@ -83,13 +84,13 @@ class FirebaseWorkoutService {
   Future<SavedWorkoutPlan?> getSavedWorkoutPlan(String id) async {
     try {
       final doc = await _workoutPlansCollection.doc(id).get();
-      
+
       if (!doc.exists) {
         return null;
       }
 
       final data = doc.data() as Map<String, dynamic>;
-      
+
       // Verify the workout belongs to the current user
       if (data['userId'] != _userId) {
         throw Exception('Unauthorized access to workout plan');
@@ -130,13 +131,13 @@ class FirebaseWorkoutService {
   Future<void> deleteWorkoutPlan(String id) async {
     try {
       final doc = await _workoutPlansCollection.doc(id).get();
-      
+
       if (!doc.exists) {
         throw Exception('Workout plan not found');
       }
 
       final data = doc.data() as Map<String, dynamic>;
-      
+
       // Verify the workout belongs to the current user
       if (data['userId'] != _userId) {
         throw Exception('Unauthorized access to workout plan');

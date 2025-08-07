@@ -172,9 +172,10 @@ class SavedWorkoutPlan {
       id: json['id'] as String,
       userId: json['userId'] as String,
       name: json['name'] as String,
-      workoutPlan: WorkoutPlan.fromJson(json['workoutPlan'] as Map<String, dynamic>),
+      workoutPlan:
+          WorkoutPlan.fromJson(json['workoutPlan'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['createdAt'] as String),
-      lastUsed: json['lastUsed'] != null 
+      lastUsed: json['lastUsed'] != null
           ? DateTime.parse(json['lastUsed'] as String)
           : null,
       isFavorite: json['isFavorite'] as bool? ?? false,
@@ -210,6 +211,212 @@ class SavedWorkoutPlan {
       createdAt: createdAt ?? this.createdAt,
       lastUsed: lastUsed ?? this.lastUsed,
       isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
+}
+
+// Models for workout execution/tracking
+class ExerciseSet {
+  final int reps;
+  final double? weight;
+  final int? duration; // in seconds for time-based exercises
+  final DateTime completedAt;
+  final String? notes;
+
+  const ExerciseSet({
+    required this.reps,
+    this.weight,
+    this.duration,
+    required this.completedAt,
+    this.notes,
+  });
+
+  factory ExerciseSet.fromJson(Map<String, dynamic> json) {
+    return ExerciseSet(
+      reps: json['reps'] as int,
+      weight: json['weight']?.toDouble(),
+      duration: json['duration'] as int?,
+      completedAt: DateTime.parse(json['completedAt'] as String),
+      notes: json['notes'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reps': reps,
+      'weight': weight,
+      'duration': duration,
+      'completedAt': completedAt.toIso8601String(),
+      'notes': notes,
+    };
+  }
+
+  ExerciseSet copyWith({
+    int? reps,
+    double? weight,
+    int? duration,
+    DateTime? completedAt,
+    String? notes,
+  }) {
+    return ExerciseSet(
+      reps: reps ?? this.reps,
+      weight: weight ?? this.weight,
+      duration: duration ?? this.duration,
+      completedAt: completedAt ?? this.completedAt,
+      notes: notes ?? this.notes,
+    );
+  }
+}
+
+class CompletedExercise {
+  final String name;
+  final List<ExerciseSet> sets;
+  final int restTime; // in seconds
+  final bool isCompleted;
+
+  const CompletedExercise({
+    required this.name,
+    required this.sets,
+    required this.restTime,
+    this.isCompleted = false,
+  });
+
+  factory CompletedExercise.fromExercise(Exercise exercise) {
+    return CompletedExercise(
+      name: exercise.name,
+      sets: [],
+      restTime: exercise.rest,
+    );
+  }
+
+  factory CompletedExercise.fromJson(Map<String, dynamic> json) {
+    return CompletedExercise(
+      name: json['name'] as String,
+      sets: (json['sets'] as List<dynamic>)
+          .map((e) => ExerciseSet.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      restTime: json['restTime'] as int,
+      isCompleted: json['isCompleted'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'sets': sets.map((s) => s.toJson()).toList(),
+      'restTime': restTime,
+      'isCompleted': isCompleted,
+    };
+  }
+
+  CompletedExercise copyWith({
+    String? name,
+    List<ExerciseSet>? sets,
+    int? restTime,
+    bool? isCompleted,
+  }) {
+    return CompletedExercise(
+      name: name ?? this.name,
+      sets: sets ?? this.sets,
+      restTime: restTime ?? this.restTime,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+}
+
+class ActiveWorkoutSession {
+  final String id;
+  final String workoutName;
+  final DateTime startTime;
+  final DateTime? endTime;
+  final List<CompletedExercise> exercises;
+  final Duration totalDuration;
+  final bool isCompleted;
+  final String? notes;
+
+  const ActiveWorkoutSession({
+    required this.id,
+    required this.workoutName,
+    required this.startTime,
+    this.endTime,
+    required this.exercises,
+    required this.totalDuration,
+    this.isCompleted = false,
+    this.notes,
+  });
+
+  factory ActiveWorkoutSession.fromWorkoutSession({
+    required String id,
+    required String workoutName,
+    required WorkoutSession workoutSession,
+  }) {
+    print(
+        'Creating ActiveWorkoutSession with ${workoutSession.exercises.length} exercises'); // Debug
+
+    final exercises = workoutSession.exercises
+        .map((e) => CompletedExercise.fromExercise(e))
+        .toList();
+
+    print('Created ${exercises.length} CompletedExercise objects'); // Debug
+
+    return ActiveWorkoutSession(
+      id: id,
+      workoutName: workoutName,
+      startTime: DateTime.now(),
+      exercises: exercises,
+      totalDuration: Duration.zero,
+    );
+  }
+
+  factory ActiveWorkoutSession.fromJson(Map<String, dynamic> json) {
+    return ActiveWorkoutSession(
+      id: json['id'] as String,
+      workoutName: json['workoutName'] as String,
+      startTime: DateTime.parse(json['startTime'] as String),
+      endTime: json['endTime'] != null
+          ? DateTime.parse(json['endTime'] as String)
+          : null,
+      exercises: (json['exercises'] as List<dynamic>)
+          .map((e) => CompletedExercise.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      totalDuration: Duration(seconds: json['totalDurationSeconds'] as int),
+      isCompleted: json['isCompleted'] as bool? ?? false,
+      notes: json['notes'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'workoutName': workoutName,
+      'startTime': startTime.toIso8601String(),
+      'endTime': endTime?.toIso8601String(),
+      'exercises': exercises.map((e) => e.toJson()).toList(),
+      'totalDurationSeconds': totalDuration.inSeconds,
+      'isCompleted': isCompleted,
+      'notes': notes,
+    };
+  }
+
+  ActiveWorkoutSession copyWith({
+    String? id,
+    String? workoutName,
+    DateTime? startTime,
+    DateTime? endTime,
+    List<CompletedExercise>? exercises,
+    Duration? totalDuration,
+    bool? isCompleted,
+    String? notes,
+  }) {
+    return ActiveWorkoutSession(
+      id: id ?? this.id,
+      workoutName: workoutName ?? this.workoutName,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      exercises: exercises ?? this.exercises,
+      totalDuration: totalDuration ?? this.totalDuration,
+      isCompleted: isCompleted ?? this.isCompleted,
+      notes: notes ?? this.notes,
     );
   }
 }

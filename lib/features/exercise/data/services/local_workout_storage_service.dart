@@ -13,7 +13,7 @@ class LocalWorkoutStorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final workoutId = DateTime.now().millisecondsSinceEpoch.toString();
-      
+
       final savedWorkout = SavedWorkoutPlan(
         id: workoutId,
         userId: 'local_user', // For local storage, we'll use a fixed user ID
@@ -25,14 +25,14 @@ class LocalWorkoutStorageService {
 
       // Get existing workouts
       final existingWorkouts = await getSavedWorkoutPlans();
-      
+
       // Add new workout
       existingWorkouts.add(savedWorkout);
-      
+
       // Save back to shared preferences
       final workoutsJson = existingWorkouts.map((w) => w.toJson()).toList();
       await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
-      
+
       return workoutId;
     } catch (e) {
       throw Exception('Failed to save workout locally: $e');
@@ -44,16 +44,18 @@ class LocalWorkoutStorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final workoutsString = prefs.getString(_savedWorkoutsKey);
-      
+
       if (workoutsString == null || workoutsString.isEmpty) {
         return [];
       }
-      
+
       final workoutsJson = json.decode(workoutsString) as List<dynamic>;
       return workoutsJson
-          .map((json) => SavedWorkoutPlan.fromJson(json as Map<String, dynamic>))
+          .map(
+              (json) => SavedWorkoutPlan.fromJson(json as Map<String, dynamic>))
           .toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Sort by newest first
+        ..sort((a, b) =>
+            b.createdAt.compareTo(a.createdAt)); // Sort by newest first
     } catch (e) {
       print('Error loading local workouts: $e');
       return [];
@@ -75,10 +77,10 @@ class LocalWorkoutStorageService {
     try {
       final workouts = await getSavedWorkoutPlans();
       final index = workouts.indexWhere((w) => w.id == id);
-      
+
       if (index != -1) {
         workouts[index] = workouts[index].copyWith(lastUsed: DateTime.now());
-        
+
         final prefs = await SharedPreferences.getInstance();
         final workoutsJson = workouts.map((w) => w.toJson()).toList();
         await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
@@ -93,10 +95,10 @@ class LocalWorkoutStorageService {
     try {
       final workouts = await getSavedWorkoutPlans();
       final index = workouts.indexWhere((w) => w.id == id);
-      
+
       if (index != -1) {
         workouts[index] = workouts[index].copyWith(isFavorite: isFavorite);
-        
+
         final prefs = await SharedPreferences.getInstance();
         final workoutsJson = workouts.map((w) => w.toJson()).toList();
         await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
@@ -111,7 +113,7 @@ class LocalWorkoutStorageService {
     try {
       final workouts = await getSavedWorkoutPlans();
       workouts.removeWhere((w) => w.id == id);
-      
+
       final prefs = await SharedPreferences.getInstance();
       final workoutsJson = workouts.map((w) => w.toJson()).toList();
       await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));

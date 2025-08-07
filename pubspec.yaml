@@ -1,10 +1,10 @@
-  # analyzer must be under dev_dependencies, not dependencies
+# analyzer must be under dev_dependencies, not dependencies
 name: sustaina_health
 description: An AI-powered health and sustainability mobile application.
-publish_to: 'none'
+publish_to: "none"
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -12,60 +12,60 @@ dependencies:
   firebase_auth: ^4.17.4
   firebase_core: ^2.30.0
   cloud_firestore: ^4.13.6
-  
+
   # State Management
   provider: ^6.1.1
   riverpod: ^2.4.9
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.3
   hooks_riverpod: ^2.4.9
-  
+
   # Networking
   http: ^1.1.0
   dio: ^5.3.2
-  
+
   # Firebase (commented out until needed)
   # firebase_core: ^2.24.2
   # firebase_auth: ^4.15.3
   # cloud_firestore: ^4.13.6
   # firebase_storage: ^11.5.6
-  
+
   # UI & Animation
   flutter_hooks: ^0.20.3
   lottie: ^2.7.0
   flutter_svg: ^2.0.9
   shimmer: ^3.0.0
   cached_network_image: ^3.3.0
-  
+
   # Charts
   fl_chart: ^0.65.0
-  
+
   # Navigation
   go_router: ^12.1.3
-  
+
   # Storage & Data
   shared_preferences: ^2.2.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.1
-  
+
   # Media & Camera (using image_picker instead of camera for better compatibility)
   image_picker: ^1.0.4
-  
+
   # Permissions
   permission_handler: ^11.1.0
   # flutter_local_notifications: ^15.1.3  # Temporarily disabled due to compilation issues
-  
+
   # Utilities
   intl: ^0.18.1
   uuid: ^4.2.1
-  
+
   # Device & System
   sensors_plus: ^4.0.2
   connectivity_plus: ^5.0.2
   package_info_plus: ^4.2.0
   device_info_plus: ^9.1.1
-  
+
   # Code Generation
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
@@ -75,7 +75,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  
+
   # Code Generation
   build_runner: ^2.4.7
   freezed: ^2.4.6
@@ -84,19 +84,19 @@ dev_dependencies:
 
   # Analyzer for codegen compatibility
   analyzer: ^5.13.0
-  
+
   # Linting
   # custom_lint: ^0.5.7
   # riverpod_lint: ^2.3.7
   flutter_lints: ^3.0.1
-  
+
   # Testing
   mockito: ^5.4.4
   fake_async: ^1.3.1
 
 flutter:
   uses-material-design: true
-  
+
   assets:
     - assets/images/
     - assets/json/
