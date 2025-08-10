@@ -23,7 +23,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Color(0xFF121714)),
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF121714)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   const Expanded(
@@ -219,7 +220,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
             ),
 
             // Notes section (if any)
-            if (completedWorkout.notes != null && completedWorkout.notes!.isNotEmpty)
+            if (completedWorkout.notes != null &&
+                completedWorkout.notes!.isNotEmpty)
               Container(
                 margin: const EdgeInsets.all(16),
                 padding: const EdgeInsets.all(16),
@@ -304,7 +306,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: exercise.isCompleted ? Colors.green.shade300 : Colors.grey.shade200,
+          color: exercise.isCompleted
+              ? Colors.green.shade300
+              : Colors.grey.shade200,
           width: exercise.isCompleted ? 2 : 1,
         ),
         boxShadow: [
@@ -322,8 +326,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: exercise.isCompleted 
-                  ? Colors.green.shade50 
+              color: exercise.isCompleted
+                  ? Colors.green.shade50
                   : Colors.grey.shade50,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
@@ -336,8 +340,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: exercise.isCompleted 
-                        ? Colors.green 
+                    color: exercise.isCompleted
+                        ? Colors.green
                         : Colors.grey.shade400,
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -380,7 +384,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                 ),
                 if (exercise.isCompleted)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(12),
@@ -407,16 +412,36 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   // Sets Header
                   const Row(
                     children: [
-                      Expanded(child: Text('Set', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey))),
-                      Expanded(child: Text('Reps', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey))),
-                      Expanded(child: Text('Weight', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey))),
-                      Expanded(child: Text('Duration', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey))),
+                      Expanded(
+                          child: Text('Set',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.grey))),
+                      Expanded(
+                          child: Text('Reps',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.grey))),
+                      Expanded(
+                          child: Text('Weight',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.grey))),
+                      Expanded(
+                          child: Text('Duration',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.grey))),
                     ],
                   ),
                   const SizedBox(height: 8),
                   const Divider(height: 1),
                   const SizedBox(height: 8),
-                  
+
                   // Sets Data
                   ...exercise.sets.asMap().entries.map((entry) {
                     final setIndex = entry.key;
@@ -428,7 +453,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               '${setIndex + 1}',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500),
                             ),
                           ),
                           Expanded(
@@ -439,7 +465,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                           ),
                           Expanded(
                             child: Text(
-                              set.weight != null ? '${set.weight!.toStringAsFixed(1)} kg' : '-',
+                              set.weight != null
+                                  ? '${set.weight!.toStringAsFixed(1)} kg'
+                                  : '-',
                               style: const TextStyle(fontSize: 14),
                             ),
                           ),
@@ -453,9 +481,12 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       ),
                     );
                   }).toList(),
-                  
+
                   // Set Notes
-                  ...exercise.sets.where((set) => set.notes != null && set.notes!.isNotEmpty).map((set) {
+                  ...exercise.sets
+                      .where(
+                          (set) => set.notes != null && set.notes!.isNotEmpty)
+                      .map((set) {
                     final setIndex = exercise.sets.indexOf(set);
                     return Container(
                       margin: const EdgeInsets.only(top: 8),
@@ -467,7 +498,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.note, size: 16, color: Colors.yellow.shade700),
+                          Icon(Icons.note,
+                              size: 16, color: Colors.yellow.shade700),
                           const SizedBox(width: 8),
                           Text(
                             'Set ${setIndex + 1}: ',
@@ -514,7 +546,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
     final seconds = duration.inSeconds % 60;
-    
+
     if (hours > 0) {
       return '${hours}h ${minutes}m';
     } else if (minutes > 0) {
@@ -529,11 +561,12 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final amPm = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    
+
     return '$displayHour:$minute $amPm';
   }
 
   int _getTotalSets() {
-    return completedWorkout.exercises.fold(0, (total, exercise) => total + exercise.sets.length);
+    return completedWorkout.exercises
+        .fold(0, (total, exercise) => total + exercise.sets.length);
   }
 }

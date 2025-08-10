@@ -12,7 +12,8 @@ class ActiveWorkoutScreen extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<ActiveWorkoutScreen> createState() => _ActiveWorkoutScreenState();
+  ConsumerState<ActiveWorkoutScreen> createState() =>
+      _ActiveWorkoutScreenState();
 }
 
 class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
@@ -21,12 +22,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Debug the workoutSession data
     print('ActiveWorkoutScreen initialized');
     print('Workout name: ${widget.workoutSession.workoutName}');
     print('Number of exercises: ${widget.workoutSession.exercises.length}');
-    
+
     // Add null safety check
     if (widget.workoutSession.exercises.isEmpty) {
       print('WARNING: No exercises found in workout session');
@@ -34,11 +35,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     } else {
       _exercises = List.from(widget.workoutSession.exercises);
       print('Exercises loaded: ${_exercises.length}');
-      
+
       // Debug each exercise
       for (int i = 0; i < _exercises.length; i++) {
         final exercise = _exercises[i];
-        print('Exercise $i: ${exercise.name}, rest: ${exercise.restTime}, sets: ${exercise.sets.length}');
+        print(
+            'Exercise $i: ${exercise.name}, rest: ${exercise.restTime}, sets: ${exercise.sets.length}');
       }
     }
   }
@@ -48,7 +50,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       print('ERROR: Invalid exercise index: $exerciseIndex');
       return;
     }
-    
+
     setState(() {
       final exercise = _exercises[exerciseIndex];
       final newSet = ExerciseSet(
@@ -56,7 +58,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
         weight: weight,
         completedAt: DateTime.now(),
       );
-      
+
       _exercises[exerciseIndex] = exercise.copyWith(
         sets: [...exercise.sets, newSet],
       );
@@ -65,12 +67,14 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
   Future<void> _finishWorkout() async {
     // Check if user has completed at least one set
-    final hasCompletedSets = _exercises.any((exercise) => exercise.sets.isNotEmpty);
-    
+    final hasCompletedSets =
+        _exercises.any((exercise) => exercise.sets.isNotEmpty);
+
     if (!hasCompletedSets) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please complete at least one set before finishing the workout'),
+          content: Text(
+              'Please complete at least one set before finishing the workout'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -142,7 +146,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       // Create completed workout session with current progress
       final now = DateTime.now();
       final totalDuration = now.difference(widget.workoutSession.startTime);
-      
+
       final completedSession = widget.workoutSession.copyWith(
         exercises: _exercises,
         endTime: now,
@@ -152,11 +156,11 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
       // Save the completed workout
       await ref.read(activeWorkoutSessionProvider.notifier).completeWorkout();
-      
+
       // Also save it to completed workouts
       final sessionService = ref.read(workoutSessionServiceProvider);
       await sessionService.saveCompletedWorkout(completedSession);
-      
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -167,7 +171,6 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
       // Navigate back to previous screen
       Navigator.of(context).pop();
-      
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -183,7 +186,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       print('ERROR: Invalid exercise index in dialog: $exerciseIndex');
       return;
     }
-    
+
     final TextEditingController repsController = TextEditingController();
     final TextEditingController weightController = TextEditingController();
 
@@ -253,16 +256,17 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                   return;
                 }
 
-                final weight = weightController.text.isNotEmpty 
-                    ? double.tryParse(weightController.text) 
+                final weight = weightController.text.isNotEmpty
+                    ? double.tryParse(weightController.text)
                     : null;
 
                 _addSet(exerciseIndex, reps, weight);
                 Navigator.of(context).pop();
-                
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Set added: $reps reps${weight != null ? " @ ${weight}kg" : ""}'),
+                    content: Text(
+                        'Set added: $reps reps${weight != null ? " @ ${weight}kg" : ""}'),
                     backgroundColor: const Color(0xFF94E0B2),
                   ),
                 );
@@ -339,9 +343,9 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Exercises list
               const Text(
                 'Exercises',
@@ -351,135 +355,137 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                   color: Color(0xFF121714),
                 ),
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               Expanded(
-                child: _exercises.isEmpty 
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.fitness_center,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'No exercises found',
-                            style: TextStyle(
-                              fontSize: 18,
+                child: _exercises.isEmpty
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.fitness_center,
+                              size: 64,
                               color: Colors.grey,
-                              fontWeight: FontWeight.w500,
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _exercises.length,
-                      itemBuilder: (context, index) {
-                        final exercise = _exercises[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 2,
-                                offset: const Offset(0, 1),
+                            SizedBox(height: 16),
+                            Text(
+                              'No exercises found',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                exercise.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF121714),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: _exercises.length,
+                        itemBuilder: (context, index) {
+                          final exercise = _exercises[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Rest time: ${exercise.restTime} seconds',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Sets completed: ${exercise.sets.length}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF121714),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () => _showAddSetDialog(index),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF94E0B2),
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                  ),
-                                  child: const Text(
-                                    'Add Set',
-                                    style: TextStyle(
-                                      color: Color(0xFF121714),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (exercise.sets.isNotEmpty) ...[
-                                const SizedBox(height: 16),
-                                const Text(
-                                  'Completed Sets:',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  exercise.name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                     color: Color(0xFF121714),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                ...exercise.sets.asMap().entries.map((entry) {
-                                  final setIndex = entry.key + 1;
-                                  final set = entry.value;
-                                  return Container(
-                                    width: double.infinity,
-                                    margin: const EdgeInsets.only(bottom: 4),
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF94E0B2).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(6),
+                                Text(
+                                  'Rest time: ${exercise.restTime} seconds',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Sets completed: ${exercise.sets.length}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF121714),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () => _showAddSetDialog(index),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF94E0B2),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12),
                                     ),
-                                    child: Text(
-                                      'Set $setIndex: ${set.reps} reps${set.weight != null ? " @ ${set.weight}kg" : ""}',
-                                      style: const TextStyle(
-                                        fontSize: 13,
+                                    child: const Text(
+                                      'Add Set',
+                                      style: TextStyle(
                                         color: Color(0xFF121714),
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  );
-                                }).toList(),
+                                  ),
+                                ),
+                                if (exercise.sets.isNotEmpty) ...[
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Completed Sets:',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF121714),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ...exercise.sets.asMap().entries.map((entry) {
+                                    final setIndex = entry.key + 1;
+                                    final set = entry.value;
+                                    return Container(
+                                      width: double.infinity,
+                                      margin: const EdgeInsets.only(bottom: 4),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF94E0B2)
+                                            .withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        'Set $setIndex: ${set.reps} reps${set.weight != null ? " @ ${set.weight}kg" : ""}',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Color(0xFF121714),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ],
                               ],
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                            ),
+                          );
+                        },
+                      ),
               ),
-              
+
               // Finish Workout Button
               const SizedBox(height: 20),
               SizedBox(
@@ -509,7 +515,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       ),
     );
   }
-  
+
   String _formatTime(DateTime dateTime) {
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }

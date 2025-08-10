@@ -118,7 +118,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Primary action button
             SizedBox(
               width: double.infinity,
@@ -152,9 +152,9 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Secondary information
             Container(
               padding: const EdgeInsets.all(16),
@@ -167,8 +167,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.info_outline, 
-                        color: Colors.grey.shade600, size: 20),
+                      Icon(Icons.info_outline,
+                          color: Colors.grey.shade600, size: 20),
                       const SizedBox(width: 8),
                       const Expanded(
                         child: Text(
@@ -266,14 +266,14 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
       // First priority: favorites
       if (a.isFavorite && !b.isFavorite) return -1;
       if (!a.isFavorite && b.isFavorite) return 1;
-      
+
       // Second priority: last used (most recent first)
       if (a.lastUsed != null && b.lastUsed != null) {
         return b.lastUsed!.compareTo(a.lastUsed!);
       }
       if (a.lastUsed != null && b.lastUsed == null) return -1;
       if (a.lastUsed == null && b.lastUsed != null) return 1;
-      
+
       // Third priority: creation date (most recent first)
       return b.createdAt.compareTo(a.createdAt);
     });
@@ -336,10 +336,10 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
             ],
           ),
         ),
-        
+
         // Filter tabs
         if (workouts.length > 3) _buildFilterTabs(context, ref, workouts),
-        
+
         // Workout list
         Expanded(
           child: ListView.builder(
@@ -355,10 +355,11 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFilterTabs(BuildContext context, WidgetRef ref, List<SavedWorkoutPlan> workouts) {
+  Widget _buildFilterTabs(
+      BuildContext context, WidgetRef ref, List<SavedWorkoutPlan> workouts) {
     final favoriteCount = workouts.where((w) => w.isFavorite).length;
     final recentCount = workouts.where((w) => w.lastUsed != null).length;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -368,8 +369,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
           if (favoriteCount > 0)
             _buildFilterChip('Favorites ($favoriteCount)', false),
           const SizedBox(width: 8),
-          if (recentCount > 0)
-            _buildFilterChip('Recent ($recentCount)', false),
+          if (recentCount > 0) _buildFilterChip('Recent ($recentCount)', false),
         ],
       ),
     );
@@ -379,17 +379,17 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isSelected 
-          ? const Color(0xFF94E0B2) 
-          : const Color(0xFF94E0B2).withOpacity(0.1),
+        color: isSelected
+            ? const Color(0xFF94E0B2)
+            : const Color(0xFF94E0B2).withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: isSelected 
-            ? const Color(0xFF121714) 
-            : const Color(0xFF121714).withOpacity(0.7),
+          color: isSelected
+              ? const Color(0xFF121714)
+              : const Color(0xFF121714).withOpacity(0.7),
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -401,15 +401,15 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) {
     final totalExercises = workout.workoutPlan.workoutSessions
         .fold(0, (sum, session) => sum + session.exercises.length);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: workout.isFavorite 
-          ? const BorderSide(color: Color(0xFF94E0B2), width: 1.5)
-          : BorderSide.none,
+        side: workout.isFavorite
+            ? const BorderSide(color: Color(0xFF94E0B2), width: 1.5)
+            : BorderSide.none,
       ),
       child: InkWell(
         onTap: () {
@@ -507,9 +507,9 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Workout stats chips
               Wrap(
                 spacing: 8,
@@ -532,9 +532,9 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Date information
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -560,7 +560,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xFF94E0B2).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -609,16 +610,15 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
     );
   }
 
-  void _duplicateWorkout(BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) async {
+  void _duplicateWorkout(
+      BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) async {
     try {
       final duplicatedName = "${workout.name} (Copy)";
-      await ref
-          .read(savedWorkoutPlansProvider.notifier)
-          .saveWorkout(
+      await ref.read(savedWorkoutPlansProvider.notifier).saveWorkout(
             name: duplicatedName,
             workout: workout.workoutPlan,
           );
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Workout duplicated as "$duplicatedName"'),

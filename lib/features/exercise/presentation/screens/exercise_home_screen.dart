@@ -300,7 +300,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
 
   Widget _buildSavedWorkoutPlansSection(BuildContext context, WidgetRef ref) {
     final savedWorkoutsAsync = ref.watch(savedWorkoutPlansProvider);
-    
+
     return savedWorkoutsAsync.when(
       data: (workouts) {
         if (workouts.isEmpty) {
@@ -310,7 +310,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               color: const Color(0xFF94E0B2).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF94E0B2).withOpacity(0.3)),
+              border:
+                  Border.all(color: const Color(0xFF94E0B2).withOpacity(0.3)),
             ),
             child: Row(
               children: [
@@ -364,10 +365,10 @@ class ExerciseHomeScreen extends ConsumerWidget {
             ),
           );
         }
-        
+
         // Show recent saved workouts (max 3)
         final recentWorkouts = workouts.take(3).toList();
-        
+
         return Column(
           children: [
             Container(
@@ -388,7 +389,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const SavedWorkoutPlansScreen(),
+                                builder: (context) =>
+                                    const SavedWorkoutPlansScreen(),
                               ),
                             );
                           },
@@ -420,7 +422,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       ),
                     );
                   }
-                  
+
                   final workout = recentWorkouts[index];
                   return Container(
                     width: 180,
@@ -431,7 +433,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const SavedWorkoutPlansScreen(),
+                              builder: (context) =>
+                                  const SavedWorkoutPlansScreen(),
                             ),
                           );
                         },
@@ -449,7 +452,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                       color: Colors.red,
                                       size: 16,
                                     ),
-                                  if (workout.isFavorite) const SizedBox(width: 4),
+                                  if (workout.isFavorite)
+                                    const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
                                       workout.name,
@@ -487,7 +491,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF94E0B2).withOpacity(0.1),
+                                  color:
+                                      const Color(0xFF94E0B2).withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Text(
@@ -535,9 +540,10 @@ class ExerciseHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentCompletedWorkoutsSection(BuildContext context, WidgetRef ref) {
+  Widget _buildRecentCompletedWorkoutsSection(
+      BuildContext context, WidgetRef ref) {
     final completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
-    
+
     return completedWorkoutsAsync.when(
       data: (completedWorkouts) {
         if (completedWorkouts.isEmpty) {
@@ -601,13 +607,11 @@ class ExerciseHomeScreen extends ConsumerWidget {
             ),
           );
         }
-        
+
         // Show recent completed workouts (max 3)
-        final recentCompletedWorkouts = completedWorkouts
-            .where((w) => w.isCompleted)
-            .take(3)
-            .toList();
-        
+        final recentCompletedWorkouts =
+            completedWorkouts.where((w) => w.isCompleted).take(3).toList();
+
         if (recentCompletedWorkouts.isEmpty) {
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -652,7 +656,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
             ),
           );
         }
-        
+
         return Column(
           children: [
             Container(
@@ -660,7 +664,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: recentCompletedWorkouts.length + 1, // +1 for "View All" card
+                itemCount: recentCompletedWorkouts.length +
+                    1, // +1 for "View All" card
                 itemBuilder: (context, index) {
                   if (index == recentCompletedWorkouts.length) {
                     // "View All" card
@@ -673,7 +678,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const WorkoutHistoryScreen(),
+                                builder: (context) =>
+                                    const WorkoutHistoryScreen(),
                               ),
                             );
                           },
@@ -705,7 +711,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       ),
                     );
                   }
-                  
+
                   final workout = recentCompletedWorkouts[index];
                   return Container(
                     width: 180,
@@ -716,7 +722,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CompletedWorkoutDetailScreen(
+                              builder: (context) =>
+                                  CompletedWorkoutDetailScreen(
                                 completedWorkout: workout,
                               ),
                             ),
@@ -835,7 +842,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
   String _formatDuration(Duration duration) {
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
-    
+
     if (hours > 0) {
       return '${hours}h ${minutes}m';
     } else {
