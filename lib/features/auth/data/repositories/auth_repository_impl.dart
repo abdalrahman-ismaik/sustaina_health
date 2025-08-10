@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart'; // Temporarily disabled
 import '../models/auth_models.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -71,13 +71,17 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     try {
-      // Try to authenticate with Google
-      final GoogleSignInAccount? googleUser =
-          await _googleSignIn!.authenticate();
-      if (googleUser == null) return null; // User cancelled the sign-in
+      // Try to sign in with Google
+      // Try to sign in with Google
+      final GoogleSignInAccount? googleUser = await _googleSignIn!.signIn();
+      
+      if (googleUser == null) {
+        // User cancelled the sign-in
+        return null;
+      }
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      // Get authentication details
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
       // Create credential with idToken
       final OAuthCredential credential = GoogleAuthProvider.credential(
@@ -112,6 +116,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<AuthResult?> loginWithFacebook() async {
+    // Facebook Auth temporarily disabled due to dependency issues
+    throw UnimplementedError('Facebook authentication is temporarily disabled');
+    /* 
     final LoginResult result = await FacebookAuth.instance.login();
     if (result.status != LoginStatus.success) return null;
     final OAuthCredential facebookAuthCredential =
@@ -125,13 +132,14 @@ class AuthRepositoryImpl implements AuthRepository {
       user: userModel.toEntity(),
       isNewUser: userCredential.additionalUserInfo?.isNewUser ?? false,
     );
+    */
   }
 
   @override
   Future<void> logout() async {
     final List<Future<void>> futures = <Future<void>>[
       _firebaseAuth.signOut(),
-      FacebookAuth.instance.logOut(),
+      // FacebookAuth.instance.logOut(), // Temporarily disabled
     ];
     if (_googleSignIn != null) {
       futures.add(_googleSignIn!.signOut());
