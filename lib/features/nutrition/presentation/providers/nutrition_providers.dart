@@ -24,20 +24,23 @@ final nutritionApiHealthProvider = FutureProvider<bool>((ref) async {
 });
 
 // Meal Analysis Provider
-final mealAnalysisProvider = StateNotifierProvider<MealAnalysisNotifier, AsyncValue<MealAnalysisResponse?>>((ref) {
+final mealAnalysisProvider = StateNotifierProvider<MealAnalysisNotifier,
+    AsyncValue<MealAnalysisResponse?>>((ref) {
   return MealAnalysisNotifier(ref.watch(nutritionRepositoryProvider));
 });
 
-class MealAnalysisNotifier extends StateNotifier<AsyncValue<MealAnalysisResponse?>> {
+class MealAnalysisNotifier
+    extends StateNotifier<AsyncValue<MealAnalysisResponse?>> {
   final NutritionRepository _repository;
 
   MealAnalysisNotifier(this._repository) : super(const AsyncValue.data(null));
 
   Future<void> analyzeMeal(File imageFile, {String? mealType}) async {
     state = const AsyncValue.loading();
-    
+
     try {
-      final analysis = await _repository.analyzeMeal(imageFile, mealType: mealType);
+      final analysis =
+          await _repository.analyzeMeal(imageFile, mealType: mealType);
       state = AsyncValue.data(analysis);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -50,18 +53,21 @@ class MealAnalysisNotifier extends StateNotifier<AsyncValue<MealAnalysisResponse
 }
 
 // Meal Plan Generation Provider
-final mealPlanGenerationProvider = StateNotifierProvider<MealPlanGenerationNotifier, AsyncValue<MealPlanResponse?>>((ref) {
+final mealPlanGenerationProvider = StateNotifierProvider<
+    MealPlanGenerationNotifier, AsyncValue<MealPlanResponse?>>((ref) {
   return MealPlanGenerationNotifier(ref.watch(nutritionRepositoryProvider));
 });
 
-class MealPlanGenerationNotifier extends StateNotifier<AsyncValue<MealPlanResponse?>> {
+class MealPlanGenerationNotifier
+    extends StateNotifier<AsyncValue<MealPlanResponse?>> {
   final NutritionRepository _repository;
 
-  MealPlanGenerationNotifier(this._repository) : super(const AsyncValue.data(null));
+  MealPlanGenerationNotifier(this._repository)
+      : super(const AsyncValue.data(null));
 
   Future<void> generateMealPlan(MealPlanRequest request) async {
     state = const AsyncValue.loading();
-    
+
     try {
       final mealPlan = await _repository.generateMealPlan(request);
       state = AsyncValue.data(mealPlan);
@@ -76,7 +82,9 @@ class MealPlanGenerationNotifier extends StateNotifier<AsyncValue<MealPlanRespon
 }
 
 // Food Log Provider
-final foodLogProvider = StateNotifierProvider<FoodLogNotifier, AsyncValue<List<FoodLogEntry>>>((ref) {
+final foodLogProvider =
+    StateNotifierProvider<FoodLogNotifier, AsyncValue<List<FoodLogEntry>>>(
+        (ref) {
   return FoodLogNotifier(ref.watch(nutritionRepositoryProvider));
 });
 
@@ -93,7 +101,7 @@ class FoodLogNotifier extends StateNotifier<AsyncValue<List<FoodLogEntry>>> {
   Future<void> loadFoodLogForDate(DateTime date) async {
     _currentDate = date;
     state = const AsyncValue.loading();
-    
+
     try {
       final entries = await _repository.getFoodLogEntriesForDate(date);
       state = AsyncValue.data(entries);
@@ -136,22 +144,26 @@ class FoodLogNotifier extends StateNotifier<AsyncValue<List<FoodLogEntry>>> {
 
   List<FoodLogEntry> getMealsByType(String mealType) {
     return state.maybeWhen(
-      data: (entries) => entries.where((entry) => entry.mealType == mealType).toList(),
+      data: (entries) =>
+          entries.where((entry) => entry.mealType == mealType).toList(),
       orElse: () => [],
     );
   }
 }
 
 // Daily Nutrition Summary Provider
-final dailyNutritionSummaryProvider = StateNotifierProvider<DailyNutritionSummaryNotifier, AsyncValue<DailyNutritionSummary>>((ref) {
+final dailyNutritionSummaryProvider = StateNotifierProvider<
+    DailyNutritionSummaryNotifier, AsyncValue<DailyNutritionSummary>>((ref) {
   return DailyNutritionSummaryNotifier(ref.watch(nutritionRepositoryProvider));
 });
 
-class DailyNutritionSummaryNotifier extends StateNotifier<AsyncValue<DailyNutritionSummary>> {
+class DailyNutritionSummaryNotifier
+    extends StateNotifier<AsyncValue<DailyNutritionSummary>> {
   final NutritionRepository _repository;
   DateTime _currentDate = DateTime.now();
 
-  DailyNutritionSummaryNotifier(this._repository) : super(const AsyncValue.loading()) {
+  DailyNutritionSummaryNotifier(this._repository)
+      : super(const AsyncValue.loading()) {
     loadSummaryForDate(_currentDate);
   }
 
@@ -160,7 +172,7 @@ class DailyNutritionSummaryNotifier extends StateNotifier<AsyncValue<DailyNutrit
   Future<void> loadSummaryForDate(DateTime date) async {
     _currentDate = date;
     state = const AsyncValue.loading();
-    
+
     try {
       final summary = await _repository.getDailyNutritionSummary(date);
       state = AsyncValue.data(summary);
@@ -179,23 +191,27 @@ class DailyNutritionSummaryNotifier extends StateNotifier<AsyncValue<DailyNutrit
 }
 
 // Nutrition Trends Provider
-final nutritionTrendsProvider = StateNotifierProvider<NutritionTrendsNotifier, AsyncValue<List<DailyNutritionSummary>>>((ref) {
+final nutritionTrendsProvider = StateNotifierProvider<NutritionTrendsNotifier,
+    AsyncValue<List<DailyNutritionSummary>>>((ref) {
   return NutritionTrendsNotifier(ref.watch(nutritionRepositoryProvider));
 });
 
-class NutritionTrendsNotifier extends StateNotifier<AsyncValue<List<DailyNutritionSummary>>> {
+class NutritionTrendsNotifier
+    extends StateNotifier<AsyncValue<List<DailyNutritionSummary>>> {
   final NutritionRepository _repository;
 
-  NutritionTrendsNotifier(this._repository) : super(const AsyncValue.loading()) {
+  NutritionTrendsNotifier(this._repository)
+      : super(const AsyncValue.loading()) {
     // Load last 7 days by default
     final endDate = DateTime.now();
     final startDate = endDate.subtract(const Duration(days: 6));
     loadTrends(startDate: startDate, endDate: endDate);
   }
 
-  Future<void> loadTrends({required DateTime startDate, required DateTime endDate}) async {
+  Future<void> loadTrends(
+      {required DateTime startDate, required DateTime endDate}) async {
     state = const AsyncValue.loading();
-    
+
     try {
       final trends = await _repository.getNutritionTrends(
         startDate: startDate,
@@ -221,11 +237,13 @@ class NutritionTrendsNotifier extends StateNotifier<AsyncValue<List<DailyNutriti
 }
 
 // Saved Meal Plans Provider
-final savedMealPlansProvider = StateNotifierProvider<SavedMealPlansNotifier, AsyncValue<List<SavedMealPlan>>>((ref) {
+final savedMealPlansProvider = StateNotifierProvider<SavedMealPlansNotifier,
+    AsyncValue<List<SavedMealPlan>>>((ref) {
   return SavedMealPlansNotifier(ref.watch(nutritionRepositoryProvider));
 });
 
-class SavedMealPlansNotifier extends StateNotifier<AsyncValue<List<SavedMealPlan>>> {
+class SavedMealPlansNotifier
+    extends StateNotifier<AsyncValue<List<SavedMealPlan>>> {
   final NutritionRepository _repository;
 
   SavedMealPlansNotifier(this._repository) : super(const AsyncValue.loading()) {
@@ -234,7 +252,7 @@ class SavedMealPlansNotifier extends StateNotifier<AsyncValue<List<SavedMealPlan
 
   Future<void> loadSavedMealPlans() async {
     state = const AsyncValue.loading();
-    
+
     try {
       final plans = await _repository.getSavedMealPlans();
       state = AsyncValue.data(plans);
@@ -265,11 +283,13 @@ class SavedMealPlansNotifier extends StateNotifier<AsyncValue<List<SavedMealPlan
 }
 
 // Nutrition User Preferences Provider
-final nutritionUserPreferencesProvider = StateNotifierProvider<NutritionUserPreferencesNotifier, NutritionUserPreferences>((ref) {
+final nutritionUserPreferencesProvider = StateNotifierProvider<
+    NutritionUserPreferencesNotifier, NutritionUserPreferences>((ref) {
   return NutritionUserPreferencesNotifier();
 });
 
-class NutritionUserPreferencesNotifier extends StateNotifier<NutritionUserPreferences> {
+class NutritionUserPreferencesNotifier
+    extends StateNotifier<NutritionUserPreferences> {
   NutritionUserPreferencesNotifier() : super(const NutritionUserPreferences());
 
   void updateGoal(String goal) {
@@ -341,14 +361,18 @@ class NutritionUserPreferences {
   }
 
   MealPlanRequest toMealPlanRequest() {
+    // Convert old format to new API format with default values
+    // You may want to collect these from user input in the future
     return MealPlanRequest(
-      goal: goal,
-      targetCalories: targetCalories,
-      dietaryRestrictions: dietaryRestrictions,
-      allergies: allergies,
-      mealsPerDay: mealsPerDay,
-      activityLevel: activityLevel,
-      preferredCuisines: preferredCuisines,
+      weight: 70.0, // Default weight in kg - should be collected from user
+      height: 170.0, // Default height in cm - should be collected from user
+      age: 25, // Default age - should be collected from user
+      sex: 'Male', // Default sex - should be collected from user
+      goal: goal, // Map existing goal
+      dietaryPreferences:
+          dietaryRestrictions, // Map dietary restrictions to preferences
+      foodIntolerance: allergies, // Map allergies to food intolerance
+      durationDays: 7, // Default to 7 days plan
     );
   }
 }

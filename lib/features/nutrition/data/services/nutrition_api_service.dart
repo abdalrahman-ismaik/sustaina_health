@@ -4,10 +4,8 @@ import 'package:http/http.dart' as http;
 import '../models/nutrition_models.dart';
 
 class NutritionApiService {
-  // Change this URL to match your actual API server
-  static const String _baseUrl = 'http://10.0.2.2:8000'; // for Android emulator
-  // For iOS Simulator use: 'http://localhost:8000'
-  // For physical device use your computer's IP: 'http://192.168.1.XXX:8000'
+  // Deployed fitness-tribe-ai server
+  static const String _baseUrl = 'https://fitness-tribe-ai-4s89.onrender.com';
 
   /// Analyze a meal photo to identify foods, calories, and nutrition information
   Future<MealAnalysisResponse> analyzeMeal(MealAnalysisRequest request) async {
@@ -51,7 +49,7 @@ class NutritionApiService {
   Future<MealPlanResponse> generateMealPlan(MealPlanRequest request) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/meal-plans/generate'),
+        Uri.parse('$_baseUrl/nutrition-plans/generate'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -61,6 +59,7 @@ class NutritionApiService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data =
             jsonDecode(response.body) as Map<String, dynamic>;
+        print('API Response: $data'); // Debug logging
         return MealPlanResponse.fromJson(data);
       } else {
         throw NutritionApiException(
@@ -90,9 +89,9 @@ class NutritionApiService {
     try {
       final response = await http
           .get(
-            Uri.parse('$_baseUrl/health'),
+            Uri.parse('$_baseUrl/'),
           )
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(seconds: 10));
 
       return response.statusCode == 200;
     } catch (e) {
@@ -126,111 +125,79 @@ class NutritionApiService {
 
   // Mock meal plan for testing when API is not available
   MealPlanResponse _getMockMealPlan(MealPlanRequest request) {
-    return MealPlanResponse(
-      breakfast: [
-        const MealOption(
-          description: 'Oatmeal with berries and almonds',
-          ingredients: [
+    // Create mock data for the number of days requested
+    final List<DailyMealPlan> dailyPlans = [];
+    
+    for (int day = 1; day <= request.durationDays; day++) {
+      dailyPlans.add(DailyMealPlan(
+        day: day,
+        date: DateTime.now().add(Duration(days: day - 1)).toIso8601String().split('T')[0],
+        breakfast: MealOption(
+          description: 'Oatmeal with Berries and Almonds',
+          totalCalories: 425,
+          recipe: 'Cook oats with milk, top with berries and almonds, drizzle with honey.',
+          ingredients: const [
             Ingredient(ingredient: 'Rolled oats', quantity: '1/2 cup', calories: 150),
             Ingredient(ingredient: 'Mixed berries', quantity: '1/2 cup', calories: 40),
-            Ingredient(ingredient: 'Almonds', quantity: '1/4 cup', calories: 170),
+            Ingredient(ingredient: 'Almonds', quantity: '1/4 cup', calories: 160),
             Ingredient(ingredient: 'Honey', quantity: '1 tbsp', calories: 65),
           ],
-          totalCalories: 425,
-          recipe: 'Cook oats with water, top with berries, almonds, and honey.',
+          suggestedBrands: ['Quaker Oats', 'Nature Valley'],
         ),
-        const MealOption(
-          description: 'Greek yogurt parfait with granola',
-          ingredients: [
-            Ingredient(ingredient: 'Greek yogurt', quantity: '1 cup', calories: 150),
-            Ingredient(ingredient: 'Granola', quantity: '1/4 cup', calories: 120),
-            Ingredient(ingredient: 'Strawberries', quantity: '1/2 cup', calories: 25),
-            Ingredient(ingredient: 'Blueberries', quantity: '1/4 cup', calories: 20),
-          ],
-          totalCalories: 315,
-          recipe: 'Layer yogurt with granola and fresh berries.',
-        ),
-      ],
-      lunch: [
-        const MealOption(
-          description: 'Quinoa salad with vegetables and chickpeas',
-          ingredients: [
+        lunch: MealOption(
+          description: 'Quinoa Salad with Chickpeas',
+          totalCalories: 385,
+          recipe: 'Mix cooked quinoa with chickpeas, vegetables, and olive oil dressing.',
+          ingredients: const [
             Ingredient(ingredient: 'Quinoa', quantity: '1/2 cup cooked', calories: 110),
             Ingredient(ingredient: 'Chickpeas', quantity: '1/2 cup', calories: 135),
-            Ingredient(ingredient: 'Mixed vegetables', quantity: '1 cup', calories: 35),
-            Ingredient(ingredient: 'Olive oil', quantity: '1 tbsp', calories: 120),
+            Ingredient(ingredient: 'Mixed vegetables', quantity: '1 cup', calories: 25),
+            Ingredient(ingredient: 'Olive oil', quantity: '1 tbsp', calories: 115),
           ],
-          totalCalories: 400,
-          recipe: 'Mix cooked quinoa with chickpeas, vegetables, and olive oil dressing.',
+          suggestedBrands: ['Eden Organic', 'Bertolli'],
         ),
-        const MealOption(
-          description: 'Grilled chicken wrap with vegetables',
-          ingredients: [
-            Ingredient(ingredient: 'Whole wheat tortilla', quantity: '1 large', calories: 170),
-            Ingredient(ingredient: 'Grilled chicken breast', quantity: '3 oz', calories: 140),
-            Ingredient(ingredient: 'Mixed greens', quantity: '1 cup', calories: 10),
-            Ingredient(ingredient: 'Avocado', quantity: '1/4 medium', calories: 60),
-          ],
-          totalCalories: 380,
-          recipe: 'Fill tortilla with chicken, greens, and avocado, then wrap.',
-        ),
-      ],
-      dinner: [
-        const MealOption(
-          description: 'Baked salmon with sweet potato and broccoli',
-          ingredients: [
-            Ingredient(ingredient: 'Salmon fillet', quantity: '4 oz', calories: 200),
-            Ingredient(ingredient: 'Sweet potato', quantity: '1 medium', calories: 112),
+        dinner: MealOption(
+          description: 'Grilled Salmon with Sweet Potato',
+          totalCalories: 520,
+          recipe: 'Grill salmon fillet, roast sweet potato, steam broccoli.',
+          ingredients: const [
+            Ingredient(ingredient: 'Salmon fillet', quantity: '6 oz', calories: 350),
+            Ingredient(ingredient: 'Sweet potato', quantity: '1 medium', calories: 100),
             Ingredient(ingredient: 'Broccoli', quantity: '1 cup', calories: 25),
-            Ingredient(ingredient: 'Olive oil', quantity: '1 tsp', calories: 40),
+            Ingredient(ingredient: 'Olive oil', quantity: '1 tbsp', calories: 45),
           ],
-          totalCalories: 377,
-          recipe: 'Bake salmon and sweet potato, steam broccoli, drizzle with olive oil.',
+          suggestedBrands: ['Wild Planet', 'Organic Valley'],
         ),
-        const MealOption(
-          description: 'Vegetarian stir-fry with tofu and brown rice',
-          ingredients: [
-            Ingredient(ingredient: 'Firm tofu', quantity: '3 oz', calories: 90),
-            Ingredient(ingredient: 'Brown rice', quantity: '1/2 cup cooked', calories: 110),
-            Ingredient(ingredient: 'Mixed stir-fry vegetables', quantity: '1.5 cups', calories: 60),
-            Ingredient(ingredient: 'Sesame oil', quantity: '1 tsp', calories: 40),
-          ],
-          totalCalories: 300,
-          recipe: 'Stir-fry tofu and vegetables in sesame oil, serve over brown rice.',
+        snacks: [
+          MealOption(
+            description: 'Greek Yogurt with Nuts',
+            totalCalories: 180,
+            recipe: 'Mix Greek yogurt with mixed nuts.',
+            ingredients: const [
+              Ingredient(ingredient: 'Greek yogurt', quantity: '3/4 cup', calories: 100),
+              Ingredient(ingredient: 'Mixed nuts', quantity: '1/4 cup', calories: 80),
+            ],
+            suggestedBrands: ['Fage', 'Blue Diamond'],
+          ),
+        ],
+        dailyMacros: const DailyMacros(
+          protein: 80,
+          carbohydrates: 177,
+          fat: 57,
         ),
-      ],
-      snacks: [
-        const MealOption(
-          description: 'Apple with almond butter',
-          ingredients: [
-            Ingredient(ingredient: 'Apple', quantity: '1 medium', calories: 95),
-            Ingredient(ingredient: 'Almond butter', quantity: '2 tbsp', calories: 190),
-          ],
-          totalCalories: 285,
-          recipe: 'Slice apple and serve with almond butter for dipping.',
-        ),
-        const MealOption(
-          description: 'Hummus with vegetable sticks',
-          ingredients: [
-            Ingredient(ingredient: 'Hummus', quantity: '1/4 cup', calories: 100),
-            Ingredient(ingredient: 'Carrot sticks', quantity: '1 cup', calories: 25),
-            Ingredient(ingredient: 'Cucumber slices', quantity: '1 cup', calories: 16),
-            Ingredient(ingredient: 'Bell pepper strips', quantity: '1/2 cup', calories: 15),
-          ],
-          totalCalories: 156,
-          recipe: 'Cut vegetables into sticks and serve with hummus.',
-        ),
-      ],
-      totalDailyCalories: request.targetCalories,
-      dailyNutritionSummary: NutritionInfo(
-        calories: request.targetCalories,
-        carbohydrates: (request.targetCalories * 0.45 / 4).round(), // 45% from carbs
-        protein: (request.targetCalories * 0.25 / 4).round(), // 25% from protein
-        fat: (request.targetCalories * 0.30 / 9).round(), // 30% from fat
-        fiber: 35,
-        sugar: 50,
-        sodium: 2000,
+        totalDailyCalories: 1510,
+      ));
+    }
+    
+    return MealPlanResponse(
+      dailyCaloriesRange: const DailyCaloriesRange(min: 1400, max: 1600),
+      macronutrientsRange: const MacronutrientsRange(
+        protein: MacronutrientRange(min: 70, max: 90),
+        carbohydrates: MacronutrientRange(min: 150, max: 200),
+        fat: MacronutrientRange(min: 50, max: 65),
       ),
+      dailyMealPlans: dailyPlans,
+      totalDays: request.durationDays,
     );
   }
 

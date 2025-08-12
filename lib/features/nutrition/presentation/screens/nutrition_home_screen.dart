@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
 import '../widgets/guide_section.dart';
 
@@ -207,22 +208,22 @@ class NutritionHomeScreen extends ConsumerWidget {
                     _MealSection(
                       meal: 'Breakfast',
                       entries: summary.getMealsByType('breakfast'),
-                      onAddFood: () => Navigator.of(context).pushNamed('/nutrition/log'),
+                      onAddFood: () => context.go('/nutrition/food-logging'),
                     ),
                     _MealSection(
                       meal: 'Lunch',
                       entries: summary.getMealsByType('lunch'),
-                      onAddFood: () => Navigator.of(context).pushNamed('/nutrition/log'),
+                      onAddFood: () => context.go('/nutrition/food-logging'),
                     ),
                     _MealSection(
                       meal: 'Dinner',
                       entries: summary.getMealsByType('dinner'),
-                      onAddFood: () => Navigator.of(context).pushNamed('/nutrition/log'),
+                      onAddFood: () => context.go('/nutrition/food-logging'),
                     ),
                     _MealSection(
                       meal: 'Snacks',
                       entries: summary.getMealsByType('snack'),
-                      onAddFood: () => Navigator.of(context).pushNamed('/nutrition/log'),
+                      onAddFood: () => context.go('/nutrition/food-logging'),
                     ),
                   ],
                 ),
@@ -230,6 +231,132 @@ class NutritionHomeScreen extends ConsumerWidget {
               loading: () => const SizedBox(),
               error: (_, __) => const SizedBox(),
             ),
+            const SizedBox(height: 24),
+            
+            // Meal Plan Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'AI Meal Plans',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF121714),
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => context.go('/nutrition/ai-meal-plan'),
+                        icon: const Icon(Icons.add, color: Color(0xFF688273)),
+                        label: const Text(
+                          'Generate',
+                          style: TextStyle(
+                            color: Color(0xFF688273),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          backgroundColor: const Color(0xFF94e0b2).withOpacity(0.2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF94e0b2).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFF94e0b2).withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF94e0b2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.restaurant_menu,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Create Your Personalized Meal Plan',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF121714),
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'AI-powered meal planning based on your goals and preferences',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF688273),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              color: Color(0xFF688273),
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => context.go('/nutrition/ai-meal-plan'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF688273),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                                child: const Text(
+                                  'Generate Meal Plan',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
             const SizedBox(height: 24),
             
             // Quick Actions Section
@@ -257,7 +384,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           subtitle: 'Photo → Nutrition',
                           icon: Icons.camera_alt,
                           color: const Color(0xFF94e0b2),
-                          onTap: () => Navigator.of(context).pushNamed('/nutrition/ai-recognition'),
+                          onTap: () => context.go('/nutrition/ai-recognition'),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -267,7 +394,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           subtitle: 'Smart Planning',
                           icon: Icons.restaurant_menu,
                           color: const Color(0xFF688273),
-                          onTap: () => Navigator.of(context).pushNamed('/nutrition/ai-meal-plan'),
+                          onTap: () => context.go('/nutrition/ai-meal-plan'),
                         ),
                       ),
                     ],
@@ -283,7 +410,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           subtitle: 'Manual Entry',
                           icon: Icons.edit,
                           color: const Color(0xFFdde4e0),
-                          onTap: () => Navigator.of(context).pushNamed('/nutrition/food-logging'),
+                          onTap: () => context.go('/nutrition/food-logging'),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -293,7 +420,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           subtitle: 'Trends & Analytics',
                           icon: Icons.analytics,
                           color: const Color(0xFFdde4e0),
-                          onTap: () => Navigator.of(context).pushNamed('/nutrition/insights'),
+                          onTap: () => context.go('/nutrition/insights'),
                         ),
                       ),
                     ],
@@ -342,7 +469,7 @@ class NutritionHomeScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(context).pushNamed('/nutrition/ai-recognition'),
+        onPressed: () => context.go('/nutrition/ai-recognition'),
         backgroundColor: const Color(0xFF94e0b2),
         foregroundColor: const Color(0xFF121714),
         icon: const Icon(Icons.camera_alt),
@@ -714,7 +841,7 @@ class _AISuggestionCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (title == 'Meal Recommendation') {
-          Navigator.of(context).pushNamed('/nutrition/insights');
+          context.go('/nutrition/insights');
         }
       },
       child: Container(

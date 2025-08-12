@@ -3,8 +3,9 @@ import 'package:http/http.dart' as http;
 import '../models/workout_models.dart';
 
 class WorkoutApiService {
-  // Change this URL to match your actual API server
-  static const String _baseUrl = 'http://10.0.2.2:8000'; // for Android emulator
+  // Deployed fitness-tribe-ai server
+  static const String _baseUrl = 'https://fitness-tribe-ai-4s89.onrender.com';
+  // Previously used local URL: 'http://10.0.2.2:8000' for Android emulator
 
   Future<WorkoutPlan> generateWorkout(WorkoutGenerationRequest request) async {
     try {
@@ -108,9 +109,9 @@ class WorkoutApiService {
     try {
       final response = await http
           .get(
-            Uri.parse('$_baseUrl/health'),
+            Uri.parse('$_baseUrl/'),
           )
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(seconds: 10));
 
       return response.statusCode == 200;
     } catch (e) {

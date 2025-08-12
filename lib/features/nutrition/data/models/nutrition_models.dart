@@ -1,4 +1,4 @@
-// Nutrition API Models based on fitness-tribe-ai repository
+// Nutrition API Models based on real API response structure
 
 class MealAnalysisRequest {
   final String imageBase64;
@@ -30,9 +30,9 @@ class Ingredient {
 
   factory Ingredient.fromJson(Map<String, dynamic> json) {
     return Ingredient(
-      ingredient: json['ingredient'] as String,
-      quantity: json['quantity'] as String,
-      calories: json['calories'] as int,
+      ingredient: json['ingredient'] as String? ?? '',
+      quantity: json['quantity'] as String? ?? '',
+      calories: (json['calories'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -43,6 +43,11 @@ class Ingredient {
       'calories': calories,
     };
   }
+
+  @override
+  String toString() {
+    return '$ingredient ($quantity)';
+  }
 }
 
 class MealOption {
@@ -50,22 +55,29 @@ class MealOption {
   final List<Ingredient> ingredients;
   final int totalCalories;
   final String recipe;
+  final List<String> suggestedBrands;
 
   const MealOption({
     required this.description,
     required this.ingredients,
     required this.totalCalories,
     required this.recipe,
+    this.suggestedBrands = const [],
   });
 
   factory MealOption.fromJson(Map<String, dynamic> json) {
     return MealOption(
-      description: json['description'] as String,
-      ingredients: (json['ingredients'] as List<dynamic>)
-          .map((e) => Ingredient.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      totalCalories: json['total_calories'] as int,
-      recipe: json['recipe'] as String,
+      description: json['description'] as String? ?? 'Unknown Meal',
+      ingredients: json['ingredients'] != null
+          ? (json['ingredients'] as List<dynamic>)
+              .map((e) => Ingredient.fromJson(e as Map<String, dynamic>? ?? {}))
+              .toList()
+          : [],
+      totalCalories: (json['total_calories'] as num?)?.toInt() ?? 0,
+      recipe: json['recipe'] as String? ?? '',
+      suggestedBrands: json['suggested_brands'] != null
+          ? List<String>.from(json['suggested_brands'])
+          : [],
     );
   }
 
@@ -75,10 +87,90 @@ class MealOption {
       'ingredients': ingredients.map((e) => e.toJson()).toList(),
       'total_calories': totalCalories,
       'recipe': recipe,
+      'suggested_brands': suggestedBrands,
+    };
+  }
+
+  // Compatibility properties for UI
+  String get name => description;
+  int get calories => totalCalories;
+}
+
+class DailyCaloriesRange {
+  final int min;
+  final int max;
+
+  const DailyCaloriesRange({
+    required this.min,
+    required this.max,
+  });
+
+  factory DailyCaloriesRange.fromJson(Map<String, dynamic> json) {
+    return DailyCaloriesRange(
+      min: (json['min'] as num?)?.toInt() ?? 0,
+      max: (json['max'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'min': min,
+      'max': max,
     };
   }
 }
 
+class MacronutrientsRange {
+  final MacronutrientRange protein;
+  final MacronutrientRange carbohydrates;
+  final MacronutrientRange fat;
+
+  const MacronutrientsRange({
+    required this.protein,
+    required this.carbohydrates,
+    required this.fat,
+  });
+
+  factory MacronutrientsRange.fromJson(Map<String, dynamic> json) {
+    return MacronutrientsRange(
+      protein: MacronutrientRange.fromJson(json['protein'] as Map<String, dynamic>? ?? {}),
+      carbohydrates: MacronutrientRange.fromJson(json['carbohydrates'] as Map<String, dynamic>? ?? {}),
+      fat: MacronutrientRange.fromJson(json['fat'] as Map<String, dynamic>? ?? {}),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'protein': protein.toJson(),
+      'carbohydrates': carbohydrates.toJson(),
+      'fat': fat.toJson(),
+    };
+  }
+}
+
+class MacronutrientRange {
+  final int min;
+  final int max;
+
+  const MacronutrientRange({
+    required this.min,
+    required this.max,
+  });
+
+  factory MacronutrientRange.fromJson(Map<String, dynamic> json) {
+    return MacronutrientRange(
+      min: (json['min'] as num?)?.toInt() ?? 0,
+      max: (json['max'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'min': min,
+      'max': max,
+    };
+  }
+}
 class MealAnalysisResponse {
   final List<String> identifiedFoods;
   final double confidence;
@@ -103,7 +195,8 @@ class MealAnalysisResponse {
           .toList(),
       confidence: (json['confidence'] as num).toDouble(),
       portionSize: json['portion_size'] as String,
-      nutritionInfo: NutritionInfo.fromJson(json['nutrition_info'] as Map<String, dynamic>),
+      nutritionInfo: NutritionInfo.fromJson(
+          json['nutrition_info'] as Map<String, dynamic>),
       sustainabilityScore: json['sustainability_score'] as String,
       suggestions: (json['suggestions'] as List<dynamic>)
           .map((e) => e as String)
@@ -144,13 +237,13 @@ class NutritionInfo {
 
   factory NutritionInfo.fromJson(Map<String, dynamic> json) {
     return NutritionInfo(
-      calories: json['calories'] as int,
-      carbohydrates: json['carbohydrates'] as int,
-      protein: json['protein'] as int,
-      fat: json['fat'] as int,
-      fiber: json['fiber'] as int,
-      sugar: json['sugar'] as int,
-      sodium: json['sodium'] as int,
+      calories: (json['calories'] as num).toInt(),
+      carbohydrates: (json['carbohydrates'] as num).toInt(),
+      protein: (json['protein'] as num).toInt(),
+      fat: (json['fat'] as num).toInt(),
+      fiber: (json['fiber'] as num).toInt(),
+      sugar: (json['sugar'] as num).toInt(),
+      sodium: (json['sodium'] as num).toInt(),
     );
   }
 
@@ -170,84 +263,168 @@ class NutritionInfo {
 }
 
 class MealPlanRequest {
-  final String goal; // weight_loss, muscle_gain, maintenance, etc.
-  final int targetCalories;
-  final List<String> dietaryRestrictions; // vegetarian, vegan, gluten_free, etc.
-  final List<String> allergies;
-  final int mealsPerDay;
-  final String activityLevel; // sedentary, lightly_active, moderately_active, very_active
-  final List<String> preferredCuisines;
+  final double weight;
+  final double height;
+  final int age;
+  final String sex;
+  final String goal;
+  final List<String> dietaryPreferences;
+  final List<String> foodIntolerance;
+  final int durationDays;
 
   const MealPlanRequest({
+    required this.weight,
+    required this.height,
+    required this.age,
+    required this.sex,
     required this.goal,
-    required this.targetCalories,
-    this.dietaryRestrictions = const [],
-    this.allergies = const [],
-    this.mealsPerDay = 3,
-    required this.activityLevel,
-    this.preferredCuisines = const [],
+    this.dietaryPreferences = const [],
+    this.foodIntolerance = const [],
+    required this.durationDays,
   });
 
   Map<String, dynamic> toJson() {
     return {
+      'weight': weight,
+      'height': height,
+      'age': age,
+      'sex': sex,
       'goal': goal,
-      'target_calories': targetCalories,
-      'dietary_restrictions': dietaryRestrictions,
-      'allergies': allergies,
-      'meals_per_day': mealsPerDay,
-      'activity_level': activityLevel,
-      'preferred_cuisines': preferredCuisines,
+      'dietary_preferences': dietaryPreferences,
+      'food_intolerance': foodIntolerance,
+      'duration_days': durationDays,
     };
   }
 }
 
 class MealPlanResponse {
-  final List<MealOption> breakfast;
-  final List<MealOption> lunch;
-  final List<MealOption> dinner;
-  final List<MealOption> snacks;
-  final int totalDailyCalories;
-  final NutritionInfo dailyNutritionSummary;
+  final DailyCaloriesRange dailyCaloriesRange;
+  final MacronutrientsRange macronutrientsRange;
+  final List<DailyMealPlan> dailyMealPlans;
+  final int totalDays;
 
   const MealPlanResponse({
-    required this.breakfast,
-    required this.lunch,
-    required this.dinner,
-    required this.snacks,
-    required this.totalDailyCalories,
-    required this.dailyNutritionSummary,
+    required this.dailyCaloriesRange,
+    required this.macronutrientsRange,
+    required this.dailyMealPlans,
+    required this.totalDays,
   });
 
   factory MealPlanResponse.fromJson(Map<String, dynamic> json) {
     return MealPlanResponse(
-      breakfast: (json['breakfast'] as List<dynamic>)
-          .map((e) => MealOption.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      lunch: (json['lunch'] as List<dynamic>)
-          .map((e) => MealOption.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      dinner: (json['dinner'] as List<dynamic>)
-          .map((e) => MealOption.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      snacks: (json['snacks'] as List<dynamic>)
-          .map((e) => MealOption.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      totalDailyCalories: json['total_daily_calories'] as int,
-      dailyNutritionSummary: NutritionInfo.fromJson(
-          json['daily_nutrition_summary'] as Map<String, dynamic>),
+      dailyCaloriesRange: DailyCaloriesRange.fromJson(
+        json['daily_calories_range'] as Map<String, dynamic>? ?? {}
+      ),
+      macronutrientsRange: MacronutrientsRange.fromJson(
+        json['macronutrients_range'] as Map<String, dynamic>? ?? {}
+      ),
+      dailyMealPlans: json['daily_meal_plans'] != null
+          ? (json['daily_meal_plans'] as List<dynamic>)
+              .map((e) => DailyMealPlan.fromJson(e as Map<String, dynamic>? ?? {}))
+              .toList()
+          : [],
+      totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'breakfast': breakfast.map((e) => e.toJson()).toList(),
-      'lunch': lunch.map((e) => e.toJson()).toList(),
-      'dinner': dinner.map((e) => e.toJson()).toList(),
-      'snacks': snacks.map((e) => e.toJson()).toList(),
-      'total_daily_calories': totalDailyCalories,
-      'daily_nutrition_summary': dailyNutritionSummary.toJson(),
+      'daily_calories_range': dailyCaloriesRange.toJson(),
+      'macronutrients_range': macronutrientsRange.toJson(),
+      'daily_meal_plans': dailyMealPlans.map((e) => e.toJson()).toList(),
+      'total_days': totalDays,
     };
   }
+}
+
+class DailyMealPlan {
+  final int day;
+  final String date;
+  final MealOption breakfast;
+  final MealOption lunch;
+  final MealOption dinner;
+  final List<MealOption> snacks;
+  final int totalDailyCalories;
+  final DailyMacros dailyMacros;
+
+  const DailyMealPlan({
+    required this.day,
+    required this.date,
+    required this.breakfast,
+    required this.lunch,
+    required this.dinner,
+    required this.snacks,
+    required this.totalDailyCalories,
+    required this.dailyMacros,
+  });
+
+  factory DailyMealPlan.fromJson(Map<String, dynamic> json) {
+    return DailyMealPlan(
+      day: (json['day'] as num?)?.toInt() ?? 1,
+      date: json['date'] as String? ?? '',
+      breakfast: MealOption.fromJson(
+        json['breakfast'] as Map<String, dynamic>? ?? {}
+      ),
+      lunch: MealOption.fromJson(
+        json['lunch'] as Map<String, dynamic>? ?? {}
+      ),
+      dinner: MealOption.fromJson(
+        json['dinner'] as Map<String, dynamic>? ?? {}
+      ),
+      snacks: json['snacks'] != null 
+          ? (json['snacks'] as List<dynamic>)
+              .map((e) => MealOption.fromJson(e as Map<String, dynamic>? ?? {}))
+              .toList()
+          : [],
+      totalDailyCalories: (json['total_daily_calories'] as num?)?.toInt() ?? 0,
+      dailyMacros: DailyMacros.fromJson(
+        json['daily_macros'] as Map<String, dynamic>? ?? {}
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'day': day,
+      'date': date,
+      'breakfast': breakfast.toJson(),
+      'lunch': lunch.toJson(),
+      'dinner': dinner.toJson(),
+      'snacks': snacks.map((e) => e.toJson()).toList(),
+      'total_daily_calories': totalDailyCalories,
+      'daily_macros': dailyMacros.toJson(),
+    };
+  }
+}
+
+class DailyMacros {
+  final int protein;
+  final int carbohydrates;
+  final int fat;
+
+  const DailyMacros({
+    required this.protein,
+    required this.carbohydrates,
+    required this.fat,
+  });
+
+  factory DailyMacros.fromJson(Map<String, dynamic> json) {
+    return DailyMacros(
+      protein: (json['protein'] as num?)?.toInt() ?? 0,
+      carbohydrates: (json['carbohydrates'] as num?)?.toInt() ?? 0,
+      fat: (json['fat'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'protein': protein,
+      'carbohydrates': carbohydrates,
+      'fat': fat,
+    };
+  }
+
+  String get macroString => 'C ${carbohydrates}g | P ${protein}g | F ${fat}g';
 }
 
 class FoodLogEntry {
@@ -282,7 +459,8 @@ class FoodLogEntry {
       foodName: json['foodName'] as String,
       mealType: json['mealType'] as String,
       servingSize: json['servingSize'] as String,
-      nutritionInfo: NutritionInfo.fromJson(json['nutritionInfo'] as Map<String, dynamic>),
+      nutritionInfo:
+          NutritionInfo.fromJson(json['nutritionInfo'] as Map<String, dynamic>),
       sustainabilityScore: json['sustainabilityScore'] as String?,
       notes: json['notes'] as String?,
       loggedAt: DateTime.parse(json['loggedAt'] as String),
@@ -350,8 +528,9 @@ class DailyNutritionSummary {
   factory DailyNutritionSummary.fromJson(Map<String, dynamic> json) {
     return DailyNutritionSummary(
       date: DateTime.parse(json['date'] as String),
-      totalNutrition: NutritionInfo.fromJson(json['totalNutrition'] as Map<String, dynamic>),
-      targetCalories: json['targetCalories'] as int,
+      totalNutrition: NutritionInfo.fromJson(
+          json['totalNutrition'] as Map<String, dynamic>),
+      targetCalories: (json['targetCalories'] as num).toInt(),
       meals: (json['meals'] as List<dynamic>)
           .map((e) => FoodLogEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
