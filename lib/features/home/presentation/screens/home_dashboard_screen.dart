@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
 class HomeDashboardScreen extends ConsumerWidget {
@@ -9,393 +10,446 @@ class HomeDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsyncValue = ref.watch(currentUserProvider);
     final user = userAsyncValue.value;
-    print(
-        'DEBUG HomeScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
+    
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
-        child: ListView(
-          children: <Widget>[
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  CircleAvatar(
-                    backgroundImage: user?.photoURL != null
-                        ? NetworkImage(user!.photoURL!)
-                        : NetworkImage(
-                            'https://lh3.googleusercontent.com/aida-public/AB6AXuBbMPNPoDJYRmGhiSiLcBUy7iaIrueGkMwr1g-E_TMeDL2ZglWXus-L-IStzb_2xPNyGSAxIdzKXWPDheMkf2uUhXif-dHU_NNYr8BbeywOJKrcnOhZx_YjYC0ndS6x2Wipoje7o5A4EFW73AtlmwdDXpkU2n1B9QrIjcvkuJdgLQUlWwacXOF9FFSyveX3lDdJKl2cqAjofJgvIpiAfXb3Gm4YCM7uGisgQV4o7uWB9Z__tFg5CmrqCzZKeds7nD63GvPVeVaJWSqz'),
-                    radius: 20,
-                  ),
-                  const Text(
-                    'SustainaHealth',
-                    style: TextStyle(
-                      color: Color(0xFF111714),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      letterSpacing: -0.015,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.settings, color: Color(0xFF111714)),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Text(
-                'Hi, ${user?.displayName ?? 'User'}',
-                style: TextStyle(
-                  color: Color(0xFF111714),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              _buildHeader(context, user),
+              const SizedBox(height: 32),
+              
+              // Quick Access Features
+              Text(
+                'Quick Access',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 24,
                 ),
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Text(
-                'Today, July 26 · 22°C',
-                style: TextStyle(
-                  color: Color(0xFF648772),
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Color(0xFFDCE5DF)),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const <Widget>[
-                          Text('Sustainability Score',
-                              style: TextStyle(
-                                  color: Color(0xFF111714),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500)),
-                          SizedBox(height: 8),
-                          Text('85',
-                              style: TextStyle(
-                                  color: Color(0xFF111714),
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                'Quick Stats',
-                style: TextStyle(
-                  color: Color(0xFF111714),
+              const SizedBox(height: 16),
+              _buildQuickAccessGrid(context),
+              const SizedBox(height: 32),
+              
+              // Today's Focus
+              Text(
+                'Today\'s Focus',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  letterSpacing: -0.015,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: <Widget>[
-                  _StatCard(title: 'Steps', value: '7,234', change: '+15%'),
-                  const SizedBox(width: 8),
-                  _StatCard(title: 'Water', value: '2L', change: '+10%'),
-                  const SizedBox(width: 8),
-                  _StatCard(title: 'Sleep', value: '8.5h', change: '+5%'),
-                  const SizedBox(width: 8),
-                  _StatCard(title: 'Points', value: '120', change: '+20%'),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                'AI Insights',
-                style: TextStyle(
-                  color: Color(0xFF111714),
+              const SizedBox(height: 16),
+              _buildTodaysFocusCard(context),
+              const SizedBox(height: 32),
+              
+              // Implementation Status
+              Text(
+                'Features Status',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  letterSpacing: -0.015,
                 ),
               ),
-            ),
-            _InsightCard(
-              title: 'Personalized Recommendation',
-              description:
-                  'Try a 30-minute yoga session to improve flexibility and reduce stress.',
-              imageUrl:
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuAN8tJnzpGuNSKc3ud4WgNYqhpIqu_ip3H_COmOKPKlfCcLPMyxh8SrcJjVp5aAsSySDKT_0nPrcH3GhOg3daTSahLZSiroKxiNsxiJtfEL9WP_ONHguYZZgbFHbZbK8FW6RA07WH58c4-sT2VifqeRIOCbH6pmW9l7IepgjYOWMLoVkNwACAoKqod3VwFvTyCZL9LpfnDM1costlueX8yUb4yKqvBRE_2KSTLDHT_0E0qW49BeVRZBZ5HOVjRvcmhc8HCLou2Evw-c',
-            ),
-            _InsightCard(
-              title: 'Progress Highlights',
-              description:
-                  "You've maintained a consistent sleep schedule for the past week. Keep it up!",
-              imageUrl:
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuAIuGzQreUW19QGoBqDbfYbdTaVZ-RLL08y3_MCnS525Iu_9ky3RJ03EJ5ZaOJQyQl33xhkoMvLyqBpOJ5Aghg6KHA9Lt422Am55me1A83pqgWzT-t0ItXIOi-CH5FXndonTRghYKEaOy1h9pUXy_WS8WlvWYLz9nRBb2r_Lga9s4ADnFFyut_niSVUOSqn8pj0CLNfhWOlMK6Tu8u2YtIbgX8oIpoOCMj0PWMhPUXLsCOKz7V6Tpcc8wXP5YvfK8CKzj6R9mF8_wtL',
-            ),
-            _InsightCard(
-              title: 'Eco-Tip of the Day',
-              description:
-                  'Reduce your carbon footprint by opting for plant-based meals today.',
-              imageUrl:
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuAoxTI4wExdaChZHR_Kqq0GiugZjr-i_tlNr_mdvMJ0C5Vp2pfqti6EAFzODY1ypeHQDlta6AyMdA2RFweDiEzLtNQjk9UML5Fyx9Uh_c_0yNbw3olecmCbOcFECWkeetvZY_dKnKBLh8NCmq27ikZQoZzeuprYUK1tM7l9HYIhkOj9ghPC8iCy-KdEzadB45rvWaHfw-_yLfzGaJzh2IRH-WhHnEuICz3pD-tPO2EKqtf1f99HbMPMQnNxFHUx8vxGeFIHddYxpzrz',
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                'Quick Actions',
-                style: TextStyle(
-                  color: Color(0xFF111714),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  letterSpacing: -0.015,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  _QuickActionButton(
-                      label: 'Log Meal', icon: Icons.camera_alt, onTap: () {}),
-                  _QuickActionButton(
-                      label: 'Start Workout',
-                      icon: Icons.fitness_center,
-                      onTap: () {}),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  _QuickActionButton(
-                      label: 'Log Sleep',
-                      icon: Icons.nightlight_round,
-                      onTap: () {}),
-                  _QuickActionButton(
-                      label: 'View Challenges',
-                      icon: Icons.emoji_events,
-                      onTap: () {}),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(
-                'Recent Activity',
-                style: TextStyle(
-                  color: Color(0xFF111714),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  letterSpacing: -0.015,
-                ),
-              ),
-            ),
-            _ActivityFeedItem(
-              icon: Icons.directions_run,
-              title: 'Exercise',
-              subtitle: 'Morning Run',
-            ),
-            _ActivityFeedItem(
-              icon: Icons.restaurant,
-              title: 'Nutrition',
-              subtitle: 'Vegan Lunch',
-            ),
-            _ActivityFeedItem(
-              icon: Icons.nightlight_round,
-              title: 'Sleep',
-              subtitle: '8 hours of sleep',
-            ),
-            const SizedBox(height: 80), // Extra space for bottom navigation
-          ],
+              const SizedBox(height: 16),
+              _buildImplementationStatus(context),
+              const SizedBox(height: 100), // Space for bottom navigation
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final String change;
-  const _StatCard(
-      {required this.title, required this.value, required this.change});
+  Widget _buildHeader(BuildContext context, dynamic user) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+            child: Icon(
+              Icons.eco_outlined,
+              size: 32,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome back,',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  user?.displayName?.split(' ').first ?? 'User',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Ready for a sustainable day?',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
+  Widget _buildQuickAccessGrid(BuildContext context) {
+    final quickActions = [
+      {
+        'title': 'Exercise',
+        'subtitle': 'AI Workouts',
+        'icon': Icons.fitness_center_outlined,
+        'route': '/exercise',
+        'implemented': true,
+      },
+      {
+        'title': 'Nutrition',
+        'subtitle': 'Meal Tracking',
+        'icon': Icons.restaurant_outlined,
+        'route': '/nutrition',
+        'implemented': true,
+      },
+      {
+        'title': 'Sleep',
+        'subtitle': 'Sleep Tracking',
+        'icon': Icons.bedtime_outlined,
+        'route': '/sleep',
+        'implemented': false,
+      },
+      {
+        'title': 'Profile',
+        'subtitle': 'Your Progress',
+        'icon': Icons.person_outline,
+        'route': '/profile',
+        'implemented': true,
+      },
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.2,
+      ),
+      itemCount: quickActions.length,
+      itemBuilder: (context, index) {
+        final action = quickActions[index];
+        return _buildQuickActionCard(context, action);
+      },
+    );
+  }
+
+  Widget _buildQuickActionCard(BuildContext context, Map<String, dynamic> action) {
+    final bool isImplemented = action['implemented'] as bool;
+    
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: isImplemented 
+          ? () => context.go(action['route'] as String)
+          : null,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isImplemented 
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  action['icon'] as IconData,
+                  size: 28,
+                  color: isImplemented 
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                action['title'] as String,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: isImplemented 
+                    ? null 
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                action['subtitle'] as String,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: isImplemented 
+                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (!isImplemented) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Coming Soon',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTodaysFocusCard(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFFF0F4F2),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+              Theme.of(context).colorScheme.primary.withOpacity(0.05),
+            ],
+          ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(title,
-                style: const TextStyle(
-                    color: Color(0xFF111714),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500)),
-            const SizedBox(height: 8),
-            Text(value,
-                style: const TextStyle(
-                    color: Color(0xFF111714),
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Text(change,
-                style: const TextStyle(
-                    color: Color(0xFF078829),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500)),
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.today_outlined,
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Sustainability Goal',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Start your journey towards a healthier you and a healthier planet. Track your daily activities and see your positive impact grow.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.go('/exercise'),
+                    icon: const Icon(Icons.fitness_center_outlined, size: 18),
+                    label: const Text('Start Workout'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.go('/nutrition'),
+                    icon: const Icon(Icons.restaurant_outlined, size: 18),
+                    label: const Text('Log Meal'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
-}
 
-class _InsightCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String imageUrl;
-  const _InsightCard(
-      {required this.title, required this.description, required this.imageUrl});
+  Widget _buildImplementationStatus(BuildContext context) {
+    final features = [
+      {
+        'name': 'AI Workout Generation',
+        'status': 'Implemented',
+        'description': 'Generate personalized workout plans',
+        'color': Theme.of(context).colorScheme.primary,
+      },
+      {
+        'name': 'Food Recognition',
+        'status': 'Implemented',
+        'description': 'AI-powered meal analysis',
+        'color': Theme.of(context).colorScheme.primary,
+      },
+      {
+        'name': 'Meal Planning',
+        'status': 'Implemented',
+        'description': 'Sustainable meal recommendations',
+        'color': Theme.of(context).colorScheme.primary,
+      },
+      {
+        'name': 'Sleep Tracking',
+        'status': 'To Be Implemented',
+        'description': 'Monitor sleep patterns and quality',
+        'color': Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+      },
+      {
+        'name': 'Carbon Footprint',
+        'status': 'To Be Implemented',
+        'description': 'Track environmental impact',
+        'color': Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+      },
+      {
+        'name': 'Social Features',
+        'status': 'To Be Implemented',
+        'description': 'Connect with eco-conscious community',
+        'color': Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+      },
+    ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          image: DecorationImage(
-            image: NetworkImage(imageUrl),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.4), BlendMode.darken),
-          ),
+    return Column(
+      children: features.map((feature) => _buildStatusItem(context, feature)).toList(),
+    );
+  }
+
+  Widget _buildStatusItem(BuildContext context, Map<String, dynamic> feature) {
+    final bool isImplemented = feature['status'] == 'Implemented';
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isImplemented 
+            ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+            : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+          width: 1,
         ),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: <Color>[
-                Colors.black.withOpacity(0.4),
-                Colors.transparent,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: feature['color'] as Color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  feature['name'] as String,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: isImplemented 
+                      ? null 
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  feature['description'] as String,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isImplemented 
+                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  ),
+                ),
               ],
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(title,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text(description,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickActionButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-  const _QuickActionButton(
-      {required this.label, required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon, color: const Color(0xFF111714)),
-        label: Text(label,
-            style: const TextStyle(
-                color: Color(0xFF111714), fontWeight: FontWeight.bold)),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF38E07B),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(32),
-          ),
-          elevation: 0,
-        ),
-      ),
-    );
-  }
-}
-
-class _ActivityFeedItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  const _ActivityFeedItem(
-      {required this.icon, required this.title, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Row(
-        children: <Widget>[
           Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0F4F2),
-              borderRadius: BorderRadius.circular(12),
+              color: isImplemented 
+                ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                : Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
             ),
-            width: 48,
-            height: 48,
-            child: Icon(icon, color: const Color(0xFF111714)),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(title,
-                  style: const TextStyle(
-                      color: Color(0xFF111714),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500)),
-              Text(subtitle,
-                  style:
-                      const TextStyle(color: Color(0xFF648772), fontSize: 14)),
-            ],
+            child: Text(
+              feature['status'] as String,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: isImplemented 
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),

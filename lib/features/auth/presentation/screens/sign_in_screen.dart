@@ -263,6 +263,10 @@ class _SignInForm extends StatelessWidget {
             TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(
+                color: Color(0xFF212121), // Dark text for readability
+                fontSize: 16,
+              ),
               decoration: InputDecoration(
                 labelText: 'Email',
                 hintText: 'Enter your email address',
@@ -288,6 +292,10 @@ class _SignInForm extends StatelessWidget {
             TextField(
               controller: passwordController,
               obscureText: obscurePassword,
+              style: const TextStyle(
+                color: Color(0xFF212121), // Dark text for readability
+                fontSize: 16,
+              ),
               decoration: InputDecoration(
                 labelText: 'Password',
                 hintText: 'Enter your password',
