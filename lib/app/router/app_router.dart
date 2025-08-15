@@ -21,6 +21,7 @@ import '../../features/nutrition/presentation/screens/food_logging_screen.dart';
 import '../../features/nutrition/presentation/screens/ai_food_recognition_screen.dart';
 import '../../features/nutrition/presentation/screens/nutrition_insights_screen.dart';
 import '../../features/nutrition/presentation/screens/ai_meal_plan_generator_screen.dart';
+import '../../features/nutrition/presentation/screens/saved_meal_plans_screen.dart';
 import '../../features/sleep/presentation/screens/sleep_home_screen.dart';
 import '../../features/sleep/presentation/screens/sleep_tracking_screen.dart';
 import '../../features/sleep/presentation/screens/sleep_analysis_screen.dart';
@@ -250,7 +251,9 @@ final Provider<GoRouter> appRouterProvider =
               GoRoute(
                 path: 'ai-recognition',
                 builder: (BuildContext context, GoRouterState state) =>
-                    AIFoodRecognitionScreen(),
+                    AIFoodRecognitionScreen(
+                  mealType: state.uri.queryParameters['mealType'],
+                ),
               ),
               GoRoute(
                 path: 'insights',
@@ -261,6 +264,11 @@ final Provider<GoRouter> appRouterProvider =
                 path: 'ai-meal-plan',
                 builder: (BuildContext context, GoRouterState state) =>
                     AIMealPlanGeneratorScreen(),
+              ),
+              GoRoute(
+                path: 'saved-plans',
+                builder: (BuildContext context, GoRouterState state) =>
+                    const SavedMealPlansScreen(),
               ),
             ],
           ),

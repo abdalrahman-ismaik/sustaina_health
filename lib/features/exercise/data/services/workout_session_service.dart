@@ -9,11 +9,32 @@ class WorkoutSessionService {
   /// Save a completed workout session
   Future<void> saveCompletedWorkout(ActiveWorkoutSession session) async {
     try {
+      print('Saving completed workout: ${session.summary}');
+
+      // Validate session before saving
+      if (!session.isValid) {
+        throw Exception('Invalid session data: ${session.summary}');
+      }
+
+      if (!session.isCompleted) {
+        throw Exception('Cannot save incomplete workout as completed');
+      }
+
       final prefs = await SharedPreferences.getInstance();
       final completedWorkouts = await getCompletedWorkouts();
 
-      // Add the new completed workout
-      completedWorkouts.add(session);
+      // Check for duplicates
+      final existingIndex =
+          completedWorkouts.indexWhere((w) => w.id == session.id);
+      if (existingIndex != -1) {
+        // Update existing workout instead of duplicating
+        completedWorkouts[existingIndex] = session;
+        print('Updated existing workout: ${session.id}');
+      } else {
+        // Add the new completed workout
+        completedWorkouts.add(session);
+        print('Added new workout: ${session.id}');
+      }
 
       // Keep only the last 100 workouts to avoid storage issues
       if (completedWorkouts.length > 100) {
@@ -22,8 +43,17 @@ class WorkoutSessionService {
 
       // Save to local storage
       final workoutsJson = completedWorkouts.map((w) => w.toJson()).toList();
-      await prefs.setString(_completedWorkoutsKey, jsonEncode(workoutsJson));
+      final jsonString = jsonEncode(workoutsJson);
+
+      final success = await prefs.setString(_completedWorkoutsKey, jsonString);
+
+      if (!success) {
+        throw Exception('Failed to write to SharedPreferences');
+      }
+
+      print('Workout saved successfully: ${session.workoutName}');
     } catch (e) {
+      print('Error in saveCompletedWorkout: $e');
       throw Exception('Failed to save completed workout: $e');
     }
   }
@@ -52,9 +82,25 @@ class WorkoutSessionService {
   /// Save the current active workout session
   Future<void> saveActiveWorkout(ActiveWorkoutSession session) async {
     try {
+      print('Saving active workout: ${session.summary}');
+
+      // Validate session before saving
+      if (!session.isValid) {
+        throw Exception('Invalid session data: ${session.summary}');
+      }
+
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_activeWorkoutKey, jsonEncode(session.toJson()));
+      final jsonString = jsonEncode(session.toJson());
+
+      final success = await prefs.setString(_activeWorkoutKey, jsonString);
+
+      if (!success) {
+        throw Exception('Failed to write to SharedPreferences');
+      }
+
+      print('Active workout saved successfully: ${session.workoutName}');
     } catch (e) {
+      print('Error in saveActiveWorkout: $e');
       throw Exception('Failed to save active workout: $e');
     }
   }
@@ -66,13 +112,31 @@ class WorkoutSessionService {
       final workoutJson = prefs.getString(_activeWorkoutKey);
 
       if (workoutJson == null) {
+        print('No active workout found in storage');
         return null;
       }
 
-      return ActiveWorkoutSession.fromJson(
-          jsonDecode(workoutJson) as Map<String, dynamic>);
+      print('Loading active workout from storage...');
+      final jsonData = jsonDecode(workoutJson) as Map<String, dynamic>;
+      final session = ActiveWorkoutSession.fromJson(jsonData);
+
+      // Validate the loaded session
+      if (!session.isValid) {
+        print('Invalid active workout found, clearing...');
+        await clearActiveWorkout();
+        return null;
+      }
+
+      print('Active workout loaded: ${session.summary}');
+      return session;
     } catch (e) {
       print('Error loading active workout: $e');
+      // Clear corrupted data
+      try {
+        await clearActiveWorkout();
+      } catch (clearError) {
+        print('Error clearing corrupted active workout: $clearError');
+      }
       return null;
     }
   }

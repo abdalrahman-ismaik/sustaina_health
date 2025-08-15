@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import '../models/nutrition_models.dart';
 
 class NutritionApiService {
@@ -8,23 +9,64 @@ class NutritionApiService {
   static const String _baseUrl = 'https://fitness-tribe-ai-4s89.onrender.com';
 
   /// Analyze a meal photo to identify foods, calories, and nutrition information
-  Future<MealAnalysisResponse> analyzeMeal(MealAnalysisRequest request) async {
+  Future<MealAnalysisResponse> analyzeMeal(File imageFile,
+      {String? mealType}) async {
     try {
-      final response = await http.post(
+      // Read image as bytes
+      final bytes = await imageFile.readAsBytes();
+
+      print('Image file size: ${bytes.length} bytes'); // Debug log
+      print('Image file path: ${imageFile.path}'); // Debug log
+
+      // Create multipart request
+      var request = http.MultipartRequest(
+        'POST',
         Uri.parse('$_baseUrl/meals/analyze'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(request.toJson()),
       );
+
+      // Determine content type based on file extension
+      String contentTypeStr = 'image/jpeg';
+      if (imageFile.path.toLowerCase().endsWith('.png')) {
+        contentTypeStr = 'image/png';
+      }
+
+      // Add image file with correct field name 'file'
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: imageFile.path.split('/').last,
+          contentType: MediaType.parse(contentTypeStr),
+        ),
+      );
+
+      print('Request URL: ${request.url}'); // Debug log
+      print('Request method: ${request.method}'); // Debug log
+      print('Request fields: ${request.fields}'); // Debug log
+      print(
+          'Request files: ${request.files.map((f) => 'Field: ${f.field}, Filename: ${f.filename}, ContentType: ${f.contentType}, Size: ${f.length} bytes')}'); // Debug log
+
+      final streamedResponse = await request.send().timeout(
+        const Duration(seconds: 60),
+        onTimeout: () {
+          throw NutritionApiException('Request timeout');
+        },
+      );
+      final response = await http.Response.fromStream(streamedResponse);
+
+      print('Response status: ${response.statusCode}'); // Debug log
+      print('Response headers: ${response.headers}'); // Debug log
+      print('Response body: ${response.body}'); // Debug log
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data =
             jsonDecode(response.body) as Map<String, dynamic>;
         return MealAnalysisResponse.fromJson(data);
       } else {
+        print(
+            'API Error ${response.statusCode}: ${response.body}'); // Debug log
         throw NutritionApiException(
-          'Failed to analyze meal: ${response.statusCode}',
+          'Failed to analyze meal: ${response.statusCode} - ${response.body}',
           statusCode: response.statusCode,
         );
       }
@@ -102,24 +144,24 @@ class NutritionApiService {
   // Mock meal analysis for testing when API is not available
   MealAnalysisResponse _getMockMealAnalysis() {
     return const MealAnalysisResponse(
-      identifiedFoods: ['Apple', 'Banana', 'Greek Yogurt'],
-      confidence: 0.92,
-      portionSize: '1 medium apple, 1 medium banana, 1 cup yogurt',
-      nutritionInfo: NutritionInfo(
-        calories: 285,
-        carbohydrates: 45,
-        protein: 15,
-        fat: 8,
-        fiber: 7,
-        sugar: 35,
-        sodium: 60,
+      foodName: "Chicken Pesto Fusilli with Cherry Tomatoes",
+      totalCalories: 780,
+      caloriesPerIngredient: {
+        "Fusilli Pasta": 340,
+        "Grilled Chicken Breast": 192,
+        "Pesto Sauce": 237,
+        "Cherry Tomatoes": 11
+      },
+      sustainability: SustainabilityInfo(
+        environmentalImpact: "medium",
+        nutritionImpact: "high",
+        overallScore: 70,
+        description:
+            "A balanced meal with good protein and energy, though the chicken and dairy in pesto contribute to a moderate environmental footprint.",
       ),
-      sustainabilityScore: 'High',
-      suggestions: [
-        'Great choice! These foods are nutrient-dense and sustainable.',
-        'Consider adding some nuts for healthy fats.',
-        'This snack provides good energy for your workout.',
-      ],
+      totalProtein: 52,
+      totalCarbohydrates: 68,
+      totalFats: 31,
     );
   }
 
@@ -127,19 +169,26 @@ class NutritionApiService {
   MealPlanResponse _getMockMealPlan(MealPlanRequest request) {
     // Create mock data for the number of days requested
     final List<DailyMealPlan> dailyPlans = [];
-    
+
     for (int day = 1; day <= request.durationDays; day++) {
       dailyPlans.add(DailyMealPlan(
         day: day,
-        date: DateTime.now().add(Duration(days: day - 1)).toIso8601String().split('T')[0],
+        date: DateTime.now()
+            .add(Duration(days: day - 1))
+            .toIso8601String()
+            .split('T')[0],
         breakfast: MealOption(
           description: 'Oatmeal with Berries and Almonds',
           totalCalories: 425,
-          recipe: 'Cook oats with milk, top with berries and almonds, drizzle with honey.',
+          recipe:
+              'Cook oats with milk, top with berries and almonds, drizzle with honey.',
           ingredients: const [
-            Ingredient(ingredient: 'Rolled oats', quantity: '1/2 cup', calories: 150),
-            Ingredient(ingredient: 'Mixed berries', quantity: '1/2 cup', calories: 40),
-            Ingredient(ingredient: 'Almonds', quantity: '1/4 cup', calories: 160),
+            Ingredient(
+                ingredient: 'Rolled oats', quantity: '1/2 cup', calories: 150),
+            Ingredient(
+                ingredient: 'Mixed berries', quantity: '1/2 cup', calories: 40),
+            Ingredient(
+                ingredient: 'Almonds', quantity: '1/4 cup', calories: 160),
             Ingredient(ingredient: 'Honey', quantity: '1 tbsp', calories: 65),
           ],
           suggestedBrands: ['Quaker Oats', 'Nature Valley'],
@@ -147,12 +196,21 @@ class NutritionApiService {
         lunch: MealOption(
           description: 'Quinoa Salad with Chickpeas',
           totalCalories: 385,
-          recipe: 'Mix cooked quinoa with chickpeas, vegetables, and olive oil dressing.',
+          recipe:
+              'Mix cooked quinoa with chickpeas, vegetables, and olive oil dressing.',
           ingredients: const [
-            Ingredient(ingredient: 'Quinoa', quantity: '1/2 cup cooked', calories: 110),
-            Ingredient(ingredient: 'Chickpeas', quantity: '1/2 cup', calories: 135),
-            Ingredient(ingredient: 'Mixed vegetables', quantity: '1 cup', calories: 25),
-            Ingredient(ingredient: 'Olive oil', quantity: '1 tbsp', calories: 115),
+            Ingredient(
+                ingredient: 'Quinoa',
+                quantity: '1/2 cup cooked',
+                calories: 110),
+            Ingredient(
+                ingredient: 'Chickpeas', quantity: '1/2 cup', calories: 135),
+            Ingredient(
+                ingredient: 'Mixed vegetables',
+                quantity: '1 cup',
+                calories: 25),
+            Ingredient(
+                ingredient: 'Olive oil', quantity: '1 tbsp', calories: 115),
           ],
           suggestedBrands: ['Eden Organic', 'Bertolli'],
         ),
@@ -161,10 +219,15 @@ class NutritionApiService {
           totalCalories: 520,
           recipe: 'Grill salmon fillet, roast sweet potato, steam broccoli.',
           ingredients: const [
-            Ingredient(ingredient: 'Salmon fillet', quantity: '6 oz', calories: 350),
-            Ingredient(ingredient: 'Sweet potato', quantity: '1 medium', calories: 100),
+            Ingredient(
+                ingredient: 'Salmon fillet', quantity: '6 oz', calories: 350),
+            Ingredient(
+                ingredient: 'Sweet potato',
+                quantity: '1 medium',
+                calories: 100),
             Ingredient(ingredient: 'Broccoli', quantity: '1 cup', calories: 25),
-            Ingredient(ingredient: 'Olive oil', quantity: '1 tbsp', calories: 45),
+            Ingredient(
+                ingredient: 'Olive oil', quantity: '1 tbsp', calories: 45),
           ],
           suggestedBrands: ['Wild Planet', 'Organic Valley'],
         ),
@@ -174,8 +237,12 @@ class NutritionApiService {
             totalCalories: 180,
             recipe: 'Mix Greek yogurt with mixed nuts.',
             ingredients: const [
-              Ingredient(ingredient: 'Greek yogurt', quantity: '3/4 cup', calories: 100),
-              Ingredient(ingredient: 'Mixed nuts', quantity: '1/4 cup', calories: 80),
+              Ingredient(
+                  ingredient: 'Greek yogurt',
+                  quantity: '3/4 cup',
+                  calories: 100),
+              Ingredient(
+                  ingredient: 'Mixed nuts', quantity: '1/4 cup', calories: 80),
             ],
             suggestedBrands: ['Fage', 'Blue Diamond'],
           ),
@@ -188,7 +255,7 @@ class NutritionApiService {
         totalDailyCalories: 1510,
       ));
     }
-    
+
     return MealPlanResponse(
       dailyCaloriesRange: const DailyCaloriesRange(min: 1400, max: 1600),
       macronutrientsRange: const MacronutrientsRange(

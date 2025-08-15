@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 
 class AIMealPlanGeneratorScreen extends ConsumerStatefulWidget {
   const AIMealPlanGeneratorScreen({Key? key}) : super(key: key);
@@ -13,12 +14,9 @@ class AIMealPlanGeneratorScreen extends ConsumerStatefulWidget {
 
 class _AIMealPlanGeneratorScreenState
     extends ConsumerState<AIMealPlanGeneratorScreen> {
-  final TextEditingController _weightController =
-      TextEditingController();
-  final TextEditingController _heightController =
-      TextEditingController();
-  final TextEditingController _ageController =
-      TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
   final List<String> _selectedDietaryRestrictions = [];
   final List<String> _selectedAllergies = [];
   final List<String> _selectedCuisines = [];
@@ -575,14 +573,16 @@ class _MealPlanResult extends ConsumerWidget {
                   if (mealPlan.dailyMealPlans.isNotEmpty)
                     Text(
                       'Daily Average: ${mealPlan.dailyMealPlans.first.totalDailyCalories} calories',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   if (mealPlan.dailyMealPlans.isNotEmpty)
                     Text(
                       'Daily Macros: ${mealPlan.dailyMealPlans.first.dailyMacros.protein}g protein | '
                       '${mealPlan.dailyMealPlans.first.dailyMacros.carbohydrates}g carbs | '
                       '${mealPlan.dailyMealPlans.first.dailyMacros.fat}g fat',
-                      style: const TextStyle(fontSize: 14, color: Color(0xFF688273)),
+                      style: const TextStyle(
+                          fontSize: 14, color: Color(0xFF688273)),
                     ),
                 ],
               ),
@@ -657,7 +657,7 @@ class _MealPlanResult extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Meals for this day
               _buildMealCard('Breakfast', dailyPlan.breakfast),
               const SizedBox(height: 8),
@@ -665,7 +665,7 @@ class _MealPlanResult extends ConsumerWidget {
               const SizedBox(height: 8),
               _buildMealCard('Dinner', dailyPlan.dinner),
               const SizedBox(height: 8),
-              
+
               // Snacks
               if (dailyPlan.snacks.isNotEmpty) ...[
                 const Text(
@@ -678,9 +678,9 @@ class _MealPlanResult extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 ...dailyPlan.snacks.map((snack) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: _buildMealCard('Snack', snack),
-                )),
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: _buildMealCard('Snack', snack),
+                    )),
               ],
             ],
           ),
@@ -751,47 +751,108 @@ class _MealPlanResult extends ConsumerWidget {
   }
 
   void _saveMealPlan(BuildContext context, WidgetRef ref) async {
-    // Show dialog to enter name
-    final nameController = TextEditingController();
+    final user = ref.read(authStateProvider).value;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please sign in to save meal plans'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final TextEditingController nameController = TextEditingController();
+
     final name = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Save Meal Plan'),
-        content: TextField(
-          controller: nameController,
-          style: const TextStyle(
-            color: Color(0xFF121714),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Save Meal Plan',
+            style: TextStyle(
+              color: Color(0xFF121714),
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          decoration: const InputDecoration(
-            hintText: 'Enter meal plan name',
-            border: OutlineInputBorder(),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Give your meal plan a name:',
+                style: TextStyle(color: Color(0xFF121714)),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameController,
+                style: const TextStyle(
+                  color: Color(0xFF121714),
+                ),
+                decoration: InputDecoration(
+                  hintText: 'e.g., "7-Day Healthy Eating Plan"',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFF94e0b2)),
+                  ),
+                ),
+                textCapitalization: TextCapitalization.words,
+                autofocus: true,
+              ),
+            ],
           ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(nameController.text),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final planName = nameController.text.trim();
+                if (planName.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a meal plan name'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                Navigator.of(context).pop(planName);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF94e0b2),
+              ),
+              child: const Text(
+                'Save',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
 
     if (name != null && name.isNotEmpty) {
       try {
-        await ref
+        final planId = await ref
             .read(savedMealPlansProvider.notifier)
-            .saveMealPlan(mealPlan, name);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Meal plan "$name" saved successfully!'),
-            backgroundColor: const Color(0xFF94e0b2),
-          ),
-        );
+            .saveMealPlan(this.mealPlan, name);
+
+        if (planId != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Meal plan "$name" saved successfully!'),
+              backgroundColor: const Color(0xFF94e0b2),
+            ),
+          );
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

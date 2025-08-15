@@ -6,6 +6,7 @@ import 'saved_workout_plans_screen.dart';
 import 'my_workouts_screen.dart';
 import 'completed_workout_detail_screen.dart';
 import '../providers/workout_providers.dart';
+import '../../../../app/theme/exercise_colors.dart';
 
 class ExerciseHomeScreen extends ConsumerWidget {
   const ExerciseHomeScreen({Key? key}) : super(key: key);
@@ -13,7 +14,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: ExerciseColors.backgroundLight,
       body: SafeArea(
         child: ListView(
           children: <Widget>[
@@ -23,15 +24,15 @@ class ExerciseHomeScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  const Icon(Icons.list, color: Color(0xFF121714), size: 32),
-                  const Expanded(
+                  Icon(Icons.list, color: ExerciseColors.textPrimary, size: 32),
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(right: 48.0),
+                      padding: const EdgeInsets.only(right: 48.0),
                       child: Text(
                         'Your Fitness Journey',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: ExerciseColors.textPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                           letterSpacing: -0.015,
@@ -48,9 +49,9 @@ class ExerciseHomeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text('Weekly Workout Completion',
+                  Text('Weekly Workout Completion',
                       style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: ExerciseColors.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
@@ -59,7 +60,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       Container(
                         height: 8,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFDDE4E0),
+                          color: ExerciseColors.borderLight,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -68,7 +69,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                         child: Container(
                           height: 8,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF121714),
+                            color: ExerciseColors.primaryGreen,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -76,8 +77,9 @@ class ExerciseHomeScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text('3/4 workouts completed',
-                      style: TextStyle(color: Color(0xFF688273), fontSize: 14)),
+                  Text('3/4 workouts completed',
+                      style: TextStyle(
+                          color: ExerciseColors.textSecondary, fontSize: 14)),
                 ],
               ),
             ),
@@ -123,12 +125,12 @@ class ExerciseHomeScreen extends ConsumerWidget {
               ),
             ),
             // Quick Start
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Text(
                 'Quick Start',
                 style: TextStyle(
-                  color: Color(0xFF121714),
+                  color: ExerciseColors.textPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                   letterSpacing: -0.015,
@@ -153,16 +155,16 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF94E0B2),
+                          backgroundColor: ExerciseColors.buttonPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32),
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
+                        child: Text(
                           'Start AI Workout',
                           style: TextStyle(
-                            color: Color(0xFF121714),
+                            color: ExerciseColors.textOnPrimary,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             letterSpacing: 0.015,
@@ -186,17 +188,17 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: const BorderSide(color: Color(0xFF94E0B2)),
+                          backgroundColor: ExerciseColors.buttonSecondary,
+                          side: BorderSide(color: ExerciseColors.borderPrimary),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32),
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
+                        child: Text(
                           'My Plans',
                           style: TextStyle(
-                            color: Color(0xFF94E0B2),
+                            color: ExerciseColors.primaryGreen,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             letterSpacing: 0.015,
@@ -225,15 +227,15 @@ class ExerciseHomeScreen extends ConsumerWidget {
               ),
             ),
             // Saved Workout Plans Section
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Your Saved Plans',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: ExerciseColors.textPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                       letterSpacing: -0.015,
@@ -244,15 +246,15 @@ class ExerciseHomeScreen extends ConsumerWidget {
             ),
             _buildSavedWorkoutPlansSection(context, ref),
             // Recent Completed Workouts Section
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Recent Workouts',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: ExerciseColors.textPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                       letterSpacing: -0.015,
@@ -263,12 +265,12 @@ class ExerciseHomeScreen extends ConsumerWidget {
             ),
             _buildRecentCompletedWorkoutsSection(context, ref),
             // Workout Categories
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Text(
                 'Workout Categories',
                 style: TextStyle(
-                  color: Color(0xFF121714),
+                  color: ExerciseColors.textPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                   letterSpacing: -0.015,
@@ -308,36 +310,35 @@ class ExerciseHomeScreen extends ConsumerWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF94E0B2).withOpacity(0.1),
+              color: ExerciseColors.primaryGreenLight,
               borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: const Color(0xFF94E0B2).withOpacity(0.3)),
+              border: Border.all(color: ExerciseColors.primaryGreenMedium),
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.bookmark_border,
-                  color: Color(0xFF94E0B2),
+                  color: ExerciseColors.primaryGreen,
                   size: 32,
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'No saved workout plans yet',
                         style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: ExerciseColors.textPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         'Generate and save your first workout plan',
                         style: TextStyle(
-                          color: Colors.grey,
+                          color: ExerciseColors.textSecondary,
                           fontSize: 12,
                         ),
                       ),
@@ -353,10 +354,10 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       ),
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'Generate',
                     style: TextStyle(
-                      color: Color(0xFF94E0B2),
+                      color: ExerciseColors.primaryGreen,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -519,9 +520,9 @@ class ExerciseHomeScreen extends ConsumerWidget {
       loading: () => Container(
         height: 80,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: const Center(
+        child: Center(
           child: CircularProgressIndicator(
-            color: Color(0xFF94E0B2),
+            color: ExerciseColors.loadingIndicator,
           ),
         ),
       ),
@@ -529,12 +530,12 @@ class ExerciseHomeScreen extends ConsumerWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.red.shade100,
+          color: ExerciseColors.errorLight,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Text(
+        child: Text(
           'Failed to load saved workouts',
-          style: TextStyle(color: Colors.red),
+          style: TextStyle(color: ExerciseColors.errorDark),
         ),
       ),
     );
@@ -609,10 +610,15 @@ class ExerciseHomeScreen extends ConsumerWidget {
         }
 
         // Show recent completed workouts (max 3)
-        final recentCompletedWorkouts =
-            completedWorkouts.where((w) => w.isCompleted).take(3).toList();
+        // Sort by completion date (most recent first) and filter only completed ones
+        final recentCompletedWorkouts = completedWorkouts
+            .where((w) => w.isCompleted && w.endTime != null)
+            .toList()
+          ..sort((a, b) => b.endTime!.compareTo(a.endTime!));
 
-        if (recentCompletedWorkouts.isEmpty) {
+        final displayWorkouts = recentCompletedWorkouts.take(3).toList();
+
+        if (displayWorkouts.isEmpty) {
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             padding: const EdgeInsets.all(16),
@@ -664,10 +670,9 @@ class ExerciseHomeScreen extends ConsumerWidget {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: recentCompletedWorkouts.length +
-                    1, // +1 for "View All" card
+                itemCount: displayWorkouts.length + 1, // +1 for "View All" card
                 itemBuilder: (context, index) {
-                  if (index == recentCompletedWorkouts.length) {
+                  if (index == displayWorkouts.length) {
                     // "View All" card
                     return Container(
                       width: 140,
@@ -712,7 +717,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                     );
                   }
 
-                  final workout = recentCompletedWorkouts[index];
+                  final workout = displayWorkouts[index];
                   return Container(
                     width: 180,
                     margin: EdgeInsets.only(left: index == 0 ? 0 : 8),
@@ -803,9 +808,9 @@ class ExerciseHomeScreen extends ConsumerWidget {
       loading: () => Container(
         height: 80,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: const Center(
+        child: Center(
           child: CircularProgressIndicator(
-            color: Colors.blue,
+            color: ExerciseColors.loadingIndicator,
           ),
         ),
       ),
@@ -813,12 +818,12 @@ class ExerciseHomeScreen extends ConsumerWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.red.shade100,
+          color: ExerciseColors.errorLight,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Text(
+        child: Text(
           'Failed to load completed workouts',
-          style: TextStyle(color: Colors.red),
+          style: TextStyle(color: ExerciseColors.errorDark),
         ),
       ),
     );
@@ -862,21 +867,22 @@ class _StatCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: Color(0xFFDDE4E0)),
+          border: Border.all(color: ExerciseColors.borderLight),
           borderRadius: BorderRadius.circular(16),
+          color: ExerciseColors.cardBackground,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(title,
-                style: const TextStyle(
-                    color: Color(0xFF121714),
+                style: TextStyle(
+                    color: ExerciseColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             Text(value,
-                style: const TextStyle(
-                    color: Color(0xFF121714),
+                style: TextStyle(
+                    color: ExerciseColors.textPrimary,
                     fontSize: 22,
                     fontWeight: FontWeight.bold)),
           ],
@@ -895,13 +901,13 @@ class _TagChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F4F2),
+        color: ExerciseColors.chipBackground,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: Color(0xFF121714),
+        style: TextStyle(
+          color: ExerciseColors.chipText,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
@@ -921,19 +927,19 @@ class _CategoryCard extends StatelessWidget {
       width: 158,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFDDE4E0)),
+        color: ExerciseColors.cardBackground,
+        border: Border.all(color: ExerciseColors.borderLight),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: <Widget>[
-          Icon(icon, color: const Color(0xFF121714)),
+          Icon(icon, color: ExerciseColors.textPrimary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                color: Color(0xFF121714),
+              style: TextStyle(
+                color: ExerciseColors.textPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),

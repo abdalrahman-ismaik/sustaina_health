@@ -261,10 +261,31 @@ class ActiveWorkoutSessionNotifier
 
   Future<void> _loadActiveWorkout() async {
     try {
+      print('Loading active workout from storage...');
       final activeWorkout = await _sessionService.getActiveWorkout();
-      state = activeWorkout;
+
+      if (activeWorkout != null) {
+        print('Found active workout: ${activeWorkout.summary}');
+
+        // Validate the loaded workout
+        if (activeWorkout.isValid) {
+          state = activeWorkout;
+          print('Active workout loaded successfully');
+        } else {
+          print('Active workout is invalid, clearing...');
+          await _sessionService.clearActiveWorkout();
+        }
+      } else {
+        print('No active workout found');
+      }
     } catch (e) {
       print('Error loading active workout: $e');
+      // Clear corrupted data
+      try {
+        await _sessionService.clearActiveWorkout();
+      } catch (clearError) {
+        print('Error clearing corrupted active workout: $clearError');
+      }
     }
   }
 
@@ -274,33 +295,57 @@ class ActiveWorkoutSessionNotifier
   }) async {
     try {
       print(
-          'Starting workout: $workoutName with ${workoutSession.exercises.length} exercises'); // Debug
+          'Starting workout: $workoutName with ${workoutSession.exercises.length} exercises');
+
+      // Validate input
+      if (workoutName.trim().isEmpty) {
+        throw Exception('Workout name cannot be empty');
+      }
+
+      if (workoutSession.exercises.isEmpty) {
+        throw Exception('Cannot start workout with no exercises');
+      }
 
       final session = ActiveWorkoutSession.fromWorkoutSession(
         id: _uuid.v4(),
-        workoutName: workoutName,
+        workoutName: workoutName.trim(),
         workoutSession: workoutSession,
       );
 
       print(
-          'Created session with ${session.exercises.length} exercises'); // Debug
+          'Created session with ID: ${session.id} and ${session.exercises.length} exercises');
 
+      // Save the session first
       await _sessionService.saveActiveWorkout(session);
+
+      // Then update the state
       state = session;
 
-      print('Workout started successfully, state updated'); // Debug
+      print('Workout started and saved successfully');
     } catch (e) {
-      print('Error in startWorkout: $e'); // Debug
+      print('Error in startWorkout: $e');
+      // Reset state on error
+      state = null;
       throw Exception('Failed to start workout: $e');
     }
   }
 
-  void setActiveSession(ActiveWorkoutSession session) {
+  void setActiveSession(ActiveWorkoutSession session) async {
     try {
-      print('Setting active session: ${session.workoutName}'); // Debug
+      print('Setting active session: ${session.workoutName}');
+
+      // Save to storage first
+      await _sessionService.saveActiveWorkout(session);
+
+      // Then update state
       state = session;
+
+      print('Active session updated and saved successfully');
     } catch (e) {
-      print('Error setting active session: $e'); // Debug
+      print('Error setting active session: $e');
+      // Don't throw here to avoid breaking the UI, just log the error
+      print('Failed to save active session, keeping in memory only');
+      state = session;
     }
   }
 
@@ -372,9 +417,13 @@ class ActiveWorkoutSessionNotifier
   }
 
   Future<void> completeWorkout({String? notes}) async {
-    if (state == null) return;
+    if (state == null) {
+      throw Exception('No active workout to complete');
+    }
 
     try {
+      print('Completing workout: ${state!.workoutName}');
+
       final now = DateTime.now();
       final totalDuration = now.difference(state!.startTime);
 
@@ -385,14 +434,23 @@ class ActiveWorkoutSessionNotifier
         notes: notes,
       );
 
-      // Save to completed workouts
+      // Validate completed session
+      if (completedSession.exercises.isEmpty) {
+        throw Exception('Cannot complete workout with no exercises');
+      }
+
+      // Save to completed workouts first
       await _sessionService.saveCompletedWorkout(completedSession);
 
-      // Clear active workout
+      // Then clear active workout
       await _sessionService.clearActiveWorkout();
 
+      // Finally clear state
       state = null;
+
+      print('Workout completed and saved successfully');
     } catch (e) {
+      print('Error in completeWorkout: $e');
       throw Exception('Failed to complete workout: $e');
     }
   }

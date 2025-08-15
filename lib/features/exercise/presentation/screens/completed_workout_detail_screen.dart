@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/workout_models.dart';
+import '../../../../app/theme/exercise_colors.dart';
 
 class CompletedWorkoutDetailScreen extends ConsumerWidget {
   final ActiveWorkoutSession completedWorkout;
@@ -13,7 +14,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: ExerciseColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -23,16 +24,16 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               child: Row(
                 children: [
                   IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back, color: Color(0xFF121714)),
+                    icon: Icon(Icons.arrow_back,
+                        color: ExerciseColors.textPrimary),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Workout Summary',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Color(0xFF121714),
+                        color: ExerciseColors.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                         letterSpacing: -0.015,
@@ -40,7 +41,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.share, color: Color(0xFF121714)),
+                    icon: Icon(Icons.share, color: ExerciseColors.textPrimary),
                     onPressed: () {
                       // TODO: Implement share functionality
                     },
@@ -56,8 +57,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.green.withOpacity(0.8),
-                    Colors.green.withOpacity(0.6),
+                    ExerciseColors.primaryGreen,
+                    ExerciseColors.primaryGreen.withOpacity(0.8),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -72,12 +73,13 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color:
+                              ExerciseColors.backgroundLight.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.check_circle,
-                          color: Colors.white,
+                          color: ExerciseColors.textOnDark,
                           size: 24,
                         ),
                       ),
@@ -86,18 +88,18 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Workout Completed!',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: ExerciseColors.textOnDark,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
                               completedWorkout.workoutName,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: ExerciseColors.textOnDark,
                                 fontSize: 14,
                               ),
                             ),
@@ -136,9 +138,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: ExerciseColors.surfaceLight,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: ExerciseColors.borderLight),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,18 +148,18 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Started',
                         style: TextStyle(
-                          color: Colors.grey,
+                          color: ExerciseColors.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       Text(
                         _formatDateTime(completedWorkout.startTime),
-                        style: const TextStyle(
-                          color: Color(0xFF121714),
+                        style: TextStyle(
+                          color: ExerciseColors.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -168,18 +170,18 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text(
+                        Text(
                           'Finished',
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: ExerciseColors.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
                           _formatDateTime(completedWorkout.endTime!),
-                          style: const TextStyle(
-                            color: Color(0xFF121714),
+                          style: TextStyle(
+                            color: ExerciseColors.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -191,14 +193,14 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
             ),
 
             // Exercise List
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
               child: Row(
                 children: [
                   Text(
                     'Exercise Details',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: ExerciseColors.textPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                       letterSpacing: -0.015,
@@ -226,21 +228,22 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                 margin: const EdgeInsets.all(16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
+                  color: ExerciseColors.infoLight,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.shade200),
+                  border: Border.all(color: ExerciseColors.buttonInfo),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.note, color: Colors.blue.shade600, size: 20),
+                        Icon(Icons.note,
+                            color: ExerciseColors.buttonInfo, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Workout Notes',
                           style: TextStyle(
-                            color: Colors.blue.shade800,
+                            color: ExerciseColors.infoDark,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -251,7 +254,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     Text(
                       completedWorkout.notes!,
                       style: TextStyle(
-                        color: Colors.blue.shade700,
+                        color: ExerciseColors.infoDark,
                         fontSize: 14,
                       ),
                     ),
@@ -270,28 +273,28 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
+            color: ExerciseColors.backgroundLight.withOpacity(0.3),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: Colors.white,
+            color: ExerciseColors.textOnDark,
             size: 20,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: ExerciseColors.textOnDark,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: ExerciseColors.textOnDark,
             fontSize: 12,
           ),
         ),
@@ -303,17 +306,17 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ExerciseColors.cardBackground,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: exercise.isCompleted
-              ? Colors.green.shade300
-              : Colors.grey.shade200,
+              ? ExerciseColors.buttonSuccess
+              : ExerciseColors.borderLight,
           width: exercise.isCompleted ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: ExerciseColors.cardShadow,
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -327,8 +330,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: exercise.isCompleted
-                  ? Colors.green.shade50
-                  : Colors.grey.shade50,
+                  ? ExerciseColors.successLight
+                  : ExerciseColors.surfaceLight,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -341,17 +344,18 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   height: 32,
                   decoration: BoxDecoration(
                     color: exercise.isCompleted
-                        ? Colors.green
-                        : Colors.grey.shade400,
+                        ? ExerciseColors.buttonSuccess
+                        : ExerciseColors.textMuted,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Center(
                     child: exercise.isCompleted
-                        ? const Icon(Icons.check, color: Colors.white, size: 18)
+                        ? Icon(Icons.check,
+                            color: ExerciseColors.textOnDark, size: 18)
                         : Text(
                             '$exerciseNumber',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: ExerciseColors.textOnDark,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),
@@ -365,8 +369,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     children: [
                       Text(
                         exercise.name,
-                        style: const TextStyle(
-                          color: Color(0xFF121714),
+                        style: TextStyle(
+                          color: ExerciseColors.textPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -374,8 +378,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       if (exercise.sets.isNotEmpty)
                         Text(
                           '${exercise.sets.length} set${exercise.sets.length == 1 ? '' : 's'} completed',
-                          style: const TextStyle(
-                            color: Colors.grey,
+                          style: TextStyle(
+                            color: ExerciseColors.textSecondary,
                             fontSize: 12,
                           ),
                         ),
@@ -387,13 +391,13 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: ExerciseColors.buttonSuccess,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Completed',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: ExerciseColors.textOnDark,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -410,36 +414,36 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   // Sets Header
-                  const Row(
+                  Row(
                     children: [
                       Expanded(
                           child: Text('Set',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
-                                  color: Colors.grey))),
+                                  color: ExerciseColors.textSecondary))),
                       Expanded(
                           child: Text('Reps',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
-                                  color: Colors.grey))),
+                                  color: ExerciseColors.textSecondary))),
                       Expanded(
                           child: Text('Weight',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
-                                  color: Colors.grey))),
+                                  color: ExerciseColors.textSecondary))),
                       Expanded(
                           child: Text('Duration',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
-                                  color: Colors.grey))),
+                                  color: ExerciseColors.textSecondary))),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Divider(height: 1),
+                  Divider(height: 1, color: ExerciseColors.divider),
                   const SizedBox(height: 8),
 
                   // Sets Data
@@ -453,14 +457,19 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               '${setIndex + 1}',
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: ExerciseColors.textPrimary),
                             ),
                           ),
                           Expanded(
                             child: Text(
                               '${set.reps}',
-                              style: const TextStyle(fontSize: 14),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: ExerciseColors.textPrimary,
+                              ),
                             ),
                           ),
                           Expanded(
@@ -468,13 +477,19 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                               set.weight != null
                                   ? '${set.weight!.toStringAsFixed(1)} kg'
                                   : '-',
-                              style: const TextStyle(fontSize: 14),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: ExerciseColors.textPrimary,
+                              ),
                             ),
                           ),
                           Expanded(
                             child: Text(
                               set.duration != null ? '${set.duration}s' : '-',
-                              style: const TextStyle(fontSize: 14),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: ExerciseColors.textPrimary,
+                              ),
                             ),
                           ),
                         ],
@@ -526,12 +541,12 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               ),
             )
           else
-            const Padding(
-              padding: EdgeInsets.all(16),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Text(
                 'No sets recorded for this exercise',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: ExerciseColors.textMuted,
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
                 ),

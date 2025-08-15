@@ -419,4 +419,18 @@ class ActiveWorkoutSession {
       notes: notes ?? this.notes,
     );
   }
+
+  /// Validate the workout session data
+  bool get isValid {
+    return id.isNotEmpty &&
+        workoutName.trim().isNotEmpty &&
+        exercises.isNotEmpty;
+  }
+
+  /// Get a summary of the workout session
+  String get summary {
+    final completedSets =
+        exercises.fold<int>(0, (sum, exercise) => sum + exercise.sets.length);
+    return 'Workout: $workoutName, Exercises: ${exercises.length}, Sets: $completedSets';
+  }
 }

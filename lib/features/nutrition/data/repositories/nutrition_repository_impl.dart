@@ -14,13 +14,9 @@ class NutritionRepositoryImpl implements NutritionRepository {
       : _apiService = apiService;
 
   @override
-  Future<MealAnalysisResponse> analyzeMeal(File imageFile, {String? mealType}) async {
-    final base64Image = await _apiService.imageToBase64(imageFile);
-    final request = MealAnalysisRequest(
-      imageBase64: base64Image,
-      mealType: mealType,
-    );
-    return await _apiService.analyzeMeal(request);
+  Future<MealAnalysisResponse> analyzeMeal(File imageFile,
+      {String? mealType}) async {
+    return await _apiService.analyzeMeal(imageFile, mealType: mealType);
   }
 
   @override
@@ -37,13 +33,16 @@ class NutritionRepositoryImpl implements NutritionRepository {
   Future<String> saveFoodLogEntry(FoodLogEntry entry) async {
     final prefs = await SharedPreferences.getInstance();
     final existingEntriesJson = prefs.getStringList('food_log_entries') ?? [];
-    
-    final entryWithId = entry.id.isEmpty ? 
-        entry.copyWith(id: _uuid.v4()) : entry;
-    
-    final updatedEntries = [...existingEntriesJson, jsonEncode(entryWithId.toJson())];
+
+    final entryWithId =
+        entry.id.isEmpty ? entry.copyWith(id: _uuid.v4()) : entry;
+
+    final updatedEntries = [
+      ...existingEntriesJson,
+      jsonEncode(entryWithId.toJson())
+    ];
     await prefs.setStringList('food_log_entries', updatedEntries);
-    
+
     return entryWithId.id;
   }
 
@@ -51,12 +50,13 @@ class NutritionRepositoryImpl implements NutritionRepository {
   Future<List<FoodLogEntry>> getFoodLogEntriesForDate(DateTime date) async {
     final prefs = await SharedPreferences.getInstance();
     final entriesJson = prefs.getStringList('food_log_entries') ?? [];
-    
+
     final entries = entriesJson
-        .map((json) => FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>))
+        .map((json) =>
+            FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>))
         .where((entry) => _isSameDate(entry.loggedAt, date))
         .toList();
-    
+
     // Sort by logged time
     entries.sort((a, b) => a.loggedAt.compareTo(b.loggedAt));
     return entries;
@@ -65,7 +65,7 @@ class NutritionRepositoryImpl implements NutritionRepository {
   @override
   Future<DailyNutritionSummary> getDailyNutritionSummary(DateTime date) async {
     final meals = await getFoodLogEntriesForDate(date);
-    
+
     if (meals.isEmpty) {
       return DailyNutritionSummary(
         date: date,
@@ -102,7 +102,7 @@ class NutritionRepositoryImpl implements NutritionRepository {
       totalFiber += meal.nutritionInfo.fiber;
       totalSugar += meal.nutritionInfo.sugar;
       totalSodium += meal.nutritionInfo.sodium;
-      
+
       // Simple sustainability score calculation (High=100, Medium=75, Low=50)
       if (meal.sustainabilityScore != null) {
         switch (meal.sustainabilityScore!.toLowerCase()) {
@@ -133,7 +133,8 @@ class NutritionRepositoryImpl implements NutritionRepository {
       sodium: totalSodium,
     );
 
-    final avgSustainability = meals.isNotEmpty ? sustainabilitySum / meals.length : 0.0;
+    final avgSustainability =
+        meals.isNotEmpty ? sustainabilitySum / meals.length : 0.0;
 
     return DailyNutritionSummary(
       date: date,
@@ -148,12 +149,13 @@ class NutritionRepositoryImpl implements NutritionRepository {
   Future<void> deleteFoodLogEntry(String entryId) async {
     final prefs = await SharedPreferences.getInstance();
     final entriesJson = prefs.getStringList('food_log_entries') ?? [];
-    
+
     final updatedEntries = entriesJson.where((json) {
-      final entry = FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
+      final entry =
+          FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
       return entry.id != entryId;
     }).toList();
-    
+
     await prefs.setStringList('food_log_entries', updatedEntries);
   }
 
@@ -161,15 +163,16 @@ class NutritionRepositoryImpl implements NutritionRepository {
   Future<void> updateFoodLogEntry(FoodLogEntry entry) async {
     final prefs = await SharedPreferences.getInstance();
     final entriesJson = prefs.getStringList('food_log_entries') ?? [];
-    
+
     final updatedEntries = entriesJson.map((json) {
-      final existingEntry = FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
+      final existingEntry =
+          FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
       if (existingEntry.id == entry.id) {
         return jsonEncode(entry.toJson());
       }
       return json;
     }).toList();
-    
+
     await prefs.setStringList('food_log_entries', updatedEntries);
   }
 
@@ -179,14 +182,14 @@ class NutritionRepositoryImpl implements NutritionRepository {
     required DateTime endDate,
   }) async {
     final summaries = <DailyNutritionSummary>[];
-    
-    for (DateTime date = startDate; 
-         date.isBefore(endDate) || _isSameDate(date, endDate); 
-         date = date.add(const Duration(days: 1))) {
+
+    for (DateTime date = startDate;
+        date.isBefore(endDate) || _isSameDate(date, endDate);
+        date = date.add(const Duration(days: 1))) {
       final summary = await getDailyNutritionSummary(date);
       summaries.add(summary);
     }
-    
+
     return summaries;
   }
 
@@ -194,17 +197,17 @@ class NutritionRepositoryImpl implements NutritionRepository {
   Future<String> saveMealPlan(MealPlanResponse mealPlan, String name) async {
     final prefs = await SharedPreferences.getInstance();
     final existingPlansJson = prefs.getStringList('saved_meal_plans') ?? [];
-    
+
     final savedPlan = SavedMealPlan(
       id: _uuid.v4(),
       name: name,
       mealPlan: mealPlan,
       createdAt: DateTime.now(),
     );
-    
+
     final updatedPlans = [...existingPlansJson, jsonEncode(savedPlan.toJson())];
     await prefs.setStringList('saved_meal_plans', updatedPlans);
-    
+
     return savedPlan.id;
   }
 
@@ -212,11 +215,12 @@ class NutritionRepositoryImpl implements NutritionRepository {
   Future<List<SavedMealPlan>> getSavedMealPlans() async {
     final prefs = await SharedPreferences.getInstance();
     final plansJson = prefs.getStringList('saved_meal_plans') ?? [];
-    
+
     final plans = plansJson
-        .map((json) => SavedMealPlan.fromJson(jsonDecode(json) as Map<String, dynamic>))
+        .map((json) =>
+            SavedMealPlan.fromJson(jsonDecode(json) as Map<String, dynamic>))
         .toList();
-    
+
     // Sort by creation date (newest first)
     plans.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return plans;
@@ -226,18 +230,19 @@ class NutritionRepositoryImpl implements NutritionRepository {
   Future<void> deleteSavedMealPlan(String planId) async {
     final prefs = await SharedPreferences.getInstance();
     final plansJson = prefs.getStringList('saved_meal_plans') ?? [];
-    
+
     final updatedPlans = plansJson.where((json) {
-      final plan = SavedMealPlan.fromJson(jsonDecode(json) as Map<String, dynamic>);
+      final plan =
+          SavedMealPlan.fromJson(jsonDecode(json) as Map<String, dynamic>);
       return plan.id != planId;
     }).toList();
-    
+
     await prefs.setStringList('saved_meal_plans', updatedPlans);
   }
 
   bool _isSameDate(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 }

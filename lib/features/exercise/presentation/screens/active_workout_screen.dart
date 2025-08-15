@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/workout_models.dart';
 import '../providers/workout_providers.dart';
+import '../../../../app/theme/exercise_colors.dart';
 
 class ActiveWorkoutScreen extends ConsumerStatefulWidget {
   final ActiveWorkoutSession workoutSession;
@@ -45,24 +46,46 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     }
   }
 
-  void _addSet(int exerciseIndex, int reps, double? weight) {
+  void _addSet(int exerciseIndex, int reps, double? weight) async {
     if (exerciseIndex < 0 || exerciseIndex >= _exercises.length) {
       print('ERROR: Invalid exercise index: $exerciseIndex');
       return;
     }
 
-    setState(() {
-      final exercise = _exercises[exerciseIndex];
-      final newSet = ExerciseSet(
-        reps: reps,
-        weight: weight,
-        completedAt: DateTime.now(),
+    try {
+      setState(() {
+        final exercise = _exercises[exerciseIndex];
+        final newSet = ExerciseSet(
+          reps: reps,
+          weight: weight,
+          completedAt: DateTime.now(),
+        );
+
+        _exercises[exerciseIndex] = exercise.copyWith(
+          sets: [...exercise.sets, newSet],
+        );
+      });
+
+      // Update the provider with the new set data
+      final updatedSession = widget.workoutSession.copyWith(
+        exercises: _exercises,
       );
 
-      _exercises[exerciseIndex] = exercise.copyWith(
-        sets: [...exercise.sets, newSet],
+      // Update the provider's state
+      ref
+          .read(activeWorkoutSessionProvider.notifier)
+          .setActiveSession(updatedSession);
+
+      print('Set added and saved successfully');
+    } catch (e) {
+      print('Error adding set: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save set: $e'),
+          backgroundColor: Colors.orange,
+        ),
       );
-    });
+    }
   }
 
   Future<void> _finishWorkout() async {
@@ -143,41 +166,76 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     if (shouldFinish != true) return;
 
     try {
-      // Create completed workout session with current progress
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: ExerciseColors.loadingIndicator,
+            ),
+          );
+        },
+      );
+
+      // First update the current session with latest exercise data
       final now = DateTime.now();
       final totalDuration = now.difference(widget.workoutSession.startTime);
 
-      final completedSession = widget.workoutSession.copyWith(
+      final updatedSession = widget.workoutSession.copyWith(
         exercises: _exercises,
         endTime: now,
         totalDuration: totalDuration,
         isCompleted: true,
       );
 
-      // Save the completed workout
+      // Update the provider's state with the latest exercise data
+      ref
+          .read(activeWorkoutSessionProvider.notifier)
+          .setActiveSession(updatedSession);
+
+      // Complete workout through the provider (this handles saving and clearing)
       await ref.read(activeWorkoutSessionProvider.notifier).completeWorkout();
 
-      // Also save it to completed workouts
-      final sessionService = ref.read(workoutSessionServiceProvider);
-      await sessionService.saveCompletedWorkout(completedSession);
+      // Refresh the completed workouts list to show in recent workouts
+      await ref
+          .read(completedWorkoutsProvider.notifier)
+          .loadCompletedWorkouts();
+
+      // Dismiss loading dialog
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(); // Close loading dialog
+      }
 
       // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Workout completed and saved successfully! 🎉'),
-          backgroundColor: Color(0xFF94E0B2),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Workout completed and saved successfully! 🎉'),
+            backgroundColor: Color(0xFF94E0B2),
+          ),
+        );
 
-      // Navigate back to previous screen
-      Navigator.of(context).pop();
+        // Navigate back to previous screen
+        Navigator.of(context).pop();
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to save workout: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      print('Error finishing workout: $e');
+
+      // Dismiss loading dialog if still showing
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(); // Close loading dialog
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save workout: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -296,9 +354,10 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.workoutSession.workoutName),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: ExerciseColors.backgroundLight,
+        foregroundColor: ExerciseColors.textPrimary,
       ),
+      backgroundColor: ExerciseColors.backgroundLight,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -309,35 +368,35 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF94E0B2).withOpacity(0.1),
+                  color: ExerciseColors.primaryGreenLight,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF94E0B2)),
+                  border: Border.all(color: ExerciseColors.borderPrimary),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       widget.workoutSession.workoutName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF121714),
+                        color: ExerciseColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Started: ${_formatTime(widget.workoutSession.startTime)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF121714),
+                        color: ExerciseColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${_exercises.length} exercises',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF121714),
+                        color: ExerciseColors.textPrimary,
                       ),
                     ),
                   ],
@@ -347,12 +406,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
               const SizedBox(height: 20),
 
               // Exercises list
-              const Text(
+              Text(
                 'Exercises',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF121714),
+                  color: ExerciseColors.textPrimary,
                 ),
               ),
 
@@ -389,11 +448,11 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: ExerciseColors.cardBackground,
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
+                                  color: ExerciseColors.cardShadow,
                                   spreadRadius: 1,
                                   blurRadius: 2,
                                   offset: const Offset(0, 1),
@@ -405,26 +464,26 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                               children: [
                                 Text(
                                   exercise.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF121714),
+                                    color: ExerciseColors.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Rest time: ${exercise.restTime} seconds',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.grey,
+                                    color: ExerciseColors.textSecondary,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Sets completed: ${exercise.sets.length}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: Color(0xFF121714),
+                                    color: ExerciseColors.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -433,14 +492,15 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                                   child: ElevatedButton(
                                     onPressed: () => _showAddSetDialog(index),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF94E0B2),
+                                      backgroundColor:
+                                          ExerciseColors.buttonPrimary,
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 12),
                                     ),
-                                    child: const Text(
+                                    child: Text(
                                       'Add Set',
                                       style: TextStyle(
-                                        color: Color(0xFF121714),
+                                        color: ExerciseColors.textOnPrimary,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -493,16 +553,16 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                 child: ElevatedButton(
                   onPressed: _finishWorkout,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF94E0B2),
+                    backgroundColor: ExerciseColors.buttonPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Finish Workout',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: ExerciseColors.textOnPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),

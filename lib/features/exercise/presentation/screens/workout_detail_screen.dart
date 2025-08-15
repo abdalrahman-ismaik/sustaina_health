@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 import '../../data/models/workout_models.dart';
 import '../providers/workout_providers.dart';
 import 'active_workout_screen.dart';
@@ -496,54 +495,54 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
       final workoutName = widget.savedWorkout?.name ??
           'AI Generated Workout Session ${sessionIndex + 1}';
 
-      // Create the session directly for immediate navigation
-      final activeSession = ActiveWorkoutSession.fromWorkoutSession(
-        id: const Uuid().v4(),
-        workoutName: workoutName,
-        workoutSession: session,
-      );
-
-      // Start the workout in the provider (async, no need to wait)
-      ref
-          .read(activeWorkoutSessionProvider.notifier)
-          .startWorkout(
+      // Start the workout in the provider and wait for completion
+      await ref.read(activeWorkoutSessionProvider.notifier).startWorkout(
             workoutName: workoutName,
             workoutSession: session,
-          )
-          .catchError((e) {
-        print('Background workout start error: $e');
-      });
+          );
 
-      // Dismiss dialogs and navigate immediately with the created session
-      Navigator.of(context).pop(); // Close loading dialog
-      Navigator.of(context).pop(); // Close selection dialog
+      // Get the created session from the provider
+      final activeSession = ref.read(activeWorkoutSessionProvider);
 
-      // Navigate immediately with the session we created
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ActiveWorkoutScreen(
-            workoutSession: activeSession,
+      if (activeSession == null) {
+        throw Exception('Failed to create workout session');
+      }
+
+      print('Workout started successfully: ${activeSession.workoutName}');
+
+      // Dismiss dialogs and navigate with the provider's session
+      if (mounted) {
+        Navigator.of(context).pop(); // Close loading dialog
+        Navigator.of(context).pop(); // Close selection dialog
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ActiveWorkoutScreen(
+              workoutSession: activeSession,
+            ),
           ),
-        ),
-      );
+        );
+      }
     } catch (e) {
+      print('Error starting workout: $e');
+
       // Dismiss loading dialog if still showing
-      if (Navigator.of(context).canPop()) {
+      if (mounted && Navigator.of(context).canPop()) {
         Navigator.of(context).pop(); // Close loading dialog
       }
-      if (Navigator.of(context).canPop()) {
+      if (mounted && Navigator.of(context).canPop()) {
         Navigator.of(context).pop(); // Close selection dialog
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to start workout: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-
-      print('Error starting workout: $e'); // Debug print
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to start workout: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }
