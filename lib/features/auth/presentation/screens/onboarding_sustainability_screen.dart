@@ -15,7 +15,6 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -25,21 +24,52 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                 // Progress bar
                 const OnboardingProgressBar(currentStep: 3),
                 const SizedBox(height: 20),
-                // Background image container
+                // Sustainability illustration
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Container(
                     width: double.infinity,
                     height: 320,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuChdbUBtoWht0SkIfyxA3nO66ZnBXmQSZdLpLV1AA2NN9Dpusi0ijUPQXf2BYyuYse3lbZhwPHdZGW0yxkcQiTmo_7qtKMG7xnBOsKZGQP9iWsmOFYukmNdhyfv4AfS7xh2F6NnLwnbmy_34ZwwlukKIelFBSxWT0ASTuqH5rGQ2aW2N4loBRY85j33REUTa7L781aP6U5ELSg89dAI7IhA1v8F03P_NlXoMbJrimbdUfHtIgzXFhK2oQgPNKKPeMvW-s9hko3KFGqR'
-                        ),
-                        fit: BoxFit.cover,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                        ],
                       ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.public_outlined,
+                          size: 80,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '🌍 Planet Earth',
+                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Track your carbon footprint\nwhile improving your health',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -50,12 +80,8 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                   child: Text(
                     'Make a Positive Impact',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFF111714),
-                      fontSize: 28,
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 0.0,
-                      // fontFamily: 'Lexend',
                     ),
                   ),
                 ),
@@ -66,11 +92,8 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                   child: Text(
                     'Track your eco-footprint while staying healthy',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFF111714),
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal,
-                      // fontFamily: 'Lexend',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                     ),
                   ),
                 ),
@@ -85,18 +108,6 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF38E07B),
-                        foregroundColor: const Color(0xFF111714),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.015,
-                        ),
-                      ),
                       onPressed: () {
                         context.go('/login');
                       },

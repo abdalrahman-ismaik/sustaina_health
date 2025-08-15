@@ -15,7 +15,6 @@ class OnboardingAIScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -27,21 +26,44 @@ class OnboardingAIScreen extends ConsumerWidget {
                     // Progress bar
                     const OnboardingProgressBar(currentStep: 2),
                     const SizedBox(height: 20),
-                    // Background image
+                    // AI Features illustration
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
                         width: double.infinity,
                         height: 200,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(0),
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                              'https://lh3.googleusercontent.com/aida-public/AB6AXuA6_UrNHyvAKq7zd301RSq6RgTWGZEX5Hm5s3l1LpNbFy-GicR-29km-WFGoKVXAsfg2sokIS_6xWy5zyQ4w0hDcHKJrTpNgTglHxSXNIcLJ2fgyeCwMpHJ466D9wlC4RoOpBGOsGfPgR5DSTqi9MTNnJzmpwH92yl71l8yOK0Vr8MVKWKRLzWIOnSknHml_bD6RsfoJ8p91R4mT4EHiPpcOWt8Q7p2_IcXQC0N7rlsgeyS0Xi2Db7IGs6kFU_uXYrjaWFrK4k-f2Hq'
-                            ),
-                            fit: BoxFit.cover,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                              Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            ],
                           ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.psychology_outlined,
+                              size: 60,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              '🤖 AI Coach',
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -51,11 +73,8 @@ class OnboardingAIScreen extends ConsumerWidget {
                       child: Text(
                         'AI-Powered Personal Coach',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color(0xFF111714),
-                          fontSize: 28,
+                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          // fontFamily: 'Lexend',
                         ),
                       ),
                     ),
@@ -65,11 +84,8 @@ class OnboardingAIScreen extends ConsumerWidget {
                       child: Text(
                         'Smart recommendations for exercise, nutrition, and sleep',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color(0xFF111714),
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          // fontFamily: 'Lexend',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                         ),
                       ),
                     ),
@@ -103,22 +119,10 @@ class OnboardingAIScreen extends ConsumerWidget {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF38E07B),
-                        foregroundColor: const Color(0xFF111714),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.015,
-                        ),
-                      ),
                       onPressed: () {
                         context.go('/onboarding/sustainability');
                       },
-                      child: const Text('Get Started', overflow: TextOverflow.ellipsis),
+                      child: const Text('Next', overflow: TextOverflow.ellipsis),
                     ),
                   ),
                 ),
@@ -153,10 +157,14 @@ class _FeatureCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFFF0F4F2),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF111714), size: 28),
+            child: Icon(
+              icon, 
+              color: Theme.of(context).colorScheme.primary, 
+              size: 28
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -165,21 +173,15 @@ class _FeatureCard extends StatelessWidget {
               children: <Widget>[
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Color(0xFF111714),
-                    fontSize: 16,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    // fontFamily: 'Lexend',
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   description,
-                  style: const TextStyle(
-                    color: Color(0xFF648772),
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    // fontFamily: 'Lexend',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
               ],

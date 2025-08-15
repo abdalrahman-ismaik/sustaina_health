@@ -75,6 +75,10 @@ class _PasswordRecoveryScreenState extends ConsumerState<PasswordRecoveryScreen>
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: TextField(
                     controller: emailController,
+                    style: const TextStyle(
+                      color: Color(0xFF212121), // Dark text for readability
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Email',
                       filled: true,
@@ -88,10 +92,6 @@ class _PasswordRecoveryScreenState extends ConsumerState<PasswordRecoveryScreen>
                         color: Color(0xFF648772),
                         fontSize: 16,
                       ),
-                    ),
-                    style: const TextStyle(
-                      color: Color(0xFF111714),
-                      fontSize: 16,
                     ),
                     keyboardType: TextInputType.emailAddress,
                   ),

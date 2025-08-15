@@ -118,6 +118,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: TextField(
                     controller: _nameController,
+                    style: const TextStyle(
+                      color: Color(0xFF212121), // Dark text for readability
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Full Name',
                       filled: true,
@@ -135,6 +139,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: TextField(
                     controller: _emailController,
+                    style: const TextStyle(
+                      color: Color(0xFF212121), // Dark text for readability
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Email',
                       filled: true,
@@ -153,6 +161,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   child: TextField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
+                    style: const TextStyle(
+                      color: Color(0xFF212121), // Dark text for readability
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Password',
                       filled: true,
@@ -205,6 +217,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   child: TextField(
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
+                    style: const TextStyle(
+                      color: Color(0xFF212121), // Dark text for readability
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Confirm Password',
                       filled: true,

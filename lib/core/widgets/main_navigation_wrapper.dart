@@ -18,25 +18,41 @@ class MainNavigationWrapper extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         currentIndex: _calculateSelectedIndex(context),
         onTap: (int index) => _onItemTapped(index, context),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+        selectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: 12,
+        ),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
+            icon: Icon(Icons.fitness_center_outlined),
+            activeIcon: Icon(Icons.fitness_center),
             label: 'Exercise',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
+            icon: Icon(Icons.restaurant_outlined),
+            activeIcon: Icon(Icons.restaurant),
             label: 'Nutrition',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bedtime),
+            icon: Icon(Icons.bedtime_outlined),
+            activeIcon: Icon(Icons.bedtime),
             label: 'Sleep',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],

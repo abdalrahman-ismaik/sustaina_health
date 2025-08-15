@@ -15,7 +15,6 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -25,21 +24,52 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                 // Progress bar
                 const OnboardingProgressBar(currentStep: 1),
                 const SizedBox(height: 20),
-                // Background image container
+                // Welcome illustration
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Container(
                     width: double.infinity,
                     height: 320,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuC-8H4z9U0gV_T6hKIISOjVr9Ut7aPW3Thj6pJB_05hkzL0PTObCAwiQb_ZpcCYFEPKV4x-MvQmBVCbZostdzsXO5VsAtyedpuENVYFl6_cy2TOzAK12p6UzF4bcsI7eCx6RyLjc2ELmX9htACkOHgdAIftDXZgk1J8mm2krGkfgd-MXKFYc0osZpJhOyXYmYRHkpwpt-5eW_iLDBCmUknrzBAhcjghPEIfkS1NpO2nk6pJMQc5SMSrXIuOlcRCojjeaFD_bw6hzy41'
-                        ),
-                        fit: BoxFit.cover,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                        ],
                       ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.eco_outlined,
+                          size: 80,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '🌱 Sustainable Health',
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'AI-powered wellness for you and the planet',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -50,12 +80,8 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                   child: Text(
                     'Welcome to SustainaHealth',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFF111714),
-                      fontSize: 28,
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 0.0,
-                      // fontFamily: 'Lexend',
                     ),
                   ),
                 ),
@@ -66,11 +92,8 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                   child: Text(
                     'Where your health meets sustainability',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFF111714),
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal,
-                      // fontFamily: 'Lexend',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                     ),
                   ),
                 ),
@@ -85,18 +108,6 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF38E07B),
-                        foregroundColor: const Color(0xFF111714),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.015,
-                        ),
-                      ),
                       onPressed: () {
                         context.go('/onboarding/ai-features');
                       },
