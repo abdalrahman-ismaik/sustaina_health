@@ -1,345 +1,931 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fl_chart/fl_chart.dart';
+import '../providers/sleep_providers.dart';
+import '../theme/sleep_colors.dart';
+import '../../data/models/sleep_models.dart';
 
-class SleepHomeScreen extends StatelessWidget {
+class SleepHomeScreen extends ConsumerWidget {
   const SleepHomeScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final latestSessionAsync = ref.watch(latestSleepSessionProvider);
+    final sleepStatsAsync = ref.watch(sleepStatsProvider);
+    final sleepSessionsAsync = ref.watch(sleepSessionsProvider);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: SleepColors.backgroundGrey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Color(0xFF121714)),
-          onPressed: () {},
-        ),
         title: const Text(
           'Sleep',
           style: TextStyle(
-            color: Color(0xFF121714),
+            color: SleepColors.textPrimary,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
-            letterSpacing: -0.015,
           ),
         ),
-        centerTitle: true,
+        backgroundColor: SleepColors.surfaceGrey,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline, color: SleepColors.primaryGreen),
+            onPressed: () => _showSleepGuide(context),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Last Night',
-                style: TextStyle(
-                  color: Color(0xFF121714),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                ),
-              ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(sleepSessionsProvider.notifier).loadSleepSessions();
+          ref.read(sleepStatsProvider.notifier).refreshStats();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Welcome Card
+                _buildWelcomeCard(context),
+                const SizedBox(height: 24),
+
+                // Quick Start Button
+                _buildQuickStartButton(context),
+                const SizedBox(height: 24),
+
+                // Sleep Time Graph
+                _buildSleepTimeGraph(context, ref, sleepSessionsAsync),
+                const SizedBox(height: 24),
+
+                // Latest Sleep Session
+                _buildLatestSleepCard(context, ref, latestSessionAsync),
+                const SizedBox(height: 24),
+
+                // Basic Stats
+                _buildBasicStats(context, ref, sleepStatsAsync),
+                const SizedBox(height: 24),
+
+                // Sleep Advice Section (moved to end)
+                _buildSleepAdviceSection(),
+                const SizedBox(height: 24),
+              ],
             ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: const <Widget>[
-                  _SleepStatCard(title: 'Sleep Score', value: '85'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const <Widget>[
-                  Text('Duration',
-                      style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
-                  Text('7h 30m (Target: 8h)',
-                      style: TextStyle(color: Color(0xFF121714), fontSize: 14)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Sleep Pattern
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _SleepPatternSection(),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: const <Widget>[
-                  _SleepStatCard(
-                      title: 'Sustainability Score', value: '92', border: true),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Sleep Stages',
-                style: TextStyle(
-                  color: Color(0xFF121714),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _SleepStagesBreakdown(),
-            ),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Quick Actions',
-                style: TextStyle(
-                  color: Color(0xFF121714),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _QuickActions(),
-            ),
-            const SizedBox(height: 80),
-          ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/sleep/tracking'),
+        backgroundColor: SleepColors.primaryGreen,
+        icon: const Icon(Icons.bedtime, color: Colors.white),
+        label: const Text(
+          'Track Sleep',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
       ),
     );
   }
-}
 
-class _SleepStatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final bool border;
-  const _SleepStatCard(
-      {required this.title, required this.value, this.border = false, Key? key})
-      : super(key: key);
+  Widget _buildWelcomeCard(BuildContext context) {
+    final now = DateTime.now();
+    final hour = now.hour;
+    String greeting;
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: border ? Colors.transparent : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: border
-              ? Border.all(color: const Color(0xFFD1E6D9), width: 1)
-              : Border.all(color: const Color(0xFFD1E6D9), width: 1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(title,
-                style: const TextStyle(
-                    color: Color(0xFF121714),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500)),
-            const SizedBox(height: 4),
-            Text(value,
-                style: const TextStyle(
-                    color: Color(0xFF121714),
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold)),
+    if (hour < 12) {
+      greeting = 'Good Morning';
+    } else if (hour < 17) {
+      greeting = 'Good Afternoon';
+    } else {
+      greeting = 'Good Evening';
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            SleepColors.primaryGreen,
+            SleepColors.primaryGreenLight,
           ],
         ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: SleepColors.primaryGreen.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-    );
-  }
-}
-
-class _SleepPatternSection extends StatelessWidget {
-  const _SleepPatternSection({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        const Text('Sleep Pattern',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            greeting,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Track your sleep to improve your rest and well-being',
             style: TextStyle(
-                color: Color(0xFF121714),
-                fontSize: 16,
-                fontWeight: FontWeight.w500)),
-        const SizedBox(height: 4),
-        const Text('7h 30m',
-            style: TextStyle(
-                color: Color(0xFF121714),
-                fontSize: 32,
-                fontWeight: FontWeight.bold)),
-        Row(
-          children: const <Widget>[
-            Text('Last Night',
-                style: TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
-            SizedBox(width: 8),
-            Text('-6%',
-                style: TextStyle(
-                    color: Color(0xFFfa5538),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        // Placeholder for pattern visualization
-        Container(
-          height: 120,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF0F4F2),
-            borderRadius: BorderRadius.circular(16),
+              color: Colors.white,
+              fontSize: 16,
+              height: 1.4,
+            ),
           ),
-          child: const Center(
-            child: Text('Pattern Visualization',
-                style: TextStyle(color: Color(0xFF688273))),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const <Widget>[
-            Text('10PM',
-                style: TextStyle(
-                    color: Color(0xFF9bbfaa),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold)),
-            Text('12AM',
-                style: TextStyle(
-                    color: Color(0xFF9bbfaa),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold)),
-            Text('2AM',
-                style: TextStyle(
-                    color: Color(0xFF9bbfaa),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold)),
-            Text('4AM',
-                style: TextStyle(
-                    color: Color(0xFF9bbfaa),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold)),
-            Text('6AM',
-                style: TextStyle(
-                    color: Color(0xFF9bbfaa),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _SleepStagesBreakdown extends StatelessWidget {
-  const _SleepStagesBreakdown({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: const <Widget>[
-        _SleepStageRow(stage: 'Light Sleep', value: '4h 15m'),
-        _SleepStageRow(stage: 'Deep Sleep', value: '1h 45m'),
-        _SleepStageRow(stage: 'REM', value: '1h 30m'),
-        _SleepStageRow(stage: 'Awake', value: '15m'),
-      ],
-    );
-  }
-}
-
-class _SleepStageRow extends StatelessWidget {
-  final String stage;
-  final String value;
-  const _SleepStageRow({required this.stage, required this.value, Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(stage,
-              style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
-          Text(value,
-              style: const TextStyle(color: Color(0xFF121714), fontSize: 14)),
         ],
       ),
     );
   }
-}
 
-class _QuickActions extends StatelessWidget {
-  const _QuickActions({Key? key}) : super(key: key);
+  Widget _buildQuickStartButton(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push('/sleep/tracking'),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: SleepColors.primaryGreen.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.bedtime,
+                    color: SleepColors.primaryGreen,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Start Sleep Tracking',
+                        style: TextStyle(
+                          color: SleepColors.textPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Begin tracking your sleep session',
+                        style: TextStyle(
+                          color: SleepColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: SleepColors.textSecondary,
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildSleepAdviceSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.lightbulb_outline,
+                color: SleepColors.primaryGreen,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Sleep Advice',
+                style: TextStyle(
+                  color: SleepColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildAdviceItem(
+            '🌙 Maintain a consistent sleep schedule',
+            'Go to bed and wake up at the same time every day, even on weekends.',
+          ),
+          const SizedBox(height: 12),
+          _buildAdviceItem(
+            '📱 Avoid screens 1 hour before bedtime',
+            'Blue light from devices can interfere with your natural sleep cycle.',
+          ),
+          const SizedBox(height: 12),
+          _buildAdviceItem(
+            '🌡️ Keep your bedroom cool and dark',
+            'A temperature of 18-20°C (65-68°F) is ideal for sleep.',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdviceItem(String title, String description) {
     return Column(
-      children: <Widget>[
-        _QuickActionButton(
-          label: 'Log Sleep Manually',
-          onTap: () {
-            Navigator.of(context).pushNamed('/sleep/tracking');
-          },
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: SleepColors.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        const SizedBox(height: 8),
-        _QuickActionButton(
-          label: 'Set Bedtime Reminder',
-          onTap: () {
-            Navigator.of(context).pushNamed('/sleep/improvement');
-          },
-        ),
-        const SizedBox(height: 8),
-        _QuickActionButton(
-          label: 'View Sleep Tips',
-          onTap: () {
-            Navigator.of(context).pushNamed('/sleep/improvement');
-          },
+        const SizedBox(height: 4),
+        Text(
+          description,
+          style: TextStyle(
+            color: SleepColors.textSecondary,
+            fontSize: 14,
+            height: 1.4,
+          ),
         ),
       ],
     );
   }
-}
 
-class _QuickActionButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _QuickActionButton({required this.label, required this.onTap, Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
+  Widget _buildSleepTimeGraph(BuildContext context, WidgetRef ref, AsyncValue<List<SleepSession>> sessionsAsync) {
+    return Container(
       width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF94E0B2),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
-        onPressed: onTap,
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Color(0xFF121714),
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.show_chart,
+                color: SleepColors.primaryGreen,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Sleep Time Trend',
+                style: TextStyle(
+                  color: SleepColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          sessionsAsync.when(
+            data: (sessions) {
+              if (sessions.isEmpty) {
+                return Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: SleepColors.backgroundGrey,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.bar_chart_outlined,
+                          size: 48,
+                          color: SleepColors.textTertiary,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No sleep data yet',
+                          style: TextStyle(
+                            color: SleepColors.textSecondary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Start tracking to see your sleep trends',
+                          style: TextStyle(
+                            color: SleepColors.textTertiary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              // Get last 7 days of sleep data
+              final last7Days = _getLast7DaysData(sessions);
+              return SizedBox(
+                height: 200,
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: 10,
+                    barTouchData: BarTouchData(enabled: false),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (value, meta) {
+                            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                            if (value >= 0 && value < days.length) {
+                              return Text(
+                                days[value.toInt()],
+                                style: TextStyle(
+                                  color: SleepColors.textSecondary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            }
+                            return const Text('');
+                          },
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              '${value.toInt()}h',
+                              style: TextStyle(
+                                color: SleepColors.textSecondary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    barGroups: last7Days.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final hours = entry.value;
+                      return BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: hours,
+                            color: hours >= 7 ? SleepColors.primaryGreen : SleepColors.warningOrange,
+                            width: 20,
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                    gridData: FlGridData(
+                      show: true,
+                      horizontalInterval: 2,
+                      drawVerticalLine: false,
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(
+                          color: SleepColors.textTertiary.withOpacity(0.2),
+                          strokeWidth: 1,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+            loading: () => Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: SleepColors.backgroundGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
+                ),
+              ),
+            ),
+            error: (error, stack) => Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: SleepColors.backgroundGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      color: SleepColors.errorRed,
+                      size: 32,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Failed to load sleep data',
+                      style: TextStyle(
+                        color: SleepColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<double> _getLast7DaysData(List<SleepSession> sessions) {
+    final now = DateTime.now();
+    final List<double> last7Days = List.filled(7, 0.0);
+    
+    for (int i = 0; i < 7; i++) {
+      final date = now.subtract(Duration(days: i));
+      final daySessions = sessions.where((session) {
+        final sessionDate = DateTime(session.startTime.year, session.startTime.month, session.startTime.day);
+        final targetDate = DateTime(date.year, date.month, date.day);
+        return sessionDate.isAtSameMomentAs(targetDate);
+      }).toList();
+      
+      if (daySessions.isNotEmpty) {
+        final totalHours = daySessions.fold<double>(
+          0.0,
+          (sum, session) => sum + session.totalDuration.inMinutes / 60.0,
+        );
+        last7Days[6 - i] = totalHours;
+      }
+    }
+    
+    return last7Days;
+  }
+
+  Widget _buildLatestSleepCard(BuildContext context, WidgetRef ref, AsyncValue<SleepSession?> latestSessionAsync) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.bedtime,
+                color: SleepColors.primaryGreen,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Latest Sleep',
+                style: TextStyle(
+                  color: SleepColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          latestSessionAsync.when(
+            data: (session) {
+              if (session == null) {
+                return Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: SleepColors.backgroundGrey,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.bedtime_outlined,
+                        size: 48,
+                        color: SleepColors.textTertiary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No sleep sessions yet',
+                        style: TextStyle(
+                          color: SleepColors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Start tracking to see your sleep data here',
+                        style: TextStyle(
+                          color: SleepColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: SleepColors.backgroundGrey,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: SleepColors.primaryGreen.withOpacity(0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Last Night',
+                          style: TextStyle(
+                            color: SleepColors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: SleepColors.getSleepQualityColor(session.sleepQuality).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            '${session.sleepQuality.toStringAsFixed(1)}/10',
+                            style: TextStyle(
+                              color: SleepColors.getSleepQualityColor(session.sleepQuality),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildSessionDetail(
+                            'Duration',
+                            '${session.totalDuration.inHours}h ${session.totalDuration.inMinutes % 60}m',
+                            Icons.access_time,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildSessionDetail(
+                            'Mood',
+                            session.mood,
+                            Icons.mood,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+            loading: () => Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: SleepColors.backgroundGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
+                ),
+              ),
+            ),
+            error: (error, stack) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: SleepColors.backgroundGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: SleepColors.errorRed,
+                    size: 32,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Failed to load sleep data',
+                    style: TextStyle(
+                      color: SleepColors.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSessionDetail(String label, String value, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: SleepColors.textSecondary,
+              size: 16,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: SleepColors.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            color: SleepColors.textPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBasicStats(BuildContext context, WidgetRef ref, AsyncValue<SleepStats> statsAsync) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.analytics_outlined,
+                color: SleepColors.primaryGreen,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Sleep Overview',
+                style: TextStyle(
+                  color: SleepColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          statsAsync.when(
+            data: (stats) => Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    'Average Quality',
+                    '${stats.averageQuality.toStringAsFixed(1)}/10',
+                    Icons.star,
+                    SleepColors.getSleepQualityColor(stats.averageQuality),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    'Average Duration',
+                    '${stats.averageDuration.inHours}h ${stats.averageDuration.inMinutes % 60}m',
+                    Icons.access_time,
+                    SleepColors.getSleepDurationColor(stats.averageDuration),
+                  ),
+                ),
+              ],
+            ),
+            loading: () => Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: SleepColors.backgroundGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
+                ),
+              ),
+            ),
+            error: (error, stack) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: SleepColors.backgroundGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: SleepColors.errorRed,
+                    size: 32,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Failed to load stats',
+                    style: TextStyle(
+                      color: SleepColors.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SleepColors.backgroundGrey,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 24,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              color: SleepColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              color: SleepColors.textSecondary,
+              fontSize: 12,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSleepGuide(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Sleep Tracking Guide',
+          style: TextStyle(color: SleepColors.textPrimary),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'How to use the sleep module:',
+              style: TextStyle(
+                color: SleepColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildGuideItem('1. Tap "Track Sleep" to start a new sleep session'),
+            _buildGuideItem('2. Set your bedtime and wake time'),
+            _buildGuideItem('3. Rate your sleep quality and mood'),
+            _buildGuideItem('4. View your sleep statistics and trends'),
+            _buildGuideItem('5. Set goals to improve your sleep habits'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'Got it',
+              style: TextStyle(color: SleepColors.primaryGreen),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuideItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: SleepColors.textSecondary,
+          fontSize: 14,
         ),
       ),
     );

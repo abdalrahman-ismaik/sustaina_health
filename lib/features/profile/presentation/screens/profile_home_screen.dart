@@ -39,6 +39,12 @@ class ProfileHomeScreen extends ConsumerWidget {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.help_outline, color: textColor),
+            onPressed: () => _showProfileGuide(context),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -298,4 +304,58 @@ class _QuickSettingTile extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showProfileGuide(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Profile Guide'),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Welcome to your profile! Here\'s how to manage your account:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              Text('👤 Personal Information'),
+              Text('• Update your profile details and preferences'),
+              Text('• Manage your account settings and privacy'),
+              Text('• View your personal statistics and achievements'),
+              SizedBox(height: 8),
+              Text('🏆 Achievements'),
+              Text('• Track your sustainability milestones'),
+              Text('• View badges and accomplishments'),
+              Text('• Celebrate your progress and achievements'),
+              SizedBox(height: 8),
+              Text('🎯 Health Goals'),
+              Text('• Set and manage your fitness and wellness goals'),
+              Text('• Track your progress towards your objectives'),
+              Text('• Get personalized recommendations'),
+              SizedBox(height: 8),
+              Text('🌱 Sustainability Dashboard'),
+              Text('• Monitor your environmental impact'),
+              Text('• Track your carbon footprint reduction'),
+              Text('• View sustainability statistics and trends'),
+              SizedBox(height: 8),
+              Text('⚙️ Settings'),
+              Text('• Customize your app preferences'),
+              Text('• Manage notifications and privacy settings'),
+              Text('• Access help and support options'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it!'),
+          ),
+        ],
+      );
+    },
+  );
 }

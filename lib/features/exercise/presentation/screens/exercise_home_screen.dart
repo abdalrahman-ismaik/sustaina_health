@@ -40,6 +40,10 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  IconButton(
+                    icon: Icon(Icons.help_outline, color: ExerciseColors.textPrimary),
+                    onPressed: () => _showExerciseGuide(context),
+                  ),
                 ],
               ),
             ),
@@ -951,4 +955,54 @@ class _CategoryCard extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showExerciseGuide(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Exercise Guide'),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Welcome to your fitness journey! Here\'s how to get started:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              Text('🏋️ AI Workout Generator'),
+              Text('• Generate personalized workout plans based on your goals'),
+              Text('• Choose from different workout types and difficulty levels'),
+              Text('• Get AI-powered recommendations for your fitness journey'),
+              SizedBox(height: 8),
+              Text('📊 Workout History'),
+              Text('• Track your completed workouts and progress'),
+              Text('• View detailed statistics and performance metrics'),
+              Text('• Monitor your fitness journey over time'),
+              SizedBox(height: 8),
+              Text('💪 My Workouts'),
+              Text('• Access your saved and favorite workout plans'),
+              Text('• Create custom workout routines'),
+              Text('• Manage your personal fitness library'),
+              SizedBox(height: 8),
+              Text('🎯 Tips for Success'),
+              Text('• Start with beginner-friendly workouts'),
+              Text('• Gradually increase intensity and duration'),
+              Text('• Stay consistent with your exercise routine'),
+              Text('• Listen to your body and rest when needed'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it!'),
+          ),
+        ],
+      );
+    },
+  );
 }
