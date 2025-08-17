@@ -124,7 +124,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           subtitle: 'Personalized recommendations',
                           icon: Icons.restaurant_menu,
                           color: const Color(0xFF688273),
-                          onTap: () => context.go('/nutrition/meal-plan'),
+                          onTap: () => context.go('/nutrition/ai-meal-plan'),
                         ),
                       ),
                     ],

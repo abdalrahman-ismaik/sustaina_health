@@ -19,31 +19,99 @@ class _AIFoodRecognitionScreenState
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _captureImage(ImageSource source) async {
+  Future<void> _captureImageSimple(ImageSource source) async {
     try {
-      final XFile? image = await _picker.pickImage(source: source);
+      print(
+          'Attempting to access ${source == ImageSource.camera ? 'camera' : 'gallery'}'); // Debug
+
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
       if (image != null) {
+        print('Image selected: ${image.path}'); // Debug
         setState(() {
           _selectedImage = File(image.path);
         });
         _analyzeImage();
+      } else {
+        print('No image selected by user'); // Debug
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'No ${source == ImageSource.camera ? 'photo taken' : 'image selected'}'),
+              backgroundColor: Colors.grey,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to capture image: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      print('Image picker error: $e'); // Debug logging
+      if (mounted) {
+        String errorMessage =
+            'Unable to access ${source == ImageSource.camera ? 'camera' : 'gallery'}';
+
+        if (e.toString().toLowerCase().contains('permission')) {
+          errorMessage += '. Please check app permissions in Settings.';
+
+          // Show permission dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Permission Needed'),
+                content: Text(
+                  'Please allow access to ${source == ImageSource.camera ? 'camera' : 'photos'} in your device settings.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
     }
   }
 
   void _analyzeImage() {
     if (_selectedImage != null) {
-      ref.read(mealAnalysisProvider.notifier).analyzeMeal(
-            _selectedImage!,
-            mealType: widget.mealType,
+      print(
+          'Starting image analysis for file: ${_selectedImage!.path}'); // Debug logging
+      try {
+        ref.read(mealAnalysisProvider.notifier).analyzeMeal(
+              _selectedImage!,
+              mealType: widget.mealType,
+            );
+      } catch (e) {
+        print('Error in analyze image: $e'); // Debug logging
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to analyze image: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
           );
+        }
+      }
+    } else {
+      print('No image selected for analysis'); // Debug logging
     }
   }
 
@@ -127,8 +195,8 @@ class _AIFoodRecognitionScreenState
                       },
                     )
                   : _CameraView(
-                      onCapture: () => _captureImage(ImageSource.camera),
-                      onGallery: () => _captureImage(ImageSource.gallery),
+                      onCapture: () => _captureImageSimple(ImageSource.camera),
+                      onGallery: () => _captureImageSimple(ImageSource.gallery),
                       selectedImage: _selectedImage,
                     ),
               loading: () => const Center(
@@ -187,76 +255,102 @@ class _CameraView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Container(
-          margin: const EdgeInsets.all(24),
-          height: 220,
-          decoration: BoxDecoration(
-            color: const Color(0xFFf1f4f2),
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: selectedImage != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Image.file(
-                    selectedImage!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: <Widget>[
+          const SizedBox(height: 40), // Top spacing
+
+          // Camera/Image Container
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            height: 220,
+            decoration: BoxDecoration(
+              color: const Color(0xFFf1f4f2),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: selectedImage != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.file(
+                      selectedImage!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  )
+                : const Center(
+                    child: Icon(Icons.camera_alt,
+                        size: 64, color: Color(0xFF688273)),
                   ),
-                )
-              : const Center(
-                  child: Icon(Icons.camera_alt,
-                      size: 64, color: Color(0xFF688273)),
-                ),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            'Take a photo of your meal to get personalized nutrition insights, sustainability analysis, and health recommendations',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-              height: 1.4,
+          ),
+
+          const SizedBox(height: 32),
+
+          // Description Text
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              'Take a photo of your meal to get personalized nutrition insights, sustainability analysis, and health recommendations',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+                height: 1.4,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton.icon(
-              onPressed: onCapture,
-              icon: const Icon(Icons.camera, color: Color(0xFF121714)),
-              label: const Text('Camera',
-                  style: TextStyle(color: Color(0xFF121714))),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94e0b2),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
+
+          const SizedBox(height: 32),
+
+          // Action Buttons
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      print('Camera button pressed'); // Debug logging
+                      onCapture();
+                    },
+                    icon: const Icon(Icons.camera, color: Color(0xFF121714)),
+                    label: const Text('Camera',
+                        style: TextStyle(color: Color(0xFF121714))),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF94e0b2),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      print('Gallery button pressed'); // Debug logging
+                      onGallery();
+                    },
+                    icon: const Icon(Icons.photo_library,
+                        color: Color(0xFF688273)),
+                    label: const Text('Gallery',
+                        style: TextStyle(color: Color(0xFF688273))),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFdde4e0)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            OutlinedButton.icon(
-              onPressed: onGallery,
-              icon: const Icon(Icons.photo_library, color: Color(0xFF688273)),
-              label: const Text('Gallery',
-                  style: TextStyle(color: Color(0xFF688273))),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFdde4e0)),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-            ),
-          ],
-        ),
-      ],
+          ),
+
+          const SizedBox(height: 40), // Bottom spacing
+        ],
+      ),
     );
   }
 }
@@ -847,19 +941,33 @@ class _SustainabilityRow extends StatelessWidget {
     Color impactColor;
     IconData impactIcon;
 
-    // Fixed color logic: low environmental impact = good (green), high = bad (red)
+    // Different color logic for environmental vs nutrition impact
+    // Environmental impact: low = good (green), high = bad (red)
+    // Nutrition impact: high = good (green), low = bad (red)
+    bool isNutritionImpact = label.toLowerCase().contains('nutrition');
+
     switch (impact.toLowerCase()) {
       case 'high':
-        impactColor = Colors.red;
-        impactIcon = Icons.trending_up;
+        if (isNutritionImpact) {
+          impactColor = Colors.green;
+          impactIcon = Icons.trending_up;
+        } else {
+          impactColor = Colors.red;
+          impactIcon = Icons.trending_up;
+        }
         break;
       case 'medium':
         impactColor = Colors.orange;
         impactIcon = Icons.trending_flat;
         break;
       case 'low':
-        impactColor = Colors.green;
-        impactIcon = Icons.trending_down;
+        if (isNutritionImpact) {
+          impactColor = Colors.red;
+          impactIcon = Icons.trending_down;
+        } else {
+          impactColor = Colors.green;
+          impactIcon = Icons.trending_down;
+        }
         break;
       default:
         impactColor = Colors.grey;
