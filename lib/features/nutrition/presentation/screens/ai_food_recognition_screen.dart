@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 
@@ -21,7 +22,38 @@ class _AIFoodRecognitionScreenState
 
   Future<void> _captureImage(ImageSource source) async {
     try {
-      final XFile? image = await _picker.pickImage(source: source);
+      // Check and request permissions
+      if (source == ImageSource.camera) {
+        final cameraStatus = await Permission.camera.request();
+        if (cameraStatus != PermissionStatus.granted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Camera permission is required to take photos'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          return;
+        }
+      } else {
+        final storageStatus = await Permission.storage.request();
+        if (storageStatus != PermissionStatus.granted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Storage permission is required to access photos'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          return;
+        }
+      }
+
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 1024, // Limit image size for better performance
+        maxHeight: 1024,
+        imageQuality: 85, // Compress image to reduce upload size
+      );
+      
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
@@ -80,37 +112,88 @@ class _AIFoodRecognitionScreenState
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: isHealthy ? Colors.green.shade100 : Colors.red.shade100,
+                color: isHealthy ? Colors.green.shade100 : Colors.orange.shade100,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isHealthy ? Colors.green : Colors.red,
+                  color: isHealthy ? Colors.green : Colors.orange,
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
-                    isHealthy ? Icons.check_circle : Icons.error,
-                    color: isHealthy ? Colors.green : Colors.red,
+                    isHealthy ? Icons.check_circle : Icons.info_outline,
+                    color: isHealthy ? Colors.green : Colors.orange,
                     size: 16,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    isHealthy
-                        ? 'AI Analysis Available'
-                        : 'AI Service Unavailable - Using Mock Data',
-                    style: TextStyle(
-                      color: isHealthy
-                          ? Colors.green.shade800
-                          : Colors.red.shade800,
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Text(
+                      isHealthy
+                          ? 'AI Analysis Available - Real-time food recognition'
+                          : 'Demo Mode - Using sample data for testing',
+                      style: TextStyle(
+                        color: isHealthy
+                            ? Colors.green.shade800
+                            : Colors.orange.shade800,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            loading: () => const SizedBox(),
-            error: (_, __) => const SizedBox(),
+            loading: () => Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade100,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue, width: 1),
+              ),
+              child: const Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Checking AI Service...',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            error: (_, __) => Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.red.shade100,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red, width: 1),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.error, color: Colors.red, size: 16),
+                  SizedBox(width: 8),
+                  Text(
+                    'Service Error - Using demo data',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
 
           Expanded(
@@ -211,16 +294,59 @@ class _CameraView extends StatelessWidget {
                       size: 64, color: Color(0xFF688273)),
                 ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            'Take a photo of your meal to get personalized nutrition insights, sustainability analysis, and health recommendations',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-              height: 1.4,
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              const Text(
+                'Take a photo of your meal to get personalized nutrition insights, sustainability analysis, and health recommendations',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF94e0b2).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFF94e0b2).withOpacity(0.3),
+                  ),
+                ),
+                child: const Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.lightbulb_outline, 
+                             color: Color(0xFF688273), size: 16),
+                        SizedBox(width: 8),
+                        Text(
+                          'Tips for best results:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF688273),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '• Ensure good lighting\n• Capture the entire meal\n• Avoid shadows and glare\n• Keep the camera steady',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF688273),
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 24),
@@ -272,6 +398,53 @@ class _FoodAnalysisResult extends ConsumerWidget {
     this.image,
     Key? key,
   }) : super(key: key);
+
+  Future<void> _saveToFoodLog(BuildContext context, WidgetRef ref) async {
+    try {
+      // Create a food log entry from the analysis
+      final foodLogEntry = FoodLogEntry(
+        id: '', // Will be generated by the repository
+        userId: 'current_user', // TODO: Get from auth provider
+        foodName: analysis.foodName,
+        mealType: 'meal', // Default meal type
+        servingSize: '1 serving', // Default serving size
+        nutritionInfo: NutritionInfo(
+          calories: analysis.totalCalories,
+          carbohydrates: analysis.totalCarbohydrates,
+          protein: analysis.totalProtein,
+          fat: analysis.totalFats,
+          fiber: 0, // Not provided by analysis
+          sugar: 0, // Not provided by analysis
+          sodium: 0, // Not provided by analysis
+        ),
+        loggedAt: DateTime.now(),
+        sustainabilityScore: analysis.sustainability.overallScore.toString(),
+        notes: 'Analyzed with AI Food Recognition',
+      );
+
+      // Save to food log
+      await ref.read(foodLogProvider.notifier).addFoodLogEntry(foodLogEntry);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${analysis.foodName} saved to food log!'),
+            backgroundColor: const Color(0xFF94e0b2),
+          ),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save to food log: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -649,15 +822,15 @@ class _FoodAnalysisResult extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.check, size: 18),
+                    onPressed: () => _saveToFoodLog(context, ref),
+                    icon: const Icon(Icons.save, size: 18),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF94e0b2),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    label: const Text('Got It!',
+                    label: const Text('Save to Food Log',
                         style: TextStyle(color: Color(0xFF121714))),
                   ),
                 ),

@@ -1,396 +1,649 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../theme/sleep_colors.dart';
+import '../providers/sleep_providers.dart';
+import '../../data/models/sleep_models.dart';
+import 'package:uuid/uuid.dart';
 
-class SleepTrackingScreen extends StatefulWidget {
+class SleepTrackingScreen extends ConsumerStatefulWidget {
   const SleepTrackingScreen({Key? key}) : super(key: key);
 
   @override
-  State<SleepTrackingScreen> createState() => _SleepTrackingScreenState();
+  ConsumerState<SleepTrackingScreen> createState() => _SleepTrackingScreenState();
 }
 
-class _SleepTrackingScreenState extends State<SleepTrackingScreen> {
-  bool autoTracking = false;
-  double sleepQuality = 5;
+class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay? bedtime;
+  TimeOfDay? wakeTime;
+  double sleepQuality = 7.0;
   String mood = 'Good';
-  double roomTemp = 70;
-  String noise = 'Low';
-  String light = 'Dark';
-  double screenTime = 1;
-  bool naturalLight = false;
-  bool ecoFriendly = false;
-  bool energyEfficient = false;
+  String? notes;
+  bool isSaving = false;
+
+  final List<String> moodOptions = ['Poor', 'Fair', 'Good', 'Excellent'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF141f18),
+      backgroundColor: SleepColors.backgroundGrey,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF141f18),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: const Text(
-          'Sleep Input',
+          'Track Sleep',
           style: TextStyle(
-            color: Colors.white,
+            color: SleepColors.textPrimary,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
-            letterSpacing: -0.015,
           ),
         ),
-        centerTitle: true,
+        backgroundColor: SleepColors.surfaceGrey,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: SleepColors.textPrimary),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const Text(
-                'How did you sleep?',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    SleepColors.primaryGreen,
+                    SleepColors.primaryGreenLight,
+                  ],
                 ),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(height: 12),
-              _InputOptionTile(
-                icon: Icons.nightlight_round,
-                title: 'Automatic Tracking',
-                subtitle: 'Track your sleep automatically',
-                trailing: Switch(
-                  value: autoTracking,
-                  onChanged: (bool val) => setState(() => autoTracking = val),
-                  activeColor: const Color(0xFF94e0b2),
-                  inactiveTrackColor: const Color(0xFF2a4133),
-                ),
-              ),
-              _InputOptionTile(
-                icon: Icons.access_time,
-                title: 'Manual Time Entry',
-                subtitle: 'Enter your sleep time manually',
-                trailing: const Icon(Icons.chevron_right, color: Colors.white),
-                onTap: () {},
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Rate your sleep quality',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Sleep Quality (1-10)',
-                      style: TextStyle(color: Colors.white)),
-                  Text(sleepQuality.round().toString(),
-                      style: const TextStyle(color: Colors.white)),
-                ],
-              ),
-              Slider(
-                value: sleepQuality,
-                min: 1,
-                max: 10,
-                divisions: 9,
-                label: sleepQuality.round().toString(),
-                activeColor: const Color(0xFF94e0b2),
-                inactiveColor: const Color(0xFF3c5d49),
-                onChanged: (double val) => setState(() => sleepQuality = val),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'How do you feel?',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: <Widget>[
-                  for (final String m in <String>[
-                    'Great',
-                    'Good',
-                    'Okay',
-                    'Not Great',
-                    'Poor'
-                  ])
-                    ChoiceChip(
-                      label: Text(m),
-                      selected: mood == m,
-                      onSelected: (_) => setState(() => mood = m),
-                      selectedColor: const Color(0xFF94e0b2),
-                      backgroundColor: const Color(0xFF2a4133),
-                      labelStyle: TextStyle(
-                          color: mood == m
-                              ? const Color(0xFF141f18)
-                              : Colors.white),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Environmental Factors',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _EnvFactorTile(
-                icon: Icons.thermostat,
-                title: 'Room Temperature',
-                value: '${roomTemp.round()}°F',
-                child: Slider(
-                  value: roomTemp,
-                  min: 60,
-                  max: 80,
-                  divisions: 20,
-                  label: roomTemp.round().toString(),
-                  activeColor: const Color(0xFF94e0b2),
-                  inactiveColor: const Color(0xFF3c5d49),
-                  onChanged: (double val) => setState(() => roomTemp = val),
-                ),
-              ),
-              _EnvFactorTile(
-                icon: Icons.volume_up,
-                title: 'Noise Level',
-                value: noise,
-                child: DropdownButton<String>(
-                  value: noise,
-                  dropdownColor: const Color(0xFF2a4133),
-                  style: const TextStyle(color: Colors.white),
-                  items: <String>['Low', 'Medium', 'High']
-                      .map((String n) =>
-                          DropdownMenuItem(value: n, child: Text(n)))
-                      .toList(),
-                  onChanged: (String? val) =>
-                      setState(() => noise = val ?? 'Low'),
-                ),
-              ),
-              _EnvFactorTile(
-                icon: Icons.wb_sunny,
-                title: 'Light Exposure',
-                value: light,
-                child: DropdownButton<String>(
-                  value: light,
-                  dropdownColor: const Color(0xFF2a4133),
-                  style: const TextStyle(color: Colors.white),
-                  items: <String>['Dark', 'Dim', 'Bright']
-                      .map((String l) =>
-                          DropdownMenuItem(value: l, child: Text(l)))
-                      .toList(),
-                  onChanged: (String? val) =>
-                      setState(() => light = val ?? 'Dark'),
-                ),
-              ),
-              _EnvFactorTile(
-                icon: Icons.monitor,
-                title: 'Screen Time',
-                value:
-                    '${screenTime.round()} hour${screenTime == 1 ? '' : 's'}',
-                child: Slider(
-                  value: screenTime,
-                  min: 0,
-                  max: 5,
-                  divisions: 5,
-                  label: screenTime.round().toString(),
-                  activeColor: const Color(0xFF94e0b2),
-                  inactiveColor: const Color(0xFF3c5d49),
-                  onChanged: (double val) => setState(() => screenTime = val),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Sustainability Factors',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _SustainabilityTile(
-                icon: Icons.wb_sunny,
-                title: 'Natural Light Exposure',
-                value: naturalLight,
-                onChanged: (bool? val) =>
-                    setState(() => naturalLight = val ?? false),
-              ),
-              _SustainabilityTile(
-                icon: Icons.eco,
-                title: 'Eco-Friendly Sleep Environment',
-                value: ecoFriendly,
-                onChanged: (bool? val) =>
-                    setState(() => ecoFriendly = val ?? false),
-              ),
-              _SustainabilityTile(
-                icon: Icons.lightbulb,
-                title: 'Energy-Efficient Practices',
-                value: energyEfficient,
-                onChanged: (bool? val) =>
-                    setState(() => energyEfficient = val ?? false),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF94e0b2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Sleep data saved!')),
-                    );
-                  },
-                  child: const Text(
-                    'Save Sleep Data',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'How did you sleep?',
                     style: TextStyle(
-                      color: Color(0xFF141f18),
+                      color: Colors.white,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Enter your sleep details to track your rest',
+                    style: TextStyle(
+                      color: Colors.white,
                       fontSize: 16,
                     ),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Date Selection
+            _buildDateSelectionSection(),
+            const SizedBox(height: 24),
+
+            // Time Selection
+            _buildTimeSelectionSection(),
+            const SizedBox(height: 24),
+
+            // Sleep Quality
+            _buildSleepQualitySection(),
+            const SizedBox(height: 24),
+
+            // Mood
+            _buildMoodSection(),
+            const SizedBox(height: 24),
+
+            // Notes
+            _buildNotesSection(),
+            const SizedBox(height: 32),
+
+            // Save Button
+            _buildSaveButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateSelectionSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Sleep Date',
+            style: TextStyle(
+              color: SleepColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          InkWell(
+            onTap: () async {
+              final pickedDate = await showDatePicker(
+                context: context,
+                initialDate: selectedDate,
+                firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                lastDate: DateTime.now().add(const Duration(days: 1)),
+                builder: (context, child) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: SleepColors.primaryGreen,
+                        onPrimary: Colors.white,
+                      ),
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+              if (pickedDate != null) {
+                setState(() {
+                  selectedDate = DateTime(
+                    pickedDate.year,
+                    pickedDate.month,
+                    pickedDate.day,
+                  );
+                });
+              }
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: SleepColors.backgroundGrey,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: SleepColors.textTertiary.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today,
+                    color: SleepColors.primaryGreen,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Date',
+                          style: TextStyle(
+                            color: SleepColors.textSecondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                          style: TextStyle(
+                            color: SleepColors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: SleepColors.textSecondary,
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeSelectionSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Sleep Time',
+            style: TextStyle(
+              color: SleepColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTimePicker(
+                  'Bedtime',
+                  bedtime,
+                  Icons.nightlight_round,
+                  (time) => setState(() => bedtime = time),
                 ),
               ),
-              const SizedBox(height: 80),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildTimePicker(
+                  'Wake Time',
+                  wakeTime,
+                  Icons.wb_sunny,
+                  (time) => setState(() => wakeTime = time),
+                ),
+              ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
-}
 
-class _InputOptionTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Widget trailing;
-  final VoidCallback? onTap;
-  const _InputOptionTile(
-      {required this.icon,
-      required this.title,
-      required this.subtitle,
-      required this.trailing,
-      this.onTap,
-      Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Container(
+  Widget _buildTimePicker(String label, TimeOfDay? time, IconData icon, Function(TimeOfDay) onTimeSelected) {
+    return InkWell(
+      onTap: () async {
+        final selectedTime = await showTimePicker(
+          context: context,
+          initialTime: time ?? TimeOfDay.now(),
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: const ColorScheme.light(
+                  primary: SleepColors.primaryGreen,
+                  onPrimary: Colors.white,
+                ),
+              ),
+              child: child!,
+            );
+          },
+        );
+        if (selectedTime != null) {
+          onTimeSelected(selectedTime);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF2a4133),
-          borderRadius: BorderRadius.circular(12),
+          color: SleepColors.backgroundGrey,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: SleepColors.textTertiary.withOpacity(0.3)),
         ),
-        padding: const EdgeInsets.all(8),
-        child: Icon(icon, color: Colors.white),
-      ),
-      title: Text(title,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold)),
-      subtitle:
-          Text(subtitle, style: const TextStyle(color: Color(0xFF9bbfaa))),
-      trailing: trailing,
-      contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-    );
-  }
-}
-
-class _EnvFactorTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-  final Widget child;
-  const _EnvFactorTile(
-      {required this.icon,
-      required this.title,
-      required this.value,
-      required this.child,
-      Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        ListTile(
-          leading: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF2a4133),
-              borderRadius: BorderRadius.circular(12),
+        child: Column(
+          children: [
+            Icon(icon, color: SleepColors.primaryGreen, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: SleepColors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            padding: const EdgeInsets.all(8),
-            child: Icon(icon, color: Colors.white),
-          ),
-          title: Text(title,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
-          trailing: Text(value, style: const TextStyle(color: Colors.white)),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+            const SizedBox(height: 4),
+            Text(
+              time?.format(context) ?? 'Select Time',
+              style: TextStyle(
+                color: time != null ? SleepColors.textPrimary : SleepColors.textTertiary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 56.0, right: 8.0, bottom: 8.0),
-          child: child,
-        ),
-      ],
+      ),
     );
   }
-}
 
-class _SustainabilityTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final bool value;
-  final ValueChanged<bool?> onChanged;
-  const _SustainabilityTile(
-      {required this.icon,
-      required this.title,
-      required this.value,
-      required this.onChanged,
-      Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF2a4133),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.all(8),
-        child: Icon(icon, color: Colors.white),
+  Widget _buildSleepQualitySection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
       ),
-      title: Text(title,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold)),
-      trailing: Checkbox(
-        value: value,
-        onChanged: onChanged,
-        activeColor: const Color(0xFF94e0b2),
-        checkColor: const Color(0xFF141f18),
-        side: const BorderSide(color: Color(0xFF3c5d49)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Sleep Quality',
+            style: TextStyle(
+              color: SleepColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Rate your sleep (1-10)',
+                style: TextStyle(
+                  color: SleepColors.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: SleepColors.getSleepQualityColor(sleepQuality).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  '${sleepQuality.round()}/10',
+                  style: TextStyle(
+                    color: SleepColors.getSleepQualityColor(sleepQuality),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Slider(
+            value: sleepQuality,
+            min: 1,
+            max: 10,
+            divisions: 9,
+            activeColor: SleepColors.primaryGreen,
+            inactiveColor: SleepColors.textTertiary.withOpacity(0.3),
+            onChanged: (value) => setState(() => sleepQuality = value),
+          ),
+        ],
       ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
     );
+  }
+
+  Widget _buildMoodSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'How do you feel?',
+            style: TextStyle(
+              color: SleepColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: moodOptions.map((moodOption) {
+              final isSelected = mood == moodOption;
+              return ChoiceChip(
+                label: Text(moodOption),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    setState(() => mood = moodOption);
+                  }
+                },
+                selectedColor: SleepColors.primaryGreen.withOpacity(0.2),
+                backgroundColor: SleepColors.backgroundGrey,
+                labelStyle: TextStyle(
+                  color: isSelected ? SleepColors.primaryGreen : SleepColors.textSecondary,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+                side: BorderSide(
+                  color: isSelected ? SleepColors.primaryGreen : SleepColors.textTertiary.withOpacity(0.3),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotesSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Notes (Optional)',
+            style: TextStyle(
+              color: SleepColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'How was your sleep? Any observations?',
+              hintStyle: TextStyle(color: SleepColors.textTertiary),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: SleepColors.textTertiary.withOpacity(0.3)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: SleepColors.textTertiary.withOpacity(0.3)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: SleepColors.primaryGreen, width: 2),
+              ),
+              filled: true,
+              fillColor: SleepColors.backgroundGrey,
+            ),
+            style: TextStyle(color: SleepColors.textPrimary),
+            onChanged: (value) => setState(() => notes = value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    final isValid = bedtime != null && wakeTime != null;
+    
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: isValid && !isSaving ? _saveSleepSession : null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: SleepColors.primaryGreen,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 2,
+        ),
+        child: isSaving
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : const Text(
+                'Save Sleep Session',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Future<void> _saveSleepSession() async {
+    if (bedtime == null || wakeTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select both bedtime and wake time'),
+          backgroundColor: SleepColors.errorRed,
+        ),
+      );
+      return;
+    }
+
+    setState(() => isSaving = true);
+
+    try {
+      // Check for existing sleep sessions on the selected date
+      final existingSessions = await ref.read(sleepSessionsProvider.notifier).getSleepSessionsForDate(selectedDate);
+      
+      if (existingSessions.isNotEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('A sleep session already exists for this date. Please edit the existing entry instead.'),
+              backgroundColor: SleepColors.errorRed,
+            ),
+          );
+        }
+        setState(() => isSaving = false);
+        return;
+      }
+
+      // Calculate sleep duration
+      final now = DateTime.now();
+      final bedtimeDateTime = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        bedtime!.hour,
+        bedtime!.minute,
+      );
+      final wakeTimeDateTime = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        wakeTime!.hour,
+        wakeTime!.minute,
+      );
+
+      // Adjust wake time if it's before bedtime (next day)
+      final adjustedWakeTime = wakeTimeDateTime.isBefore(bedtimeDateTime)
+          ? wakeTimeDateTime.add(const Duration(days: 1))
+          : wakeTimeDateTime;
+
+      final duration = adjustedWakeTime.difference(bedtimeDateTime);
+
+      // Validate sleep duration (max 24 hours)
+      if (duration.inHours > 24) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sleep duration cannot exceed 24 hours'),
+              backgroundColor: SleepColors.errorRed,
+            ),
+          );
+        }
+        setState(() => isSaving = false);
+        return;
+      }
+
+      // Create sleep session
+      final sleepSession = SleepSession(
+        id: const Uuid().v4(),
+        startTime: bedtimeDateTime,
+        endTime: adjustedWakeTime,
+        totalDuration: duration,
+        sleepQuality: sleepQuality,
+        mood: mood,
+        environment: SleepEnvironment(
+          roomTemperature: 22.0,
+          noiseLevel: 'Low',
+          lightExposure: 'Dark',
+          screenTime: 1.0,
+          naturalLight: false,
+          ecoFriendly: false,
+          energyEfficient: false,
+        ),
+        stages: SleepStages(
+          lightSleep: Duration(hours: (duration.inHours * 0.5).round()),
+          deepSleep: Duration(hours: (duration.inHours * 0.2).round()),
+          remSleep: Duration(hours: (duration.inHours * 0.25).round()),
+          awakeTime: Duration(hours: (duration.inHours * 0.05).round()),
+        ),
+        sustainability: SleepSustainability(
+          energySaved: 0.8,
+          carbonFootprintReduction: 0.6,
+          usedEcoFriendlyBedding: true,
+          usedNaturalVentilation: true,
+          usedEnergyEfficientDevices: true,
+        ),
+        createdAt: now,
+        notes: notes,
+      );
+
+      // Save to provider
+      await ref.read(sleepSessionsProvider.notifier).addSleepSession(sleepSession);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Sleep session saved successfully!'),
+            backgroundColor: SleepColors.successGreen,
+          ),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save sleep session: $e'),
+            backgroundColor: SleepColors.errorRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isSaving = false);
+      }
+    }
   }
 }
