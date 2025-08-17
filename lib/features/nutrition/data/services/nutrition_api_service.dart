@@ -75,14 +75,11 @@ class NutritionApiService {
         rethrow;
       }
 
-      // If network error, provide better error message
+      // If network error, return mock data for testing
       if (e.toString().contains('Connection refused') ||
           e.toString().contains('Failed host lookup') ||
-          e.toString().contains('Network is unreachable') ||
-          e.toString().contains('timeout')) {
+          e.toString().contains('Network is unreachable')) {
         print('API server not available, using mock data for testing');
-        // Return mock data but also log the issue
-        print('Network error details: $e');
         return _getMockMealAnalysis();
       }
 
@@ -146,85 +143,25 @@ class NutritionApiService {
 
   // Mock meal analysis for testing when API is not available
   MealAnalysisResponse _getMockMealAnalysis() {
-    // Create a list of different mock meals for variety
-    final List<Map<String, dynamic>> mockMeals = [
-      {
-        "foodName": "Grilled Salmon with Quinoa and Vegetables",
-        "totalCalories": 650,
-        "caloriesPerIngredient": {
-          "Grilled Salmon": 280,
-          "Quinoa": 120,
-          "Broccoli": 30,
-          "Carrots": 25,
-          "Olive Oil": 195
-        },
-        "sustainability": {
-          "environmentalImpact": "low",
-          "nutritionImpact": "high",
-          "overallScore": 85,
-          "description": "Excellent choice! Wild-caught salmon is sustainable, and quinoa is a complete protein with low environmental impact."
-        },
-        "totalProtein": 45,
-        "totalCarbohydrates": 55,
-        "totalFats": 28
+    return const MealAnalysisResponse(
+      foodName: "Chicken Pesto Fusilli with Cherry Tomatoes",
+      totalCalories: 780,
+      caloriesPerIngredient: {
+        "Fusilli Pasta": 340,
+        "Grilled Chicken Breast": 192,
+        "Pesto Sauce": 237,
+        "Cherry Tomatoes": 11
       },
-      {
-        "foodName": "Vegetarian Buddha Bowl",
-        "totalCalories": 420,
-        "caloriesPerIngredient": {
-          "Brown Rice": 110,
-          "Chickpeas": 135,
-          "Avocado": 160,
-          "Mixed Greens": 15
-        },
-        "sustainability": {
-          "environmentalImpact": "low",
-          "nutritionImpact": "high",
-          "overallScore": 90,
-          "description": "Outstanding sustainability score! Plant-based meals have the lowest environmental impact and provide excellent nutrition."
-        },
-        "totalProtein": 18,
-        "totalCarbohydrates": 65,
-        "totalFats": 12
-      },
-      {
-        "foodName": "Chicken Caesar Salad",
-        "totalCalories": 580,
-        "caloriesPerIngredient": {
-          "Grilled Chicken": 250,
-          "Romaine Lettuce": 20,
-          "Caesar Dressing": 280,
-          "Croutons": 30
-        },
-        "sustainability": {
-          "environmentalImpact": "medium",
-          "nutritionImpact": "medium",
-          "overallScore": 65,
-          "description": "Good protein content, but consider using a lighter dressing to reduce calories and improve sustainability."
-        },
-        "totalProtein": 35,
-        "totalCarbohydrates": 15,
-        "totalFats": 42
-      }
-    ];
-
-    // Randomly select a mock meal
-    final random = DateTime.now().millisecondsSinceEpoch % mockMeals.length;
-    final mockMeal = mockMeals[random];
-
-    return MealAnalysisResponse(
-      foodName: mockMeal["foodName"] as String,
-      totalCalories: mockMeal["totalCalories"] as int,
-      caloriesPerIngredient: Map<String, int>.from(mockMeal["caloriesPerIngredient"] as Map),
       sustainability: SustainabilityInfo(
-        environmentalImpact: mockMeal["sustainability"]["environmentalImpact"] as String,
-        nutritionImpact: mockMeal["sustainability"]["nutritionImpact"] as String,
-        overallScore: mockMeal["sustainability"]["overallScore"] as int,
-        description: mockMeal["sustainability"]["description"] as String,
+        environmentalImpact: "medium",
+        nutritionImpact: "high",
+        overallScore: 70,
+        description:
+            "A balanced meal with good protein and energy, though the chicken and dairy in pesto contribute to a moderate environmental footprint.",
       ),
-      totalProtein: mockMeal["totalProtein"] as int,
-      totalCarbohydrates: mockMeal["totalCarbohydrates"] as int,
-      totalFats: mockMeal["totalFats"] as int,
+      totalProtein: 52,
+      totalCarbohydrates: 68,
+      totalFats: 31,
     );
   }
 
