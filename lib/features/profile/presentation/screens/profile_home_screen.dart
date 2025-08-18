@@ -1,12 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../../services/notification_service.dart';
+import '../../../sleep/presentation/theme/sleep_colors.dart';
 
-class ProfileHomeScreen extends ConsumerWidget {
+class ProfileHomeScreen extends ConsumerStatefulWidget {
   const ProfileHomeScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileHomeScreen> createState() => _ProfileHomeScreenState();
+}
+
+class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
+  final NotificationService _notificationService = NotificationService();
+  
+  bool _sustainabilityTipsEnabled = false;
+  bool _healthRemindersEnabled = false;
+  bool _notificationsAllowed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+  }
+
+  Future<void> _initializeNotifications() async {
+    await _notificationService.initialize();
+    final allowed = await _notificationService.areNotificationsEnabled();
+    
+    // Load saved notification preferences
+    final prefs = await SharedPreferences.getInstance();
+    final sustainabilityEnabled = prefs.getBool('sustainability_tips_enabled') ?? false;
+    final healthEnabled = prefs.getBool('health_reminders_enabled') ?? false;
+    
+    if (mounted) {
+      setState(() {
+        _notificationsAllowed = allowed;
+        _sustainabilityTipsEnabled = sustainabilityEnabled;
+        _healthRemindersEnabled = healthEnabled;
+      });
+    }
+  }
+
+  Future<void> _saveNotificationPreference(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final userAsyncValue = ref.watch(currentUserProvider);
     final user = userAsyncValue.value;
     print(
@@ -141,17 +184,9 @@ class ProfileHomeScreen extends ConsumerWidget {
                       color: textColor)),
             ),
             const SizedBox(height: 8),
-            _QuickSettingTile(
-              icon: Icons.notifications,
-              label: 'Notifications',
-              trailing: Switch(
-                value: true,
-                onChanged: (bool val) {},
-                activeColor: Color(0xFF38e07b),
-                inactiveTrackColor: Color(0xFFE8F2EC),
-              ),
-              onTap: null,
-            ),
+            // Notification Settings Section
+            _buildNotificationSection(),
+            const SizedBox(height: 16),
             _QuickSettingTile(
               icon: Icons.lock,
               label: 'Privacy',
@@ -216,6 +251,184 @@ class ProfileHomeScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildNotificationSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: SleepColors.surfaceGrey,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _notificationsAllowed ? SleepColors.successGreen : SleepColors.errorRed,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                _notificationsAllowed ? Icons.notifications_active : Icons.notifications_off,
+                color: _notificationsAllowed ? SleepColors.successGreen : SleepColors.errorRed,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Notification Settings',
+                style: TextStyle(
+                  color: SleepColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          if (!_notificationsAllowed) ...[
+            Text(
+              'Enable notifications to receive sustainability tips and health reminders',
+              style: TextStyle(
+                color: SleepColors.textSecondary,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final granted = await _notificationService.requestPermissions();
+                  if (granted) {
+                    setState(() => _notificationsAllowed = true);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SleepColors.primaryGreen,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Enable Notifications'),
+              ),
+            ),
+          ] else ...[
+            // Sustainability Tips
+            _buildNotificationOption(
+              title: 'Daily Sustainability Tips',
+              description: 'Get daily tips for eco-friendly living (9:00 AM)',
+              value: _sustainabilityTipsEnabled,
+              onChanged: (value) async {
+                setState(() => _sustainabilityTipsEnabled = value);
+                await _saveNotificationPreference('sustainability_tips_enabled', value);
+                if (value) {
+                  await _notificationService.scheduleDailySustainabilityTips(
+                    hour: 9,
+                    minute: 0,
+                  );
+                } else {
+                  await _notificationService.cancelNotificationsByChannel('sustainability_tips');
+                }
+              },
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Health Reminders
+            _buildNotificationOption(
+              title: 'Health Reminders',
+              description: 'Get reminded to track your health data (8:00 AM, Mon-Fri)',
+              value: _healthRemindersEnabled,
+              onChanged: (value) async {
+                setState(() => _healthRemindersEnabled = value);
+                await _saveNotificationPreference('health_reminders_enabled', value);
+                if (value) {
+                  await _notificationService.scheduleHealthReminder(
+                    title: 'Health Check-in 💚',
+                    body: 'Time to log your health data and track your wellness!',
+                    hour: 8,
+                    minute: 0,
+                    weekdays: [1, 2, 3, 4, 5], // Monday to Friday
+                  );
+                } else {
+                  await _notificationService.cancelNotificationsByChannel('health_reminders');
+                }
+              },
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Test Notification Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await _notificationService.sendTestNotification();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Test notification sent!'),
+                      backgroundColor: SleepColors.successGreen,
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SleepColors.primaryGreenDark,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Send Test Notification'),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationOption({
+    required String title,
+    required String description,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: SleepColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: TextStyle(
+                  color: SleepColors.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: SleepColors.primaryGreen,
+        ),
+      ],
     );
   }
 }

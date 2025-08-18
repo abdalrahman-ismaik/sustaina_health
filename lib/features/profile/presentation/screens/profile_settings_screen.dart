@@ -93,17 +93,6 @@ class ProfileSettingsScreen extends StatelessWidget {
               onTap: () =>
                   Navigator.of(context).pushNamed('/profile/settings/theme'),
             ),
-            _SettingsTile(
-              icon: Icons.notifications,
-              title: 'Notifications',
-              subtitle: 'Customize your notification settings',
-              trailing: Switch(
-                value: true,
-                onChanged: (bool val) {},
-                activeColor: accentColor,
-                inactiveTrackColor: tileBg,
-              ),
-            ),
             _SectionHeader(title: 'Sustainability'),
             _SettingsTile(
               icon: Icons.eco,

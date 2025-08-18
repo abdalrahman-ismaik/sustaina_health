@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
+import '../../../sleep/presentation/theme/sleep_colors.dart';
 
 class FoodLoggingScreen extends ConsumerStatefulWidget {
   const FoodLoggingScreen({Key? key}) : super(key: key);
@@ -40,13 +41,13 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF121714)),
+          icon: const Icon(Icons.arrow_back, color: SleepColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           'Food Logging',
           style: TextStyle(
-            color: Color(0xFF121714),
+            color: SleepColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -62,7 +63,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFf1f4f2),
+                color: SleepColors.surfaceGrey,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -75,7 +76,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF121714),
+                      color: SleepColors.textPrimary,
                     ),
                   ),
                   const Spacer(),
@@ -83,7 +84,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                     onPressed: () => _selectDate(context),
                     child: const Text(
                       'Change Date',
-                      style: TextStyle(color: Color(0xFF94e0b2)),
+                      style: TextStyle(color: SleepColors.primaryGreen),
                     ),
                   ),
                 ],
@@ -125,13 +126,13 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                               width: 120,
                               height: 120,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF94e0b2).withOpacity(0.1),
+                                color: SleepColors.primaryGreen.withOpacity(0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
                                 Icons.camera_alt,
                                 size: 48,
-                                color: Color(0xFF94e0b2),
+                                color: SleepColors.primaryGreen,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -140,7 +141,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF121714),
+                                color: SleepColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -160,7 +161,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF121714),
+                                color: SleepColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -176,7 +177,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                                       '/nutrition/ai-recognition?mealType=$selectedMealType');
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF94e0b2),
+                                  backgroundColor: SleepColors.primaryGreen,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -185,12 +186,12 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                                 ),
                                 icon: const Icon(
                                   Icons.camera_alt,
-                                  color: Color(0xFF121714),
+                                  color: SleepColors.textPrimary,
                                 ),
                                 label: const Text(
                                   'Start Camera Logging',
                                   style: TextStyle(
-                                    color: Color(0xFF121714),
+                                    color: SleepColors.textPrimary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -240,12 +241,12 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
-                  ? const Color(0xFF94e0b2)
-                  : const Color(0xFFf1f4f2),
+                  ? SleepColors.primaryGreen
+                  : SleepColors.surfaceGrey,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color:
-                    isSelected ? const Color(0xFF94e0b2) : Colors.transparent,
+                    isSelected ? SleepColors.primaryGreen : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -253,8 +254,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
               type.substring(0, 1).toUpperCase() + type.substring(1),
               style: TextStyle(
                 color: isSelected
-                    ? const Color(0xFF121714)
-                    : const Color(0xFF688273),
+                    ? SleepColors.textPrimary
+                    : SleepColors.textSecondary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -273,8 +274,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF94E0B2).withOpacity(0.8),
-            const Color(0xFF94E0B2).withOpacity(0.6),
+            SleepColors.primaryGreen.withOpacity(0.8),
+            SleepColors.primaryGreen.withOpacity(0.6),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -287,7 +288,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
           const Text(
             'Today\'s Progress',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: SleepColors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -302,7 +303,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                     Text(
                       '${summary.totalNutrition.calories} / ${summary.targetCalories} cal',
                       style: const TextStyle(
-                        color: Color(0xFF121714),
+                        color: SleepColors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -312,7 +313,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                       value: calorieProgress,
                       backgroundColor: Colors.white.withOpacity(0.3),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF121714)),
+                          SleepColors.textPrimary),
                     ),
                   ],
                 ),
@@ -323,7 +324,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                   Text(
                     '${summary.meals.length}',
                     style: const TextStyle(
-                      color: Color(0xFF121714),
+                      color: SleepColors.textPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -331,7 +332,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                   const Text(
                     'meals logged',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: SleepColors.textPrimary,
                       fontSize: 12,
                     ),
                   ),
@@ -390,7 +391,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF121714),
+              color: SleepColors.textPrimary,
             ),
           ),
         ),
@@ -443,7 +444,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Color(0xFF121714),
+                      color: SleepColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -528,7 +529,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.edit, color: Color(0xFF94e0b2)),
+              leading: const Icon(Icons.edit, color: SleepColors.primaryGreen),
               title: const Text('Edit Entry'),
               onTap: () {
                 Navigator.pop(context);
@@ -559,7 +560,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${entry.foodName} deleted from log'),
-        backgroundColor: const Color(0xFF94e0b2),
+        backgroundColor: SleepColors.primaryGreen,
       ),
     );
   }

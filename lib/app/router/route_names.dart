@@ -47,6 +47,7 @@ class RouteNames {
 
   // Supporting Routes
   static const String notifications = '/notifications';
+  static const String notificationSettings = '/notification-settings';
   static const String help = '/help';
   static const String privacy = '/privacy';
   static const String terms = '/terms';

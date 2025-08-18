@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../sleep/presentation/theme/sleep_colors.dart';
 
 class AIMealPlanGeneratorScreen extends ConsumerStatefulWidget {
   const AIMealPlanGeneratorScreen({Key? key}) : super(key: key);
@@ -109,18 +110,18 @@ class _AIMealPlanGeneratorScreenState
     final apiHealthState = ref.watch(nutritionApiHealthProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: SleepColors.backgroundGrey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: SleepColors.surfaceGrey,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF121714)),
+          icon: const Icon(Icons.arrow_back, color: SleepColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           'AI Meal Plan Generator',
           style: TextStyle(
-            color: Color(0xFF121714),
+            color: SleepColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -160,16 +161,32 @@ class _AIMealPlanGeneratorScreenState
                 onSexChanged: (sex) => setState(() => _selectedSex = sex),
                 onDurationDaysChanged: (days) =>
                     setState(() => _durationDays = days),
+                onDietaryRestrictionAdded: (restriction) => setState(() {
+                  if (!_selectedDietaryRestrictions.contains(restriction)) {
+                    _selectedDietaryRestrictions.add(restriction);
+                  }
+                }),
+                onDietaryRestrictionRemoved: (restriction) => setState(() {
+                  _selectedDietaryRestrictions.remove(restriction);
+                }),
+                onAllergyAdded: (allergy) => setState(() {
+                  if (!_selectedAllergies.contains(allergy)) {
+                    _selectedAllergies.add(allergy);
+                  }
+                }),
+                onAllergyRemoved: (allergy) => setState(() {
+                  _selectedAllergies.remove(allergy);
+                }),
                 onGenerateMealPlan: _generateMealPlan,
               ),
         loading: () => const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(color: Color(0xFF94e0b2)),
+              CircularProgressIndicator(color: SleepColors.primaryGreen),
               SizedBox(height: 16),
               Text('Generating your personalized meal plan...',
-                  style: TextStyle(fontSize: 16, color: Color(0xFF688273))),
+                  style: TextStyle(fontSize: 16, color: SleepColors.textSecondary)),
             ],
           ),
         ),
@@ -219,6 +236,10 @@ class _MealPlanForm extends StatelessWidget {
   final Function(String) onActivityLevelChanged;
   final Function(String) onSexChanged;
   final Function(int) onDurationDaysChanged;
+  final Function(String) onDietaryRestrictionAdded;
+  final Function(String) onDietaryRestrictionRemoved;
+  final Function(String) onAllergyAdded;
+  final Function(String) onAllergyRemoved;
   final VoidCallback onGenerateMealPlan;
 
   const _MealPlanForm({
@@ -243,6 +264,10 @@ class _MealPlanForm extends StatelessWidget {
     required this.onActivityLevelChanged,
     required this.onSexChanged,
     required this.onDurationDaysChanged,
+    required this.onDietaryRestrictionAdded,
+    required this.onDietaryRestrictionRemoved,
+    required this.onAllergyAdded,
+    required this.onAllergyRemoved,
     required this.onGenerateMealPlan,
     Key? key,
   }) : super(key: key);
@@ -302,7 +327,7 @@ class _MealPlanForm extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF121714),
+                color: SleepColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -319,7 +344,7 @@ class _MealPlanForm extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF121714),
+                          color: SleepColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -327,7 +352,7 @@ class _MealPlanForm extends StatelessWidget {
                         controller: weightController,
                         keyboardType: TextInputType.number,
                         style: const TextStyle(
-                          color: Color(0xFF121714),
+                          color: SleepColors.textPrimary,
                         ),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -348,7 +373,7 @@ class _MealPlanForm extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF121714),
+                          color: SleepColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -356,7 +381,7 @@ class _MealPlanForm extends StatelessWidget {
                         controller: heightController,
                         keyboardType: TextInputType.number,
                         style: const TextStyle(
-                          color: Color(0xFF121714),
+                          color: SleepColors.textPrimary,
                         ),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -377,7 +402,7 @@ class _MealPlanForm extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF121714),
+                          color: SleepColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -385,7 +410,7 @@ class _MealPlanForm extends StatelessWidget {
                         controller: ageController,
                         keyboardType: TextInputType.number,
                         style: const TextStyle(
-                          color: Color(0xFF121714),
+                          color: SleepColors.textPrimary,
                         ),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -406,7 +431,7 @@ class _MealPlanForm extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF121714),
+                color: SleepColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -433,7 +458,7 @@ class _MealPlanForm extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF121714),
+                color: SleepColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -461,7 +486,7 @@ class _MealPlanForm extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF121714),
+                color: SleepColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -472,8 +497,8 @@ class _MealPlanForm extends StatelessWidget {
                         label: Text(goal.replaceAll('_', ' ').toUpperCase()),
                         selected: selectedGoal == goal,
                         onSelected: (selected) => onGoalChanged(goal),
-                        backgroundColor: const Color(0xFFf1f4f2),
-                        selectedColor: const Color(0xFF94e0b2),
+                        backgroundColor: SleepColors.surfaceGrey,
+                        selectedColor: SleepColors.primaryGreen,
                       ))
                   .toList(),
             ),
@@ -485,7 +510,7 @@ class _MealPlanForm extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF121714),
+                color: SleepColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -496,8 +521,73 @@ class _MealPlanForm extends StatelessWidget {
                         label: Text(level.replaceAll('_', ' ').toUpperCase()),
                         selected: selectedActivityLevel == level,
                         onSelected: (selected) => onActivityLevelChanged(level),
-                        backgroundColor: const Color(0xFFf1f4f2),
-                        selectedColor: const Color(0xFF94e0b2),
+                        backgroundColor: SleepColors.surfaceGrey,
+                        selectedColor: SleepColors.primaryGreen,
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 16),
+
+            // Dietary Preferences
+            const Text(
+              'Dietary Preferences',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: SleepColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: dietaryRestrictionOptions
+                  .map((restriction) => FilterChip(
+                        label: Text(
+                            restriction.replaceAll('_', ' ').toUpperCase()),
+                        selected:
+                            selectedDietaryRestrictions.contains(restriction),
+                        onSelected: (selected) {
+                          if (selected) {
+                            onDietaryRestrictionAdded(restriction);
+                          } else {
+                            onDietaryRestrictionRemoved(restriction);
+                          }
+                        },
+                        backgroundColor: SleepColors.surfaceGrey,
+                        selectedColor: SleepColors.primaryGreen,
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 16),
+
+            // Food Intolerance/Allergies
+            const Text(
+              'Food Allergies & Intolerances',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: SleepColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: allergyOptions
+                  .map((allergy) => FilterChip(
+                        label: Text(allergy.replaceAll('_', ' ').toUpperCase()),
+                        selected: selectedAllergies.contains(allergy),
+                        onSelected: (selected) {
+                          if (selected) {
+                            onAllergyAdded(allergy);
+                          } else {
+                            onAllergyRemoved(allergy);
+                          }
+                        },
+                        backgroundColor: SleepColors.surfaceGrey,
+                        selectedColor:
+                            SleepColors.errorRed, // Red color for allergies
                       ))
                   .toList(),
             ),
@@ -509,7 +599,7 @@ class _MealPlanForm extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onGenerateMealPlan,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF94e0b2),
+                  backgroundColor: SleepColors.primaryGreen,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -520,7 +610,7 @@ class _MealPlanForm extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF121714),
+                    color: SleepColors.textPrimary,
                   ),
                 ),
               ),
@@ -554,9 +644,9 @@ class _MealPlanResult extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF94e0b2).withOpacity(0.2),
+                color: SleepColors.primaryGreen.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF94e0b2)),
+                border: Border.all(color: SleepColors.primaryGreen),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,7 +656,7 @@ class _MealPlanResult extends ConsumerWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF121714),
+                      color: SleepColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -582,7 +672,7 @@ class _MealPlanResult extends ConsumerWidget {
                       '${mealPlan.dailyMealPlans.first.dailyMacros.carbohydrates}g carbs | '
                       '${mealPlan.dailyMealPlans.first.dailyMacros.fat}g fat',
                       style: const TextStyle(
-                          fontSize: 14, color: Color(0xFF688273)),
+                          fontSize: 14, color: SleepColors.textSecondary),
                     ),
                 ],
               ),
@@ -600,13 +690,13 @@ class _MealPlanResult extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: onEdit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFf1f4f2),
+                      backgroundColor: SleepColors.surfaceGrey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
                     child: const Text('Generate New Plan',
-                        style: TextStyle(color: Color(0xFF121714))),
+                        style: TextStyle(color: SleepColors.textPrimary)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -614,13 +704,13 @@ class _MealPlanResult extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: () => _saveMealPlan(context, ref),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF94e0b2),
+                      backgroundColor: SleepColors.primaryGreen,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
                     child: const Text('Save Plan',
-                        style: TextStyle(color: Color(0xFF121714))),
+                        style: TextStyle(color: SleepColors.textPrimary)),
                   ),
                 ),
               ],
@@ -646,14 +736,14 @@ class _MealPlanResult extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF121714),
+                  color: SleepColors.textPrimary,
                 ),
               ),
               Text(
                 '${dailyPlan.totalDailyCalories} calories total',
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF688273),
+                  color: SleepColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -673,7 +763,7 @@ class _MealPlanResult extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF121714),
+                    color: SleepColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -693,7 +783,7 @@ class _MealPlanResult extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFf1f4f2),
+        color: SleepColors.surfaceGrey,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -707,7 +797,7 @@ class _MealPlanResult extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF688273),
+                  color: SleepColors.textSecondary,
                 ),
               ),
               Text(
@@ -715,7 +805,7 @@ class _MealPlanResult extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF688273),
+                  color: SleepColors.textSecondary,
                 ),
               ),
             ],
@@ -726,7 +816,7 @@ class _MealPlanResult extends ConsumerWidget {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF121714),
+              color: SleepColors.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
@@ -734,7 +824,7 @@ class _MealPlanResult extends ConsumerWidget {
             'Calories: ${meal.calories} | ${meal.ingredients.length} ingredients',
             style: const TextStyle(
               fontSize: 12,
-              color: Color(0xFF688273),
+              color: SleepColors.textSecondary,
             ),
           ),
           const SizedBox(height: 4),
@@ -742,7 +832,7 @@ class _MealPlanResult extends ConsumerWidget {
             'Ingredients: ${meal.ingredients.map((ingredient) => '${ingredient.ingredient} (${ingredient.quantity})').join(", ")}',
             style: const TextStyle(
               fontSize: 12,
-              color: Color(0xFF688273),
+              color: SleepColors.textSecondary,
             ),
           ),
         ],
@@ -772,7 +862,7 @@ class _MealPlanResult extends ConsumerWidget {
           title: const Text(
             'Save Meal Plan',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: SleepColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -781,13 +871,13 @@ class _MealPlanResult extends ConsumerWidget {
             children: [
               const Text(
                 'Give your meal plan a name:',
-                style: TextStyle(color: Color(0xFF121714)),
+                style: TextStyle(color: SleepColors.textPrimary),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
                 style: const TextStyle(
-                  color: Color(0xFF121714),
+                  color: SleepColors.textPrimary,
                 ),
                 decoration: InputDecoration(
                   hintText: 'e.g., "7-Day Healthy Eating Plan"',
@@ -796,7 +886,7 @@ class _MealPlanResult extends ConsumerWidget {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFF94e0b2)),
+                    borderSide: const BorderSide(color: SleepColors.primaryGreen),
                   ),
                 ),
                 textCapitalization: TextCapitalization.words,
@@ -827,7 +917,7 @@ class _MealPlanResult extends ConsumerWidget {
                 Navigator.of(context).pop(planName);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94e0b2),
+                backgroundColor: SleepColors.primaryGreen,
               ),
               child: const Text(
                 'Save',
@@ -849,7 +939,7 @@ class _MealPlanResult extends ConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Meal plan "$name" saved successfully!'),
-              backgroundColor: const Color(0xFF94e0b2),
+              backgroundColor: SleepColors.primaryGreen,
             ),
           );
         }

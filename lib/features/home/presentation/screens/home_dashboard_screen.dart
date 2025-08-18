@@ -10,7 +10,7 @@ class HomeDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsyncValue = ref.watch(currentUserProvider);
     final user = userAsyncValue.value;
-    
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -21,35 +21,35 @@ class HomeDashboardScreen extends ConsumerWidget {
               // Header
               _buildHeader(context, user),
               const SizedBox(height: 32),
-              
+
               // Quick Access Features
               Text(
                 'Quick Access',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 16),
               _buildQuickAccessGrid(context),
               const SizedBox(height: 32),
-              
+
               // Today's Focus
               Text(
                 'Today\'s Focus',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 16),
               _buildTodaysFocusCard(context),
               const SizedBox(height: 32),
-              
+
               // Implementation Status
               Text(
                 'Features Status',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 16),
               _buildImplementationStatus(context),
@@ -83,7 +83,8 @@ class HomeDashboardScreen extends ConsumerWidget {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+            backgroundColor:
+                Theme.of(context).colorScheme.primary.withOpacity(0.2),
             child: Icon(
               Icons.eco_outlined,
               size: 32,
@@ -98,22 +99,25 @@ class HomeDashboardScreen extends ConsumerWidget {
                 Text(
                   'Welcome back,',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  ),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.7),
+                      ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   user?.displayName?.split(' ').first ?? 'User',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Ready for a sustainable day?',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                 ),
               ],
             ),
@@ -172,9 +176,10 @@ class HomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActionCard(BuildContext context, Map<String, dynamic> action) {
+  Widget _buildQuickActionCard(
+      BuildContext context, Map<String, dynamic> action) {
     final bool isImplemented = action['implemented'] as bool;
-    
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -186,9 +191,8 @@ class HomeDashboardScreen extends ConsumerWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: isImplemented 
-          ? () => context.go(action['route'] as String)
-          : null,
+        onTap:
+            isImplemented ? () => context.go(action['route'] as String) : null,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -197,53 +201,75 @@ class HomeDashboardScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isImplemented 
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                  color: isImplemented
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   action['icon'] as IconData,
                   size: 28,
-                  color: isImplemented 
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  color: isImplemented
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.5),
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 action['title'] as String,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: isImplemented 
-                    ? null 
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                ),
+                      fontWeight: FontWeight.w600,
+                      color: isImplemented
+                          ? null
+                          : Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.5),
+                    ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
                 action['subtitle'] as String,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: isImplemented 
-                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                ),
+                      color: isImplemented
+                          ? Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.7)
+                          : Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.4),
+                    ),
                 textAlign: TextAlign.center,
               ),
               if (!isImplemented) ...[
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'Coming Soon',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                    ),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.6),
+                        ),
                   ),
                 ),
               ],
@@ -291,9 +317,9 @@ class HomeDashboardScreen extends ConsumerWidget {
                 Text(
                   'Sustainability Goal',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                 ),
               ],
             ),
@@ -301,8 +327,8 @@ class HomeDashboardScreen extends ConsumerWidget {
             Text(
               'Start your journey towards a healthier you and a healthier planet. Track your daily activities and see your positive impact grow.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                height: 1.4,
-              ),
+                    height: 1.4,
+                  ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -377,13 +403,15 @@ class HomeDashboardScreen extends ConsumerWidget {
     ];
 
     return Column(
-      children: features.map((feature) => _buildStatusItem(context, feature)).toList(),
+      children: features
+          .map((feature) => _buildStatusItem(context, feature))
+          .toList(),
     );
   }
 
   Widget _buildStatusItem(BuildContext context, Map<String, dynamic> feature) {
     final bool isImplemented = feature['status'] == 'Implemented';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -391,9 +419,9 @@ class HomeDashboardScreen extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isImplemented 
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-            : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+          color: isImplemented
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+              : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
           width: 1,
         ),
       ),
@@ -415,20 +443,29 @@ class HomeDashboardScreen extends ConsumerWidget {
                 Text(
                   feature['name'] as String,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isImplemented 
-                      ? null 
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  ),
+                        fontWeight: FontWeight.w600,
+                        color: isImplemented
+                            ? null
+                            : Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.7),
+                      ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   feature['description'] as String,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isImplemented 
-                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                  ),
+                        color: isImplemented
+                            ? Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.7)
+                            : Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.5),
+                      ),
                 ),
               ],
             ),
@@ -436,19 +473,22 @@ class HomeDashboardScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: isImplemented 
-                ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                : Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+              color: isImplemented
+                  ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               feature['status'] as String,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: isImplemented 
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                fontWeight: FontWeight.w500,
-              ),
+                    color: isImplemented
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
         ],

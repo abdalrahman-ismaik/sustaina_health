@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/sleep_colors.dart';
-import '../../data/models/sleep_models.dart';
 
 class SleepStatsCard extends ConsumerWidget {
   final String title;

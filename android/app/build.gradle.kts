@@ -17,6 +17,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
+    // Core library desugaring for flutter_local_notifications
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
 }
@@ -29,7 +32,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-        // Removed core library desugaring since flutter_local_notifications was removed
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -41,7 +44,7 @@ android {
         applicationId = "com.example.sustaina_health"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23  // Required for Firebase Auth (minimum 23)
+        minSdk = 24  // Required for flutter_local_notifications
         targetSdk = 34  // Keep at 34 for stability, compileSdk 35 for compatibility
         versionCode = flutter.versionCode
         versionName = flutter.versionName

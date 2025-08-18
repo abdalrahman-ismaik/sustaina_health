@@ -4,8 +4,10 @@ import 'workout_history_screen.dart';
 import 'ai_workout_generator_screen.dart';
 import 'saved_workout_plans_screen.dart';
 import 'my_workouts_screen.dart';
+import '../../../sleep/presentation/theme/sleep_colors.dart';
 import 'completed_workout_detail_screen.dart';
 import '../providers/workout_providers.dart';
+import '../../data/models/workout_models.dart';
 import '../../../../app/theme/exercise_colors.dart';
 
 class ExerciseHomeScreen extends ConsumerWidget {
@@ -13,6 +15,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
+
     return Scaffold(
       backgroundColor: ExerciseColors.backgroundLight,
       body: SafeArea(
@@ -41,7 +45,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.help_outline, color: ExerciseColors.textPrimary),
+                    icon: Icon(Icons.help_outline,
+                        color: ExerciseColors.textPrimary),
                     onPressed: () => _showExerciseGuide(context),
                   ),
                 ],
@@ -87,44 +92,108 @@ class ExerciseHomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                const MyWorkoutsScreen()),
-                      );
-                    },
-                    child: _StatCard(title: 'Current Streak', value: '5 days'),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                const WorkoutHistoryScreen()),
-                      );
-                    },
-                    child: _StatCard(
-                        title: 'Calories Burned Today', value: '350 kcal'),
-                  ),
-                ],
+            // Dynamic Stats from completed workouts
+            completedWorkoutsAsync.when(
+              loading: () => Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Expanded(child: _LoadingStatCard()),
+                    const SizedBox(width: 8),
+                    Expanded(child: _LoadingStatCard()),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: <Widget>[
-                  _StatCard(title: 'Sustainability Score', value: '85/100'),
-                  const SizedBox(width: 8),
-                  _StatCard(title: 'Workout Duration', value: '45 min'),
+              error: (error, stack) => Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  const MyWorkoutsScreen()),
+                        );
+                      },
+                      child:
+                          _StatCard(title: 'Current Streak', value: '0 days'),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  const WorkoutHistoryScreen()),
+                        );
+                      },
+                      child: _StatCard(
+                          title: 'Calories Burned Today', value: '0 kcal'),
+                    ),
+                  ],
+                ),
+              ),
+              data: (completedWorkouts) => Column(
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      const MyWorkoutsScreen()),
+                            );
+                          },
+                          child: _StatCard(
+                              title: 'Current Streak',
+                              value:
+                                  _calculateCurrentStreak(completedWorkouts)),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      const WorkoutHistoryScreen()),
+                            );
+                          },
+                          child: _StatCard(
+                              title: 'Calories Burned Today',
+                              value:
+                                  '${_calculateCaloriesToday(completedWorkouts)} kcal'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: <Widget>[
+                        _StatCard(
+                            title: 'Total Workouts',
+                            value:
+                                '${_calculateTotalWorkouts(completedWorkouts)}'),
+                        const SizedBox(width: 8),
+                        _StatCard(
+                            title: 'Avg Duration',
+                            value: _calculateAverageWorkoutDuration(
+                                completedWorkouts)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -407,7 +476,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                               children: [
                                 const Icon(
                                   Icons.arrow_forward,
-                                  color: Color(0xFF94E0B2),
+                                  color: SleepColors.primaryGreen,
                                   size: 24,
                                 ),
                                 const SizedBox(height: 8),
@@ -415,7 +484,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                   'View All\n(${workouts.length})',
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
-                                    color: Color(0xFF94E0B2),
+                                    color: SleepColors.primaryGreen,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 12,
                                   ),
@@ -465,7 +534,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
-                                        color: Color(0xFF121714),
+                                        color: SleepColors.textPrimary,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -497,13 +566,13 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color:
-                                      const Color(0xFF94E0B2).withOpacity(0.1),
+                                      SleepColors.primaryGreen.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Text(
                                   'Start',
                                   style: TextStyle(
-                                    color: Color(0xFF94E0B2),
+                                    color: SleepColors.primaryGreen,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -575,7 +644,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       Text(
                         'No completed workouts yet',
                         style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: SleepColors.textPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                         ),
@@ -646,7 +715,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       const Text(
                         'Workouts in progress',
                         style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: SleepColors.textPrimary,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                         ),
@@ -749,7 +818,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
-                                  color: Color(0xFF121714),
+                                  color: SleepColors.textPrimary,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -957,6 +1026,118 @@ class _CategoryCard extends StatelessWidget {
   }
 }
 
+// Helper methods to calculate dynamic stats from completed workouts
+String _calculateCurrentStreak(List<ActiveWorkoutSession> completedWorkouts) {
+  if (completedWorkouts.isEmpty) return '0 days';
+
+  // Sort workouts by date (most recent first)
+  final sortedWorkouts = completedWorkouts
+      .where((w) => w.isCompleted && w.endTime != null)
+      .toList()
+    ..sort((a, b) => b.endTime!.compareTo(a.endTime!));
+
+  if (sortedWorkouts.isEmpty) return '0 days';
+
+  int streak = 0;
+  DateTime currentDate = DateTime.now();
+
+  for (final workout in sortedWorkouts) {
+    final workoutDate = workout.endTime!;
+    final daysDifference = currentDate.difference(workoutDate).inDays;
+
+    if (daysDifference <= 1) {
+      // Workout was today or yesterday
+      streak++;
+      currentDate = workoutDate;
+    } else {
+      // Gap in workouts, streak is broken
+      break;
+    }
+  }
+
+  return '$streak day${streak != 1 ? 's' : ''}';
+}
+
+int _calculateCaloriesToday(List<ActiveWorkoutSession> completedWorkouts) {
+  final today = DateTime.now();
+  final todayWorkouts = completedWorkouts.where((w) =>
+      w.isCompleted &&
+      w.endTime != null &&
+      w.endTime!.day == today.day &&
+      w.endTime!.month == today.month &&
+      w.endTime!.year == today.year);
+
+  // Estimate calories based on workout duration
+  // Rough estimate: 4-10 calories per minute of workout
+  int totalCalories = 0;
+  for (final workout in todayWorkouts) {
+    final durationMinutes = workout.totalDuration.inMinutes;
+    totalCalories +=
+        (durationMinutes * 6).round(); // 6 calories per minute average
+  }
+
+  return totalCalories;
+}
+
+String _calculateAverageWorkoutDuration(
+    List<ActiveWorkoutSession> completedWorkouts) {
+  final recentWorkouts = completedWorkouts
+      .where((w) => w.isCompleted && w.totalDuration.inMinutes > 0)
+      .take(10) // Last 10 workouts
+      .toList();
+
+  if (recentWorkouts.isEmpty) return '0 min';
+
+  final totalMinutes = recentWorkouts
+      .map((w) => w.totalDuration.inMinutes)
+      .reduce((a, b) => a + b);
+
+  final averageMinutes = totalMinutes ~/ recentWorkouts.length;
+  return '$averageMinutes min';
+}
+
+int _calculateTotalWorkouts(List<ActiveWorkoutSession> completedWorkouts) {
+  return completedWorkouts.where((w) => w.isCompleted).length;
+}
+
+class _LoadingStatCard extends StatelessWidget {
+  const _LoadingStatCard({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ExerciseColors.cardBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ExerciseColors.borderLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 12,
+            width: 60,
+            decoration: BoxDecoration(
+              color: ExerciseColors.borderLight,
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 20,
+            width: 40,
+            decoration: BoxDecoration(
+              color: ExerciseColors.borderLight,
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 void _showExerciseGuide(BuildContext context) {
   showDialog(
     context: context,
@@ -975,7 +1156,8 @@ void _showExerciseGuide(BuildContext context) {
               SizedBox(height: 16),
               Text('🏋️ AI Workout Generator'),
               Text('• Generate personalized workout plans based on your goals'),
-              Text('• Choose from different workout types and difficulty levels'),
+              Text(
+                  '• Choose from different workout types and difficulty levels'),
               Text('• Get AI-powered recommendations for your fitness journey'),
               SizedBox(height: 8),
               Text('📊 Workout History'),

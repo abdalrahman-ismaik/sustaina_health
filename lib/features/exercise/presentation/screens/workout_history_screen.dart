@@ -124,30 +124,61 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
     switch (_selectedTab) {
       case 'This Week':
-        final weekStart = now.subtract(Duration(days: now.weekday - 1));
-        return workouts
+        // Calculate start of current week (Monday 00:00:00)
+        final weekStart = DateTime(now.year, now.month, now.day)
+            .subtract(Duration(days: now.weekday - 1));
+
+        print('DEBUG: Filtering for This Week');
+        print('DEBUG: Current date: $now');
+        print('DEBUG: Week start: $weekStart');
+        print('DEBUG: Total workouts to filter: ${workouts.length}');
+
+        final filteredWorkouts = workouts
             .where((w) =>
                 w.isCompleted &&
                 w.endTime != null &&
-                w.endTime!.isAfter(weekStart))
+                w.endTime!.isAfter(weekStart.subtract(Duration(seconds: 1))))
             .toList()
           ..sort((a, b) => b.endTime!.compareTo(a.endTime!));
+
+        print(
+            'DEBUG: Workouts after This Week filter: ${filteredWorkouts.length}');
+        for (final workout in filteredWorkouts) {
+          print(
+              'DEBUG: Workout: ${workout.workoutName} completed at ${workout.endTime}');
+        }
+
+        return filteredWorkouts;
 
       case 'This Month':
         final monthStart = DateTime(now.year, now.month, 1);
-        return workouts
+
+        print('DEBUG: Filtering for This Month');
+        print('DEBUG: Month start: $monthStart');
+
+        final filteredWorkouts = workouts
             .where((w) =>
                 w.isCompleted &&
                 w.endTime != null &&
-                w.endTime!.isAfter(monthStart))
+                w.endTime!.isAfter(monthStart.subtract(Duration(seconds: 1))))
             .toList()
           ..sort((a, b) => b.endTime!.compareTo(a.endTime!));
 
+        print(
+            'DEBUG: Workouts after This Month filter: ${filteredWorkouts.length}');
+
+        return filteredWorkouts;
+
       default: // All
-        return workouts
+        print('DEBUG: Showing all workouts');
+        final filteredWorkouts = workouts
             .where((w) => w.isCompleted && w.endTime != null)
             .toList()
           ..sort((a, b) => b.endTime!.compareTo(a.endTime!));
+
+        print('DEBUG: Total completed workouts: ${filteredWorkouts.length}');
+
+        return filteredWorkouts;
     }
   }
 

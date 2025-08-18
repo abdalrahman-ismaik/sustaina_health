@@ -9,7 +9,10 @@ class SleepColors {
   static const Color accentGreen = Color(0xFF66BB6A);
   
   static const Color secondaryBlue = Color(0xFF1976D2);
+  static const Color primaryBlue = Color(0xFF1976D2);
+  static const Color primaryIndigo = Color(0xFF3F51B5);
   static const Color backgroundGrey = Color(0xFFF8F9FA);
+  static const Color backgroundMedium = Color(0xFFE8F5E8);
   static const Color surfaceGrey = Color(0xFFFFFFFF);
   static const Color onSurfaceGrey = Color(0xFF2E2E2E);
   
@@ -29,6 +32,8 @@ class SleepColors {
   static const Color sleepBlue = Color(0xFF1976D2);
   static const Color sleepPurple = Color(0xFF7B1FA2);
   static const Color sleepTeal = Color(0xFF00796B);
+  static const Color accentPurple = Color(0xFF7B1FA2);
+  static const Color accentTeal = Color(0xFF00796B);
 
   /// Get sleep quality color based on score (0-10)
   static Color getSleepQualityColor(double score) {

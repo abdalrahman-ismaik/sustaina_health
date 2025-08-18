@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/workout_models.dart';
 import '../providers/workout_providers.dart';
 import '../../../../app/theme/exercise_colors.dart';
+import '../../../sleep/presentation/theme/sleep_colors.dart';
 
 class ActiveWorkoutScreen extends ConsumerStatefulWidget {
   final ActiveWorkoutSession workoutSession;
@@ -44,6 +45,75 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             'Exercise $i: ${exercise.name}, rest: ${exercise.restTime}, sets: ${exercise.sets.length}');
       }
     }
+  }
+
+  // Helper method to determine if an exercise is duration-based
+  bool _isDurationBasedExercise(String exerciseName, String reps) {
+    // Check if exercise name contains duration-based keywords
+    final durationKeywords = [
+      'plank',
+      'hold',
+      'run',
+      'walk',
+      'jog',
+      'cycle',
+      'swim',
+      'cardio',
+      'bridge',
+      'wall sit',
+      'mountain climber',
+      'burpee',
+      'jumping jack'
+    ];
+
+    final nameLower = exerciseName.toLowerCase();
+    final repsLower = reps.toLowerCase();
+
+    // Check if the exercise name contains duration keywords
+    if (durationKeywords.any((keyword) => nameLower.contains(keyword))) {
+      return true;
+    }
+
+    // Check if reps field contains time indicators
+    if (repsLower.contains('sec') ||
+        repsLower.contains('min') ||
+        repsLower.contains('time') ||
+        repsLower.contains('hold') ||
+        repsLower.contains('duration')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Helper method to determine if an exercise is typically bodyweight-only
+  bool _isBodyweightExercise(String exerciseName) {
+    final bodyweightKeywords = [
+      'push up',
+      'pull up',
+      'pushup',
+      'pullup',
+      'sit up',
+      'situp',
+      'plank',
+      'burpee',
+      'jumping jack',
+      'mountain climber',
+      'bodyweight',
+      'calisthenic',
+      'air squat',
+      'lunge',
+      'dip',
+      'chin up',
+      'chinup',
+      'crunch',
+      'leg raise',
+      'pike',
+      'bridge'
+    ];
+
+    final nameLower = exerciseName.toLowerCase();
+    return bodyweightKeywords.any((keyword) => nameLower.contains(keyword));
   }
 
   void _addSet(int exerciseIndex, int reps, double? weight) async {
@@ -88,6 +158,51 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     }
   }
 
+  // Overloaded method for duration-based exercises
+  void _addSetWithDuration(
+      int exerciseIndex, int duration, double? weight) async {
+    if (exerciseIndex < 0 || exerciseIndex >= _exercises.length) {
+      print('ERROR: Invalid exercise index: $exerciseIndex');
+      return;
+    }
+
+    try {
+      setState(() {
+        final exercise = _exercises[exerciseIndex];
+        final newSet = ExerciseSet(
+          reps: 1, // For duration exercises, reps is typically 1
+          weight: weight,
+          duration: duration, // Duration in seconds
+          completedAt: DateTime.now(),
+        );
+
+        _exercises[exerciseIndex] = exercise.copyWith(
+          sets: [...exercise.sets, newSet],
+        );
+      });
+
+      // Update the provider with the new set data
+      final updatedSession = widget.workoutSession.copyWith(
+        exercises: _exercises,
+      );
+
+      // Update the provider's state
+      ref
+          .read(activeWorkoutSessionProvider.notifier)
+          .setActiveSession(updatedSession);
+
+      print('Duration set added and saved successfully');
+    } catch (e) {
+      print('Error adding duration set: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save duration set: $e'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+  }
+
   Future<void> _finishWorkout() async {
     // Check if user has completed at least one set
     final hasCompletedSets =
@@ -112,7 +227,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
           title: const Text(
             'Finish Workout',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: SleepColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -122,7 +237,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             children: [
               Text(
                 'Are you sure you want to finish this workout?',
-                style: TextStyle(color: Color(0xFF121714)),
+                style: TextStyle(color: SleepColors.textPrimary),
               ),
               SizedBox(height: 8),
               Text(
@@ -145,7 +260,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94E0B2),
+                backgroundColor: SleepColors.primaryGreen,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -153,7 +268,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
               child: const Text(
                 'Finish',
                 style: TextStyle(
-                  color: Color(0xFF121714),
+                  color: SleepColors.textPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -213,7 +328,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Workout completed and saved successfully! 🎉'),
-            backgroundColor: Color(0xFF94E0B2),
+            backgroundColor: SleepColors.primaryGreen,
           ),
         );
 
@@ -245,7 +360,13 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       return;
     }
 
-    final TextEditingController repsController = TextEditingController();
+    final exercise = _exercises[exerciseIndex];
+
+    // Try to get original exercise data to determine if it's duration-based
+    // For now, we'll use the exercise name to detect duration-based exercises
+    final isDurationBased = _isDurationBasedExercise(exercise.name, '');
+
+    final TextEditingController primaryController = TextEditingController();
     final TextEditingController weightController = TextEditingController();
 
     showDialog(
@@ -253,9 +374,9 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Add Set for ${_exercises[exerciseIndex].name}',
+            'Add Set for ${exercise.name}',
             style: const TextStyle(
-              color: Color(0xFF121714),
+              color: SleepColors.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -263,34 +384,36 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: repsController,
+                controller: primaryController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: 'Reps',
+                  labelText: isDurationBased ? 'Duration (seconds)' : 'Reps',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFF94E0B2)),
+                    borderSide: const BorderSide(color: SleepColors.primaryGreen),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: weightController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: 'Weight (kg) - Optional',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFF94E0B2)),
+              // Only show weight field for exercises that typically use weights
+              if (!_isBodyweightExercise(exercise.name))
+                TextField(
+                  controller: weightController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: 'Weight (kg) - Optional',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: SleepColors.primaryGreen),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           actions: [
@@ -303,11 +426,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                final reps = int.tryParse(repsController.text);
-                if (reps == null || reps <= 0) {
+                final primaryValue = int.tryParse(primaryController.text);
+                if (primaryValue == null || primaryValue <= 0) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter valid reps'),
+                    SnackBar(
+                      content: Text(
+                          'Please enter valid ${isDurationBased ? 'duration' : 'reps'}'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -318,19 +442,25 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                     ? double.tryParse(weightController.text)
                     : null;
 
-                _addSet(exerciseIndex, reps, weight);
+                if (isDurationBased) {
+                  _addSetWithDuration(exerciseIndex, primaryValue, weight);
+                } else {
+                  _addSet(exerciseIndex, primaryValue, weight);
+                }
+
                 Navigator.of(context).pop();
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
-                        'Set added: $reps reps${weight != null ? " @ ${weight}kg" : ""}'),
-                    backgroundColor: const Color(0xFF94E0B2),
+                    content: Text(isDurationBased
+                        ? 'Set added: ${primaryValue}s${weight != null ? " @ ${weight}kg" : ""}'
+                        : 'Set added: $primaryValue reps${weight != null ? " @ ${weight}kg" : ""}'),
+                    backgroundColor: SleepColors.primaryGreen,
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94E0B2),
+                backgroundColor: SleepColors.primaryGreen,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -338,7 +468,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
               child: const Text(
                 'Add Set',
                 style: TextStyle(
-                  color: Color(0xFF121714),
+                  color: SleepColors.textPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -513,7 +643,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFF121714),
+                                      color: SleepColors.textPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -525,15 +655,17 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                                       margin: const EdgeInsets.only(bottom: 4),
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF94E0B2)
+                                        color: SleepColors.primaryGreen
                                             .withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
-                                        'Set $setIndex: ${set.reps} reps${set.weight != null ? " @ ${set.weight}kg" : ""}',
+                                        set.duration != null
+                                            ? 'Set $setIndex: ${set.duration}s${set.weight != null ? " @ ${set.weight}kg" : ""}'
+                                            : 'Set $setIndex: ${set.reps} reps${set.weight != null ? " @ ${set.weight}kg" : ""}',
                                         style: const TextStyle(
                                           fontSize: 13,
-                                          color: Color(0xFF121714),
+                                          color: SleepColors.textPrimary,
                                         ),
                                       ),
                                     );
