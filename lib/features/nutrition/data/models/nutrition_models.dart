@@ -595,6 +595,60 @@ class DailyNutritionSummary {
   }
 }
 
+class RecommendedBrand {
+  final String name;
+  final double price;
+  final String sustainabilityRating;
+  final String description;
+
+  const RecommendedBrand({
+    required this.name,
+    required this.price,
+    required this.sustainabilityRating,
+    required this.description,
+  });
+
+  factory RecommendedBrand.fromJson(Map<String, dynamic> json) {
+    return RecommendedBrand(
+      name: json['name'] as String,
+      price: (json['price'] as num).toDouble(),
+      sustainabilityRating: json['sustainability_rating'] as String,
+      description: json['description'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'price': price,
+      'sustainability_rating': sustainabilityRating,
+      'description': description,
+    };
+  }
+}
+
+class RecommendedBrands {
+  final List<RecommendedBrand> brands;
+
+  const RecommendedBrands({
+    required this.brands,
+  });
+
+  factory RecommendedBrands.fromJson(Map<String, dynamic> json) {
+    return RecommendedBrands(
+      brands: (json['brands'] as List<dynamic>)
+          .map((e) => RecommendedBrand.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'brands': brands.map((e) => e.toJson()).toList(),
+    };
+  }
+}
+
 class NutritionApiException implements Exception {
   final String message;
   final int? statusCode;

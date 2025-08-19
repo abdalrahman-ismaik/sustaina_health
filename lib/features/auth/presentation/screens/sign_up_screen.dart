@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sustaina_health/features/auth/domain/repositories/auth_repository.dart';
+import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
 import '../../data/models/auth_models.dart';
 import 'package:go_router/go_router.dart';

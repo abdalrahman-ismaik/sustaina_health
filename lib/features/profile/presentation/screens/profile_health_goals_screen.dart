@@ -70,7 +70,7 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                     const Padding(
                       padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
                       child: Text(
-                        'Select all that apply to tailor your SustainaHealth experience.',
+                        'Select all that apply to tailor your Ghiraas experience.',
                         style: TextStyle(
                           color: Color(0xFF121714),
                           fontSize: 16,

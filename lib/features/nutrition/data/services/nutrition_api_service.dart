@@ -141,6 +141,55 @@ class NutritionApiService {
     }
   }
 
+  /// Get sustainable brand recommendations for a specific product
+  Future<RecommendedBrands> getBrandRecommendations(String product) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '$_baseUrl/recommendations/brands?product=${Uri.encodeComponent(product)}'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ).timeout(
+        const Duration(seconds: 60),
+        onTimeout: () {
+          throw NutritionApiException('Request timeout');
+        },
+      );
+
+      print(
+          'Brand recommendations response status: ${response.statusCode}'); // Debug log
+      print(
+          'Brand recommendations response body: ${response.body}'); // Debug log
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data =
+            jsonDecode(response.body) as Map<String, dynamic>;
+        return RecommendedBrands.fromJson(data);
+      } else {
+        throw NutritionApiException(
+          'Failed to get brand recommendations: ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
+      }
+    } catch (e) {
+      if (e is NutritionApiException) {
+        rethrow;
+      }
+
+      // If network error, return mock data for testing
+      if (e.toString().contains('Connection refused') ||
+          e.toString().contains('Failed host lookup') ||
+          e.toString().contains('Network is unreachable')) {
+        print(
+            'API server not available, using mock brand recommendations for testing');
+        return _getMockBrandRecommendations(product);
+      }
+
+      throw NutritionApiException('Network error: ${e.toString()}');
+    }
+  }
+
   // Mock meal analysis for testing when API is not available
   MealAnalysisResponse _getMockMealAnalysis() {
     return const MealAnalysisResponse(
@@ -276,5 +325,89 @@ class NutritionApiService {
     } catch (e) {
       throw NutritionApiException('Failed to process image: ${e.toString()}');
     }
+  }
+
+  // Mock brand recommendations for testing when API is not available
+  RecommendedBrands _getMockBrandRecommendations(String product) {
+    // Generate mock recommendations based on product type
+    final mockBrands = <RecommendedBrand>[];
+
+    if (product.toLowerCase().contains('olive oil')) {
+      mockBrands.addAll([
+        const RecommendedBrand(
+          name: 'Al Jouf Organic Olive Oil',
+          price: 45.0,
+          sustainabilityRating: 'A+',
+          description:
+              'Premium organic extra virgin olive oil from UAE local farms. Cold-pressed and sustainably produced with minimal environmental impact.',
+        ),
+        const RecommendedBrand(
+          name: 'Emirates Gold Olive Oil',
+          price: 38.0,
+          sustainabilityRating: 'A',
+          description:
+              'High-quality olive oil sourced from sustainable farms in the Mediterranean. Available in UAE with eco-friendly packaging.',
+        ),
+        const RecommendedBrand(
+          name: 'Green Valley Organic',
+          price: 52.0,
+          sustainabilityRating: 'A+',
+          description:
+              'Certified organic olive oil with zero-waste production methods. Supports local sustainable agriculture initiatives in the region.',
+        ),
+      ]);
+    } else if (product.toLowerCase().contains('rice') ||
+        product.toLowerCase().contains('grain')) {
+      mockBrands.addAll([
+        const RecommendedBrand(
+          name: 'Emirates Organic Rice',
+          price: 25.0,
+          sustainabilityRating: 'A',
+          description:
+              'Locally sourced organic basmati rice. Grown using sustainable farming practices with reduced water consumption.',
+        ),
+        const RecommendedBrand(
+          name: 'Al Ain Farms Brown Rice',
+          price: 22.0,
+          sustainabilityRating: 'B+',
+          description:
+              'Whole grain brown rice from organic farms. Packaging made from recyclable materials, supporting circular economy.',
+        ),
+        const RecommendedBrand(
+          name: 'Desert Bloom Quinoa',
+          price: 35.0,
+          sustainabilityRating: 'A+',
+          description:
+              'Premium quinoa alternative to rice. High protein content and grown with minimal water usage in arid-adapted farms.',
+        ),
+      ]);
+    } else {
+      // Generic sustainable food recommendations for UAE market
+      mockBrands.addAll([
+        RecommendedBrand(
+          name: 'UAE Organic Choice',
+          price: 30.0,
+          sustainabilityRating: 'A',
+          description:
+              'Local sustainable alternative for $product. Certified organic and ethically sourced from UAE suppliers.',
+        ),
+        RecommendedBrand(
+          name: 'Emirates Green Brand',
+          price: 28.0,
+          sustainabilityRating: 'B+',
+          description:
+              'Eco-friendly $product option. Supports local farmers and uses sustainable packaging materials.',
+        ),
+        RecommendedBrand(
+          name: 'Sustainable Emirates',
+          price: 35.0,
+          sustainabilityRating: 'A+',
+          description:
+              'Premium sustainable $product. Zero-waste production and carbon-neutral shipping across the UAE.',
+        ),
+      ]);
+    }
+
+    return RecommendedBrands(brands: mockBrands);
   }
 }

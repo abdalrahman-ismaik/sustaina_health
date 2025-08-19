@@ -14,7 +14,7 @@ class ProfileHomeScreen extends ConsumerStatefulWidget {
 
 class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   final NotificationService _notificationService = NotificationService();
-  
+
   bool _sustainabilityTipsEnabled = false;
   bool _healthRemindersEnabled = false;
   bool _notificationsAllowed = false;
@@ -28,12 +28,13 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   Future<void> _initializeNotifications() async {
     await _notificationService.initialize();
     final allowed = await _notificationService.areNotificationsEnabled();
-    
+
     // Load saved notification preferences
     final prefs = await SharedPreferences.getInstance();
-    final sustainabilityEnabled = prefs.getBool('sustainability_tips_enabled') ?? false;
+    final sustainabilityEnabled =
+        prefs.getBool('sustainability_tips_enabled') ?? false;
     final healthEnabled = prefs.getBool('health_reminders_enabled') ?? false;
-    
+
     if (mounted) {
       setState(() {
         _notificationsAllowed = allowed;
@@ -101,10 +102,41 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 children: <Widget>[
                   CircleAvatar(
                     radius: 64,
-                    backgroundImage: user?.photoURL != null
-                        ? NetworkImage(user!.photoURL!)
-                        : NetworkImage(
-                            'https://lh3.googleusercontent.com/aida-public/AB6AXuBw9_JpxeDSu4VKkIeDY9KjNmyJQ8CVOZSU8N8cYKmBHvz6KHFmN7_G2GO_PodfOOWMGM-QzuwFo4TeXILm8EsITKn8ZT-A2q41NZGQg6VIspvz_rA2dMiF7VoBO--UKa9UUxWD9dw7uPcDgbHkiBY-CUh_NEEupbXbgQPyqJLrM20vMe4UZO57czhNuAj-yPIYZYyazcx8_8tZo2_j3WFf8p-K46684W3ZPDZbOJp3paE49Vjatm0-vTTFFCNcL3sKCraIu8mkGIcn'),
+                    backgroundColor: accentColor.withOpacity(0.1),
+                    child: user?.photoURL != null && user!.photoURL!.isNotEmpty
+                        ? ClipOval(
+                            child: Image.network(
+                              user.photoURL!,
+                              width: 128,
+                              height: 128,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  Icons.person,
+                                  size: 64,
+                                  color: accentColor,
+                                );
+                              },
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      accentColor),
+                                );
+                              },
+                            ),
+                          )
+                        : Icon(
+                            Icons.person,
+                            size: 64,
+                            color: accentColor,
+                          ),
                   ),
                   const SizedBox(height: 12),
                   Text(user?.displayName ?? 'User',
@@ -262,7 +294,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         color: SleepColors.surfaceGrey,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _notificationsAllowed ? SleepColors.successGreen : SleepColors.errorRed,
+          color: _notificationsAllowed
+              ? SleepColors.successGreen
+              : SleepColors.errorRed,
           width: 1,
         ),
       ),
@@ -272,8 +306,12 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
           Row(
             children: [
               Icon(
-                _notificationsAllowed ? Icons.notifications_active : Icons.notifications_off,
-                color: _notificationsAllowed ? SleepColors.successGreen : SleepColors.errorRed,
+                _notificationsAllowed
+                    ? Icons.notifications_active
+                    : Icons.notifications_off,
+                color: _notificationsAllowed
+                    ? SleepColors.successGreen
+                    : SleepColors.errorRed,
                 size: 24,
               ),
               const SizedBox(width: 12),
@@ -288,7 +326,6 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          
           if (!_notificationsAllowed) ...[
             Text(
               'Enable notifications to receive sustainability tips and health reminders',
@@ -302,7 +339,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  final granted = await _notificationService.requestPermissions();
+                  final granted =
+                      await _notificationService.requestPermissions();
                   if (granted) {
                     setState(() => _notificationsAllowed = true);
                   }
@@ -321,52 +359,47 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             // Sustainability Tips
             _buildNotificationOption(
               title: 'Daily Sustainability Tips',
-              description: 'Get daily tips for eco-friendly living (9:00 AM)',
+              description:
+                  'Get tips for eco-friendly living throughout the day (automatic)',
               value: _sustainabilityTipsEnabled,
               onChanged: (value) async {
                 setState(() => _sustainabilityTipsEnabled = value);
-                await _saveNotificationPreference('sustainability_tips_enabled', value);
-                if (value) {
-                  await _notificationService.scheduleDailySustainabilityTips(
-                    hour: 9,
-                    minute: 0,
-                  );
-                } else {
-                  await _notificationService.cancelNotificationsByChannel('sustainability_tips');
+                await _saveNotificationPreference(
+                    'sustainability_tips_enabled', value);
+                // Note: Tips are now automatic when the app starts
+                if (!value) {
+                  await _notificationService
+                      .cancelNotificationsByChannel('sustainability_tips');
                 }
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Health Reminders
             _buildNotificationOption(
               title: 'Health Reminders',
-              description: 'Get reminded to track your health data (8:00 AM, Mon-Fri)',
+              description:
+                  'Get reminded about wellness and self-care (automatic)',
               value: _healthRemindersEnabled,
               onChanged: (value) async {
                 setState(() => _healthRemindersEnabled = value);
-                await _saveNotificationPreference('health_reminders_enabled', value);
-                if (value) {
-                  await _notificationService.scheduleHealthReminder(
-                    title: 'Health Check-in 💚',
-                    body: 'Time to log your health data and track your wellness!',
-                    hour: 8,
-                    minute: 0,
-                    weekdays: [1, 2, 3, 4, 5], // Monday to Friday
-                  );
-                } else {
-                  await _notificationService.cancelNotificationsByChannel('health_reminders');
+                await _saveNotificationPreference(
+                    'health_reminders_enabled', value);
+                // Note: Reminders are now automatic when the app starts
+                if (!value) {
+                  await _notificationService
+                      .cancelNotificationsByChannel('health_reminders');
                 }
               },
             ),
-            
-            const SizedBox(height: 16),
-            
-            // Test Notification Button
+
+            const SizedBox(height: 24),
+
+            // Simple test notification button (optional)
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: OutlinedButton(
                 onPressed: () async {
                   await _notificationService.sendTestNotification();
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -376,9 +409,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     ),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: SleepColors.primaryGreenDark,
-                  foregroundColor: Colors.white,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: SleepColors.primaryGreen,
+                  side: BorderSide(color: SleepColors.primaryGreen),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

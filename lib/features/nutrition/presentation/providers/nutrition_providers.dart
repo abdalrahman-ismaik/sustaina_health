@@ -282,6 +282,36 @@ class SavedMealPlansNotifier
   }
 }
 
+// Brand Recommendations Provider
+final brandRecommendationsProvider = StateNotifierProvider<
+    BrandRecommendationsNotifier, AsyncValue<RecommendedBrands?>>((ref) {
+  return BrandRecommendationsNotifier(ref.watch(nutritionApiServiceProvider));
+});
+
+class BrandRecommendationsNotifier
+    extends StateNotifier<AsyncValue<RecommendedBrands?>> {
+  final NutritionApiService _apiService;
+
+  BrandRecommendationsNotifier(this._apiService)
+      : super(const AsyncValue.data(null));
+
+  Future<void> getBrandRecommendations(String product) async {
+    state = const AsyncValue.loading();
+
+    try {
+      final recommendations =
+          await _apiService.getBrandRecommendations(product);
+      state = AsyncValue.data(recommendations);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
+  }
+
+  void clearRecommendations() {
+    state = const AsyncValue.data(null);
+  }
+}
+
 // Nutrition User Preferences Provider
 final nutritionUserPreferencesProvider = StateNotifierProvider<
     NutritionUserPreferencesNotifier, NutritionUserPreferences>((ref) {

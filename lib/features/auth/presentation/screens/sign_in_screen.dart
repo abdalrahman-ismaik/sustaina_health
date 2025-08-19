@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sustaina_health/features/auth/domain/repositories/auth_repository.dart';
+
+import '../../domain/repositories/auth_repository.dart';
 import '../../data/models/auth_models.dart';
 import '../providers/auth_providers.dart';
 import '../providers/onboarding_progress_provider.dart';
@@ -212,7 +213,7 @@ class _SignInForm extends StatelessWidget {
             
             // App Title
             Text(
-              'SustainaHealth',
+              'Ghiraas',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 28,

@@ -36,13 +36,18 @@ class NotificationService {
     "🔋 Charge your devices during off-peak hours to reduce strain on the electrical grid."
   ];
 
-  // Initialize the notification service
+  // Initialize the notification service and auto-start notifications
   Future<bool> initialize() async {
     if (_isInitialized) return true;
 
     try {
       // Initialize timezone data
       tz.initializeTimeZones();
+
+      // Set local timezone
+      final String timeZoneName =
+          'UTC'; // You can change this to your local timezone
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
 
       // Android initialization settings
       const AndroidInitializationSettings initializationSettingsAndroid =
@@ -64,16 +69,44 @@ class NotificationService {
       );
 
       // Initialize the plugin
-      await _flutterLocalNotificationsPlugin.initialize(
+      final initialized = await _flutterLocalNotificationsPlugin.initialize(
         initializationSettings,
         onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
       );
 
-      _isInitialized = true;
-      return true;
+      if (initialized == true) {
+        // Request permissions explicitly
+        final permissionGranted = await requestPermissions();
+        debugPrint(
+            'Notification initialization: $initialized, Permissions: $permissionGranted');
+
+        _isInitialized = true;
+
+        // Auto-start notifications when app initializes
+        await _autoStartNotifications();
+
+        return true;
+      } else {
+        debugPrint('Failed to initialize notifications');
+        return false;
+      }
     } catch (e) {
       debugPrint('Error initializing notifications: $e');
       return false;
+    }
+  }
+
+  // Automatically start daily notifications
+  Future<void> _autoStartNotifications() async {
+    try {
+      debugPrint('Auto-starting daily notifications...');
+
+      // Start sustainability tips throughout the day
+      await _startDailyNotifications();
+
+      debugPrint('Daily notifications started automatically');
+    } catch (e) {
+      debugPrint('Error auto-starting notifications: $e');
     }
   }
 
@@ -86,47 +119,143 @@ class NotificationService {
   // Request notification permissions
   Future<bool> requestPermissions() async {
     try {
-      final bool? result = await _flutterLocalNotificationsPlugin
+      // Request permissions on Android
+      final androidImplementation = _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
-      return result ?? false;
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidImplementation != null) {
+        final bool? granted =
+            await androidImplementation.requestNotificationsPermission();
+        debugPrint('Android notification permission granted: $granted');
+
+        // We DON'T request exact alarm permission anymore to avoid strict scheduling
+        debugPrint(
+            'Skipping exact alarm permission to use flexible notifications');
+
+        return granted == true;
+      }
+
+      // Request permissions on iOS
+      final iosImplementation = _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>();
+
+      if (iosImplementation != null) {
+        final bool? granted = await iosImplementation.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        debugPrint('iOS notification permission granted: $granted');
+        return granted == true;
+      }
+
+      return true; // Default to true for other platforms
     } catch (e) {
       debugPrint('Error requesting notification permissions: $e');
       return false;
     }
   }
 
-  // Schedule daily sustainability tips
-  Future<void> scheduleDailySustainabilityTips({
-    int hour = 9,
-    int minute = 0,
-  }) async {
-    if (!_isInitialized) {
-      await initialize();
-    }
-
+  // Start daily notifications automatically throughout the day
+  Future<void> _startDailyNotifications() async {
     try {
-      // Cancel existing scheduled notifications
-      await _cancelNotificationsByChannel(_sustainabilityChannelId);
+      debugPrint('Starting automatic daily notifications...');
 
-      // Schedule notifications for the next 30 days
-      for (int i = 1; i <= 30; i++) {
-        final tip = _sustainabilityTips[Random().nextInt(_sustainabilityTips.length)];
-        final scheduledDate = DateTime.now().add(Duration(days: i));
-        final scheduledDateTime = DateTime(
-          scheduledDate.year,
-          scheduledDate.month,
-          scheduledDate.day,
-          hour,
-          minute,
+      // Schedule sustainability tips throughout the day
+      // Spread them across different times for better user experience
+      final now = DateTime.now();
+
+      // Schedule 8-10 tips throughout the day at random intervals
+      for (int i = 0; i < 8; i++) {
+        // Spread notifications throughout the day (1-12 hours from now)
+        final baseHours =
+            (i + 1) * 1.5; // 1.5, 3, 4.5, 6, 7.5, 9, 10.5, 12 hours
+        final randomMinutes = Random().nextInt(60); // Add some randomness
+        final randomHourOffset =
+            Random().nextDouble() * 0.5; // ±30 minutes variance
+
+        final delayHours = baseHours + randomHourOffset;
+        final totalMinutes = (delayHours * 60).round() + randomMinutes;
+
+        // Get a different tip for each notification
+        final tipIndex = (i + now.day + now.hour) % _sustainabilityTips.length;
+        final tip = _sustainabilityTips[tipIndex];
+
+        debugPrint(
+            'Scheduling tip ${i + 1} in ${totalMinutes ~/ 60}h ${totalMinutes % 60}m');
+
+        await _scheduleFlexibleNotification(
+          id: 1001 + i,
+          title: 'Sustainability Tip 🌱',
+          body: tip,
+          delayDuration: Duration(minutes: totalMinutes),
+          payload: 'sustainability_tip_auto',
         );
+      }
 
-        await _flutterLocalNotificationsPlugin.zonedSchedule(
-          1000 + i, // Unique ID for each tip
-          'Sustainability Tip 🌱',
-          tip,
-          tz.TZDateTime.from(scheduledDateTime, tz.local),
+      // Schedule a few health reminders throughout the day too
+      await _scheduleHealthRemindersAuto();
+
+      debugPrint('Scheduled notifications throughout the day');
+    } catch (e) {
+      debugPrint('Error starting daily notifications: $e');
+    }
+  }
+
+  // Schedule automatic health reminders
+  Future<void> _scheduleHealthRemindersAuto() async {
+    try {
+      // Schedule 2-3 health reminders at different times
+      final healthReminders = [
+        'Time to check in with your wellness goals! 💚',
+        'Remember to stay hydrated and take care of yourself! 💧',
+        'How are you feeling today? Take a moment for self-care! 🌿',
+      ];
+
+      for (int i = 0; i < healthReminders.length; i++) {
+        // Schedule health reminders at 3, 7, and 11 hours from now
+        final delayHours = 3 + (i * 4); // 3, 7, 11 hours
+        final randomMinutes = Random().nextInt(60);
+
+        await _scheduleFlexibleNotification(
+          id: 2001 + i,
+          title: 'Health Check-in 💚',
+          body: healthReminders[i],
+          delayDuration: Duration(hours: delayHours, minutes: randomMinutes),
+          payload: 'health_reminder_auto',
+        );
+      }
+
+      debugPrint('Scheduled automatic health reminders');
+    } catch (e) {
+      debugPrint('Error scheduling automatic health reminders: $e');
+    }
+  }
+
+  // Helper method to schedule flexible notifications without exact alarms
+  Future<void> _scheduleFlexibleNotification({
+    required int id,
+    required String title,
+    required String body,
+    required Duration delayDuration,
+    String? payload,
+  }) async {
+    // Instead of using zonedSchedule (which requires exact alarms),
+    // we'll use a simple delayed show() with Future.delayed
+
+    debugPrint(
+        'Scheduling flexible notification $id with delay: ${delayDuration.inSeconds} seconds');
+
+    // Use Future.delayed to show notification after a delay
+    // This doesn't require any special permissions
+    Future.delayed(delayDuration, () async {
+      try {
+        await _flutterLocalNotificationsPlugin.show(
+          id,
+          title,
+          body,
           const NotificationDetails(
             android: AndroidNotificationDetails(
               'sustainability_tips',
@@ -139,16 +268,16 @@ class NotificationService {
             ),
             iOS: DarwinNotificationDetails(),
           ),
-          payload: 'sustainability_tip',
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
+          payload: payload,
         );
+        debugPrint('Flexible notification $id shown successfully');
+      } catch (e) {
+        debugPrint('Error showing flexible notification $id: $e');
       }
+    });
 
-      debugPrint('Scheduled daily sustainability tips for 30 days');
-    } catch (e) {
-      debugPrint('Error scheduling sustainability tips: $e');
-    }
+    debugPrint(
+        'Flexible notification $id scheduled to show in ${delayDuration.inSeconds} seconds');
   }
 
   // Send immediate test notification
@@ -158,7 +287,8 @@ class NotificationService {
     }
 
     try {
-      final randomTip = _sustainabilityTips[Random().nextInt(_sustainabilityTips.length)];
+      final randomTip =
+          _sustainabilityTips[Random().nextInt(_sustainabilityTips.length)];
 
       await _flutterLocalNotificationsPlugin.show(
         999, // Test notification ID
@@ -185,74 +315,32 @@ class NotificationService {
     }
   }
 
-  // Schedule health reminders
+  // Keep this method for compatibility but make it redirect to auto-start
+  Future<void> scheduleDailySustainabilityTips({
+    int hour = 9,
+    int minute = 0,
+  }) async {
+    // This method is kept for compatibility but notifications now start automatically
+    debugPrint('Manual scheduling called - notifications are now automatic');
+    if (!_isInitialized) {
+      await initialize(); // This will auto-start notifications
+    }
+  }
+
+  // Keep this method for compatibility but make it redirect to auto-start
   Future<void> scheduleHealthReminder({
     required String title,
     required String body,
     required int hour,
     required int minute,
-    List<int> weekdays = const [1, 2, 3, 4, 5, 6, 7], // All days by default
+    List<int> weekdays = const [1, 2, 3, 4, 5, 6, 7],
   }) async {
+    // This method is kept for compatibility but notifications now start automatically
+    debugPrint(
+        'Manual health reminder scheduling called - notifications are now automatic');
     if (!_isInitialized) {
-      await initialize();
+      await initialize(); // This will auto-start notifications
     }
-
-    try {
-      // Cancel existing health reminders
-      await _cancelNotificationsByChannel(_healthChannelId);
-
-      for (int weekday in weekdays) {
-        await _flutterLocalNotificationsPlugin.zonedSchedule(
-          2000 + weekday, // Unique ID for each weekday
-          title,
-          body,
-          _nextInstanceOfTime(hour, minute, weekday),
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
-              'health_reminders',
-              'Health Reminders',
-              channelDescription: 'Health and wellness reminders',
-              importance: Importance.high,
-              priority: Priority.high,
-              icon: '@mipmap/ic_launcher',
-              color: Color(0xFF94e0b2),
-            ),
-            iOS: DarwinNotificationDetails(),
-          ),
-          payload: 'health_reminder',
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-        );
-      }
-
-      debugPrint('Scheduled health reminder for weekdays: $weekdays');
-    } catch (e) {
-      debugPrint('Error scheduling health reminder: $e');
-    }
-  }
-
-  // Helper method to get next instance of a specific time and weekday
-  tz.TZDateTime _nextInstanceOfTime(int hour, int minute, int weekday) {
-    tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local);
-    scheduledDate = tz.TZDateTime(
-      tz.local,
-      scheduledDate.year,
-      scheduledDate.month,
-      scheduledDate.day,
-      hour,
-      minute,
-    );
-
-    while (scheduledDate.weekday != weekday) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-
-    if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
-      scheduledDate = scheduledDate.add(const Duration(days: 7));
-    }
-
-    return scheduledDate;
   }
 
   // Cancel all scheduled notifications
@@ -271,7 +359,7 @@ class NotificationService {
       // Since flutter_local_notifications doesn't have channel-specific cancellation,
       // we'll cancel specific ID ranges
       if (channelId == _sustainabilityChannelId) {
-        for (int i = 1001; i <= 1030; i++) {
+        for (int i = 1001; i <= 1005; i++) {
           await _flutterLocalNotificationsPlugin.cancel(i);
         }
       } else if (channelId == _healthChannelId) {
@@ -290,10 +378,24 @@ class NotificationService {
     await _cancelNotificationsByChannel(channelKey);
   }
 
-  // Get scheduled notifications (simplified)
+  // Get scheduled notifications (Note: flexible notifications won't show here)
   Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
     try {
-      return await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      final pending =
+          await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      debugPrint(
+          'Found ${pending.length} traditionally scheduled notifications:');
+      for (final notification in pending) {
+        debugPrint(
+            'ID: ${notification.id}, Title: ${notification.title}, Body: ${notification.body}');
+      }
+
+      // Note: Flexible notifications using Future.delayed won't appear here
+      // because they're not "scheduled" in the traditional sense
+      debugPrint(
+          'Note: Flexible notifications (using Future.delayed) are not shown in pending requests');
+
+      return pending;
     } catch (e) {
       debugPrint('Error getting scheduled notifications: $e');
       return [];
@@ -303,11 +405,60 @@ class NotificationService {
   // Check if notifications are enabled (simplified)
   Future<bool> areNotificationsEnabled() async {
     try {
-      // This is a simplified check - in a real app you might want more sophisticated logic
+      if (!_isInitialized) {
+        await initialize();
+      }
+
+      // Check Android permissions
+      final androidImplementation = _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidImplementation != null) {
+        final bool? notificationsEnabled =
+            await androidImplementation.areNotificationsEnabled();
+        debugPrint('Android notifications enabled: $notificationsEnabled');
+        return notificationsEnabled == true;
+      }
+
+      // For iOS and other platforms, assume enabled if initialized
       return _isInitialized;
     } catch (e) {
       debugPrint('Error checking notification permissions: $e');
       return false;
+    }
+  }
+
+  // Comprehensive diagnostic method
+  Future<Map<String, dynamic>> getDiagnosticInfo() async {
+    final diagnostics = <String, dynamic>{};
+
+    try {
+      diagnostics['isInitialized'] = _isInitialized;
+      diagnostics['notificationsEnabled'] = await areNotificationsEnabled();
+
+      final pending = await getScheduledNotifications();
+      diagnostics['scheduledCount'] = pending.length;
+      diagnostics['scheduledNotifications'] = pending
+          .map((n) => {
+                'id': n.id,
+                'title': n.title,
+                'body': n.body,
+                'payload': n.payload,
+              })
+          .toList();
+
+      // Check timezone
+      final now = tz.TZDateTime.now(tz.local);
+      diagnostics['currentTime'] = now.toIso8601String();
+      diagnostics['timezone'] = tz.local.name;
+
+      debugPrint('Notification diagnostics: $diagnostics');
+      return diagnostics;
+    } catch (e) {
+      diagnostics['error'] = e.toString();
+      debugPrint('Error getting diagnostic info: $e');
+      return diagnostics;
     }
   }
 

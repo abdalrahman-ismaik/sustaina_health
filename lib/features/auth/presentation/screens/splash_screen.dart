@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
-                    'SustainaHealth',
+                    'Ghiraas',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: const Color(0xFF111714),

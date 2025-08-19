@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
 import '../widgets/guide_section.dart';
-import '../../../sleep/presentation/theme/sleep_colors.dart';
 
 class NutritionHomeScreen extends ConsumerWidget {
   const NutritionHomeScreen({Key? key}) : super(key: key);
@@ -13,18 +12,18 @@ class NutritionHomeScreen extends ConsumerWidget {
     final apiHealthState = ref.watch(nutritionApiHealthProvider);
 
     return Scaffold(
-      backgroundColor: SleepColors.backgroundGrey,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: SleepColors.surfaceGrey,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.menu, color: SleepColors.textPrimary),
+          icon: const Icon(Icons.menu, color: Color(0xFF121714)),
           onPressed: () {},
         ),
         title: const Text(
           'Your Nutrition Journey',
           style: TextStyle(
-            color: SleepColors.textPrimary,
+            color: Color(0xFF121714),
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -33,7 +32,7 @@ class NutritionHomeScreen extends ConsumerWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline, color: SleepColors.textPrimary),
+            icon: const Icon(Icons.help_outline, color: Color(0xFF121714)),
             onPressed: () => _showNutritionGuide(context),
           ),
         ],
@@ -94,7 +93,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: SleepColors.textPrimary,
+                      color: Color(0xFF121714),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -102,7 +101,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     'Analyze your meals for nutrition insights and sustainability recommendations',
                     style: TextStyle(
                       fontSize: 16,
-                      color: SleepColors.textSecondary,
+                      color: Color(0xFF688273),
                       height: 1.4,
                     ),
                   ),
@@ -114,7 +113,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           title: 'AI Analysis',
                           subtitle: 'Get instant food insights',
                           icon: Icons.psychology,
-                          color: SleepColors.primaryGreen,
+                          color: const Color(0xFF94e0b2),
                           onTap: () => context.go('/nutrition/ai-recognition'),
                         ),
                       ),
@@ -124,8 +123,33 @@ class NutritionHomeScreen extends ConsumerWidget {
                           title: 'Meal Plans',
                           subtitle: 'Personalized recommendations',
                           icon: Icons.restaurant_menu,
-                          color: SleepColors.textSecondary,
+                          color: const Color(0xFF688273),
                           onTap: () => context.go('/nutrition/ai-meal-plan'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _FeatureCard(
+                          title: 'Sustainable Brands',
+                          subtitle: 'Find eco-friendly alternatives',
+                          icon: Icons.eco,
+                          color: const Color(0xFF40916C),
+                          onTap: () =>
+                              context.go('/nutrition/brand-recommendations'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _FeatureCard(
+                          title: 'Food Logging',
+                          subtitle: 'Track your meals',
+                          icon: Icons.edit_note,
+                          color: const Color(0xFF2F7D32),
+                          onTap: () => context.go('/nutrition/food-logging'),
                         ),
                       ),
                     ],
@@ -145,7 +169,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: SleepColors.textPrimary,
+                      color: Color(0xFF121714),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -154,7 +178,15 @@ class NutritionHomeScreen extends ConsumerWidget {
                     title: 'Sustainability Matters',
                     description:
                         'Learn how your food choices impact the environment and make informed decisions.',
-                    color: SleepColors.primaryGreen,
+                    color: const Color(0xFF94e0b2),
+                  ),
+                  const SizedBox(height: 12),
+                  _InsightCard(
+                    icon: Icons.store,
+                    title: 'Sustainable Brand Recommendations',
+                    description:
+                        'Discover UAE-based sustainable brands for any product with pricing and eco-ratings.',
+                    color: const Color(0xFF40916C),
                   ),
                   const SizedBox(height: 12),
                   _InsightCard(
@@ -162,7 +194,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     title: 'AI-Powered Analysis',
                     description:
                         'Get detailed nutritional breakdowns and personalized health recommendations.',
-                    color: SleepColors.textSecondary,
+                    color: const Color(0xFF688273),
                   ),
                   const SizedBox(height: 12),
                   _InsightCard(
@@ -170,7 +202,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     title: 'Smart Meal Planning',
                     description:
                         'Discover balanced meal ideas that fit your lifestyle and preferences.',
-                    color: SleepColors.primaryGreenDark,
+                    color: const Color(0xFF40916C),
                   ),
                 ],
               ),
@@ -186,8 +218,8 @@ class NutritionHomeScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    SleepColors.primaryGreen,
-                    SleepColors.primaryGreen.withOpacity(0.8),
+                    const Color(0xFF94e0b2),
+                    const Color(0xFF94e0b2).withOpacity(0.8),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -195,7 +227,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: SleepColors.primaryGreen.withOpacity(0.3),
+                    color: const Color(0xFF94e0b2).withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -214,7 +246,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                       ),
                       child: const Icon(
                         Icons.camera_alt,
-                        color: SleepColors.textPrimary,
+                        color: Color(0xFF121714),
                         size: 32,
                       ),
                     ),
@@ -228,7 +260,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: SleepColors.textPrimary,
+                              color: Color(0xFF121714),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -236,7 +268,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                             'Snap a photo and get nutrition & sustainability analysis',
                             style: TextStyle(
                               fontSize: 14,
-                              color: SleepColors.textPrimary,
+                              color: Color(0xFF121714),
                             ),
                           ),
                         ],
@@ -244,7 +276,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     ),
                     const Icon(
                       Icons.arrow_forward_ios,
-                      color: SleepColors.textPrimary,
+                      color: Color(0xFF121714),
                       size: 16,
                     ),
                   ],
@@ -265,7 +297,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: SleepColors.textPrimary,
+                      color: Color(0xFF121714),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -275,7 +307,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                         child: _QuickAction(
                           title: 'Food Analysis',
                           icon: Icons.camera_alt,
-                          color: SleepColors.primaryGreen,
+                          color: const Color(0xFF94e0b2),
                           onTap: () => context.go('/nutrition/ai-recognition'),
                         ),
                       ),
@@ -284,8 +316,31 @@ class NutritionHomeScreen extends ConsumerWidget {
                         child: _QuickAction(
                           title: 'Meal Plans',
                           icon: Icons.restaurant_menu,
-                          color: SleepColors.textSecondary,
+                          color: const Color(0xFF688273),
                           onTap: () => context.go('/nutrition/ai-meal-plan'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _QuickAction(
+                          title: 'Sustainable Brands',
+                          icon: Icons.eco,
+                          color: const Color(0xFF40916C),
+                          onTap: () =>
+                              context.go('/nutrition/brand-recommendations'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _QuickAction(
+                          title: 'Food Logging',
+                          icon: Icons.edit_note,
+                          color: const Color(0xFF2F7D32),
+                          onTap: () => context.go('/nutrition/food-logging'),
                         ),
                       ),
                     ],
@@ -300,8 +355,8 @@ class NutritionHomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.go('/nutrition/ai-recognition'),
-        backgroundColor: SleepColors.primaryGreen,
-        foregroundColor: SleepColors.textPrimary,
+        backgroundColor: const Color(0xFF94e0b2),
+        foregroundColor: const Color(0xFF121714),
         icon: const Icon(Icons.camera_alt),
         label: const Text(
           'AI Food Scan',
@@ -343,7 +398,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: SleepColors.textPrimary,
+                    color: Color(0xFF121714),
                   ),
                 ),
               ),
@@ -374,6 +429,18 @@ class NutritionHomeScreen extends ConsumerWidget {
                         'Dietary restrictions support',
                         'Recipe suggestions',
                         'Weekly meal planning',
+                      ],
+                    ),
+                    GuideSection(
+                      icon: Icons.eco,
+                      title: 'Sustainable Brand Recommendations',
+                      description:
+                          'Find UAE-based sustainable alternatives for any product',
+                      features: [
+                        'Search any food product',
+                        'Sustainability ratings (A+ to C)',
+                        'Competitive pricing information',
+                        'Local UAE suppliers',
                       ],
                     ),
                     GuideSection(
@@ -444,7 +511,7 @@ class _FeatureCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: SleepColors.textPrimary,
+                color: Color(0xFF121714),
               ),
             ),
             const SizedBox(height: 4),
@@ -452,7 +519,7 @@ class _FeatureCard extends StatelessWidget {
               subtitle,
               style: const TextStyle(
                 fontSize: 12,
-                color: SleepColors.textSecondary,
+                color: Color(0xFF688273),
               ),
             ),
           ],
@@ -505,7 +572,7 @@ class _InsightCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: SleepColors.textPrimary,
+                    color: Color(0xFF121714),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -513,7 +580,7 @@ class _InsightCard extends StatelessWidget {
                   description,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: SleepColors.textSecondary,
+                    color: Color(0xFF688273),
                     height: 1.3,
                   ),
                 ),

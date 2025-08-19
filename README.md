@@ -1,6 +1,6 @@
-# SustainaHealth
+# Ghiraas
 
-SustainaHealth is an AI-powered health and sustainability mobile application designed to help users manage their health metrics and promote eco-friendly habits. This application leverages artificial intelligence to provide personalized recommendations and insights based on user data.
+Ghiraas is an AI-powered health and sustainability mobile application designed to help users manage their health metrics and promote eco-friendly habits. This application leverages artificial intelligence to provide personalized recommendations and insights based on user data.
 
 ## Project Structure (Feature-First + Clean Architecture)
 

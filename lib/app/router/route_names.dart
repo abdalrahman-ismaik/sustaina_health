@@ -33,6 +33,7 @@ class RouteNames {
   static const String nutritionInsights = '/nutrition/insights';
   static const String aiMealPlan = '/nutrition/ai-meal-plan';
   static const String savedMealPlans = '/nutrition/saved-plans';
+  static const String brandRecommendations = '/nutrition/brand-recommendations';
   static const String mealHistory = '/nutrition/history';
 
   // Sleep Sub-routes

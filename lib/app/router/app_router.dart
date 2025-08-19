@@ -22,6 +22,7 @@ import '../../features/nutrition/presentation/screens/ai_food_recognition_screen
 import '../../features/nutrition/presentation/screens/nutrition_insights_screen.dart';
 import '../../features/nutrition/presentation/screens/ai_meal_plan_generator_screen.dart';
 import '../../features/nutrition/presentation/screens/saved_meal_plans_screen.dart';
+import '../../features/nutrition/presentation/screens/brand_recommendations_screen.dart';
 import '../../features/sleep/presentation/screens/sleep_home_screen.dart';
 import '../../features/sleep/presentation/screens/sleep_tracking_screen.dart';
 import '../../features/sleep/presentation/screens/sleep_analysis_screen.dart';
@@ -32,7 +33,7 @@ import '../../features/profile/presentation/screens/profile_achievements_screen.
 import '../../features/profile/presentation/screens/profile_sustainability_dashboard_screen.dart';
 import 'route_names.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
-import 'package:sustaina_health/features/auth/domain/entities/user_entity.dart';
+import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import '../../core/widgets/main_navigation_wrapper.dart';
 
 final Provider<GoRouter> appRouterProvider =
@@ -269,6 +270,11 @@ final Provider<GoRouter> appRouterProvider =
                 path: 'saved-plans',
                 builder: (BuildContext context, GoRouterState state) =>
                     const SavedMealPlansScreen(),
+              ),
+              GoRoute(
+                path: 'brand-recommendations',
+                builder: (BuildContext context, GoRouterState state) =>
+                    const BrandRecommendationsScreen(),
               ),
             ],
           ),

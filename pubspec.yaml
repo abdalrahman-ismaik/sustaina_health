@@ -1,6 +1,6 @@
 # analyzer must be under dev_dependencies, not dependencies
-name: sustaina_health
-description: An AI-powered health and sustainability mobile application.
+name: ghiraas
+description: Ghiraas - An AI-powered health and sustainability mobile application.
 publish_to: "none"
 
 environment:

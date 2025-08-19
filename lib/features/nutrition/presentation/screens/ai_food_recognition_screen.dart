@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 
@@ -756,6 +757,26 @@ class _FoodAnalysisResult extends ConsumerWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  context.go('/nutrition/brand-recommendations');
+                },
+                icon: const Icon(Icons.eco, size: 18),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF40916C),
+                  side: const BorderSide(color: Color(0xFF40916C)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                label: Text(
+                    'Find Sustainable Brands for "${analysis.foodName}"',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+              ),
             ),
           ],
         ),
