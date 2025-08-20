@@ -9,7 +9,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _loadingAnimation;
   double _loadingProgress = 0.0;
@@ -17,13 +18,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animation controller
     _animationController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
     );
-    
+
     // Create loading animation
     _loadingAnimation = Tween<double>(
       begin: 0.0,
@@ -32,17 +33,17 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     // Listen to animation updates
     _loadingAnimation.addListener(() {
       setState(() {
         _loadingProgress = _loadingAnimation.value;
       });
     });
-    
+
     // Start the animation
     _animationController.forward();
-    
+
     // Navigate to onboarding screen after 3 seconds
     // Use GoRouter for navigation
     Timer(const Duration(seconds: 3), () {
@@ -175,4 +176,4 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       ),
     );
   }
-} 
+}

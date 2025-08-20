@@ -13,16 +13,50 @@ class ProfileHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
+
   final NotificationService _notificationService = NotificationService();
+
+  // Personal info controllers
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  String _selectedSex = 'Male';
 
   bool _sustainabilityTipsEnabled = false;
   bool _healthRemindersEnabled = false;
   bool _notificationsAllowed = false;
 
+
   @override
   void initState() {
     super.initState();
     _initializeNotifications();
+    _loadPersonalInfo();
+  }
+
+  @override
+  void dispose() {
+    _weightController.dispose();
+    _heightController.dispose();
+    _ageController.dispose();
+    super.dispose();
+  }
+  Future<void> _loadPersonalInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _weightController.text = prefs.getString('profile_weight') ?? '';
+      _heightController.text = prefs.getString('profile_height') ?? '';
+      _ageController.text = prefs.getString('profile_age') ?? '';
+      _selectedSex = prefs.getString('profile_sex') ?? 'Male';
+    });
+  }
+
+  Future<void> _savePersonalInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profile_weight', _weightController.text);
+    await prefs.setString('profile_height', _heightController.text);
+    await prefs.setString('profile_age', _ageController.text);
+    await prefs.setString('profile_sex', _selectedSex);
   }
 
   Future<void> _initializeNotifications() async {
@@ -149,6 +183,116 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   Text(user?.email ?? 'No email',
                       style: TextStyle(fontSize: 14, color: accentColor)),
                 ],
+              ),
+            ),
+
+            // Personal Info Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: badgeBg,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Personal Info',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: textColor)),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _weightController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Weight (kg)',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _heightController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Height (cm)',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _ageController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Age',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedSex,
+                            items: const [
+                              DropdownMenuItem(value: 'Male', child: Text('Male')),
+                              DropdownMenuItem(value: 'Female', child: Text('Female')),
+                              DropdownMenuItem(value: 'Other', child: Text('Other')),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _selectedSex = value;
+                                });
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Sex',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await _savePersonalInfo();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Personal info saved!'),
+                                backgroundColor: accentColor,
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: accentColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Save'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             // Badge

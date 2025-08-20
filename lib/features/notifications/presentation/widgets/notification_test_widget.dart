@@ -103,7 +103,8 @@ class NotificationTestWidget extends ConsumerWidget {
                   final notificationService = NotificationService();
                   await notificationService.scheduleHealthReminder(
                     title: 'Health Check-in 💚',
-                    body: 'Time to log your health data and track your wellness!',
+                    body:
+                        'Time to log your health data and track your wellness!',
                     hour: DateTime.now().hour,
                     minute: DateTime.now().minute + 2, // 2 minutes from now
                     weekdays: [DateTime.now().weekday],

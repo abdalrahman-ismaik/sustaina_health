@@ -7,23 +7,22 @@ import 'package:firebase_core/firebase_core.dart';
 import 'core/config/firebase_options.dart';
 import 'services/notification_service.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   // Initialize Hive
   await Hive.initFlutter();
-  
+
   // Initialize notifications
   final notificationService = NotificationService();
   await notificationService.initialize();
-  
+
   runApp(
     const ProviderScope(
       child: GhiraasApp(),
     ),
   );
-} 
+}

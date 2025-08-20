@@ -5,7 +5,8 @@ class ProfileHealthGoalsScreen extends StatefulWidget {
   const ProfileHealthGoalsScreen({Key? key}) : super(key: key);
 
   @override
-  State<ProfileHealthGoalsScreen> createState() => _ProfileHealthGoalsScreenState();
+  State<ProfileHealthGoalsScreen> createState() =>
+      _ProfileHealthGoalsScreenState();
 }
 
 class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
@@ -78,7 +79,8 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: Column(
                         children: allGoals.map((String goal) {
                           return CheckboxListTile(
@@ -133,14 +135,16 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
                         child: ReorderableListView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           onReorder: (int oldIndex, int newIndex) {
                             setState(() {
                               if (newIndex > oldIndex) newIndex--;
-                              final String item = selectedGoals.removeAt(oldIndex);
+                              final String item =
+                                  selectedGoals.removeAt(oldIndex);
                               selectedGoals.insert(newIndex, item);
                             });
                           },
@@ -155,7 +159,8 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                                     fontSize: 16,
                                   ),
                                 ),
-                                trailing: const Icon(Icons.drag_handle, color: Color(0xFF121714)),
+                                trailing: const Icon(Icons.drag_handle,
+                                    color: Color(0xFF121714)),
                               ),
                           ],
                         ),
@@ -171,12 +176,16 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: selectedGoals.isNotEmpty ? () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (BuildContext context) => const ProfileSustainabilityScreen()),
-                    );
-                  } : null,
+                  onPressed: selectedGoals.isNotEmpty
+                      ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    const ProfileSustainabilityScreen()),
+                          );
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF94E0B2),
                     shape: RoundedRectangleBorder(
@@ -201,4 +210,4 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
       ),
     );
   }
-} 
+}

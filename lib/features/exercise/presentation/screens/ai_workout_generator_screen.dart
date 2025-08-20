@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/workout_providers.dart';
 import '../../data/models/workout_models.dart';
 import '../../../profile/data/models/user_profile_model.dart';
@@ -52,27 +53,58 @@ class _AIWorkoutGeneratorScreenState
   ];
 
   static const List<String> sexOptions = [
-    'male',
-    'female',
+    'Male',
+    'Female',
   ];
 
   @override
   void initState() {
     super.initState();
-    // Initialize with current user profile if available
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final userProfile = ref.read(userProfileProvider);
+      bool loadedFromPrefs = false;
       if (userProfile.weight != null) {
         _weightController.text = userProfile.weight.toString();
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        final weight = prefs.getString('profile_weight');
+        if (weight != null && weight.isNotEmpty) {
+          _weightController.text = weight;
+          loadedFromPrefs = true;
+        }
       }
       if (userProfile.height != null) {
         _heightController.text = userProfile.height.toString();
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        final height = prefs.getString('profile_height');
+        if (height != null && height.isNotEmpty) {
+          _heightController.text = height;
+          loadedFromPrefs = true;
+        }
       }
       if (userProfile.age != null) {
         _ageController.text = userProfile.age.toString();
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        final age = prefs.getString('profile_age');
+        if (age != null && age.isNotEmpty) {
+          _ageController.text = age;
+          loadedFromPrefs = true;
+        }
       }
       if (userProfile.sex != null) {
-        _selectedSex = userProfile.apiSex;
+        // Capitalize first letter for dropdown compatibility
+        _selectedSex = userProfile.apiSex.isNotEmpty
+            ? userProfile.apiSex[0].toUpperCase() + userProfile.apiSex.substring(1).toLowerCase()
+            : null;
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        final sex = prefs.getString('profile_sex');
+        if (sex != null && sex.isNotEmpty) {
+          _selectedSex = sex[0].toUpperCase() + sex.substring(1).toLowerCase();
+          loadedFromPrefs = true;
+        }
       }
       if (userProfile.fitnessGoal != null) {
         _selectedGoal = userProfile.apiGoal;
@@ -80,8 +112,9 @@ class _AIWorkoutGeneratorScreenState
       if (userProfile.workoutsPerWeek != null) {
         _workoutsPerWeek = userProfile.workoutsPerWeek!;
       }
+      _selectedEquipment.clear();
       _selectedEquipment.addAll(userProfile.availableEquipment);
-      setState(() {});
+      if (mounted && loadedFromPrefs) setState(() {});
     });
   }
 
@@ -417,10 +450,12 @@ class _AIWorkoutGeneratorScreenState
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
+    // If value is not in items, set value to null to avoid DropdownButton error
+    final dropdownValue = (value != null && items.contains(value)) ? value : null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: DropdownButtonFormField<String>(
-        value: value,
+        value: dropdownValue,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(

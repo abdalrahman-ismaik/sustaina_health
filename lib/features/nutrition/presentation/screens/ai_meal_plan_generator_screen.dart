@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
@@ -13,8 +14,26 @@ class AIMealPlanGeneratorScreen extends ConsumerStatefulWidget {
       _AIMealPlanGeneratorScreenState();
 }
 
-class _AIMealPlanGeneratorScreenState
-    extends ConsumerState<AIMealPlanGeneratorScreen> {
+class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPersonalInfoFromPrefs();
+  }
+
+  Future<void> _loadPersonalInfoFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _weightController.text = prefs.getString('profile_weight') ?? '';
+      _heightController.text = prefs.getString('profile_height') ?? '';
+      _ageController.text = prefs.getString('profile_age') ?? '';
+      final sex = prefs.getString('profile_sex');
+      if (sex != null && sex.isNotEmpty) {
+        _selectedSex = sex;
+      }
+    });
+  }
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();

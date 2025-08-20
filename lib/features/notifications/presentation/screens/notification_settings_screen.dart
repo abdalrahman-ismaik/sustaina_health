@@ -8,22 +8,33 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
   const NotificationSettingsScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+  ConsumerState<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends ConsumerState<NotificationSettingsScreen> {
+class _NotificationSettingsScreenState
+    extends ConsumerState<NotificationSettingsScreen> {
   final NotificationService _notificationService = NotificationService();
-  
+
   bool _sustainabilityTipsEnabled = false;
   bool _healthRemindersEnabled = false;
   bool _notificationsAllowed = false;
-  
+
   TimeOfDay _sustainabilityTipTime = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay _healthReminderTime = const TimeOfDay(hour: 8, minute: 0);
-  
-  List<bool> _selectedDays = List.filled(7, true); // All days selected by default
-  final List<String> _dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  
+
+  List<bool> _selectedDays =
+      List.filled(7, true); // All days selected by default
+  final List<String> _dayNames = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun'
+  ];
+
   List<PendingNotificationRequest> _scheduledNotifications = [];
   bool _isLoading = false;
 
@@ -35,15 +46,15 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
 
   Future<void> _initializeNotifications() async {
     setState(() => _isLoading = true);
-    
+
     await _notificationService.initialize();
-    
+
     // Check if notifications are allowed
     final allowed = await _notificationService.areNotificationsEnabled();
-    
+
     // Get scheduled notifications
     final scheduled = await _notificationService.getScheduledNotifications();
-    
+
     setState(() {
       _notificationsAllowed = allowed;
       _scheduledNotifications = scheduled;
@@ -86,9 +97,11 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     );
   }
 
-  Future<void> _selectTime(BuildContext context, bool isSustainabilityTip) async {
-    final initialTime = isSustainabilityTip ? _sustainabilityTipTime : _healthReminderTime;
-    
+  Future<void> _selectTime(
+      BuildContext context, bool isSustainabilityTip) async {
+    final initialTime =
+        isSustainabilityTip ? _sustainabilityTipTime : _healthReminderTime;
+
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
@@ -104,7 +117,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
         );
       },
     );
-    
+
     if (picked != null) {
       setState(() {
         if (isSustainabilityTip) {
@@ -123,7 +136,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     }
 
     setState(() => _isLoading = true);
-    
+
     if (_sustainabilityTipsEnabled) {
       await _notificationService.scheduleDailySustainabilityTips(
         hour: _sustainabilityTipTime.hour,
@@ -131,10 +144,11 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
       );
       _showSuccessSnackBar('Sustainability tips scheduled successfully!');
     } else {
-      await _notificationService.cancelNotificationsByChannel('sustainability_tips');
+      await _notificationService
+          .cancelNotificationsByChannel('sustainability_tips');
       _showSuccessSnackBar('Sustainability tips cancelled');
     }
-    
+
     // Refresh scheduled notifications
     final scheduled = await _notificationService.getScheduledNotifications();
     setState(() {
@@ -150,7 +164,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     }
 
     setState(() => _isLoading = true);
-    
+
     if (_healthRemindersEnabled) {
       // Convert selected days to weekday numbers (1=Monday, 7=Sunday)
       final selectedWeekdays = <int>[];
@@ -159,20 +173,22 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
           selectedWeekdays.add(i + 1); // Convert to 1-based index
         }
       }
-      
+
       await _notificationService.scheduleHealthReminder(
         title: 'Health Check-in 💚',
-        body: 'Time to log your health data and track your sustainable wellness journey!',
+        body:
+            'Time to log your health data and track your sustainable wellness journey!',
         hour: _healthReminderTime.hour,
         minute: _healthReminderTime.minute,
         weekdays: selectedWeekdays,
       );
       _showSuccessSnackBar('Health reminders scheduled successfully!');
     } else {
-      await _notificationService.cancelNotificationsByChannel('health_reminders');
+      await _notificationService
+          .cancelNotificationsByChannel('health_reminders');
       _showSuccessSnackBar('Health reminders cancelled');
     }
-    
+
     // Refresh scheduled notifications
     final scheduled = await _notificationService.getScheduledNotifications();
     setState(() {
@@ -216,7 +232,8 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
               ),
             )
           : SingleChildScrollView(
@@ -256,20 +273,28 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
         color: SleepColors.surfaceGrey,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _notificationsAllowed ? SleepColors.successGreen : SleepColors.errorRed,
+          color: _notificationsAllowed
+              ? SleepColors.successGreen
+              : SleepColors.errorRed,
           width: 2,
         ),
       ),
       child: Column(
         children: [
           Icon(
-            _notificationsAllowed ? Icons.notifications_active : Icons.notifications_off,
-            color: _notificationsAllowed ? SleepColors.successGreen : SleepColors.errorRed,
+            _notificationsAllowed
+                ? Icons.notifications_active
+                : Icons.notifications_off,
+            color: _notificationsAllowed
+                ? SleepColors.successGreen
+                : SleepColors.errorRed,
             size: 48,
           ),
           const SizedBox(height: 16),
           Text(
-            _notificationsAllowed ? 'Notifications Enabled' : 'Notifications Disabled',
+            _notificationsAllowed
+                ? 'Notifications Enabled'
+                : 'Notifications Disabled',
             style: TextStyle(
               color: SleepColors.textPrimary,
               fontSize: 20,
@@ -373,7 +398,8 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                 decoration: BoxDecoration(
                   color: SleepColors.backgroundGrey,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: SleepColors.textTertiary.withOpacity(0.3)),
+                  border: Border.all(
+                      color: SleepColors.textTertiary.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
@@ -473,7 +499,8 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                 decoration: BoxDecoration(
                   color: SleepColors.backgroundGrey,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: SleepColors.textTertiary.withOpacity(0.3)),
+                  border: Border.all(
+                      color: SleepColors.textTertiary.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
@@ -525,7 +552,9 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
                   backgroundColor: SleepColors.backgroundGrey,
                   selectedColor: SleepColors.primaryGreen,
                   labelStyle: TextStyle(
-                    color: _selectedDays[index] ? Colors.white : SleepColors.textPrimary,
+                    color: _selectedDays[index]
+                        ? Colors.white
+                        : SleepColors.textPrimary,
                   ),
                 );
               }),
@@ -651,7 +680,8 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
             ElevatedButton(
               onPressed: () async {
                 await _notificationService.cancelAllNotifications();
-                final scheduled = await _notificationService.getScheduledNotifications();
+                final scheduled =
+                    await _notificationService.getScheduledNotifications();
                 setState(() {
                   _scheduledNotifications = scheduled;
                   _sustainabilityTipsEnabled = false;
