@@ -188,6 +188,7 @@ class _AIFoodRecognitionScreenState
                   ? _FoodAnalysisResult(
                       analysis: analysis,
                       image: _selectedImage,
+                      mealType: widget.mealType,
                       onEdit: () {
                         ref.read(mealAnalysisProvider.notifier).clearAnalysis();
                         setState(() {
@@ -360,10 +361,12 @@ class _FoodAnalysisResult extends ConsumerWidget {
   final MealAnalysisResponse analysis;
   final File? image;
   final VoidCallback onEdit;
+  final String? mealType;
 
   const _FoodAnalysisResult({
     required this.analysis,
     required this.onEdit,
+    required this.mealType,
     this.image,
     Key? key,
   }) : super(key: key);
@@ -663,6 +666,66 @@ class _FoodAnalysisResult extends ConsumerWidget {
                         ),
                       )),
             ],
+
+            // Log Food Button
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // Add this food to the log
+                  ref.read(foodLogProvider.notifier).addFoodLogEntry(
+                    FoodLogEntry(
+                      id: DateTime.now().toString(),
+                      userId: 'default', // Since we don't have auth yet
+                      foodName: analysis.foodName,
+                      mealType: mealType ?? 'other',
+                      servingSize: '1 serving', // Default serving size
+                      nutritionInfo: NutritionInfo(
+                        calories: analysis.totalCalories,
+                        protein: analysis.totalProtein,
+                        carbohydrates: analysis.totalCarbohydrates,
+                        fat: analysis.totalFats,
+                        fiber: 0, // Default values since not provided by analysis
+                        sugar: 0,
+                        sodium: 0,
+                      ),
+                      sustainabilityScore: analysis.sustainability.overallScore.toString(),
+                      loggedAt: DateTime.now(),
+                    ),
+                  );
+                  
+                  // Show success message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Food logged successfully!'),
+                      backgroundColor: Color(0xFF94e0b2),
+                    ),
+                  );
+                  
+                  // Navigate back to food logging screen
+                  if (context.mounted) {
+                    context.pop();
+                  }
+                },
+                icon: const Icon(Icons.check, color: Colors.white),
+                label: const Text(
+                  'Log Food',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF94e0b2),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
 
             // Health Tips Section
             const SizedBox(height: 20),

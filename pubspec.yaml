@@ -24,10 +24,7 @@ dependencies:
   http: ^1.1.0
   dio: ^5.3.2
 
-  # Firebase (commented out until needed)
-  # firebase_core: ^2.24.2
-  # firebase_auth: ^4.15.3
-  # cloud_firestore: ^4.13.6
+  # Remove commented out Firebase dependencies
   firebase_storage: ^11.5.6
 
   # UI & Animation
@@ -77,6 +74,8 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
 
   # Code Generation
