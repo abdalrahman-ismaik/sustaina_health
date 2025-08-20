@@ -565,6 +565,21 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     }
   }
 
+  void _showEditFoodEntrySheet(BuildContext context, FoodLogEntry entry) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ManualFoodEntrySheet(
+        mealType: entry.mealType,
+        existingEntry: entry,
+        onSave: (updatedEntry) {
+          ref.read(foodLogProvider.notifier).updateFoodLogEntry(updatedEntry);
+        },
+      ),
+    );
+  }
+
   void _showFoodLogOptions(BuildContext context, FoodLogEntry entry) {
     showModalBottomSheet(
       context: context,
@@ -578,11 +593,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
               title: const Text('Edit Entry'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement edit functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Edit functionality coming soon!')),
-                );
+                _showEditFoodEntrySheet(context, entry);
               },
             ),
             ListTile(
@@ -649,11 +660,13 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
 class _ManualFoodEntrySheet extends ConsumerStatefulWidget {
   final String mealType;
   final Function(FoodLogEntry) onSave;
+  final FoodLogEntry? existingEntry;
 
   const _ManualFoodEntrySheet({
     Key? key,
     required this.mealType,
     required this.onSave,
+    this.existingEntry,
   }) : super(key: key);
 
   @override
@@ -670,6 +683,20 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
   final _fatsController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.existingEntry != null) {
+      final entry = widget.existingEntry!;
+      _foodNameController.text = entry.foodName;
+      _servingSizeController.text = entry.servingSize;
+      _caloriesController.text = entry.nutritionInfo.calories.toString();
+      _proteinController.text = entry.nutritionInfo.protein.toString();
+      _carbsController.text = entry.nutritionInfo.carbohydrates.toString();
+      _fatsController.text = entry.nutritionInfo.fat.toString();
+    }
+  }
+
+  @override
   void dispose() {
     _foodNameController.dispose();
     _servingSizeController.dispose();
@@ -682,30 +709,47 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
 
   void _submitForm() {
     if (_formKey.currentState?.validate() ?? false) {
-      final entry = FoodLogEntry(
-        id: DateTime.now().toString(),
-        userId: 'default', // Since we don't have auth yet
-        foodName: _foodNameController.text,
-        mealType: widget.mealType,
-        servingSize: _servingSizeController.text,
-        nutritionInfo: NutritionInfo(
-          calories: int.parse(_caloriesController.text),
-          protein: int.parse(_proteinController.text),
-          carbohydrates: int.parse(_carbsController.text),
-          fat: int.parse(_fatsController.text),
-          fiber: 0, // Default values
-          sugar: 0,
-          sodium: 0,
-        ),
-        loggedAt: DateTime.now(),
-      );
-
+      FoodLogEntry entry;
+      if (widget.existingEntry != null) {
+        entry = widget.existingEntry!.copyWith(
+          foodName: _foodNameController.text,
+          mealType: widget.mealType,
+          servingSize: _servingSizeController.text,
+          nutritionInfo: NutritionInfo(
+            calories: int.parse(_caloriesController.text),
+            protein: int.parse(_proteinController.text),
+            carbohydrates: int.parse(_carbsController.text),
+            fat: int.parse(_fatsController.text),
+            fiber: 0, // Keeping default values
+            sugar: 0,
+            sodium: 0,
+          ),
+        );
+      } else {
+        entry = FoodLogEntry(
+          id: DateTime.now().toString(),
+          userId: 'default', // Since we don't have auth yet
+          foodName: _foodNameController.text,
+          mealType: widget.mealType,
+          servingSize: _servingSizeController.text,
+          nutritionInfo: NutritionInfo(
+            calories: int.parse(_caloriesController.text),
+            protein: int.parse(_proteinController.text),
+            carbohydrates: int.parse(_carbsController.text),
+            fat: int.parse(_fatsController.text),
+            fiber: 0, // Default values
+            sugar: 0,
+            sodium: 0,
+          ),
+          loggedAt: DateTime.now(),
+        );
+      }
       widget.onSave(entry);
       Navigator.pop(context);
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Food logged successfully!'),
+        SnackBar(
+          content: Text(widget.existingEntry != null ? 'Food entry updated!' : 'Food logged successfully!'),
           backgroundColor: SleepColors.primaryGreen,
         ),
       );
@@ -735,7 +779,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                 Row(
                   children: [
                     Text(
-                      'Add ${widget.mealType.substring(0, 1).toUpperCase()}${widget.mealType.substring(1)} Item',
+                      '${widget.existingEntry != null ? 'Edit' : 'Add'} ${widget.mealType.substring(0, 1).toUpperCase()}${widget.mealType.substring(1)} Item',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -886,9 +930,9 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Save Food Entry',
-                      style: TextStyle(
+                    child: Text(
+                      widget.existingEntry != null ? 'Update Food Entry' : 'Save Food Entry',
+                      style: const TextStyle(
                         color: SleepColors.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

@@ -506,21 +506,6 @@ class FoodLogEntry {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'userId': userId,
-      'foodName': foodName,
-      'mealType': mealType,
-      'servingSize': servingSize,
-      'nutritionInfo': nutritionInfo.toJson(),
-      'sustainabilityScore': sustainabilityScore,
-      'notes': notes,
-      'loggedAt': loggedAt.toIso8601String(),
-      'imageUrl': imageUrl,
-    };
-  }
-
   FoodLogEntry copyWith({
     String? id,
     String? userId,
@@ -545,6 +530,21 @@ class FoodLogEntry {
       loggedAt: loggedAt ?? this.loggedAt,
       imageUrl: imageUrl ?? this.imageUrl,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'foodName': foodName,
+      'mealType': mealType,
+      'servingSize': servingSize,
+      'nutritionInfo': nutritionInfo.toJson(),
+      'sustainabilityScore': sustainabilityScore,
+      'notes': notes,
+      'loggedAt': loggedAt.toIso8601String(),
+      'imageUrl': imageUrl,
+    };
   }
 }
 
