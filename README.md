@@ -114,3 +114,25 @@ Contributions are welcome! Please feel free to submit a pull request or open an 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Known Issues & Areas for Improvement
+
+- **Platform Support**: This app is intended for Android and Web only. The `ios/`, `macos/`, and `linux/` folders are not needed and can be removed to reduce clutter.
+
+- **Migration Incomplete**: Legacy code still exists in `lib/src/screens` and `lib/src/widgets`. These should be moved to the new `features/` and `core/widgets/` locations as per the migration note above.
+
+- **Redundant Widget Files**: There are duplicate or legacy widget files in `lib/widgets/` and `lib/core/widgets/`. Consolidate widgets into the correct folder (`core/widgets/`).
+
+- **Empty Folders**: The folder `lib/app/constants` is currently empty. Remove or populate it as needed.
+
+- **Test Coverage**: Only a single widget test is present in `test/widget_test.dart`. The `test/unit/`, `test/widget/`, and `test/integration/` folders are empty. Add more tests to improve coverage.
+
+- **Examples & Services**: Example and service files exist outside the new structure (`lib/examples/`, `lib/services/`). Consider moving them under `features/` or `core/` as appropriate.
+
+- **pubspec.yaml Cleanup**: Some dependencies are commented out or duplicated. Clean up unused dependencies and ensure only necessary packages are included.
+
+- **Documentation**: Update documentation to reflect platform support and ongoing migration/cleanup tasks.
+
+---

@@ -171,31 +171,76 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                             // Camera button
                             SizedBox(
                               width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  context.push(
-                                      '/nutrition/ai-recognition?mealType=$selectedMealType');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: SleepColors.primaryGreen,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                              child: Column(
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      context.push(
+                                          '/nutrition/ai-recognition?mealType=$selectedMealType');
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: SleepColors.primaryGreen,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding:
+                                          const EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.camera_alt,
+                                      color: SleepColors.textPrimary,
+                                    ),
+                                    label: const Text(
+                                      'Start Camera Logging',
+                                      style: TextStyle(
+                                        color: SleepColors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                   ),
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
-                                ),
-                                icon: const Icon(
-                                  Icons.camera_alt,
-                                  color: SleepColors.textPrimary,
-                                ),
-                                label: const Text(
-                                  'Start Camera Logging',
-                                  style: TextStyle(
-                                    color: SleepColors.textPrimary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                  const SizedBox(height: 12),
+                                  // Manual entry button
+                                  OutlinedButton.icon(
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (context) => _ManualFoodEntrySheet(
+                                          mealType: selectedMealType,
+                                          onSave: (entry) {
+                                            ref.read(foodLogProvider.notifier)
+                                                .addFoodLogEntry(entry);
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(
+                                        color: SleepColors.primaryGreen,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding:
+                                          const EdgeInsets.symmetric(vertical: 16),
+                                      minimumSize: const Size(double.infinity, 0),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.edit_note,
+                                      color: SleepColors.primaryGreen,
+                                    ),
+                                    label: const Text(
+                                      'Manual Entry',
+                                      style: TextStyle(
+                                        color: SleepColors.primaryGreen,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ),
                           ],
@@ -598,5 +643,265 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       ref.read(foodLogProvider.notifier).changeDate(picked);
       ref.read(dailyNutritionSummaryProvider.notifier).changeDate(picked);
     }
+  }
+}
+
+class _ManualFoodEntrySheet extends ConsumerStatefulWidget {
+  final String mealType;
+  final Function(FoodLogEntry) onSave;
+
+  const _ManualFoodEntrySheet({
+    Key? key,
+    required this.mealType,
+    required this.onSave,
+  }) : super(key: key);
+
+  @override
+  ConsumerState<_ManualFoodEntrySheet> createState() => _ManualFoodEntrySheetState();
+}
+
+class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _foodNameController = TextEditingController();
+  final _servingSizeController = TextEditingController();
+  final _caloriesController = TextEditingController();
+  final _proteinController = TextEditingController();
+  final _carbsController = TextEditingController();
+  final _fatsController = TextEditingController();
+
+  @override
+  void dispose() {
+    _foodNameController.dispose();
+    _servingSizeController.dispose();
+    _caloriesController.dispose();
+    _proteinController.dispose();
+    _carbsController.dispose();
+    _fatsController.dispose();
+    super.dispose();
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState?.validate() ?? false) {
+      final entry = FoodLogEntry(
+        id: DateTime.now().toString(),
+        userId: 'default', // Since we don't have auth yet
+        foodName: _foodNameController.text,
+        mealType: widget.mealType,
+        servingSize: _servingSizeController.text,
+        nutritionInfo: NutritionInfo(
+          calories: int.parse(_caloriesController.text),
+          protein: int.parse(_proteinController.text),
+          carbohydrates: int.parse(_carbsController.text),
+          fat: int.parse(_fatsController.text),
+          fiber: 0, // Default values
+          sugar: 0,
+          sodium: 0,
+        ),
+        loggedAt: DateTime.now(),
+      );
+
+      widget.onSave(entry);
+      Navigator.pop(context);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Food logged successfully!'),
+          backgroundColor: SleepColors.primaryGreen,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Text(
+                      'Add ${widget.mealType.substring(0, 1).toUpperCase()}${widget.mealType.substring(1)} Item',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: SleepColors.textPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Food name
+                TextFormField(
+                  controller: _foodNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Food Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter a food name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Serving size
+                TextFormField(
+                  controller: _servingSizeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Serving Size',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter a serving size';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Nutrition info
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _caloriesController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Calories',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Required';
+                          }
+                          if (int.tryParse(value!) == null) {
+                            return 'Invalid';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _proteinController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Protein (g)',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Required';
+                          }
+                          if (int.tryParse(value!) == null) {
+                            return 'Invalid';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _carbsController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Carbs (g)',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Required';
+                          }
+                          if (int.tryParse(value!) == null) {
+                            return 'Invalid';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _fatsController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Fats (g)',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Required';
+                          }
+                          if (int.tryParse(value!) == null) {
+                            return 'Invalid';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Submit button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: SleepColors.primaryGreen,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Save Food Entry',
+                      style: TextStyle(
+                        color: SleepColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
