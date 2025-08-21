@@ -15,9 +15,9 @@ class NotificationTestWidget extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 Icon(
                   Icons.notifications_active,
                   color: SleepColors.primaryGreen,
@@ -44,11 +44,11 @@ class NotificationTestWidget extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final notificationService = NotificationService();
+                      final NotificationService notificationService = NotificationService();
                       await notificationService.sendTestNotification();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -71,7 +71,7 @@ class NotificationTestWidget extends ConsumerWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final notificationService = NotificationService();
+                      final NotificationService notificationService = NotificationService();
                       await notificationService.scheduleDailySustainabilityTips(
                         hour: DateTime.now().hour,
                         minute: DateTime.now().minute + 1, // 1 minute from now
@@ -100,14 +100,14 @@ class NotificationTestWidget extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  final notificationService = NotificationService();
+                  final NotificationService notificationService = NotificationService();
                   await notificationService.scheduleHealthReminder(
                     title: 'Health Check-in 💚',
                     body:
                         'Time to log your health data and track your wellness!',
                     hour: DateTime.now().hour,
                     minute: DateTime.now().minute + 2, // 2 minutes from now
-                    weekdays: [DateTime.now().weekday],
+                    weekdays: <int>[DateTime.now().weekday],
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

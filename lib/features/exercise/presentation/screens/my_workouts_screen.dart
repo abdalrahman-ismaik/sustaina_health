@@ -8,8 +8,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
-    final workoutStatsAsync = ref.watch(workoutStatsProvider);
+    final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
+    final AsyncValue<Map<String, dynamic>> workoutStatsAsync = ref.watch(workoutStatsProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -33,13 +33,13 @@ class MyWorkoutsScreen extends ConsumerWidget {
           ref.invalidate(workoutStatsProvider);
         },
         child: CustomScrollView(
-          slivers: [
+          slivers: <Widget>[
             // Stats Section
             SliverToBoxAdapter(
               child: workoutStatsAsync.when(
-                data: (stats) => _buildStatsSection(stats),
+                data: (Map<String, dynamic> stats) => _buildStatsSection(stats),
                 loading: () => _buildStatsLoading(),
-                error: (error, _) => _buildStatsError(),
+                error: (Object error, _) => _buildStatsError(),
               ),
             ),
 
@@ -59,11 +59,11 @@ class MyWorkoutsScreen extends ConsumerWidget {
             ),
 
             completedWorkoutsAsync.when(
-              data: (workouts) => workouts.isEmpty
+              data: (List<ActiveWorkoutSession> workouts) => workouts.isEmpty
                   ? SliverToBoxAdapter(child: _buildEmptyState(context))
                   : SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) =>
+                        (BuildContext context, int index) =>
                             _buildWorkoutCard(context, ref, workouts[index]),
                         childCount: workouts.length,
                       ),
@@ -78,7 +78,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              error: (error, stackTrace) => SliverToBoxAdapter(
+              error: (Object error, StackTrace stackTrace) => SliverToBoxAdapter(
                 child: _buildErrorState(context, ref, error),
               ),
             ),
@@ -94,7 +94,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
+          colors: <Color>[
             const Color(0xFF94E0B2).withOpacity(0.8),
             const Color(0xFF94E0B2).withOpacity(0.6),
           ],
@@ -105,7 +105,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           const Text(
             'Workout Statistics',
             style: TextStyle(
@@ -116,7 +116,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: _buildStatItem(
                   'Total Workouts',
@@ -135,7 +135,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: _buildStatItem(
                   'Total Time',
@@ -166,7 +166,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           Icon(icon, color: const Color(0xFF121714), size: 24),
           const SizedBox(height: 8),
           Text(
@@ -226,7 +226,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
-          children: [
+          children: <Widget>[
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
@@ -288,7 +288,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
-          children: [
+          children: <Widget>[
             const Icon(
               Icons.error_outline,
               size: 80,
@@ -357,9 +357,9 @@ class MyWorkoutsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: Text(
                       workout.workoutName,
@@ -371,16 +371,16 @@ class MyWorkoutsScreen extends ConsumerWidget {
                     ),
                   ),
                   PopupMenuButton<String>(
-                    onSelected: (value) {
+                    onSelected: (String value) {
                       if (value == 'delete') {
                         _showDeleteConfirmation(context, ref, workout);
                       }
                     },
-                    itemBuilder: (context) => [
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                       const PopupMenuItem(
                         value: 'delete',
                         child: Row(
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.delete, color: Colors.red),
                             SizedBox(width: 8),
                             Text('Delete'),
@@ -393,7 +393,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               Row(
-                children: [
+                children: <Widget>[
                   _buildWorkoutStatChip(
                     Icons.timer,
                     _formatDuration(workout.totalDuration),
@@ -416,7 +416,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   Text(
                     _formatDate(workout.startTime),
                     style: const TextStyle(
@@ -449,7 +449,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
@@ -472,16 +472,16 @@ class MyWorkoutsScreen extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => DraggableScrollableSheet(
+      builder: (BuildContext context) => DraggableScrollableSheet(
         initialChildSize: 0.7,
         maxChildSize: 0.9,
         minChildSize: 0.5,
         expand: false,
-        builder: (context, scrollController) => Padding(
+        builder: (BuildContext context, ScrollController scrollController) => Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               // Handle bar
               Center(
                 child: Container(
@@ -513,7 +513,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                 ),
               ),
 
-              if (workout.notes != null) ...[
+              if (workout.notes != null) ...<Widget>[
                 const SizedBox(height: 16),
                 Container(
                   width: double.infinity,
@@ -524,7 +524,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       const Text(
                         'Notes:',
                         style: TextStyle(
@@ -558,8 +558,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
                 child: ListView.builder(
                   controller: scrollController,
                   itemCount: workout.exercises.length,
-                  itemBuilder: (context, index) {
-                    final exercise = workout.exercises[index];
+                  itemBuilder: (BuildContext context, int index) {
+                    final CompletedExercise exercise = workout.exercises[index];
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ExpansionTile(
@@ -570,9 +570,9 @@ class MyWorkoutsScreen extends ConsumerWidget {
                           ),
                         ),
                         subtitle: Text('${exercise.sets.length} sets'),
-                        children: exercise.sets.asMap().entries.map((entry) {
-                          final setIndex = entry.key;
-                          final set = entry.value;
+                        children: exercise.sets.asMap().entries.map((MapEntry<int, ExerciseSet> entry) {
+                          final int setIndex = entry.key;
+                          final ExerciseSet set = entry.value;
                           return ListTile(
                             leading: CircleAvatar(
                               radius: 16,
@@ -587,13 +587,13 @@ class MyWorkoutsScreen extends ConsumerWidget {
                               ),
                             ),
                             title: Row(
-                              children: [
+                              children: <Widget>[
                                 Text('${set.reps} reps'),
-                                if (set.weight != null) ...[
+                                if (set.weight != null) ...<Widget>[
                                   const SizedBox(width: 16),
                                   Text('${set.weight}kg'),
                                 ],
-                                if (set.duration != null) ...[
+                                if (set.duration != null) ...<Widget>[
                                   const SizedBox(width: 16),
                                   Text('${set.duration}s'),
                                 ],
@@ -632,7 +632,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
             'Are you sure you want to delete "${workout.workoutName}"? This action cannot be undone.',
             style: const TextStyle(color: Color(0xFF121714)),
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
@@ -693,8 +693,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(date);
 
     if (difference.inDays == 0) {
       return 'Today ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
@@ -709,6 +709,6 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   int _getTotalSets(ActiveWorkoutSession workout) {
     return workout.exercises
-        .fold(0, (total, exercise) => total + exercise.sets.length);
+        .fold(0, (int total, CompletedExercise exercise) => total + exercise.sets.length);
   }
 }

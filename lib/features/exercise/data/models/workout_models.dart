@@ -18,7 +18,7 @@ class WorkoutGenerationRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'weight': weight,
       'height': height,
       'age': age,
@@ -53,7 +53,7 @@ class Exercise {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'name': name,
       'sets': sets,
       'reps': reps,
@@ -72,14 +72,14 @@ class WorkoutSession {
   factory WorkoutSession.fromJson(Map<String, dynamic> json) {
     return WorkoutSession(
       exercises: (json['exercises'] as List<dynamic>)
-          .map((dynamic e) => Exercise.fromJson(e as Map<String, dynamic>))
+          .map((e) => Exercise.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'exercises': exercises.map((e) => e.toJson()).toList(),
+    return <String, dynamic>{
+      'exercises': exercises.map((Exercise e) => e.toJson()).toList(),
     };
   }
 }
@@ -101,7 +101,7 @@ class WorkoutComponent {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'description': description,
       'duration': duration,
     };
@@ -130,7 +130,7 @@ class WorkoutPlan {
       sessionsPerWeek: json['sessions_per_week'] as int,
       workoutSessions: (json['workout_sessions'] as List<dynamic>)
           .map(
-              (dynamic e) => WorkoutSession.fromJson(e as Map<String, dynamic>))
+              (e) => WorkoutSession.fromJson(e as Map<String, dynamic>))
           .toList(),
       cooldown:
           WorkoutComponent.fromJson(json['cooldown'] as Map<String, dynamic>),
@@ -138,11 +138,11 @@ class WorkoutPlan {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'warmup': warmup.toJson(),
       'cardio': cardio.toJson(),
       'sessions_per_week': sessionsPerWeek,
-      'workout_sessions': workoutSessions.map((s) => s.toJson()).toList(),
+      'workout_sessions': workoutSessions.map((WorkoutSession s) => s.toJson()).toList(),
       'cooldown': cooldown.toJson(),
     };
   }
@@ -183,7 +183,7 @@ class SavedWorkoutPlan {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'userId': userId,
       'name': name,
@@ -242,7 +242,7 @@ class ExerciseSet {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'reps': reps,
       'weight': weight,
       'duration': duration,
@@ -284,7 +284,7 @@ class CompletedExercise {
   factory CompletedExercise.fromExercise(Exercise exercise) {
     return CompletedExercise(
       name: exercise.name,
-      sets: [],
+      sets: <ExerciseSet>[],
       restTime: exercise.rest,
     );
   }
@@ -301,9 +301,9 @@ class CompletedExercise {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'name': name,
-      'sets': sets.map((s) => s.toJson()).toList(),
+      'sets': sets.map((ExerciseSet s) => s.toJson()).toList(),
       'restTime': restTime,
       'isCompleted': isCompleted,
     };
@@ -353,8 +353,8 @@ class ActiveWorkoutSession {
     print(
         'Creating ActiveWorkoutSession with ${workoutSession.exercises.length} exercises'); // Debug
 
-    final exercises = workoutSession.exercises
-        .map((e) => CompletedExercise.fromExercise(e))
+    final List<CompletedExercise> exercises = workoutSession.exercises
+        .map((Exercise e) => CompletedExercise.fromExercise(e))
         .toList();
 
     print('Created ${exercises.length} CompletedExercise objects'); // Debug
@@ -386,12 +386,12 @@ class ActiveWorkoutSession {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'workoutName': workoutName,
       'startTime': startTime.toIso8601String(),
       'endTime': endTime?.toIso8601String(),
-      'exercises': exercises.map((e) => e.toJson()).toList(),
+      'exercises': exercises.map((CompletedExercise e) => e.toJson()).toList(),
       'totalDurationSeconds': totalDuration.inSeconds,
       'isCompleted': isCompleted,
       'notes': notes,
@@ -429,8 +429,8 @@ class ActiveWorkoutSession {
 
   /// Get a summary of the workout session
   String get summary {
-    final completedSets =
-        exercises.fold<int>(0, (sum, exercise) => sum + exercise.sets.length);
+    final int completedSets =
+        exercises.fold<int>(0, (int sum, CompletedExercise exercise) => sum + exercise.sets.length);
     return 'Workout: $workoutName, Exercises: ${exercises.length}, Sets: $completedSets';
   }
 }

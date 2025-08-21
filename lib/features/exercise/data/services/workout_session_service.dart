@@ -20,12 +20,12 @@ class WorkoutSessionService {
         throw Exception('Cannot save incomplete workout as completed');
       }
 
-      final prefs = await SharedPreferences.getInstance();
-      final completedWorkouts = await getCompletedWorkouts();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<ActiveWorkoutSession> completedWorkouts = await getCompletedWorkouts();
 
       // Check for duplicates
-      final existingIndex =
-          completedWorkouts.indexWhere((w) => w.id == session.id);
+      final int existingIndex =
+          completedWorkouts.indexWhere((ActiveWorkoutSession w) => w.id == session.id);
       if (existingIndex != -1) {
         // Update existing workout instead of duplicating
         completedWorkouts[existingIndex] = session;
@@ -42,10 +42,10 @@ class WorkoutSessionService {
       }
 
       // Save to local storage
-      final workoutsJson = completedWorkouts.map((w) => w.toJson()).toList();
-      final jsonString = jsonEncode(workoutsJson);
+      final List<Map<String, dynamic>> workoutsJson = completedWorkouts.map((ActiveWorkoutSession w) => w.toJson()).toList();
+      final String jsonString = jsonEncode(workoutsJson);
 
-      final success = await prefs.setString(_completedWorkoutsKey, jsonString);
+      final bool success = await prefs.setString(_completedWorkoutsKey, jsonString);
 
       if (!success) {
         throw Exception('Failed to write to SharedPreferences');
@@ -61,21 +61,21 @@ class WorkoutSessionService {
   /// Get all completed workout sessions
   Future<List<ActiveWorkoutSession>> getCompletedWorkouts() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final workoutsJson = prefs.getString(_completedWorkoutsKey);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? workoutsJson = prefs.getString(_completedWorkoutsKey);
 
       if (workoutsJson == null) {
-        return [];
+        return <ActiveWorkoutSession>[];
       }
 
-      final workoutsList = jsonDecode(workoutsJson) as List<dynamic>;
+      final List workoutsList = jsonDecode(workoutsJson) as List<dynamic>;
       return workoutsList
           .map((json) =>
               ActiveWorkoutSession.fromJson(json as Map<String, dynamic>))
           .toList();
     } catch (e) {
       print('Error loading completed workouts: $e');
-      return [];
+      return <ActiveWorkoutSession>[];
     }
   }
 
@@ -89,10 +89,10 @@ class WorkoutSessionService {
         throw Exception('Invalid session data: ${session.summary}');
       }
 
-      final prefs = await SharedPreferences.getInstance();
-      final jsonString = jsonEncode(session.toJson());
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String jsonString = jsonEncode(session.toJson());
 
-      final success = await prefs.setString(_activeWorkoutKey, jsonString);
+      final bool success = await prefs.setString(_activeWorkoutKey, jsonString);
 
       if (!success) {
         throw Exception('Failed to write to SharedPreferences');
@@ -108,8 +108,8 @@ class WorkoutSessionService {
   /// Get the current active workout session
   Future<ActiveWorkoutSession?> getActiveWorkout() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final workoutJson = prefs.getString(_activeWorkoutKey);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? workoutJson = prefs.getString(_activeWorkoutKey);
 
       if (workoutJson == null) {
         print('No active workout found in storage');
@@ -117,8 +117,8 @@ class WorkoutSessionService {
       }
 
       print('Loading active workout from storage...');
-      final jsonData = jsonDecode(workoutJson) as Map<String, dynamic>;
-      final session = ActiveWorkoutSession.fromJson(jsonData);
+      final Map<String, dynamic> jsonData = jsonDecode(workoutJson) as Map<String, dynamic>;
+      final ActiveWorkoutSession session = ActiveWorkoutSession.fromJson(jsonData);
 
       // Validate the loaded session
       if (!session.isValid) {
@@ -144,7 +144,7 @@ class WorkoutSessionService {
   /// Clear the current active workout
   Future<void> clearActiveWorkout() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove(_activeWorkoutKey);
     } catch (e) {
       throw Exception('Failed to clear active workout: $e');
@@ -154,12 +154,12 @@ class WorkoutSessionService {
   /// Delete a completed workout
   Future<void> deleteCompletedWorkout(String workoutId) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final completedWorkouts = await getCompletedWorkouts();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<ActiveWorkoutSession> completedWorkouts = await getCompletedWorkouts();
 
-      completedWorkouts.removeWhere((workout) => workout.id == workoutId);
+      completedWorkouts.removeWhere((ActiveWorkoutSession workout) => workout.id == workoutId);
 
-      final workoutsJson = completedWorkouts.map((w) => w.toJson()).toList();
+      final List<Map<String, dynamic>> workoutsJson = completedWorkouts.map((ActiveWorkoutSession w) => w.toJson()).toList();
       await prefs.setString(_completedWorkoutsKey, jsonEncode(workoutsJson));
     } catch (e) {
       throw Exception('Failed to delete workout: $e');
@@ -169,10 +169,10 @@ class WorkoutSessionService {
   /// Get workout statistics
   Future<Map<String, dynamic>> getWorkoutStats() async {
     try {
-      final completedWorkouts = await getCompletedWorkouts();
+      final List<ActiveWorkoutSession> completedWorkouts = await getCompletedWorkouts();
 
       if (completedWorkouts.isEmpty) {
-        return {
+        return <String, dynamic>{
           'totalWorkouts': 0,
           'totalDuration': Duration.zero,
           'averageDuration': Duration.zero,
@@ -181,25 +181,25 @@ class WorkoutSessionService {
         };
       }
 
-      final now = DateTime.now();
-      final weekStart = now.subtract(Duration(days: now.weekday - 1));
-      final monthStart = DateTime(now.year, now.month, 1);
+      final DateTime now = DateTime.now();
+      final DateTime weekStart = now.subtract(Duration(days: now.weekday - 1));
+      final DateTime monthStart = DateTime(now.year, now.month, 1);
 
-      final thisWeekWorkouts =
-          completedWorkouts.where((w) => w.startTime.isAfter(weekStart)).length;
+      final int thisWeekWorkouts =
+          completedWorkouts.where((ActiveWorkoutSession w) => w.startTime.isAfter(weekStart)).length;
 
-      final thisMonthWorkouts = completedWorkouts
-          .where((w) => w.startTime.isAfter(monthStart))
+      final int thisMonthWorkouts = completedWorkouts
+          .where((ActiveWorkoutSession w) => w.startTime.isAfter(monthStart))
           .length;
 
-      final totalDuration = completedWorkouts.fold<Duration>(
-          Duration.zero, (sum, workout) => sum + workout.totalDuration);
+      final Duration totalDuration = completedWorkouts.fold<Duration>(
+          Duration.zero, (Duration sum, ActiveWorkoutSession workout) => sum + workout.totalDuration);
 
-      final averageDuration = Duration(
+      final Duration averageDuration = Duration(
           milliseconds:
               totalDuration.inMilliseconds ~/ completedWorkouts.length);
 
-      return {
+      return <String, dynamic>{
         'totalWorkouts': completedWorkouts.length,
         'totalDuration': totalDuration,
         'averageDuration': averageDuration,
@@ -208,7 +208,7 @@ class WorkoutSessionService {
       };
     } catch (e) {
       print('Error calculating workout stats: $e');
-      return {
+      return <String, dynamic>{
         'totalWorkouts': 0,
         'totalDuration': Duration.zero,
         'averageDuration': Duration.zero,

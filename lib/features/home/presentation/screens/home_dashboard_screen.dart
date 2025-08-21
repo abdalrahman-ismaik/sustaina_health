@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
@@ -8,8 +9,8 @@ class HomeDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userAsyncValue = ref.watch(currentUserProvider);
-    final user = userAsyncValue.value;
+    final AsyncValue<UserEntity?> userAsyncValue = ref.watch(currentUserProvider);
+    final UserEntity? user = userAsyncValue.value;
 
     return Scaffold(
       body: SafeArea(
@@ -17,7 +18,7 @@ class HomeDashboardScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               // Header
               _buildHeader(context, user),
               const SizedBox(height: 32),
@@ -61,14 +62,14 @@ class HomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, dynamic user) {
+  Widget _buildHeader(BuildContext context, user) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
+          colors: <Color>[
             Theme.of(context).colorScheme.primary.withOpacity(0.1),
             Theme.of(context).colorScheme.secondary.withOpacity(0.1),
           ],
@@ -80,7 +81,7 @@ class HomeDashboardScreen extends ConsumerWidget {
         ),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           CircleAvatar(
             radius: 30,
             backgroundColor:
@@ -95,7 +96,7 @@ class HomeDashboardScreen extends ConsumerWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   'Welcome back,',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -128,29 +129,29 @@ class HomeDashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildQuickAccessGrid(BuildContext context) {
-    final quickActions = [
-      {
+    final List<Map<String, Object>> quickActions = <Map<String, Object>>[
+      <String, Object>{
         'title': 'Exercise',
         'subtitle': 'AI Workouts',
         'icon': Icons.fitness_center_outlined,
         'route': '/exercise',
         'implemented': true,
       },
-      {
+      <String, Object>{
         'title': 'Nutrition',
         'subtitle': 'Meal Tracking',
         'icon': Icons.restaurant_outlined,
         'route': '/nutrition',
         'implemented': true,
       },
-      {
+      <String, Object>{
         'title': 'Sleep',
         'subtitle': 'Sleep Tracking',
         'icon': Icons.bedtime_outlined,
         'route': '/sleep',
         'implemented': false,
       },
-      {
+      <String, Object>{
         'title': 'Profile',
         'subtitle': 'Your Progress',
         'icon': Icons.person_outline,
@@ -169,8 +170,8 @@ class HomeDashboardScreen extends ConsumerWidget {
         childAspectRatio: 1.2,
       ),
       itemCount: quickActions.length,
-      itemBuilder: (context, index) {
-        final action = quickActions[index];
+      itemBuilder: (BuildContext context, int index) {
+        final Map<String, Object> action = quickActions[index];
         return _buildQuickActionCard(context, action);
       },
     );
@@ -197,7 +198,7 @@ class HomeDashboardScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -250,7 +251,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                     ),
                 textAlign: TextAlign.center,
               ),
-              if (!isImplemented) ...[
+              if (!isImplemented) ...<Widget>[
                 const SizedBox(height: 8),
                 Container(
                   padding:
@@ -296,7 +297,7 @@ class HomeDashboardScreen extends ConsumerWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
+            colors: <Color>[
               Theme.of(context).colorScheme.secondary.withOpacity(0.1),
               Theme.of(context).colorScheme.primary.withOpacity(0.05),
             ],
@@ -305,9 +306,9 @@ class HomeDashboardScreen extends ConsumerWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 Icon(
                   Icons.today_outlined,
                   color: Theme.of(context).colorScheme.secondary,
@@ -332,7 +333,7 @@ class HomeDashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => context.go('/exercise'),
@@ -363,38 +364,38 @@ class HomeDashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildImplementationStatus(BuildContext context) {
-    final features = [
-      {
+    final List<Map<String, Object>> features = <Map<String, Object>>[
+      <String, Object>{
         'name': 'AI Workout Generation',
         'status': 'Implemented',
         'description': 'Generate personalized workout plans',
         'color': Theme.of(context).colorScheme.primary,
       },
-      {
+      <String, Object>{
         'name': 'Food Recognition',
         'status': 'Implemented',
         'description': 'AI-powered meal analysis',
         'color': Theme.of(context).colorScheme.primary,
       },
-      {
+      <String, Object>{
         'name': 'Meal Planning',
         'status': 'Implemented',
         'description': 'Sustainable meal recommendations',
         'color': Theme.of(context).colorScheme.primary,
       },
-      {
+      <String, Object>{
         'name': 'Sleep Tracking',
         'status': 'To Be Implemented',
         'description': 'Monitor sleep patterns and quality',
         'color': Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
       },
-      {
+      <String, Object>{
         'name': 'Carbon Footprint',
         'status': 'To Be Implemented',
         'description': 'Track environmental impact',
         'color': Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
       },
-      {
+      <String, Object>{
         'name': 'Social Features',
         'status': 'To Be Implemented',
         'description': 'Connect with eco-conscious community',
@@ -404,7 +405,7 @@ class HomeDashboardScreen extends ConsumerWidget {
 
     return Column(
       children: features
-          .map((feature) => _buildStatusItem(context, feature))
+          .map((Map<String, Object> feature) => _buildStatusItem(context, feature))
           .toList(),
     );
   }
@@ -426,7 +427,7 @@ class HomeDashboardScreen extends ConsumerWidget {
         ),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Container(
             width: 12,
             height: 12,
@@ -439,7 +440,7 @@ class HomeDashboardScreen extends ConsumerWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   feature['name'] as String,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(

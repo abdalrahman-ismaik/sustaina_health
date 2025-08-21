@@ -8,7 +8,7 @@ class WorkoutSavingTest {
   static Future<void> runTests() async {
     print('Starting Workout Saving Tests...\n');
 
-    final service = WorkoutSessionService();
+    final WorkoutSessionService service = WorkoutSessionService();
 
     // Test 1: Create and save a simple workout
     await testBasicWorkoutSaving(service);
@@ -31,7 +31,7 @@ class WorkoutSavingTest {
 
     try {
       // Create a test workout
-      final testWorkout = _createTestWorkout();
+      final ActiveWorkoutSession testWorkout = _createTestWorkout();
 
       print('   Creating test workout: ${testWorkout.summary}');
 
@@ -40,7 +40,7 @@ class WorkoutSavingTest {
       print('   ✓ Active workout saved');
 
       // Retrieve active workout
-      final retrievedActive = await service.getActiveWorkout();
+      final ActiveWorkoutSession? retrievedActive = await service.getActiveWorkout();
       if (retrievedActive != null && retrievedActive.id == testWorkout.id) {
         print('   ✓ Active workout retrieved successfully');
       } else {
@@ -48,7 +48,7 @@ class WorkoutSavingTest {
       }
 
       // Complete the workout
-      final completedWorkout = testWorkout.copyWith(
+      final ActiveWorkoutSession completedWorkout = testWorkout.copyWith(
         isCompleted: true,
         endTime: DateTime.now(),
         totalDuration: const Duration(minutes: 30),
@@ -58,8 +58,8 @@ class WorkoutSavingTest {
       print('   ✓ Completed workout saved');
 
       // Retrieve completed workouts
-      final completedWorkouts = await service.getCompletedWorkouts();
-      if (completedWorkouts.any((w) => w.id == testWorkout.id)) {
+      final List<ActiveWorkoutSession> completedWorkouts = await service.getCompletedWorkouts();
+      if (completedWorkouts.any((ActiveWorkoutSession w) => w.id == testWorkout.id)) {
         print('   ✓ Completed workout retrieved successfully');
       } else {
         print('   ❌ Failed to retrieve completed workout');
@@ -80,8 +80,8 @@ class WorkoutSavingTest {
     print('🧪 Test 2: Duplicate Handling');
 
     try {
-      final testWorkout = _createTestWorkout();
-      final completedWorkout = testWorkout.copyWith(
+      final ActiveWorkoutSession testWorkout = _createTestWorkout();
+      final ActiveWorkoutSession completedWorkout = testWorkout.copyWith(
         isCompleted: true,
         endTime: DateTime.now(),
         totalDuration: const Duration(minutes: 30),
@@ -91,7 +91,7 @@ class WorkoutSavingTest {
       await service.saveCompletedWorkout(completedWorkout);
 
       // Save again with updates
-      final updatedWorkout = completedWorkout.copyWith(
+      final ActiveWorkoutSession updatedWorkout = completedWorkout.copyWith(
         totalDuration: const Duration(minutes: 45),
         notes: 'Updated workout',
       );
@@ -99,9 +99,9 @@ class WorkoutSavingTest {
       await service.saveCompletedWorkout(updatedWorkout);
 
       // Check that only one copy exists
-      final completedWorkouts = await service.getCompletedWorkouts();
-      final matchingWorkouts =
-          completedWorkouts.where((w) => w.id == testWorkout.id).toList();
+      final List<ActiveWorkoutSession> completedWorkouts = await service.getCompletedWorkouts();
+      final List<ActiveWorkoutSession> matchingWorkouts =
+          completedWorkouts.where((ActiveWorkoutSession w) => w.id == testWorkout.id).toList();
 
       if (matchingWorkouts.length == 1) {
         print('   ✓ Duplicate handling works correctly');
@@ -127,11 +127,11 @@ class WorkoutSavingTest {
 
     try {
       // Test invalid workout (empty name)
-      final invalidWorkout = ActiveWorkoutSession(
+      final ActiveWorkoutSession invalidWorkout = ActiveWorkoutSession(
         id: 'invalid-id',
         workoutName: '', // Invalid: empty name
         startTime: DateTime.now(),
-        exercises: [], // Invalid: no exercises
+        exercises: <CompletedExercise>[], // Invalid: no exercises
         totalDuration: Duration.zero,
       );
 
@@ -162,12 +162,12 @@ class WorkoutSavingTest {
       await service.clearActiveWorkout();
 
       // Create and save an active workout
-      final testWorkout = _createTestWorkout();
+      final ActiveWorkoutSession testWorkout = _createTestWorkout();
       await service.saveActiveWorkout(testWorkout);
 
       // Simulate app restart by creating a new service instance
-      final newService = WorkoutSessionService();
-      final retrievedWorkout = await newService.getActiveWorkout();
+      final WorkoutSessionService newService = WorkoutSessionService();
+      final ActiveWorkoutSession? retrievedWorkout = await newService.getActiveWorkout();
 
       if (retrievedWorkout != null && retrievedWorkout.id == testWorkout.id) {
         print('   ✓ Active workout persisted across service instances');
@@ -189,15 +189,15 @@ class WorkoutSavingTest {
       id: 'test-workout-${DateTime.now().millisecondsSinceEpoch}',
       workoutName: 'Test Workout',
       startTime: DateTime.now(),
-      exercises: [
+      exercises: <CompletedExercise>[
         const CompletedExercise(
           name: 'Push-ups',
-          sets: [],
+          sets: <ExerciseSet>[],
           restTime: 60,
         ),
         const CompletedExercise(
           name: 'Squats',
-          sets: [],
+          sets: <ExerciseSet>[],
           restTime: 90,
         ),
       ],
@@ -228,7 +228,7 @@ class _WorkoutTestScreenState extends State<WorkoutTestScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             ElevatedButton(
               onPressed: _isRunning ? null : _runTests,
               child: Text(_isRunning ? 'Running Tests...' : 'Run Tests'),

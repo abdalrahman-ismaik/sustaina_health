@@ -55,7 +55,7 @@ class CameraService {
       );
 
       if (images.isNotEmpty) {
-        return images.map((image) => File(image.path)).toList();
+        return images.map((XFile image) => File(image.path)).toList();
       }
       return null;
     } on PlatformException catch (e) {

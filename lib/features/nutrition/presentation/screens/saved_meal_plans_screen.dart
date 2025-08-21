@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghiraas/features/nutrition/data/models/nutrition_models.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
 import '../../domain/repositories/nutrition_repository.dart';
@@ -9,7 +10,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final savedMealPlansAsync = ref.watch(savedMealPlansProvider);
+    final AsyncValue<List<SavedMealPlan>> savedMealPlansAsync = ref.watch(savedMealPlansProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -24,7 +25,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF121714)),
-        actions: [
+        actions: <Widget>[
           IconButton(
             onPressed: () {
               context.go('/nutrition/ai-meal-plan');
@@ -39,7 +40,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
           await ref.read(savedMealPlansProvider.notifier).loadSavedMealPlans();
         },
         child: savedMealPlansAsync.when(
-          data: (mealPlans) => mealPlans.isEmpty
+          data: (List<SavedMealPlan> mealPlans) => mealPlans.isEmpty
               ? _buildEmptyState(context)
               : _buildMealPlanList(context, ref, mealPlans),
           loading: () => const Center(
@@ -47,7 +48,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
               color: Color(0xFF94E0B2),
             ),
           ),
-          error: (error, stackTrace) => _buildErrorState(context, ref, error),
+          error: (Object error, StackTrace stackTrace) => _buildErrorState(context, ref, error),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -73,7 +74,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
@@ -146,9 +147,9 @@ class SavedMealPlansScreen extends ConsumerWidget {
                 border: Border.all(color: Colors.grey.shade200),
               ),
               child: Column(
-                children: [
+                children: <Widget>[
                   Row(
-                    children: [
+                    children: <Widget>[
                       Icon(Icons.info_outline,
                           color: Colors.grey.shade600, size: 20),
                       const SizedBox(width: 8),
@@ -186,7 +187,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             const Icon(
               Icons.error_outline,
               size: 80,
@@ -241,8 +242,8 @@ class SavedMealPlansScreen extends ConsumerWidget {
   Widget _buildMealPlanList(
       BuildContext context, WidgetRef ref, List<SavedMealPlan> mealPlans) {
     // Sort meal plans: favorites first, then by last used, then by creation date
-    final sortedMealPlans = List<SavedMealPlan>.from(mealPlans);
-    sortedMealPlans.sort((a, b) {
+    final List<SavedMealPlan> sortedMealPlans = List<SavedMealPlan>.from(mealPlans);
+    sortedMealPlans.sort((SavedMealPlan a, SavedMealPlan b) {
       // First priority: favorites
       if (a.isFavorite && !b.isFavorite) return -1;
       if (!a.isFavorite && b.isFavorite) return 1;
@@ -260,14 +261,14 @@ class SavedMealPlansScreen extends ConsumerWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         // Header with stats
         Container(
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
+              colors: <Color>[
                 const Color(0xFF94E0B2).withOpacity(0.8),
                 const Color(0xFF94E0B2).withOpacity(0.6),
               ],
@@ -277,11 +278,11 @@ class SavedMealPlansScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     const Text(
                       'Your Meal Plans',
                       style: TextStyle(
@@ -325,8 +326,8 @@ class SavedMealPlansScreen extends ConsumerWidget {
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: sortedMealPlans.length,
-            itemBuilder: (context, index) {
-              final mealPlan = sortedMealPlans[index];
+            itemBuilder: (BuildContext context, int index) {
+              final SavedMealPlan mealPlan = sortedMealPlans[index];
               return _buildMealPlanCard(context, ref, mealPlan);
             },
           ),
@@ -337,13 +338,13 @@ class SavedMealPlansScreen extends ConsumerWidget {
 
   Widget _buildFilterTabs(
       BuildContext context, WidgetRef ref, List<SavedMealPlan> mealPlans) {
-    final favoriteCount = mealPlans.where((w) => w.isFavorite).length;
-    final recentCount = mealPlans.where((w) => w.lastUsed != null).length;
+    final int favoriteCount = mealPlans.where((SavedMealPlan w) => w.isFavorite).length;
+    final int recentCount = mealPlans.where((SavedMealPlan w) => w.lastUsed != null).length;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
-        children: [
+        children: <Widget>[
           _buildFilterChip('All (${mealPlans.length})', true),
           const SizedBox(width: 8),
           if (favoriteCount > 0)
@@ -379,11 +380,11 @@ class SavedMealPlansScreen extends ConsumerWidget {
 
   Widget _buildMealPlanCard(
       BuildContext context, WidgetRef ref, SavedMealPlan mealPlan) {
-    final totalDays = mealPlan.mealPlan.totalDays;
-    final dailyCalories = mealPlan.mealPlan.dailyMealPlans.isNotEmpty
+    final int totalDays = mealPlan.mealPlan.totalDays;
+    final int dailyCalories = mealPlan.mealPlan.dailyMealPlans.isNotEmpty
         ? mealPlan.mealPlan.dailyMealPlans.first.totalDailyCalories
         : 0;
-    final totalMeals = mealPlan.mealPlan.dailyMealPlans.isNotEmpty
+    final int totalMeals = mealPlan.mealPlan.dailyMealPlans.isNotEmpty
         ? 3 +
             mealPlan.mealPlan.dailyMealPlans.first.snacks
                 .length // breakfast, lunch, dinner + snacks
@@ -408,9 +409,9 @@ class SavedMealPlansScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Row(
-                children: [
+                children: <Widget>[
                   if (mealPlan.isFavorite)
                     Container(
                       margin: const EdgeInsets.only(right: 8),
@@ -436,7 +437,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
                     ),
                   ),
                   PopupMenuButton<String>(
-                    onSelected: (value) async {
+                    onSelected: (String value) async {
                       if (value == 'delete') {
                         _showDeleteConfirmation(context, ref, mealPlan);
                       } else if (value == 'duplicate') {
@@ -451,11 +452,11 @@ class SavedMealPlansScreen extends ConsumerWidget {
                         );
                       }
                     },
-                    itemBuilder: (context) => [
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                       PopupMenuItem(
                         value: 'favorite',
                         child: Row(
-                          children: [
+                          children: <Widget>[
                             Icon(
                               mealPlan.isFavorite
                                   ? Icons.favorite_border
@@ -472,7 +473,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
                       const PopupMenuItem(
                         value: 'duplicate',
                         child: Row(
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.copy, color: Color(0xFF94E0B2)),
                             SizedBox(width: 8),
                             Text('Duplicate'),
@@ -482,7 +483,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
                       const PopupMenuItem(
                         value: 'delete',
                         child: Row(
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.delete, color: Colors.red),
                             SizedBox(width: 8),
                             Text('Delete'),
@@ -500,7 +501,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [
+                children: <Widget>[
                   _buildStatChip(
                     Icons.calendar_today,
                     '$totalDays days',
@@ -524,10 +525,10 @@ class SavedMealPlansScreen extends ConsumerWidget {
               // Date information
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         'Created: ${_formatDate(mealPlan.createdAt)}',
                         style: const TextStyle(
@@ -580,7 +581,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
@@ -599,7 +600,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
   void _duplicateMealPlan(
       BuildContext context, WidgetRef ref, SavedMealPlan mealPlan) async {
     try {
-      final duplicatedName = "${mealPlan.name} (Copy)";
+      final String duplicatedName = "${mealPlan.name} (Copy)";
       await ref.read(savedMealPlansProvider.notifier).saveMealPlan(
             mealPlan.mealPlan,
             duplicatedName,
@@ -626,8 +627,8 @@ class SavedMealPlansScreen extends ConsumerWidget {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(date);
 
     if (difference.inDays == 0) {
       return 'Today';
@@ -657,7 +658,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
             'Are you sure you want to delete "${mealPlan.name}"? This action cannot be undone.',
             style: const TextStyle(color: Color(0xFF121714)),
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
@@ -717,7 +718,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => _MealPlanDetailScreen(mealPlan: mealPlan),
+        builder: (BuildContext context) => _MealPlanDetailScreen(mealPlan: mealPlan),
       ),
     );
   }
@@ -749,14 +750,14 @@ class _MealPlanDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Plan Overview Card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
+                  colors: <Color>[
                     const Color(0xFF94E0B2).withOpacity(0.8),
                     const Color(0xFF94E0B2).withOpacity(0.6),
                   ],
@@ -767,7 +768,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   const Text(
                     'Plan Overview',
                     style: TextStyle(
@@ -778,7 +779,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _buildOverviewStat(
                           icon: Icons.calendar_today,
@@ -800,7 +801,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _buildOverviewStat(
                           icon: Icons.restaurant,
@@ -844,7 +845,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
                 border: Border.all(color: Colors.grey.shade200),
               ),
               child: Column(
-                children: [
+                children: <Widget>[
                   _buildNutritionRange(
                     'Daily Calories',
                     mealPlan.mealPlan.dailyCaloriesRange.min,
@@ -894,13 +895,13 @@ class _MealPlanDetailScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             ...mealPlan.mealPlan.dailyMealPlans.map(
-              (daily) => Container(
+              (DailyMealPlan daily) => Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade200),
-                  boxShadow: [
+                  boxShadow: <BoxShadow>[
                     BoxShadow(
                       color: Colors.grey.shade100,
                       offset: const Offset(0, 2),
@@ -924,21 +925,21 @@ class _MealPlanDetailScreen extends StatelessWidget {
                       fontSize: 14,
                     ),
                   ),
-                  children: [
+                  children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: <Widget>[
                           _buildMealCard('Breakfast', daily.breakfast),
                           const SizedBox(height: 12),
                           _buildMealCard('Lunch', daily.lunch),
                           const SizedBox(height: 12),
                           _buildMealCard('Dinner', daily.dinner),
-                          if (daily.snacks.isNotEmpty) ...[
+                          if (daily.snacks.isNotEmpty) ...<Widget>[
                             const SizedBox(height: 12),
                             ...daily.snacks.asMap().entries.map(
-                                  (entry) => Padding(
+                                  (MapEntry<int, MealOption> entry) => Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
                                     child: _buildMealCard(
                                         'Snack ${entry.key + 1}', entry.value),
@@ -956,7 +957,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                              children: <Widget>[
                                 const Text(
                                   'Daily Macros',
                                   style: TextStyle(
@@ -967,7 +968,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 8),
                                 Row(
-                                  children: [
+                                  children: <Widget>[
                                     Expanded(
                                         child: Text(
                                             'Protein: ${daily.dailyMacros.protein}g')),
@@ -1002,9 +1003,9 @@ class _MealPlanDetailScreen extends StatelessWidget {
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Row(
-          children: [
+          children: <Widget>[
             Icon(icon, color: const Color(0xFF121714), size: 16),
             const SizedBox(width: 4),
             Text(
@@ -1033,7 +1034,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
   Widget _buildNutritionRange(
       String label, int min, int max, String unit, Color color) {
     return Row(
-      children: [
+      children: <Widget>[
         Container(
           width: 8,
           height: 8,
@@ -1064,7 +1065,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMealCard(String mealType, dynamic meal) {
+  Widget _buildMealCard(String mealType, meal) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -1074,9 +1075,9 @@ class _MealPlanDetailScreen extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -1111,7 +1112,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
               color: Color(0xFF121714),
             ),
           ),
-          if (meal.recipe.isNotEmpty) ...[
+          if (meal.recipe.isNotEmpty) ...<Widget>[
             const SizedBox(height: 4),
             Text(
               meal.recipe,
@@ -1121,7 +1122,7 @@ class _MealPlanDetailScreen extends StatelessWidget {
               ),
             ),
           ],
-          if (meal.ingredients.isNotEmpty) ...[
+          if (meal.ingredients.isNotEmpty) ...<Widget>[
             const SizedBox(height: 8),
             const Text(
               'Ingredients:',
@@ -1161,8 +1162,8 @@ class _MealPlanDetailScreen extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(date);
 
     if (difference.inDays == 0) {
       return 'Today';

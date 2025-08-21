@@ -246,7 +246,7 @@ class _SignInForm extends StatelessWidget {
                   border: Border.all(color: Colors.red.shade200),
                 ),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     Icon(Icons.error_outline,
                         color: Colors.red.shade600, size: 20),
                     const SizedBox(width: 12),
@@ -335,9 +335,9 @@ class _SignInForm extends StatelessWidget {
             // Remember Me & Forgot Password Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: <Widget>[
                 Row(
-                  children: [
+                  children: <Widget>[
                     Transform.scale(
                       scale: 1.2,
                       child: Checkbox(
@@ -414,7 +414,7 @@ class _SignInForm extends StatelessWidget {
 
             // Divider
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                     child:
                         Divider(color: const Color(0xFFDDE4E0), thickness: 1)),
@@ -484,7 +484,7 @@ class _SignInForm extends StatelessWidget {
                     color: const Color(0xFF688273),
                     fontSize: 16,
                   ),
-                  children: [
+                  children: <InlineSpan>[
                     TextSpan(
                       text: 'Sign Up',
                       style: TextStyle(

@@ -21,7 +21,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   String? notes;
   bool isSaving = false;
 
-  final List<String> moodOptions = ['Poor', 'Fair', 'Good', 'Excellent'];
+  final List<String> moodOptions = <String>['Poor', 'Fair', 'Good', 'Excellent'];
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Header
             Container(
               width: double.infinity,
@@ -52,7 +52,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
+                  colors: <Color>[
                     SleepColors.primaryGreen,
                     SleepColors.primaryGreenLight,
                   ],
@@ -61,7 +61,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   const Text(
                     'How did you sleep?',
                     style: TextStyle(
@@ -122,7 +122,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Sleep Date',
             style: TextStyle(
@@ -134,12 +134,12 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           const SizedBox(height: 16),
           InkWell(
             onTap: () async {
-              final pickedDate = await showDatePicker(
+              final DateTime? pickedDate = await showDatePicker(
                 context: context,
                 initialDate: selectedDate,
                 firstDate: DateTime.now().subtract(const Duration(days: 30)),
                 lastDate: DateTime.now().add(const Duration(days: 1)),
-                builder: (context, child) {
+                builder: (BuildContext context, Widget? child) {
                   return Theme(
                     data: Theme.of(context).copyWith(
                       colorScheme: const ColorScheme.light(
@@ -170,7 +170,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                 border: Border.all(color: SleepColors.textTertiary.withOpacity(0.3)),
               ),
               child: Row(
-                children: [
+                children: <Widget>[
                   Icon(
                     Icons.calendar_today,
                     color: SleepColors.primaryGreen,
@@ -180,7 +180,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Text(
                           'Date',
                           style: TextStyle(
@@ -226,7 +226,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Sleep Time',
             style: TextStyle(
@@ -237,13 +237,13 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           ),
           const SizedBox(height: 16),
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: _buildTimePicker(
                   'Bedtime',
                   bedtime,
                   Icons.nightlight_round,
-                  (time) => setState(() => bedtime = time),
+                  (TimeOfDay time) => setState(() => bedtime = time),
                 ),
               ),
               const SizedBox(width: 16),
@@ -252,7 +252,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                   'Wake Time',
                   wakeTime,
                   Icons.wb_sunny,
-                  (time) => setState(() => wakeTime = time),
+                  (TimeOfDay time) => setState(() => wakeTime = time),
                 ),
               ),
             ],
@@ -265,10 +265,10 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   Widget _buildTimePicker(String label, TimeOfDay? time, IconData icon, Function(TimeOfDay) onTimeSelected) {
     return InkWell(
       onTap: () async {
-        final selectedTime = await showTimePicker(
+        final TimeOfDay? selectedTime = await showTimePicker(
           context: context,
           initialTime: time ?? TimeOfDay.now(),
-          builder: (context, child) {
+          builder: (BuildContext context, Widget? child) {
             return Theme(
               data: Theme.of(context).copyWith(
                 colorScheme: const ColorScheme.light(
@@ -292,7 +292,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           border: Border.all(color: SleepColors.textTertiary.withOpacity(0.3)),
         ),
         child: Column(
-          children: [
+          children: <Widget>[
             Icon(icon, color: SleepColors.primaryGreen, size: 24),
             const SizedBox(height: 8),
             Text(
@@ -329,7 +329,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Sleep Quality',
             style: TextStyle(
@@ -341,7 +341,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: <Widget>[
               Text(
                 'Rate your sleep (1-10)',
                 style: TextStyle(
@@ -374,7 +374,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
             divisions: 9,
             activeColor: SleepColors.primaryGreen,
             inactiveColor: SleepColors.textTertiary.withOpacity(0.3),
-            onChanged: (value) => setState(() => sleepQuality = value),
+            onChanged: (double value) => setState(() => sleepQuality = value),
           ),
         ],
       ),
@@ -392,7 +392,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'How do you feel?',
             style: TextStyle(
@@ -405,12 +405,12 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: moodOptions.map((moodOption) {
-              final isSelected = mood == moodOption;
+            children: moodOptions.map((String moodOption) {
+              final bool isSelected = mood == moodOption;
               return ChoiceChip(
                 label: Text(moodOption),
                 selected: isSelected,
-                onSelected: (selected) {
+                onSelected: (bool selected) {
                   if (selected) {
                     setState(() => mood = moodOption);
                   }
@@ -443,7 +443,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Notes (Optional)',
             style: TextStyle(
@@ -474,7 +474,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
               fillColor: SleepColors.backgroundGrey,
             ),
             style: TextStyle(color: SleepColors.textPrimary),
-            onChanged: (value) => setState(() => notes = value),
+            onChanged: (String value) => setState(() => notes = value),
           ),
         ],
       ),
@@ -482,7 +482,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildSaveButton() {
-    final isValid = bedtime != null && wakeTime != null;
+    final bool isValid = bedtime != null && wakeTime != null;
     
     return SizedBox(
       width: double.infinity,
@@ -532,7 +532,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
 
     try {
       // Check for existing sleep sessions on the selected date
-      final existingSessions = await ref.read(sleepSessionsProvider.notifier).getSleepSessionsForDate(selectedDate);
+      final List<SleepSession> existingSessions = await ref.read(sleepSessionsProvider.notifier).getSleepSessionsForDate(selectedDate);
       
       if (existingSessions.isNotEmpty) {
         if (mounted) {
@@ -548,15 +548,15 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       }
 
       // Calculate sleep duration
-      final now = DateTime.now();
-      final bedtimeDateTime = DateTime(
+      final DateTime now = DateTime.now();
+      final DateTime bedtimeDateTime = DateTime(
         selectedDate.year,
         selectedDate.month,
         selectedDate.day,
         bedtime!.hour,
         bedtime!.minute,
       );
-      final wakeTimeDateTime = DateTime(
+      final DateTime wakeTimeDateTime = DateTime(
         selectedDate.year,
         selectedDate.month,
         selectedDate.day,
@@ -565,11 +565,11 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       );
 
       // Adjust wake time if it's before bedtime (next day)
-      final adjustedWakeTime = wakeTimeDateTime.isBefore(bedtimeDateTime)
+      final DateTime adjustedWakeTime = wakeTimeDateTime.isBefore(bedtimeDateTime)
           ? wakeTimeDateTime.add(const Duration(days: 1))
           : wakeTimeDateTime;
 
-      final duration = adjustedWakeTime.difference(bedtimeDateTime);
+      final Duration duration = adjustedWakeTime.difference(bedtimeDateTime);
 
       // Validate sleep duration (max 24 hours)
       if (duration.inHours > 24) {
@@ -586,7 +586,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       }
 
       // Create sleep session
-      final sleepSession = SleepSession(
+      final SleepSession sleepSession = SleepSession(
         id: const Uuid().v4(),
         startTime: bedtimeDateTime,
         endTime: adjustedWakeTime,

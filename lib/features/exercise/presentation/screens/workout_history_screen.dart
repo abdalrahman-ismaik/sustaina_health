@@ -27,18 +27,18 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
+    final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
 
     return Scaffold(
       backgroundColor: ExerciseColors.backgroundLight,
       body: SafeArea(
         child: Column(
-          children: [
+          children: <Widget>[
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   IconButton(
                     icon: Icon(Icons.arrow_back,
                         color: ExerciseColors.textPrimary),
@@ -65,7 +65,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                children: [
+                children: <Widget>[
                   _TabButton(
                     label: 'All',
                     selected: _selectedTab == 'All',
@@ -90,13 +90,13 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             // Content
             Expanded(
               child: completedWorkoutsAsync.when(
-                data: (completedWorkouts) {
+                data: (List<ActiveWorkoutSession> completedWorkouts) {
                   if (completedWorkouts.isEmpty) {
                     return _buildEmptyState();
                   }
 
                   // Filter workouts based on selected tab
-                  final filteredWorkouts = _filterWorkouts(completedWorkouts);
+                  final List<ActiveWorkoutSession> filteredWorkouts = _filterWorkouts(completedWorkouts);
 
                   if (filteredWorkouts.isEmpty) {
                     return _buildEmptyFilterState();
@@ -109,7 +109,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                     color: ExerciseColors.loadingIndicator,
                   ),
                 ),
-                error: (error, stack) => _buildErrorState(error),
+                error: (Object error, StackTrace stack) => _buildErrorState(error),
               ),
             ),
           ],
@@ -120,12 +120,12 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
   List<ActiveWorkoutSession> _filterWorkouts(
       List<ActiveWorkoutSession> workouts) {
-    final now = DateTime.now();
+    final DateTime now = DateTime.now();
 
     switch (_selectedTab) {
       case 'This Week':
         // Calculate start of current week (Monday 00:00:00)
-        final weekStart = DateTime(now.year, now.month, now.day)
+        final DateTime weekStart = DateTime(now.year, now.month, now.day)
             .subtract(Duration(days: now.weekday - 1));
 
         print('DEBUG: Filtering for This Week');
@@ -133,17 +133,17 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
         print('DEBUG: Week start: $weekStart');
         print('DEBUG: Total workouts to filter: ${workouts.length}');
 
-        final filteredWorkouts = workouts
-            .where((w) =>
+        final List<ActiveWorkoutSession> filteredWorkouts = workouts
+            .where((ActiveWorkoutSession w) =>
                 w.isCompleted &&
                 w.endTime != null &&
                 w.endTime!.isAfter(weekStart.subtract(Duration(seconds: 1))))
             .toList()
-          ..sort((a, b) => b.endTime!.compareTo(a.endTime!));
+          ..sort((ActiveWorkoutSession a, ActiveWorkoutSession b) => b.endTime!.compareTo(a.endTime!));
 
         print(
             'DEBUG: Workouts after This Week filter: ${filteredWorkouts.length}');
-        for (final workout in filteredWorkouts) {
+        for (final ActiveWorkoutSession workout in filteredWorkouts) {
           print(
               'DEBUG: Workout: ${workout.workoutName} completed at ${workout.endTime}');
         }
@@ -151,18 +151,18 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
         return filteredWorkouts;
 
       case 'This Month':
-        final monthStart = DateTime(now.year, now.month, 1);
+        final DateTime monthStart = DateTime(now.year, now.month, 1);
 
         print('DEBUG: Filtering for This Month');
         print('DEBUG: Month start: $monthStart');
 
-        final filteredWorkouts = workouts
-            .where((w) =>
+        final List<ActiveWorkoutSession> filteredWorkouts = workouts
+            .where((ActiveWorkoutSession w) =>
                 w.isCompleted &&
                 w.endTime != null &&
                 w.endTime!.isAfter(monthStart.subtract(Duration(seconds: 1))))
             .toList()
-          ..sort((a, b) => b.endTime!.compareTo(a.endTime!));
+          ..sort((ActiveWorkoutSession a, ActiveWorkoutSession b) => b.endTime!.compareTo(a.endTime!));
 
         print(
             'DEBUG: Workouts after This Month filter: ${filteredWorkouts.length}');
@@ -171,10 +171,10 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
       default: // All
         print('DEBUG: Showing all workouts');
-        final filteredWorkouts = workouts
-            .where((w) => w.isCompleted && w.endTime != null)
+        final List<ActiveWorkoutSession> filteredWorkouts = workouts
+            .where((ActiveWorkoutSession w) => w.isCompleted && w.endTime != null)
             .toList()
-          ..sort((a, b) => b.endTime!.compareTo(a.endTime!));
+          ..sort((ActiveWorkoutSession a, ActiveWorkoutSession b) => b.endTime!.compareTo(a.endTime!));
 
         print('DEBUG: Total completed workouts: ${filteredWorkouts.length}');
 
@@ -186,7 +186,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           Icon(
             Icons.fitness_center,
             size: 64,
@@ -236,7 +236,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           Icon(
             Icons.filter_list_off,
             size: 64,
@@ -268,7 +268,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           Icon(
             Icons.error_outline,
             size: 64,
@@ -320,7 +320,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
   Widget _buildWorkoutsList(List<ActiveWorkoutSession> workouts) {
     return Column(
-      children: [
+      children: <Widget>[
         // Stats Section
         _buildStatsSection(workouts),
 
@@ -331,8 +331,8 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: workouts.length,
-            itemBuilder: (context, index) {
-              final workout = workouts[index];
+            itemBuilder: (BuildContext context, int index) {
+              final ActiveWorkoutSession workout = workouts[index];
               return _buildWorkoutCard(workout);
             },
           ),
@@ -342,22 +342,22 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
   }
 
   Widget _buildStatsSection(List<ActiveWorkoutSession> workouts) {
-    final totalDuration = workouts.fold<Duration>(
+    final Duration totalDuration = workouts.fold<Duration>(
       Duration.zero,
-      (sum, workout) => sum + workout.totalDuration,
+      (Duration sum, ActiveWorkoutSession workout) => sum + workout.totalDuration,
     );
 
-    final totalSets = workouts.fold<int>(
+    final int totalSets = workouts.fold<int>(
       0,
-      (sum, workout) =>
+      (int sum, ActiveWorkoutSession workout) =>
           sum +
           workout.exercises.fold<int>(
             0,
-            (exerciseSum, exercise) => exerciseSum + exercise.sets.length,
+            (int exerciseSum, CompletedExercise exercise) => exerciseSum + exercise.sets.length,
           ),
     );
 
-    final avgDuration = workouts.isNotEmpty
+    final Duration avgDuration = workouts.isNotEmpty
         ? Duration(
             milliseconds: totalDuration.inMilliseconds ~/ workouts.length)
         : Duration.zero;
@@ -372,7 +372,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Statistics',
             style: TextStyle(
@@ -383,7 +383,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           ),
           const SizedBox(height: 12),
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: _StatItem(
                   label: 'Total Workouts',
@@ -400,7 +400,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           ),
           const SizedBox(height: 12),
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: _StatItem(
                   label: 'Total Time',
@@ -421,9 +421,9 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
   }
 
   Widget _buildWorkoutCard(ActiveWorkoutSession workout) {
-    final totalSets = workout.exercises.fold<int>(
+    final int totalSets = workout.exercises.fold<int>(
       0,
-      (sum, exercise) => sum + exercise.sets.length,
+      (int sum, CompletedExercise exercise) => sum + exercise.sets.length,
     );
 
     return Container(
@@ -439,7 +439,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CompletedWorkoutDetailScreen(
+                builder: (BuildContext context) => CompletedWorkoutDetailScreen(
                   completedWorkout: workout,
                 ),
               ),
@@ -450,9 +450,9 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Row(
-                  children: [
+                  children: <Widget>[
                     Expanded(
                       child: Text(
                         workout.workoutName,
@@ -480,7 +480,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                 ),
                 const SizedBox(height: 12),
                 Row(
-                  children: [
+                  children: <Widget>[
                     _InfoChip(
                       icon: Icons.timer,
                       label: _formatDuration(workout.totalDuration),
@@ -506,8 +506,8 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(date);
 
     if (difference.inDays == 0) {
       return 'Today at ${_formatTime(date)}';
@@ -525,8 +525,8 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
   }
 
   String _formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
+    final int hours = duration.inHours;
+    final int minutes = duration.inMinutes.remainder(60);
 
     if (hours > 0) {
       return '${hours}h ${minutes}m';
@@ -594,7 +594,7 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Text(
           value,
           style: TextStyle(
@@ -635,7 +635,7 @@ class _InfoChip extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Icon(
             icon,
             size: 14,

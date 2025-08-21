@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghiraas/features/nutrition/data/models/nutrition_models.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
 
@@ -22,7 +23,7 @@ class _BrandRecommendationsScreenState
   }
 
   void _searchBrands() {
-    final product = _searchController.text.trim();
+    final String product = _searchController.text.trim();
     if (product.isNotEmpty) {
       ref
           .read(brandRecommendationsProvider.notifier)
@@ -32,7 +33,7 @@ class _BrandRecommendationsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final brandRecommendationsState = ref.watch(brandRecommendationsProvider);
+    final AsyncValue<RecommendedBrands?> brandRecommendationsState = ref.watch(brandRecommendationsProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -57,7 +58,7 @@ class _BrandRecommendationsScreenState
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Header
             Container(
               width: double.infinity,
@@ -68,7 +69,7 @@ class _BrandRecommendationsScreenState
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     'Find Sustainable Brands',
                     style: TextStyle(
@@ -95,7 +96,7 @@ class _BrandRecommendationsScreenState
             Container(
               width: double.infinity,
               child: Column(
-                children: [
+                children: <Widget>[
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -138,7 +139,7 @@ class _BrandRecommendationsScreenState
             // Results
             Expanded(
               child: brandRecommendationsState.when(
-                data: (recommendations) {
+                data: (RecommendedBrands? recommendations) {
                   if (recommendations == null ||
                       recommendations.brands.isEmpty) {
                     return const Center(
@@ -152,10 +153,10 @@ class _BrandRecommendationsScreenState
 
                   return ListView.separated(
                     itemCount: recommendations.brands.length,
-                    separatorBuilder: (context, index) =>
+                    separatorBuilder: (BuildContext context, int index) =>
                         const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final brand = recommendations.brands[index];
+                    itemBuilder: (BuildContext context, int index) {
+                      final RecommendedBrand brand = recommendations.brands[index];
                       return Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -163,7 +164,7 @@ class _BrandRecommendationsScreenState
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.grey.shade300),
-                          boxShadow: [
+                          boxShadow: <BoxShadow>[
                             BoxShadow(
                               color: Colors.grey.withOpacity(0.1),
                               blurRadius: 4,
@@ -173,7 +174,7 @@ class _BrandRecommendationsScreenState
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             Text(
                               brand.name,
                               style: const TextStyle(
@@ -219,10 +220,10 @@ class _BrandRecommendationsScreenState
                     color: Color(0xFF94e0b2),
                   ),
                 ),
-                error: (error, _) => Center(
+                error: (Object error, _) => Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: <Widget>[
                       const Icon(
                         Icons.error_outline,
                         size: 48,

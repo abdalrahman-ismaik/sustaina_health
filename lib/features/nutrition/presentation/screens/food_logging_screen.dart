@@ -18,12 +18,12 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final foodLogState = ref.watch(foodLogProvider);
-    final dailySummaryState = ref.watch(dailyNutritionSummaryProvider);
+    final AsyncValue<List<FoodLogEntry>> foodLogState = ref.watch(foodLogProvider);
+    final AsyncValue<DailyNutritionSummary> dailySummaryState = ref.watch(dailyNutritionSummaryProvider);
 
     // Listen to food log changes and refresh daily summary
     ref.listen<AsyncValue<List<FoodLogEntry>>>(foodLogProvider,
-        (previous, next) {
+        (AsyncValue<List<FoodLogEntry>>? previous, AsyncValue<List<FoodLogEntry>> next) {
       // When food log successfully loads with new data, refresh daily summary
       if (next.hasValue && next.value != null) {
         // Only refresh if the data actually changed
@@ -57,7 +57,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       ),
       body: SafeArea(
         child: Column(
-          children: [
+          children: <Widget>[
             // Date selector
             Container(
               margin: const EdgeInsets.all(16),
@@ -67,7 +67,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
-                children: [
+                children: <Widget>[
                   Icon(Icons.calendar_today,
                       color: Colors.grey.shade600, size: 20),
                   const SizedBox(width: 8),
@@ -93,9 +93,9 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
 
             // Daily summary
             dailySummaryState.when(
-              data: (summary) => _buildDailySummary(summary),
+              data: (DailyNutritionSummary summary) => _buildDailySummary(summary),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => const SizedBox(),
+              error: (Object error, _) => const SizedBox(),
             ),
 
             // Main content
@@ -106,7 +106,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
+                    boxShadow: <BoxShadow>[
                       BoxShadow(
                         color: Colors.grey.shade200,
                         blurRadius: 10,
@@ -116,12 +116,12 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
+                    children: <Widget>[
                       // Camera logging section
                       Container(
                         padding: const EdgeInsets.all(24),
                         child: Column(
-                          children: [
+                          children: <Widget>[
                             Container(
                               width: 120,
                               height: 120,
@@ -172,7 +172,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: Column(
-                                children: [
+                                children: <Widget>[
                                   ElevatedButton.icon(
                                     onPressed: () {
                                       context.push(
@@ -207,9 +207,9 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                                         context: context,
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
-                                        builder: (context) => _ManualFoodEntrySheet(
+                                        builder: (BuildContext context) => _ManualFoodEntrySheet(
                                           mealType: selectedMealType,
-                                          onSave: (entry) {
+                                          onSave: (FoodLogEntry entry) {
                                             ref.read(foodLogProvider.notifier)
                                                 .addFoodLogEntry(entry);
                                           },
@@ -253,10 +253,10 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                         constraints: const BoxConstraints(
                             minHeight: 200, maxHeight: 400),
                         child: foodLogState.when(
-                          data: (entries) => _buildFoodLogList(entries),
+                          data: (List<FoodLogEntry> entries) => _buildFoodLogList(entries),
                           loading: () =>
                               const Center(child: CircularProgressIndicator()),
-                          error: (error, _) => Center(
+                          error: (Object error, _) => Center(
                             child: Text(
                               'Error loading food log: $error',
                               style: const TextStyle(color: Colors.red),
@@ -278,8 +278,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   Widget _buildMealTypeSelector() {
     return Wrap(
       spacing: 8,
-      children: ['breakfast', 'lunch', 'dinner', 'snack'].map((type) {
-        final isSelected = selectedMealType == type;
+      children: <String>['breakfast', 'lunch', 'dinner', 'snack'].map((String type) {
+        final bool isSelected = selectedMealType == type;
         return GestureDetector(
           onTap: () => setState(() => selectedMealType = type),
           child: Container(
@@ -311,14 +311,14 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   }
 
   Widget _buildDailySummary(DailyNutritionSummary summary) {
-    final calorieProgress = summary.calorieProgress.clamp(0.0, 1.0);
+    final double calorieProgress = summary.calorieProgress.clamp(0.0, 1.0);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
+          colors: <Color>[
             SleepColors.primaryGreen.withOpacity(0.8),
             SleepColors.primaryGreen.withOpacity(0.6),
           ],
@@ -329,7 +329,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           const Text(
             'Today\'s Progress',
             style: TextStyle(
@@ -340,11 +340,11 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
           ),
           const SizedBox(height: 12),
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       '${summary.totalNutrition.calories} / ${summary.targetCalories} cal',
                       style: const TextStyle(
@@ -365,7 +365,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
               ),
               const SizedBox(width: 16),
               Column(
-                children: [
+                children: <Widget>[
                   Text(
                     '${summary.meals.length}',
                     style: const TextStyle(
@@ -397,7 +397,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
           padding: EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Icon(
                 Icons.no_food,
                 size: 64,
@@ -428,7 +428,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -446,8 +446,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             shrinkWrap: true,
             itemCount: entries.length,
-            itemBuilder: (context, index) {
-              final entry = entries[index];
+            itemBuilder: (BuildContext context, int index) {
+              final FoodLogEntry entry = entries[index];
               return _buildFoodLogCard(entry);
             },
           ),
@@ -466,7 +466,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
-          children: [
+          children: <Widget>[
             Container(
               width: 48,
               height: 48,
@@ -483,7 +483,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     entry.foodName,
                     style: const TextStyle(
@@ -494,7 +494,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                   ),
                   const SizedBox(height: 4),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
@@ -570,10 +570,10 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _ManualFoodEntrySheet(
+      builder: (BuildContext context) => _ManualFoodEntrySheet(
         mealType: entry.mealType,
         existingEntry: entry,
-        onSave: (updatedEntry) {
+        onSave: (FoodLogEntry updatedEntry) {
           ref.read(foodLogProvider.notifier).updateFoodLogEntry(updatedEntry);
         },
       ),
@@ -583,11 +583,11 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   void _showFoodLogOptions(BuildContext context, FoodLogEntry entry) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Container(
+      builder: (BuildContext context) => Container(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             ListTile(
               leading: const Icon(Icons.edit, color: SleepColors.primaryGreen),
               title: const Text('Edit Entry'),
@@ -622,14 +622,14 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   }
 
   String _formatSelectedDate() {
-    final now = DateTime.now();
+    final DateTime now = DateTime.now();
     if (selectedDate.year == now.year &&
         selectedDate.month == now.month &&
         selectedDate.day == now.day) {
       return 'Today';
     }
 
-    final yesterday = now.subtract(const Duration(days: 1));
+    final DateTime yesterday = now.subtract(const Duration(days: 1));
     if (selectedDate.year == yesterday.year &&
         selectedDate.month == yesterday.month &&
         selectedDate.day == yesterday.day) {
@@ -674,19 +674,19 @@ class _ManualFoodEntrySheet extends ConsumerStatefulWidget {
 }
 
 class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _foodNameController = TextEditingController();
-  final _servingSizeController = TextEditingController();
-  final _caloriesController = TextEditingController();
-  final _proteinController = TextEditingController();
-  final _carbsController = TextEditingController();
-  final _fatsController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _foodNameController = TextEditingController();
+  final TextEditingController _servingSizeController = TextEditingController();
+  final TextEditingController _caloriesController = TextEditingController();
+  final TextEditingController _proteinController = TextEditingController();
+  final TextEditingController _carbsController = TextEditingController();
+  final TextEditingController _fatsController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     if (widget.existingEntry != null) {
-      final entry = widget.existingEntry!;
+      final FoodLogEntry entry = widget.existingEntry!;
       _foodNameController.text = entry.foodName;
       _servingSizeController.text = entry.servingSize;
       _caloriesController.text = entry.nutritionInfo.calories.toString();
@@ -774,10 +774,10 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 // Header
                 Row(
-                  children: [
+                  children: <Widget>[
                     Text(
                       '${widget.existingEntry != null ? 'Edit' : 'Add'} ${widget.mealType.substring(0, 1).toUpperCase()}${widget.mealType.substring(1)} Item',
                       style: const TextStyle(
@@ -802,7 +802,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                     labelText: 'Food Name',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
+                  validator: (String? value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter a food name';
                     }
@@ -818,7 +818,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                     labelText: 'Serving Size',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
+                  validator: (String? value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter a serving size';
                     }
@@ -829,7 +829,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
 
                 // Nutrition info
                 Row(
-                  children: [
+                  children: <Widget>[
                     Expanded(
                       child: TextFormField(
                         controller: _caloriesController,
@@ -838,7 +838,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                           labelText: 'Calories',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) {
+                        validator: (String? value) {
                           if (value?.isEmpty ?? true) {
                             return 'Required';
                           }
@@ -858,7 +858,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                           labelText: 'Protein (g)',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) {
+                        validator: (String? value) {
                           if (value?.isEmpty ?? true) {
                             return 'Required';
                           }
@@ -874,7 +874,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                 const SizedBox(height: 16),
 
                 Row(
-                  children: [
+                  children: <Widget>[
                     Expanded(
                       child: TextFormField(
                         controller: _carbsController,
@@ -883,7 +883,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                           labelText: 'Carbs (g)',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) {
+                        validator: (String? value) {
                           if (value?.isEmpty ?? true) {
                             return 'Required';
                           }
@@ -903,7 +903,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                           labelText: 'Fats (g)',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) {
+                        validator: (String? value) {
                           if (value?.isEmpty ?? true) {
                             return 'Required';
                           }

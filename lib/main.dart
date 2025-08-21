@@ -17,7 +17,7 @@ void main() async {
   await Hive.initFlutter();
 
   // Initialize notifications
-  final notificationService = NotificationService();
+  final NotificationService notificationService = NotificationService();
   await notificationService.initialize();
 
   runApp(

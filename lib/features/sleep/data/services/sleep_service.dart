@@ -16,14 +16,14 @@ class SleepService {
   /// Save a sleep session
   Future<String> saveSleepSession(SleepSession session) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final sessions = await getSleepSessions();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<SleepSession> sessions = await getSleepSessions();
       
       // Add new session
       sessions.add(session);
       
       // Save to storage
-      final sessionsJson = sessions.map((s) => s.toJson()).toList();
+      final List<Map<String, dynamic>> sessionsJson = sessions.map((SleepSession s) => s.toJson()).toList();
       await prefs.setString(_sleepSessionsKey, jsonEncode(sessionsJson));
       
       return session.id;
@@ -35,10 +35,10 @@ class SleepService {
   /// Get all sleep sessions
   Future<List<SleepSession>> getSleepSessions() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final sessionsJson = prefs.getString(_sleepSessionsKey);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? sessionsJson = prefs.getString(_sleepSessionsKey);
       
-      if (sessionsJson == null) return [];
+      if (sessionsJson == null) return <SleepSession>[];
       
       final List<dynamic> sessionsList = jsonDecode(sessionsJson);
       return sessionsList
@@ -51,8 +51,8 @@ class SleepService {
 
   /// Get sleep sessions for a specific date range
   Future<List<SleepSession>> getSleepSessionsForDateRange(DateTime start, DateTime end) async {
-    final sessions = await getSleepSessions();
-    return sessions.where((session) {
+    final List<SleepSession> sessions = await getSleepSessions();
+    return sessions.where((SleepSession session) {
       return session.startTime.isAfter(start.subtract(const Duration(days: 1))) &&
              session.startTime.isBefore(end.add(const Duration(days: 1)));
     }).toList();
@@ -61,12 +61,12 @@ class SleepService {
   /// Delete a sleep session
   Future<void> deleteSleepSession(String sessionId) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final sessions = await getSleepSessions();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<SleepSession> sessions = await getSleepSessions();
       
-      sessions.removeWhere((session) => session.id == sessionId);
+      sessions.removeWhere((SleepSession session) => session.id == sessionId);
       
-      final sessionsJson = sessions.map((s) => s.toJson()).toList();
+      final List<Map<String, dynamic>> sessionsJson = sessions.map((SleepSession s) => s.toJson()).toList();
       await prefs.setString(_sleepSessionsKey, jsonEncode(sessionsJson));
     } catch (e) {
       throw Exception('Failed to delete sleep session: $e');
@@ -76,14 +76,14 @@ class SleepService {
   /// Save sleep goal
   Future<String> saveSleepGoal(SleepGoal goal) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final goals = await getSleepGoals();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<SleepGoal> goals = await getSleepGoals();
       
       // Remove existing goal if it exists
-      goals.removeWhere((g) => g.id == goal.id);
+      goals.removeWhere((SleepGoal g) => g.id == goal.id);
       goals.add(goal);
       
-      final goalsJson = goals.map((g) => g.toJson()).toList();
+      final List<Map<String, dynamic>> goalsJson = goals.map((SleepGoal g) => g.toJson()).toList();
       await prefs.setString(_sleepGoalsKey, jsonEncode(goalsJson));
       
       return goal.id;
@@ -95,10 +95,10 @@ class SleepService {
   /// Get sleep goals
   Future<List<SleepGoal>> getSleepGoals() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final goalsJson = prefs.getString(_sleepGoalsKey);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? goalsJson = prefs.getString(_sleepGoalsKey);
       
-      if (goalsJson == null) return [];
+      if (goalsJson == null) return <SleepGoal>[];
       
       final List<dynamic> goalsList = jsonDecode(goalsJson);
       return goalsList
@@ -112,14 +112,14 @@ class SleepService {
   /// Save sleep reminder
   Future<String> saveSleepReminder(SleepReminder reminder) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final reminders = await getSleepReminders();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<SleepReminder> reminders = await getSleepReminders();
       
       // Remove existing reminder if it exists
-      reminders.removeWhere((r) => r.id == reminder.id);
+      reminders.removeWhere((SleepReminder r) => r.id == reminder.id);
       reminders.add(reminder);
       
-      final remindersJson = reminders.map((r) => r.toJson()).toList();
+      final List<Map<String, dynamic>> remindersJson = reminders.map((SleepReminder r) => r.toJson()).toList();
       await prefs.setString(_sleepRemindersKey, jsonEncode(remindersJson));
       
       return reminder.id;
@@ -131,10 +131,10 @@ class SleepService {
   /// Get sleep reminders
   Future<List<SleepReminder>> getSleepReminders() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final remindersJson = prefs.getString(_sleepRemindersKey);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? remindersJson = prefs.getString(_sleepRemindersKey);
       
-      if (remindersJson == null) return [];
+      if (remindersJson == null) return <SleepReminder>[];
       
       final List<dynamic> remindersList = jsonDecode(remindersJson);
       return remindersList
@@ -148,14 +148,14 @@ class SleepService {
   /// Save sleep insight
   Future<String> saveSleepInsight(SleepInsight insight) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final insights = await getSleepInsights();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<SleepInsight> insights = await getSleepInsights();
       
       // Remove existing insight if it exists
-      insights.removeWhere((i) => i.id == insight.id);
+      insights.removeWhere((SleepInsight i) => i.id == insight.id);
       insights.add(insight);
       
-      final insightsJson = insights.map((i) => i.toJson()).toList();
+      final List<Map<String, dynamic>> insightsJson = insights.map((SleepInsight i) => i.toJson()).toList();
       await prefs.setString(_sleepInsightsKey, jsonEncode(insightsJson));
       
       return insight.id;
@@ -167,10 +167,10 @@ class SleepService {
   /// Get sleep insights
   Future<List<SleepInsight>> getSleepInsights() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final insightsJson = prefs.getString(_sleepInsightsKey);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? insightsJson = prefs.getString(_sleepInsightsKey);
       
-      if (insightsJson == null) return [];
+      if (insightsJson == null) return <SleepInsight>[];
       
       final List<dynamic> insightsList = jsonDecode(insightsJson);
       return insightsList
@@ -184,9 +184,9 @@ class SleepService {
   /// Calculate sleep statistics
   Future<SleepStats> calculateSleepStats({int days = 7}) async {
     try {
-      final endDate = DateTime.now();
-      final startDate = endDate.subtract(Duration(days: days));
-      final sessions = await getSleepSessionsForDateRange(startDate, endDate);
+      final DateTime endDate = DateTime.now();
+      final DateTime startDate = endDate.subtract(Duration(days: days));
+      final List<SleepSession> sessions = await getSleepSessionsForDateRange(startDate, endDate);
       
       if (sessions.isEmpty) {
         return const SleepStats(
@@ -198,40 +198,40 @@ class SleepService {
           worstSleep: Duration(hours: 0),
           consistencyScore: 0.0,
           sustainabilityScore: 0.0,
-          weeklyTrends: {},
+          weeklyTrends: <String, double>{},
         );
       }
       
       // Calculate averages
-      final totalDuration = sessions.fold<Duration>(
+      final Duration totalDuration = sessions.fold<Duration>(
         Duration.zero,
-        (sum, session) => sum + session.totalDuration,
+        (Duration sum, SleepSession session) => sum + session.totalDuration,
       );
-      final averageDuration = Duration(
+      final Duration averageDuration = Duration(
         milliseconds: totalDuration.inMilliseconds ~/ sessions.length,
       );
       
-      final averageQuality = sessions.fold<double>(
+      final double averageQuality = sessions.fold<double>(
         0.0,
-        (sum, session) => sum + session.sleepQuality,
+        (double sum, SleepSession session) => sum + session.sleepQuality,
       ) / sessions.length;
       
       // Find best and worst sleep
-      final bestSleep = sessions
-          .map((s) => s.totalDuration)
-          .reduce((a, b) => a > b ? a : b);
-      final worstSleep = sessions
-          .map((s) => s.totalDuration)
-          .reduce((a, b) => a < b ? a : b);
+      final Duration bestSleep = sessions
+          .map((SleepSession s) => s.totalDuration)
+          .reduce((Duration a, Duration b) => a > b ? a : b);
+      final Duration worstSleep = sessions
+          .map((SleepSession s) => s.totalDuration)
+          .reduce((Duration a, Duration b) => a < b ? a : b);
       
       // Calculate consistency score
-      final consistencyScore = _calculateConsistencyScore(sessions);
+      final double consistencyScore = _calculateConsistencyScore(sessions);
       
       // Calculate sustainability score
-      final sustainabilityScore = _calculateSustainabilityScore(sessions);
+      final double sustainabilityScore = _calculateSustainabilityScore(sessions);
       
       // Calculate weekly trends
-      final weeklyTrends = _calculateWeeklyTrends(sessions);
+      final Map<String, double> weeklyTrends = _calculateWeeklyTrends(sessions);
       
       return SleepStats(
         averageDuration: averageDuration,
@@ -252,19 +252,19 @@ class SleepService {
   /// Generate sleep insights
   Future<List<SleepInsight>> generateSleepInsights() async {
     try {
-      final sessions = await getSleepSessions();
-      final stats = await calculateSleepStats();
-      final insights = <SleepInsight>[];
+      final List<SleepSession> sessions = await getSleepSessions();
+      final SleepStats stats = await calculateSleepStats();
+      final List<SleepInsight> insights = <SleepInsight>[];
       
       if (sessions.isEmpty) {
-        return [
+        return <SleepInsight>[
           SleepInsight(
             id: _uuid.v4(),
             title: 'Start Tracking Your Sleep',
             description: 'Begin your sleep journey by tracking your first sleep session.',
             type: SleepInsightType.quality,
             impact: 0.0,
-            recommendations: [
+            recommendations: <String>[
               'Set up your sleep environment',
               'Create a bedtime routine',
               'Track your first sleep session',
@@ -282,7 +282,7 @@ class SleepService {
           description: 'Your average sleep quality is below optimal levels.',
           type: SleepInsightType.quality,
           impact: 0.8,
-          recommendations: [
+          recommendations: <String>[
             'Maintain a consistent sleep schedule',
             'Create a relaxing bedtime routine',
             'Optimize your sleep environment',
@@ -300,7 +300,7 @@ class SleepService {
           description: 'You\'re getting less than the recommended 7-9 hours of sleep.',
           type: SleepInsightType.duration,
           impact: 0.9,
-          recommendations: [
+          recommendations: <String>[
             'Go to bed 30 minutes earlier',
             'Avoid caffeine after 2 PM',
             'Create a wind-down routine',
@@ -318,7 +318,7 @@ class SleepService {
           description: 'Your sleep schedule varies significantly from day to day.',
           type: SleepInsightType.consistency,
           impact: 0.7,
-          recommendations: [
+          recommendations: <String>[
             'Set consistent bed and wake times',
             'Use an alarm clock consistently',
             'Avoid weekend sleep-ins',
@@ -336,7 +336,7 @@ class SleepService {
           description: 'Make your sleep routine more environmentally friendly.',
           type: SleepInsightType.sustainability,
           impact: 0.5,
-          recommendations: [
+          recommendations: <String>[
             'Use energy-efficient lighting',
             'Choose eco-friendly bedding',
             'Optimize room temperature naturally',
@@ -363,7 +363,7 @@ class SleepService {
     required SleepSustainability sustainability,
     String? notes,
   }) async {
-    final session = SleepSession(
+    final SleepSession session = SleepSession(
       id: _uuid.v4(),
       startTime: startTime,
       endTime: endTime,
@@ -383,7 +383,7 @@ class SleepService {
 
   /// Create a default sleep goal
   Future<SleepGoal> createDefaultSleepGoal() async {
-    final goal = SleepGoal(
+    final SleepGoal goal = SleepGoal(
       id: _uuid.v4(),
       targetDuration: const Duration(hours: 8),
       targetBedtime: const TimeOfDay(hour: 22, minute: 0),
@@ -399,11 +399,11 @@ class SleepService {
 
   /// Create a default sleep reminder
   Future<SleepReminder> createDefaultSleepReminder() async {
-    final reminder = SleepReminder(
+    final SleepReminder reminder = SleepReminder(
       id: _uuid.v4(),
       time: const TimeOfDay(hour: 21, minute: 30),
       enabled: true,
-      days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      days: <String>['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
       message: 'Time to prepare for bed!',
       createdAt: DateTime.now(),
     );
@@ -416,10 +416,10 @@ class SleepService {
   double _calculateConsistencyScore(List<SleepSession> sessions) {
     if (sessions.length < 2) return 1.0;
     
-    final durations = sessions.map((s) => s.totalDuration.inMinutes).toList();
-    final mean = durations.reduce((a, b) => a + b) / durations.length;
-    final variance = durations.map((d) => (d - mean) * (d - mean)).reduce((a, b) => a + b) / durations.length;
-    final standardDeviation = sqrt(variance);
+    final List<int> durations = sessions.map((SleepSession s) => s.totalDuration.inMinutes).toList();
+    final double mean = durations.reduce((int a, int b) => a + b) / durations.length;
+    final double variance = durations.map((int d) => (d - mean) * (d - mean)).reduce((double a, double b) => a + b) / durations.length;
+    final double standardDeviation = sqrt(variance);
     
     // Normalize to 0-1 scale (lower SD = higher consistency)
     return (1.0 - (standardDeviation / mean)).clamp(0.0, 1.0);
@@ -429,7 +429,7 @@ class SleepService {
     if (sessions.isEmpty) return 0.0;
     
     double totalScore = 0.0;
-    for (final session in sessions) {
+    for (final SleepSession session in sessions) {
       double sessionScore = 0.0;
       
       // Environment factors
@@ -450,19 +450,19 @@ class SleepService {
   }
 
   Map<String, double> _calculateWeeklyTrends(List<SleepSession> sessions) {
-    final trends = <String, double>{};
-    final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    final Map<String, double> trends = <String, double>{};
+    final List<String> weekdays = <String>['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     
-    for (final weekday in weekdays) {
-      final weekdaySessions = sessions.where((s) {
-        final weekdayName = _getWeekdayName(s.startTime.weekday);
+    for (final String weekday in weekdays) {
+      final List<SleepSession> weekdaySessions = sessions.where((SleepSession s) {
+        final String weekdayName = _getWeekdayName(s.startTime.weekday);
         return weekdayName == weekday;
       }).toList();
       
       if (weekdaySessions.isNotEmpty) {
-        final avgDuration = weekdaySessions
-            .map((s) => s.totalDuration.inHours)
-            .reduce((a, b) => a + b) / weekdaySessions.length;
+        final double avgDuration = weekdaySessions
+            .map((SleepSession s) => s.totalDuration.inHours)
+            .reduce((int a, int b) => a + b) / weekdaySessions.length;
         trends[weekday] = avgDuration;
       } else {
         trends[weekday] = 0.0;

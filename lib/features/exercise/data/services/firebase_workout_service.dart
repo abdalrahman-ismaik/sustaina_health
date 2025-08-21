@@ -13,7 +13,7 @@ class FirebaseWorkoutService {
         _auth = auth ?? FirebaseAuth.instance;
 
   String get _userId {
-    final user = _auth.currentUser;
+    final User? user = _auth.currentUser;
     if (user == null) {
       throw Exception(
           'User not authenticated. Please sign in to save workouts.');
@@ -34,9 +34,9 @@ class FirebaseWorkoutService {
       print('Attempting to save workout plan: $name');
       print('User ID: $_userId');
 
-      final docRef = _workoutPlansCollection.doc();
+      final DocumentReference<Object?> docRef = _workoutPlansCollection.doc();
 
-      final savedWorkout = SavedWorkoutPlan(
+      final SavedWorkoutPlan savedWorkout = SavedWorkoutPlan(
         id: docRef.id,
         userId: _userId,
         name: name,
@@ -61,7 +61,7 @@ class FirebaseWorkoutService {
     try {
       print('Fetching saved workout plans for user: $_userId');
 
-      final querySnapshot = await _workoutPlansCollection
+      final QuerySnapshot<Object?> querySnapshot = await _workoutPlansCollection
           .where('userId', isEqualTo: _userId)
           .orderBy('createdAt', descending: true)
           .get();
@@ -69,7 +69,7 @@ class FirebaseWorkoutService {
       print('Found ${querySnapshot.docs.length} workout plans');
 
       return querySnapshot.docs
-          .map((doc) => SavedWorkoutPlan.fromJson({
+          .map((QueryDocumentSnapshot<Object?> doc) => SavedWorkoutPlan.fromJson(<String, dynamic>{
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
               }))
@@ -83,20 +83,20 @@ class FirebaseWorkoutService {
   /// Get a specific saved workout plan by ID
   Future<SavedWorkoutPlan?> getSavedWorkoutPlan(String id) async {
     try {
-      final doc = await _workoutPlansCollection.doc(id).get();
+      final DocumentSnapshot<Object?> doc = await _workoutPlansCollection.doc(id).get();
 
       if (!doc.exists) {
         return null;
       }
 
-      final data = doc.data() as Map<String, dynamic>;
+      final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
       // Verify the workout belongs to the current user
       if (data['userId'] != _userId) {
         throw Exception('Unauthorized access to workout plan');
       }
 
-      return SavedWorkoutPlan.fromJson({
+      return SavedWorkoutPlan.fromJson(<String, dynamic>{
         ...data,
         'id': doc.id,
       });
@@ -108,7 +108,7 @@ class FirebaseWorkoutService {
   /// Update last used timestamp for a workout plan
   Future<void> updateLastUsed(String id) async {
     try {
-      await _workoutPlansCollection.doc(id).update({
+      await _workoutPlansCollection.doc(id).update(<Object, Object?>{
         'lastUsed': DateTime.now().toIso8601String(),
       });
     } catch (e) {
@@ -119,7 +119,7 @@ class FirebaseWorkoutService {
   /// Toggle favorite status of a workout plan
   Future<void> toggleFavorite(String id, bool isFavorite) async {
     try {
-      await _workoutPlansCollection.doc(id).update({
+      await _workoutPlansCollection.doc(id).update(<Object, Object?>{
         'isFavorite': isFavorite,
       });
     } catch (e) {
@@ -130,13 +130,13 @@ class FirebaseWorkoutService {
   /// Delete a saved workout plan
   Future<void> deleteWorkoutPlan(String id) async {
     try {
-      final doc = await _workoutPlansCollection.doc(id).get();
+      final DocumentSnapshot<Object?> doc = await _workoutPlansCollection.doc(id).get();
 
       if (!doc.exists) {
         throw Exception('Workout plan not found');
       }
 
-      final data = doc.data() as Map<String, dynamic>;
+      final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
       // Verify the workout belongs to the current user
       if (data['userId'] != _userId) {
@@ -155,8 +155,8 @@ class FirebaseWorkoutService {
         .where('userId', isEqualTo: _userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => SavedWorkoutPlan.fromJson({
+        .map((QuerySnapshot<Object?> snapshot) => snapshot.docs
+            .map((QueryDocumentSnapshot<Object?> doc) => SavedWorkoutPlan.fromJson(<String, dynamic>{
                   ...doc.data() as Map<String, dynamic>,
                   'id': doc.id,
                 }))

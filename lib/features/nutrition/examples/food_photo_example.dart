@@ -31,12 +31,12 @@ class _FoodPhotoExampleState extends State<FoodPhotoExample> {
         title: const Text('Food Photo Recognition'),
       ),
       body: Column(
-        children: [
+        children: <Widget>[
           PhotoCaptureWidget(
             onImageCaptured: _onImageCaptured,
             placeholder: 'Tap to take a photo of your food',
           ),
-          if (_foodImage != null) ...[
+          if (_foodImage != null) ...<Widget>[
             const SizedBox(height: 16),
             Image.file(_foodImage!),
           ],

@@ -34,7 +34,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
+                        colors: <Color>[
                           Theme.of(context).colorScheme.primary.withOpacity(0.1),
                           Theme.of(context).colorScheme.secondary.withOpacity(0.2),
                         ],
@@ -47,7 +47,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                      children: <Widget>[
                         Icon(
                           Icons.public_outlined,
                           size: 80,

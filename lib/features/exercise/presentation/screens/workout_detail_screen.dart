@@ -44,12 +44,12 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
-          children: [
+          children: <Widget>[
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   IconButton(
                     icon:
                         const Icon(Icons.arrow_back, color: Color(0xFF121714)),
@@ -88,7 +88,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   const Text(
                     'Plan Overview',
                     style: TextStyle(
@@ -100,7 +100,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                    children: <Widget>[
                       _buildInfoCard(
                           'Sessions/Week', '${widget.workout.sessionsPerWeek}'),
                       _buildInfoCard('Total Sessions',
@@ -115,7 +115,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: _buildComponentCard(
                       'Warmup',
@@ -147,13 +147,13 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                 border: Border.all(color: Colors.red.shade200),
               ),
               child: Row(
-                children: [
+                children: <Widget>[
                   Icon(Icons.favorite, color: Colors.red.shade600),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Text(
                           'Cardio - ${widget.workout.cardio.duration} min',
                           style: TextStyle(
@@ -179,7 +179,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             ),
 
             // Workout Sessions Tabs
-            if (widget.workout.workoutSessions.isNotEmpty) ...[
+            if (widget.workout.workoutSessions.isNotEmpty) ...<Widget>[
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 child: TabBar(
@@ -191,7 +191,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                   tabs: widget.workout.workoutSessions
                       .asMap()
                       .entries
-                      .map((entry) {
+                      .map((MapEntry<int, WorkoutSession> entry) {
                     return Tab(text: 'Session ${entry.key + 1}');
                   }).toList(),
                 ),
@@ -199,7 +199,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
-                  children: widget.workout.workoutSessions.map((session) {
+                  children: widget.workout.workoutSessions.map((WorkoutSession session) {
                     return _buildWorkoutSession(session);
                   }).toList(),
                 ),
@@ -239,7 +239,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
   Widget _buildInfoCard(String label, String value) {
     return Column(
-      children: [
+      children: <Widget>[
         Text(
           value,
           style: const TextStyle(
@@ -270,9 +270,9 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(
                 title == 'Warmup' ? Icons.whatshot : Icons.self_improvement,
                 color: color,
@@ -316,8 +316,8 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: session.exercises.length,
-      itemBuilder: (context, index) {
-        final exercise = session.exercises[index];
+      itemBuilder: (BuildContext context, int index) {
+        final Exercise exercise = session.exercises[index];
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
@@ -325,7 +325,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
+            boxShadow: <BoxShadow>[
               BoxShadow(
                 color: Colors.grey.withOpacity(0.1),
                 spreadRadius: 1,
@@ -335,7 +335,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             ],
           ),
           child: Row(
-            children: [
+            children: <Widget>[
               // Exercise number
               Container(
                 width: 40,
@@ -362,7 +362,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       exercise.name,
                       style: const TextStyle(
@@ -373,7 +373,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                     ),
                     const SizedBox(height: 4),
                     Row(
-                      children: [
+                      children: <Widget>[
                         _buildExerciseDetail(
                             Icons.fitness_center, '${exercise.sets} sets'),
                         const SizedBox(width: 16),
@@ -396,7 +396,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   Widget _buildExerciseDetail(IconData icon, String text) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: <Widget>[
         Icon(
           icon,
           size: 14,
@@ -428,16 +428,16 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               const Text(
                 'Which workout session would you like to start?',
                 style: TextStyle(color: Color(0xFF121714)),
               ),
               const SizedBox(height: 16),
               // Show available workout sessions
-              ...widget.workout.workoutSessions.asMap().entries.map((entry) {
-                final index = entry.key;
-                final session = entry.value;
+              ...widget.workout.workoutSessions.asMap().entries.map((MapEntry<int, WorkoutSession> entry) {
+                final int index = entry.key;
+                final WorkoutSession session = entry.value;
                 return Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(bottom: 8),
@@ -462,7 +462,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
               }).toList(),
             ],
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
@@ -492,7 +492,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         },
       );
 
-      final workoutName = widget.savedWorkout?.name ??
+      final String workoutName = widget.savedWorkout?.name ??
           'AI Generated Workout Session ${sessionIndex + 1}';
 
       // Start the workout in the provider and wait for completion
@@ -502,7 +502,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
           );
 
       // Get the created session from the provider
-      final activeSession = ref.read(activeWorkoutSessionProvider);
+      final ActiveWorkoutSession? activeSession = ref.read(activeWorkoutSessionProvider);
 
       if (activeSession == null) {
         throw Exception('Failed to create workout session');
@@ -518,7 +518,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ActiveWorkoutScreen(
+            builder: (BuildContext context) => ActiveWorkoutScreen(
               workoutSession: activeSession,
             ),
           ),

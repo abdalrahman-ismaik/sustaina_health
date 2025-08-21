@@ -11,10 +11,10 @@ class LocalWorkoutStorageService {
     required WorkoutPlan workoutPlan,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final workoutId = DateTime.now().millisecondsSinceEpoch.toString();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String workoutId = DateTime.now().millisecondsSinceEpoch.toString();
 
-      final savedWorkout = SavedWorkoutPlan(
+      final SavedWorkoutPlan savedWorkout = SavedWorkoutPlan(
         id: workoutId,
         userId: 'local_user', // For local storage, we'll use a fixed user ID
         name: name,
@@ -24,13 +24,13 @@ class LocalWorkoutStorageService {
       );
 
       // Get existing workouts
-      final existingWorkouts = await getSavedWorkoutPlans();
+      final List<SavedWorkoutPlan> existingWorkouts = await getSavedWorkoutPlans();
 
       // Add new workout
       existingWorkouts.add(savedWorkout);
 
       // Save back to shared preferences
-      final workoutsJson = existingWorkouts.map((w) => w.toJson()).toList();
+      final List<Map<String, dynamic>> workoutsJson = existingWorkouts.map((SavedWorkoutPlan w) => w.toJson()).toList();
       await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
 
       return workoutId;
@@ -42,31 +42,31 @@ class LocalWorkoutStorageService {
   /// Get all saved workout plans from local storage
   Future<List<SavedWorkoutPlan>> getSavedWorkoutPlans() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final workoutsString = prefs.getString(_savedWorkoutsKey);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? workoutsString = prefs.getString(_savedWorkoutsKey);
 
       if (workoutsString == null || workoutsString.isEmpty) {
-        return [];
+        return <SavedWorkoutPlan>[];
       }
 
-      final workoutsJson = json.decode(workoutsString) as List<dynamic>;
+      final List workoutsJson = json.decode(workoutsString) as List<dynamic>;
       return workoutsJson
           .map(
               (json) => SavedWorkoutPlan.fromJson(json as Map<String, dynamic>))
           .toList()
-        ..sort((a, b) =>
+        ..sort((SavedWorkoutPlan a, SavedWorkoutPlan b) =>
             b.createdAt.compareTo(a.createdAt)); // Sort by newest first
     } catch (e) {
       print('Error loading local workouts: $e');
-      return [];
+      return <SavedWorkoutPlan>[];
     }
   }
 
   /// Get a specific saved workout plan by ID
   Future<SavedWorkoutPlan?> getSavedWorkoutPlan(String id) async {
     try {
-      final workouts = await getSavedWorkoutPlans();
-      return workouts.where((w) => w.id == id).firstOrNull;
+      final List<SavedWorkoutPlan> workouts = await getSavedWorkoutPlans();
+      return workouts.where((SavedWorkoutPlan w) => w.id == id).firstOrNull;
     } catch (e) {
       return null;
     }
@@ -75,14 +75,14 @@ class LocalWorkoutStorageService {
   /// Update last used timestamp for a workout plan
   Future<void> updateLastUsed(String id) async {
     try {
-      final workouts = await getSavedWorkoutPlans();
-      final index = workouts.indexWhere((w) => w.id == id);
+      final List<SavedWorkoutPlan> workouts = await getSavedWorkoutPlans();
+      final int index = workouts.indexWhere((SavedWorkoutPlan w) => w.id == id);
 
       if (index != -1) {
         workouts[index] = workouts[index].copyWith(lastUsed: DateTime.now());
 
-        final prefs = await SharedPreferences.getInstance();
-        final workoutsJson = workouts.map((w) => w.toJson()).toList();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final List<Map<String, dynamic>> workoutsJson = workouts.map((SavedWorkoutPlan w) => w.toJson()).toList();
         await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
       }
     } catch (e) {
@@ -93,14 +93,14 @@ class LocalWorkoutStorageService {
   /// Toggle favorite status of a workout plan
   Future<void> toggleFavorite(String id, bool isFavorite) async {
     try {
-      final workouts = await getSavedWorkoutPlans();
-      final index = workouts.indexWhere((w) => w.id == id);
+      final List<SavedWorkoutPlan> workouts = await getSavedWorkoutPlans();
+      final int index = workouts.indexWhere((SavedWorkoutPlan w) => w.id == id);
 
       if (index != -1) {
         workouts[index] = workouts[index].copyWith(isFavorite: isFavorite);
 
-        final prefs = await SharedPreferences.getInstance();
-        final workoutsJson = workouts.map((w) => w.toJson()).toList();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final List<Map<String, dynamic>> workoutsJson = workouts.map((SavedWorkoutPlan w) => w.toJson()).toList();
         await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
       }
     } catch (e) {
@@ -111,11 +111,11 @@ class LocalWorkoutStorageService {
   /// Delete a saved workout plan
   Future<void> deleteWorkoutPlan(String id) async {
     try {
-      final workouts = await getSavedWorkoutPlans();
-      workouts.removeWhere((w) => w.id == id);
+      final List<SavedWorkoutPlan> workouts = await getSavedWorkoutPlans();
+      workouts.removeWhere((SavedWorkoutPlan w) => w.id == id);
 
-      final prefs = await SharedPreferences.getInstance();
-      final workoutsJson = workouts.map((w) => w.toJson()).toList();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<Map<String, dynamic>> workoutsJson = workouts.map((SavedWorkoutPlan w) => w.toJson()).toList();
       await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
     } catch (e) {
       throw Exception('Failed to delete workout plan: $e');
@@ -125,7 +125,7 @@ class LocalWorkoutStorageService {
   /// Clear all saved workouts
   Future<void> clearAllWorkouts() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove(_savedWorkoutsKey);
     } catch (e) {
       throw Exception('Failed to clear workouts: $e');

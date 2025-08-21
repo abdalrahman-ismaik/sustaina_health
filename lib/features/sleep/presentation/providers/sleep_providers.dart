@@ -3,12 +3,12 @@ import '../../data/services/sleep_service.dart';
 import '../../data/models/sleep_models.dart';
 
 // Service Provider
-final sleepServiceProvider = Provider<SleepService>((ref) {
+final Provider<SleepService> sleepServiceProvider = Provider<SleepService>((ProviderRef<SleepService> ref) {
   return SleepService();
 });
 
 // Sleep Sessions Provider
-final sleepSessionsProvider = StateNotifierProvider<SleepSessionsNotifier, AsyncValue<List<SleepSession>>>((ref) {
+final StateNotifierProvider<SleepSessionsNotifier, AsyncValue<List<SleepSession>>> sleepSessionsProvider = StateNotifierProvider<SleepSessionsNotifier, AsyncValue<List<SleepSession>>>((StateNotifierProviderRef<SleepSessionsNotifier, AsyncValue<List<SleepSession>>> ref) {
   return SleepSessionsNotifier(ref.watch(sleepServiceProvider));
 });
 
@@ -22,7 +22,7 @@ class SleepSessionsNotifier extends StateNotifier<AsyncValue<List<SleepSession>>
   Future<void> loadSleepSessions() async {
     state = const AsyncValue.loading();
     try {
-      final sessions = await _sleepService.getSleepSessions();
+      final List<SleepSession> sessions = await _sleepService.getSleepSessions();
       state = AsyncValue.data(sessions);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -49,31 +49,31 @@ class SleepSessionsNotifier extends StateNotifier<AsyncValue<List<SleepSession>>
 
   Future<List<SleepSession>> getSleepSessionsForDate(DateTime date) async {
     try {
-      final sessions = await _sleepService.getSleepSessions();
-      return sessions.where((session) {
-        final sessionDate = DateTime(session.startTime.year, session.startTime.month, session.startTime.day);
-        final targetDate = DateTime(date.year, date.month, date.day);
+      final List<SleepSession> sessions = await _sleepService.getSleepSessions();
+      return sessions.where((SleepSession session) {
+        final DateTime sessionDate = DateTime(session.startTime.year, session.startTime.month, session.startTime.day);
+        final DateTime targetDate = DateTime(date.year, date.month, date.day);
         return sessionDate.isAtSameMomentAs(targetDate);
       }).toList();
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
-      return [];
+      return <SleepSession>[];
     }
   }
 }
 
 // Latest Sleep Session Provider
-final latestSleepSessionProvider = Provider<AsyncValue<SleepSession?>>((ref) {
-  final sessionsAsync = ref.watch(sleepSessionsProvider);
+final Provider<AsyncValue<SleepSession?>> latestSleepSessionProvider = Provider<AsyncValue<SleepSession?>>((ProviderRef<AsyncValue<SleepSession?>> ref) {
+  final AsyncValue<List<SleepSession>> sessionsAsync = ref.watch(sleepSessionsProvider);
   return sessionsAsync.when(
-    data: (sessions) => AsyncValue.data(sessions.isNotEmpty ? sessions.first : null),
+    data: (List<SleepSession> sessions) => AsyncValue.data(sessions.isNotEmpty ? sessions.first : null),
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: (Object error, StackTrace stackTrace) => AsyncValue.error(error, stackTrace),
   );
 });
 
 // Sleep Stats Provider
-final sleepStatsProvider = StateNotifierProvider<SleepStatsNotifier, AsyncValue<SleepStats>>((ref) {
+final StateNotifierProvider<SleepStatsNotifier, AsyncValue<SleepStats>> sleepStatsProvider = StateNotifierProvider<SleepStatsNotifier, AsyncValue<SleepStats>>((StateNotifierProviderRef<SleepStatsNotifier, AsyncValue<SleepStats>> ref) {
   return SleepStatsNotifier(ref.watch(sleepServiceProvider));
 });
 
@@ -87,7 +87,7 @@ class SleepStatsNotifier extends StateNotifier<AsyncValue<SleepStats>> {
   Future<void> loadSleepStats() async {
     state = const AsyncValue.loading();
     try {
-      final stats = await _sleepService.calculateSleepStats();
+      final SleepStats stats = await _sleepService.calculateSleepStats();
       state = AsyncValue.data(stats);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -100,7 +100,7 @@ class SleepStatsNotifier extends StateNotifier<AsyncValue<SleepStats>> {
 }
 
 // Sleep Goals Provider
-final sleepGoalsProvider = StateNotifierProvider<SleepGoalsNotifier, AsyncValue<List<SleepGoal>>>((ref) {
+final StateNotifierProvider<SleepGoalsNotifier, AsyncValue<List<SleepGoal>>> sleepGoalsProvider = StateNotifierProvider<SleepGoalsNotifier, AsyncValue<List<SleepGoal>>>((StateNotifierProviderRef<SleepGoalsNotifier, AsyncValue<List<SleepGoal>>> ref) {
   return SleepGoalsNotifier(ref.watch(sleepServiceProvider));
 });
 
@@ -114,7 +114,7 @@ class SleepGoalsNotifier extends StateNotifier<AsyncValue<List<SleepGoal>>> {
   Future<void> loadSleepGoals() async {
     state = const AsyncValue.loading();
     try {
-      final goals = await _sleepService.getSleepGoals();
+      final List<SleepGoal> goals = await _sleepService.getSleepGoals();
       state = AsyncValue.data(goals);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -141,7 +141,7 @@ class SleepGoalsNotifier extends StateNotifier<AsyncValue<List<SleepGoal>>> {
 }
 
 // Sleep Reminders Provider
-final sleepRemindersProvider = StateNotifierProvider<SleepRemindersNotifier, AsyncValue<List<SleepReminder>>>((ref) {
+final StateNotifierProvider<SleepRemindersNotifier, AsyncValue<List<SleepReminder>>> sleepRemindersProvider = StateNotifierProvider<SleepRemindersNotifier, AsyncValue<List<SleepReminder>>>((StateNotifierProviderRef<SleepRemindersNotifier, AsyncValue<List<SleepReminder>>> ref) {
   return SleepRemindersNotifier(ref.watch(sleepServiceProvider));
 });
 
@@ -155,7 +155,7 @@ class SleepRemindersNotifier extends StateNotifier<AsyncValue<List<SleepReminder
   Future<void> loadSleepReminders() async {
     state = const AsyncValue.loading();
     try {
-      final reminders = await _sleepService.getSleepReminders();
+      final List<SleepReminder> reminders = await _sleepService.getSleepReminders();
       state = AsyncValue.data(reminders);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -182,7 +182,7 @@ class SleepRemindersNotifier extends StateNotifier<AsyncValue<List<SleepReminder
 }
 
 // Sleep Insights Provider
-final sleepInsightsProvider = StateNotifierProvider<SleepInsightsNotifier, AsyncValue<List<SleepInsight>>>((ref) {
+final StateNotifierProvider<SleepInsightsNotifier, AsyncValue<List<SleepInsight>>> sleepInsightsProvider = StateNotifierProvider<SleepInsightsNotifier, AsyncValue<List<SleepInsight>>>((StateNotifierProviderRef<SleepInsightsNotifier, AsyncValue<List<SleepInsight>>> ref) {
   return SleepInsightsNotifier(ref.watch(sleepServiceProvider));
 });
 
@@ -196,7 +196,7 @@ class SleepInsightsNotifier extends StateNotifier<AsyncValue<List<SleepInsight>>
   Future<void> loadSleepInsights() async {
     state = const AsyncValue.loading();
     try {
-      final insights = await _sleepService.generateSleepInsights();
+      final List<SleepInsight> insights = await _sleepService.generateSleepInsights();
       state = AsyncValue.data(insights);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -209,7 +209,7 @@ class SleepInsightsNotifier extends StateNotifier<AsyncValue<List<SleepInsight>>
 }
 
 // Sleep Tracking State Provider
-final sleepTrackingStateProvider = StateNotifierProvider<SleepTrackingStateNotifier, SleepTrackingState>((ref) {
+final StateNotifierProvider<SleepTrackingStateNotifier, SleepTrackingState> sleepTrackingStateProvider = StateNotifierProvider<SleepTrackingStateNotifier, SleepTrackingState>((StateNotifierProviderRef<SleepTrackingStateNotifier, SleepTrackingState> ref) {
   return SleepTrackingStateNotifier();
 });
 
@@ -245,7 +245,7 @@ class SleepTrackingStateNotifier extends StateNotifier<SleepTrackingState> {
 }
 
 // Sleep Session Creation Provider
-final sleepSessionCreationProvider = StateNotifierProvider<SleepSessionCreationNotifier, AsyncValue<SleepSession?>>((ref) {
+final StateNotifierProvider<SleepSessionCreationNotifier, AsyncValue<SleepSession?>> sleepSessionCreationProvider = StateNotifierProvider<SleepSessionCreationNotifier, AsyncValue<SleepSession?>>((StateNotifierProviderRef<SleepSessionCreationNotifier, AsyncValue<SleepSession?>> ref) {
   return SleepSessionCreationNotifier(ref.watch(sleepServiceProvider));
 });
 
@@ -266,7 +266,7 @@ class SleepSessionCreationNotifier extends StateNotifier<AsyncValue<SleepSession
   }) async {
     state = const AsyncValue.loading();
     try {
-      final session = await _sleepService.createSleepSession(
+      final SleepSession session = await _sleepService.createSleepSession(
         startTime: startTime,
         endTime: endTime,
         sleepQuality: sleepQuality,
@@ -288,51 +288,51 @@ class SleepSessionCreationNotifier extends StateNotifier<AsyncValue<SleepSession
 }
 
 // Weekly Sleep Trends Provider
-final weeklySleepTrendsProvider = Provider<AsyncValue<Map<String, double>>>((ref) {
-  final statsAsync = ref.watch(sleepStatsProvider);
+final Provider<AsyncValue<Map<String, double>>> weeklySleepTrendsProvider = Provider<AsyncValue<Map<String, double>>>((ProviderRef<AsyncValue<Map<String, double>>> ref) {
+  final AsyncValue<SleepStats> statsAsync = ref.watch(sleepStatsProvider);
   return statsAsync.when(
-    data: (stats) => AsyncValue.data(stats.weeklyTrends),
+    data: (SleepStats stats) => AsyncValue.data(stats.weeklyTrends),
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: (Object error, StackTrace stackTrace) => AsyncValue.error(error, stackTrace),
   );
 });
 
 // Sleep Quality Score Provider
-final sleepQualityScoreProvider = Provider<AsyncValue<double>>((ref) {
-  final statsAsync = ref.watch(sleepStatsProvider);
+final Provider<AsyncValue<double>> sleepQualityScoreProvider = Provider<AsyncValue<double>>((ProviderRef<AsyncValue<double>> ref) {
+  final AsyncValue<SleepStats> statsAsync = ref.watch(sleepStatsProvider);
   return statsAsync.when(
-    data: (stats) => AsyncValue.data(stats.averageQuality),
+    data: (SleepStats stats) => AsyncValue.data(stats.averageQuality),
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: (Object error, StackTrace stackTrace) => AsyncValue.error(error, stackTrace),
   );
 });
 
 // Sleep Duration Provider
-final sleepDurationProvider = Provider<AsyncValue<Duration>>((ref) {
-  final statsAsync = ref.watch(sleepStatsProvider);
+final Provider<AsyncValue<Duration>> sleepDurationProvider = Provider<AsyncValue<Duration>>((ProviderRef<AsyncValue<Duration>> ref) {
+  final AsyncValue<SleepStats> statsAsync = ref.watch(sleepStatsProvider);
   return statsAsync.when(
-    data: (stats) => AsyncValue.data(stats.averageDuration),
+    data: (SleepStats stats) => AsyncValue.data(stats.averageDuration),
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: (Object error, StackTrace stackTrace) => AsyncValue.error(error, stackTrace),
   );
 });
 
 // Sleep Consistency Score Provider
-final sleepConsistencyScoreProvider = Provider<AsyncValue<double>>((ref) {
-  final statsAsync = ref.watch(sleepStatsProvider);
+final Provider<AsyncValue<double>> sleepConsistencyScoreProvider = Provider<AsyncValue<double>>((ProviderRef<AsyncValue<double>> ref) {
+  final AsyncValue<SleepStats> statsAsync = ref.watch(sleepStatsProvider);
   return statsAsync.when(
-    data: (stats) => AsyncValue.data(stats.consistencyScore),
+    data: (SleepStats stats) => AsyncValue.data(stats.consistencyScore),
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: (Object error, StackTrace stackTrace) => AsyncValue.error(error, stackTrace),
   );
 });
 
 // Sleep Sustainability Score Provider
-final sleepSustainabilityScoreProvider = Provider<AsyncValue<double>>((ref) {
-  final statsAsync = ref.watch(sleepStatsProvider);
+final Provider<AsyncValue<double>> sleepSustainabilityScoreProvider = Provider<AsyncValue<double>>((ProviderRef<AsyncValue<double>> ref) {
+  final AsyncValue<SleepStats> statsAsync = ref.watch(sleepStatsProvider);
   return statsAsync.when(
-    data: (stats) => AsyncValue.data(stats.sustainabilityScore),
+    data: (SleepStats stats) => AsyncValue.data(stats.sustainabilityScore),
     loading: () => const AsyncValue.loading(),
-    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    error: (Object error, StackTrace stackTrace) => AsyncValue.error(error, stackTrace),
   );
 });

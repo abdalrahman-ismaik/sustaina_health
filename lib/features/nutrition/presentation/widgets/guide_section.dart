@@ -26,9 +26,9 @@ class GuideSection extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -45,7 +45,7 @@ class GuideSection extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       title,
                       style: const TextStyle(
@@ -68,10 +68,10 @@ class GuideSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          ...features.map((feature) => Padding(
+          ...features.map((String feature) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     const Icon(
                       Icons.check_circle,
                       color: Color(0xFF94e0b2),

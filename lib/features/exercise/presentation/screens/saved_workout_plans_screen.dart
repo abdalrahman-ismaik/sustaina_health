@@ -10,7 +10,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final savedWorkoutsAsync = ref.watch(savedWorkoutPlansProvider);
+    final AsyncValue<List<SavedWorkoutPlan>> savedWorkoutsAsync = ref.watch(savedWorkoutPlansProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -25,13 +25,13 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF121714)),
-        actions: [
+        actions: <Widget>[
           IconButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AIWorkoutGeneratorScreen(),
+                  builder: (BuildContext context) => const AIWorkoutGeneratorScreen(),
                 ),
               );
             },
@@ -47,7 +47,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
               .loadSavedWorkouts();
         },
         child: savedWorkoutsAsync.when(
-          data: (workouts) => workouts.isEmpty
+          data: (List<SavedWorkoutPlan> workouts) => workouts.isEmpty
               ? _buildEmptyState(context)
               : _buildWorkoutList(context, ref, workouts),
           loading: () => const Center(
@@ -55,7 +55,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
               color: Color(0xFF94E0B2),
             ),
           ),
-          error: (error, stackTrace) => _buildErrorState(context, ref, error),
+          error: (Object error, StackTrace stackTrace) => _buildErrorState(context, ref, error),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -63,7 +63,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const AIWorkoutGeneratorScreen(),
+              builder: (BuildContext context) => const AIWorkoutGeneratorScreen(),
             ),
           );
         },
@@ -86,7 +86,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
@@ -127,7 +127,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AIWorkoutGeneratorScreen(),
+                      builder: (BuildContext context) => const AIWorkoutGeneratorScreen(),
                     ),
                   );
                 },
@@ -164,9 +164,9 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                 border: Border.all(color: Colors.grey.shade200),
               ),
               child: Column(
-                children: [
+                children: <Widget>[
                   Row(
-                    children: [
+                    children: <Widget>[
                       Icon(Icons.info_outline,
                           color: Colors.grey.shade600, size: 20),
                       const SizedBox(width: 8),
@@ -204,7 +204,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             const Icon(
               Icons.error_outline,
               size: 80,
@@ -261,8 +261,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   Widget _buildWorkoutList(
       BuildContext context, WidgetRef ref, List<SavedWorkoutPlan> workouts) {
     // Sort workouts: favorites first, then by last used, then by creation date
-    final sortedWorkouts = List<SavedWorkoutPlan>.from(workouts);
-    sortedWorkouts.sort((a, b) {
+    final List<SavedWorkoutPlan> sortedWorkouts = List<SavedWorkoutPlan>.from(workouts);
+    sortedWorkouts.sort((SavedWorkoutPlan a, SavedWorkoutPlan b) {
       // First priority: favorites
       if (a.isFavorite && !b.isFavorite) return -1;
       if (!a.isFavorite && b.isFavorite) return 1;
@@ -280,14 +280,14 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         // Header with stats
         Container(
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
+              colors: <Color>[
                 const Color(0xFF94E0B2).withOpacity(0.8),
                 const Color(0xFF94E0B2).withOpacity(0.6),
               ],
@@ -297,11 +297,11 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     const Text(
                       'Your Workout Plans',
                       style: TextStyle(
@@ -345,8 +345,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: sortedWorkouts.length,
-            itemBuilder: (context, index) {
-              final workout = sortedWorkouts[index];
+            itemBuilder: (BuildContext context, int index) {
+              final SavedWorkoutPlan workout = sortedWorkouts[index];
               return _buildWorkoutCard(context, ref, workout);
             },
           ),
@@ -357,13 +357,13 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   Widget _buildFilterTabs(
       BuildContext context, WidgetRef ref, List<SavedWorkoutPlan> workouts) {
-    final favoriteCount = workouts.where((w) => w.isFavorite).length;
-    final recentCount = workouts.where((w) => w.lastUsed != null).length;
+    final int favoriteCount = workouts.where((SavedWorkoutPlan w) => w.isFavorite).length;
+    final int recentCount = workouts.where((SavedWorkoutPlan w) => w.lastUsed != null).length;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
-        children: [
+        children: <Widget>[
           _buildFilterChip('All (${workouts.length})', true),
           const SizedBox(width: 8),
           if (favoriteCount > 0)
@@ -399,8 +399,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   Widget _buildWorkoutCard(
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) {
-    final totalExercises = workout.workoutPlan.workoutSessions
-        .fold(0, (sum, session) => sum + session.exercises.length);
+    final int totalExercises = workout.workoutPlan.workoutSessions
+        .fold(0, (int sum, WorkoutSession session) => sum + session.exercises.length);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -422,7 +422,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => WorkoutDetailScreen(
+              builder: (BuildContext context) => WorkoutDetailScreen(
                 workout: workout.workoutPlan,
                 savedWorkout: workout,
               ),
@@ -434,9 +434,9 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Row(
-                children: [
+                children: <Widget>[
                   if (workout.isFavorite)
                     Container(
                       margin: const EdgeInsets.only(right: 8),
@@ -475,18 +475,18 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                     ),
                   ),
                   PopupMenuButton<String>(
-                    onSelected: (value) async {
+                    onSelected: (String value) async {
                       if (value == 'delete') {
                         _showDeleteConfirmation(context, ref, workout);
                       } else if (value == 'duplicate') {
                         _duplicateWorkout(context, ref, workout);
                       }
                     },
-                    itemBuilder: (context) => [
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                       const PopupMenuItem(
                         value: 'duplicate',
                         child: Row(
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.copy, color: Color(0xFF94E0B2)),
                             SizedBox(width: 8),
                             Text('Duplicate'),
@@ -496,7 +496,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                       const PopupMenuItem(
                         value: 'delete',
                         child: Row(
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.delete, color: Colors.red),
                             SizedBox(width: 8),
                             Text('Delete'),
@@ -514,7 +514,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [
+                children: <Widget>[
                   _buildStatChip(
                     Icons.calendar_today,
                     '${workout.workoutPlan.sessionsPerWeek}/week',
@@ -538,10 +538,10 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
               // Date information
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         'Created: ${_formatDate(workout.createdAt)}',
                         style: const TextStyle(
@@ -594,7 +594,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
@@ -613,7 +613,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   void _duplicateWorkout(
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) async {
     try {
-      final duplicatedName = "${workout.name} (Copy)";
+      final String duplicatedName = "${workout.name} (Copy)";
       await ref.read(savedWorkoutPlansProvider.notifier).saveWorkout(
             name: duplicatedName,
             workout: workout.workoutPlan,
@@ -636,8 +636,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(date);
 
     if (difference.inDays == 0) {
       return 'Today';
@@ -667,7 +667,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
             'Are you sure you want to delete "${workout.name}"? This action cannot be undone.',
             style: const TextStyle(color: Color(0xFF121714)),
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(

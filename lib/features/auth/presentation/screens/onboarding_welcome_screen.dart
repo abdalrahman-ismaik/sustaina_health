@@ -34,7 +34,7 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
+                        colors: <Color>[
                           Theme.of(context).colorScheme.primary.withOpacity(0.1),
                           Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                         ],
@@ -47,7 +47,7 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                      children: <Widget>[
                         Icon(
                           Icons.eco_outlined,
                           size: 80,

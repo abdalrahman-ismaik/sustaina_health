@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/workout_providers.dart';
 import '../../data/models/workout_models.dart';
@@ -25,10 +26,10 @@ class _AIWorkoutGeneratorScreenState
   String? _selectedSex;
   String? _selectedGoal;
   int _workoutsPerWeek = 3;
-  final List<String> _selectedEquipment = [];
+  final List<String> _selectedEquipment = <String>[];
 
   // Equipment options
-  static const List<String> equipmentOptions = [
+  static const List<String> equipmentOptions = <String>[
     'dumbbells',
     'barbell',
     'resistance bands',
@@ -43,7 +44,7 @@ class _AIWorkoutGeneratorScreenState
     'medicine ball',
   ];
 
-  static const List<String> goalOptions = [
+  static const List<String> goalOptions = <String>[
     'bulking',
     'cutting',
     'weight_loss',
@@ -52,7 +53,7 @@ class _AIWorkoutGeneratorScreenState
     'endurance',
   ];
 
-  static const List<String> sexOptions = [
+  static const List<String> sexOptions = <String>[
     'Male',
     'Female',
   ];
@@ -61,13 +62,13 @@ class _AIWorkoutGeneratorScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final userProfile = ref.read(userProfileProvider);
+      final UserProfile userProfile = ref.read(userProfileProvider);
       bool loadedFromPrefs = false;
       if (userProfile.weight != null) {
         _weightController.text = userProfile.weight.toString();
       } else {
-        final prefs = await SharedPreferences.getInstance();
-        final weight = prefs.getString('profile_weight');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final String? weight = prefs.getString('profile_weight');
         if (weight != null && weight.isNotEmpty) {
           _weightController.text = weight;
           loadedFromPrefs = true;
@@ -76,8 +77,8 @@ class _AIWorkoutGeneratorScreenState
       if (userProfile.height != null) {
         _heightController.text = userProfile.height.toString();
       } else {
-        final prefs = await SharedPreferences.getInstance();
-        final height = prefs.getString('profile_height');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final String? height = prefs.getString('profile_height');
         if (height != null && height.isNotEmpty) {
           _heightController.text = height;
           loadedFromPrefs = true;
@@ -86,8 +87,8 @@ class _AIWorkoutGeneratorScreenState
       if (userProfile.age != null) {
         _ageController.text = userProfile.age.toString();
       } else {
-        final prefs = await SharedPreferences.getInstance();
-        final age = prefs.getString('profile_age');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final String? age = prefs.getString('profile_age');
         if (age != null && age.isNotEmpty) {
           _ageController.text = age;
           loadedFromPrefs = true;
@@ -99,8 +100,8 @@ class _AIWorkoutGeneratorScreenState
             ? userProfile.apiSex[0].toUpperCase() + userProfile.apiSex.substring(1).toLowerCase()
             : null;
       } else {
-        final prefs = await SharedPreferences.getInstance();
-        final sex = prefs.getString('profile_sex');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final String? sex = prefs.getString('profile_sex');
         if (sex != null && sex.isNotEmpty) {
           _selectedSex = sex[0].toUpperCase() + sex.substring(1).toLowerCase();
           loadedFromPrefs = true;
@@ -143,7 +144,7 @@ class _AIWorkoutGeneratorScreenState
     }
 
     // Update user profile
-    final userProfile = UserProfile(
+    final UserProfile userProfile = UserProfile(
       weight: double.tryParse(_weightController.text),
       height: int.tryParse(_heightController.text),
       age: int.tryParse(_ageController.text),
@@ -159,19 +160,19 @@ class _AIWorkoutGeneratorScreenState
 
   @override
   Widget build(BuildContext context) {
-    final workoutState = ref.watch(workoutGenerationProvider);
-    final apiHealthState = ref.watch(apiHealthProvider);
+    final AsyncValue<WorkoutPlan?> workoutState = ref.watch(workoutGenerationProvider);
+    final AsyncValue<bool> apiHealthState = ref.watch(apiHealthProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
-          children: [
+          children: <Widget>[
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   IconButton(
                     icon:
                         const Icon(Icons.arrow_back, color: Color(0xFF121714)),
@@ -198,7 +199,7 @@ class _AIWorkoutGeneratorScreenState
 
             // API Status Indicator
             apiHealthState.when(
-              data: (isHealthy) => Container(
+              data: (bool isHealthy) => Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -212,7 +213,7 @@ class _AIWorkoutGeneratorScreenState
                   ),
                 ),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     Icon(
                       isHealthy ? Icons.check_circle : Icons.error,
                       color: isHealthy ? Colors.green : Colors.red,
@@ -240,12 +241,12 @@ class _AIWorkoutGeneratorScreenState
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
+                children: <Widget>[
                   // Personal Information Section
                   _buildSectionTitle('Personal Information'),
 
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _buildTextField(
                           controller: _weightController,
@@ -265,7 +266,7 @@ class _AIWorkoutGeneratorScreenState
                   ),
 
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _buildTextField(
                           controller: _ageController,
@@ -279,7 +280,7 @@ class _AIWorkoutGeneratorScreenState
                           value: _selectedSex,
                           label: 'Sex',
                           items: sexOptions,
-                          onChanged: (value) =>
+                          onChanged: (String? value) =>
                               setState(() => _selectedSex = value),
                         ),
                       ),
@@ -292,7 +293,7 @@ class _AIWorkoutGeneratorScreenState
                     value: _selectedGoal,
                     label: 'Select your goal',
                     items: goalOptions,
-                    onChanged: (value) => setState(() => _selectedGoal = value),
+                    onChanged: (String? value) => setState(() => _selectedGoal = value),
                   ),
 
                   // Workouts per week
@@ -307,8 +308,8 @@ class _AIWorkoutGeneratorScreenState
 
                   // Generate Button
                   workoutState.when(
-                    data: (workout) => Column(
-                      children: [
+                    data: (WorkoutPlan? workout) => Column(
+                      children: <Widget>[
                         SizedBox(
                           width: double.infinity,
                           height: 48,
@@ -330,7 +331,7 @@ class _AIWorkoutGeneratorScreenState
                             ),
                           ),
                         ),
-                        if (workout != null) ...[
+                        if (workout != null) ...<Widget>[
                           const SizedBox(height: 16),
                           _buildWorkoutPreview(workout),
                         ],
@@ -345,8 +346,8 @@ class _AIWorkoutGeneratorScreenState
                         ),
                       ),
                     ),
-                    error: (error, _) => Column(
-                      children: [
+                    error: (Object error, _) => Column(
+                      children: <Widget>[
                         SizedBox(
                           width: double.infinity,
                           height: 48,
@@ -377,7 +378,7 @@ class _AIWorkoutGeneratorScreenState
                             border: Border.all(color: Colors.red),
                           ),
                           child: Column(
-                            children: [
+                            children: <Widget>[
                               const Icon(Icons.error,
                                   color: Colors.red, size: 32),
                               const SizedBox(height: 8),
@@ -451,7 +452,7 @@ class _AIWorkoutGeneratorScreenState
     required ValueChanged<String?> onChanged,
   }) {
     // If value is not in items, set value to null to avoid DropdownButton error
-    final dropdownValue = (value != null && items.contains(value)) ? value : null;
+    final String? dropdownValue = (value != null && items.contains(value)) ? value : null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: DropdownButtonFormField<String>(
@@ -466,7 +467,7 @@ class _AIWorkoutGeneratorScreenState
             borderSide: const BorderSide(color: Color(0xFF94E0B2)),
           ),
         ),
-        items: items.map((item) {
+        items: items.map((String item) {
           return DropdownMenuItem(
             value: item,
             child: Text(item.replaceAll('_', ' ').toUpperCase()),
@@ -482,7 +483,7 @@ class _AIWorkoutGeneratorScreenState
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Workouts per week: $_workoutsPerWeek',
             style: const TextStyle(
@@ -497,7 +498,7 @@ class _AIWorkoutGeneratorScreenState
             max: 7,
             divisions: 6,
             activeColor: const Color(0xFF94E0B2),
-            onChanged: (value) {
+            onChanged: (double value) {
               setState(() {
                 _workoutsPerWeek = value.round();
               });
@@ -514,12 +515,12 @@ class _AIWorkoutGeneratorScreenState
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
-        children: equipmentOptions.map((equipment) {
-          final isSelected = _selectedEquipment.contains(equipment);
+        children: equipmentOptions.map((String equipment) {
+          final bool isSelected = _selectedEquipment.contains(equipment);
           return FilterChip(
             label: Text(equipment.replaceAll('_', ' ')),
             selected: isSelected,
-            onSelected: (selected) {
+            onSelected: (bool selected) {
               setState(() {
                 if (selected) {
                   _selectedEquipment.add(equipment);
@@ -550,7 +551,7 @@ class _AIWorkoutGeneratorScreenState
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           const Text(
             'Workout Generated Successfully! 🎉',
             style: TextStyle(
@@ -578,14 +579,14 @@ class _AIWorkoutGeneratorScreenState
           ),
           const SizedBox(height: 16),
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
+                        builder: (BuildContext context) =>
                             WorkoutDetailScreen(workout: workout),
                       ),
                     );
@@ -633,7 +634,7 @@ class _AIWorkoutGeneratorScreenState
   }
 
   void _showSaveWorkoutDialog(BuildContext context, WorkoutPlan workout) {
-    final user = ref.read(authStateProvider).value;
+    final UserEntity? user = ref.read(authStateProvider).value;
 
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -660,7 +661,7 @@ class _AIWorkoutGeneratorScreenState
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               const Text(
                 'Give your workout plan a name:',
                 style: TextStyle(color: Color(0xFF121714)),
@@ -682,7 +683,7 @@ class _AIWorkoutGeneratorScreenState
               ),
             ],
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
@@ -692,7 +693,7 @@ class _AIWorkoutGeneratorScreenState
             ),
             ElevatedButton(
               onPressed: () async {
-                final name = nameController.text.trim();
+                final String name = nameController.text.trim();
                 if (name.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -704,7 +705,7 @@ class _AIWorkoutGeneratorScreenState
                 }
 
                 try {
-                  final workoutId = await ref
+                  final String? workoutId = await ref
                       .read(savedWorkoutPlansProvider.notifier)
                       .saveWorkout(name: name, workout: workout);
 

@@ -47,8 +47,8 @@ class CustomButton extends StatelessWidget {
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
+                children: <Widget>[
+                  if (icon != null) ...<Widget>[
                     Icon(icon),
                     const SizedBox(width: 8.0),
                   ],

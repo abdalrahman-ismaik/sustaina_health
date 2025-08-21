@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../../services/notification_service.dart';
@@ -42,7 +43,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     super.dispose();
   }
   Future<void> _loadPersonalInfo() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _weightController.text = prefs.getString('profile_weight') ?? '';
       _heightController.text = prefs.getString('profile_height') ?? '';
@@ -52,7 +53,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }
 
   Future<void> _savePersonalInfo() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('profile_weight', _weightController.text);
     await prefs.setString('profile_height', _heightController.text);
     await prefs.setString('profile_age', _ageController.text);
@@ -61,13 +62,13 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
 
   Future<void> _initializeNotifications() async {
     await _notificationService.initialize();
-    final allowed = await _notificationService.areNotificationsEnabled();
+    final bool allowed = await _notificationService.areNotificationsEnabled();
 
     // Load saved notification preferences
-    final prefs = await SharedPreferences.getInstance();
-    final sustainabilityEnabled =
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final bool sustainabilityEnabled =
         prefs.getBool('sustainability_tips_enabled') ?? false;
-    final healthEnabled = prefs.getBool('health_reminders_enabled') ?? false;
+    final bool healthEnabled = prefs.getBool('health_reminders_enabled') ?? false;
 
     if (mounted) {
       setState(() {
@@ -79,14 +80,14 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }
 
   Future<void> _saveNotificationPreference(String key, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
   }
 
   @override
   Widget build(BuildContext context) {
-    final userAsyncValue = ref.watch(currentUserProvider);
-    final user = userAsyncValue.value;
+    final AsyncValue<UserEntity?> userAsyncValue = ref.watch(currentUserProvider);
+    final UserEntity? user = userAsyncValue.value;
     print(
         'DEBUG ProfileScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -117,7 +118,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           IconButton(
             icon: Icon(Icons.help_outline, color: textColor),
             onPressed: () => _showProfileGuide(context),
@@ -144,7 +145,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                               width: 128,
                               height: 128,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
+                              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
                                 return Icon(
                                   Icons.person,
                                   size: 64,
@@ -152,7 +153,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                                 );
                               },
                               loadingBuilder:
-                                  (context, child, loadingProgress) {
+                                  (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                                 if (loadingProgress == null) return child;
                                 return CircularProgressIndicator(
                                   value: loadingProgress.expectedTotalBytes !=
@@ -197,7 +198,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text('Personal Info',
                         style: TextStyle(
                             fontSize: 18,
@@ -205,7 +206,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                             color: textColor)),
                     const SizedBox(height: 12),
                     Row(
-                      children: [
+                      children: <Widget>[
                         Expanded(
                           child: TextField(
                             controller: _weightController,
@@ -231,7 +232,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     ),
                     const SizedBox(height: 12),
                     Row(
-                      children: [
+                      children: <Widget>[
                         Expanded(
                           child: TextField(
                             controller: _ageController,
@@ -246,12 +247,12 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             value: _selectedSex,
-                            items: const [
+                            items: const <DropdownMenuItem<String>>[
                               DropdownMenuItem(value: 'Male', child: Text('Male')),
                               DropdownMenuItem(value: 'Female', child: Text('Female')),
                               DropdownMenuItem(value: 'Other', child: Text('Other')),
                             ],
-                            onChanged: (value) {
+                            onChanged: (String? value) {
                               if (value != null) {
                                 setState(() {
                                   _selectedSex = value;
@@ -388,7 +389,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   builder: (BuildContext context) => AlertDialog(
                     title: const Text('Logout'),
                     content: const Text('Are you sure you want to logout?'),
-                    actions: [
+                    actions: <Widget>[
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
                         child: const Text('Cancel'),
@@ -446,9 +447,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(
                 _notificationsAllowed
                     ? Icons.notifications_active
@@ -470,7 +471,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          if (!_notificationsAllowed) ...[
+          if (!_notificationsAllowed) ...<Widget>[
             Text(
               'Enable notifications to receive sustainability tips and health reminders',
               style: TextStyle(
@@ -483,7 +484,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  final granted =
+                  final bool granted =
                       await _notificationService.requestPermissions();
                   if (granted) {
                     setState(() => _notificationsAllowed = true);
@@ -499,14 +500,14 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 child: const Text('Enable Notifications'),
               ),
             ),
-          ] else ...[
+          ] else ...<Widget>[
             // Sustainability Tips
             _buildNotificationOption(
               title: 'Daily Sustainability Tips',
               description:
                   'Get tips for eco-friendly living throughout the day (automatic)',
               value: _sustainabilityTipsEnabled,
-              onChanged: (value) async {
+              onChanged: (bool value) async {
                 setState(() => _sustainabilityTipsEnabled = value);
                 await _saveNotificationPreference(
                     'sustainability_tips_enabled', value);
@@ -526,7 +527,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               description:
                   'Get reminded about wellness and self-care (automatic)',
               value: _healthRemindersEnabled,
-              onChanged: (value) async {
+              onChanged: (bool value) async {
                 setState(() => _healthRemindersEnabled = value);
                 await _saveNotificationPreference(
                     'health_reminders_enabled', value);
@@ -576,11 +577,11 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     required ValueChanged<bool> onChanged,
   }) {
     return Row(
-      children: [
+      children: <Widget>[
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 title,
                 style: TextStyle(
@@ -706,7 +707,7 @@ void _showProfileGuide(BuildContext context) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               Text(
                 'Welcome to your profile! Here\'s how to manage your account:',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -739,7 +740,7 @@ void _showProfileGuide(BuildContext context) {
             ],
           ),
         ),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Got it!'),

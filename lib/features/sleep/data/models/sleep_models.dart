@@ -28,7 +28,7 @@ class SleepSession {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'startTime': startTime.toIso8601String(),
       'endTime': endTime.toIso8601String(),
@@ -80,7 +80,7 @@ class SleepEnvironment {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'roomTemperature': roomTemperature,
       'noiseLevel': noiseLevel,
       'lightExposure': lightExposure,
@@ -118,7 +118,7 @@ class SleepStages {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'lightSleep': lightSleep.inMilliseconds,
       'deepSleep': deepSleep.inMilliseconds,
       'remSleep': remSleep.inMilliseconds,
@@ -152,7 +152,7 @@ class SleepSustainability {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'energySaved': energySaved,
       'carbonFootprintReduction': carbonFootprintReduction,
       'usedEcoFriendlyBedding': usedEcoFriendlyBedding,
@@ -192,11 +192,11 @@ class SleepGoal {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'targetDuration': targetDuration.inMilliseconds,
-      'targetBedtime': {'hour': targetBedtime.hour, 'minute': targetBedtime.minute},
-      'targetWakeTime': {'hour': targetWakeTime.hour, 'minute': targetWakeTime.minute},
+      'targetBedtime': <String, int>{'hour': targetBedtime.hour, 'minute': targetBedtime.minute},
+      'targetWakeTime': <String, int>{'hour': targetWakeTime.hour, 'minute': targetWakeTime.minute},
       'targetQuality': targetQuality,
       'reminderEnabled': reminderEnabled,
       'createdAt': createdAt.toIso8601String(),
@@ -204,8 +204,8 @@ class SleepGoal {
   }
 
   factory SleepGoal.fromJson(Map<String, dynamic> json) {
-    final bedtimeJson = json['targetBedtime'] as Map<String, dynamic>;
-    final wakeTimeJson = json['targetWakeTime'] as Map<String, dynamic>;
+    final Map<String, dynamic> bedtimeJson = json['targetBedtime'] as Map<String, dynamic>;
+    final Map<String, dynamic> wakeTimeJson = json['targetWakeTime'] as Map<String, dynamic>;
     
     return SleepGoal(
       id: json['id'] as String,
@@ -243,9 +243,9 @@ class SleepReminder {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
-      'time': {'hour': time.hour, 'minute': time.minute},
+      'time': <String, int>{'hour': time.hour, 'minute': time.minute},
       'enabled': enabled,
       'days': days,
       'message': message,
@@ -254,7 +254,7 @@ class SleepReminder {
   }
 
   factory SleepReminder.fromJson(Map<String, dynamic> json) {
-    final timeJson = json['time'] as Map<String, dynamic>;
+    final Map<String, dynamic> timeJson = json['time'] as Map<String, dynamic>;
     
     return SleepReminder(
       id: json['id'] as String,
@@ -290,7 +290,7 @@ class SleepInsight {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'title': title,
       'description': description,
@@ -307,7 +307,7 @@ class SleepInsight {
       title: json['title'] as String,
       description: json['description'] as String,
       type: SleepInsightType.values.firstWhere(
-        (e) => e.name == json['type'],
+        (SleepInsightType e) => e.name == json['type'],
         orElse: () => SleepInsightType.quality,
       ),
       impact: json['impact'] as double,
@@ -350,7 +350,7 @@ class SleepStats {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'averageDuration': averageDuration.inMilliseconds,
       'averageQuality': averageQuality,
       'totalSleepTime': totalSleepTime.inMilliseconds,

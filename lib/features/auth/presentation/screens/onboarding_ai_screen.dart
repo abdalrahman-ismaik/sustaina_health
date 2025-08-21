@@ -36,7 +36,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [
+                            colors: <Color>[
                               Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                               Theme.of(context).colorScheme.primary.withOpacity(0.1),
                             ],
@@ -49,7 +49,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: <Widget>[
                             Icon(
                               Icons.psychology_outlined,
                               size: 60,

@@ -32,13 +32,13 @@ class SleepStatsCard extends ConsumerWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
+            colors: <Color>[
               color ?? SleepColors.primaryBlue,
               (color ?? SleepColors.primaryBlue).withOpacity(0.8),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
+          boxShadow: <BoxShadow>[
             BoxShadow(
               color: (color ?? SleepColors.primaryBlue).withOpacity(0.3),
               blurRadius: 8,
@@ -48,9 +48,9 @@ class SleepStatsCard extends ConsumerWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -121,8 +121,8 @@ class SleepQualityCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final qualityColor = _getQualityColor(quality);
-    final qualityText = _getQualityText(quality);
+    final Color qualityColor = _getQualityColor(quality);
+    final String qualityText = _getQualityText(quality);
 
     return SleepStatsCard(
       title: 'Sleep Quality',
@@ -160,9 +160,9 @@ class SleepDurationCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes % 60;
-    final durationText = '${hours}h ${minutes}m';
+    final int hours = duration.inHours;
+    final int minutes = duration.inMinutes % 60;
+    final String durationText = '${hours}h ${minutes}m';
 
     return SleepStatsCard(
       title: 'Sleep Duration',
@@ -194,8 +194,8 @@ class SleepConsistencyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final consistencyPercent = (consistency * 100).round();
-    final consistencyColor = _getConsistencyColor(consistency);
+    final int consistencyPercent = (consistency * 100).round();
+    final Color consistencyColor = _getConsistencyColor(consistency);
 
     return SleepStatsCard(
       title: 'Consistency',
@@ -232,8 +232,8 @@ class SleepSustainabilityCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sustainabilityPercent = (sustainability * 100).round();
-    final sustainabilityColor = _getSustainabilityColor(sustainability);
+    final int sustainabilityPercent = (sustainability * 100).round();
+    final Color sustainabilityColor = _getSustainabilityColor(sustainability);
 
     return SleepStatsCard(
       title: 'Sustainability',

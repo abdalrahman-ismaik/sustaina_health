@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../models/nutrition_models.dart';
@@ -13,13 +14,13 @@ class NutritionApiService {
       {String? mealType}) async {
     try {
       // Read image as bytes
-      final bytes = await imageFile.readAsBytes();
+      final Uint8List bytes = await imageFile.readAsBytes();
 
       print('Image file size: ${bytes.length} bytes'); // Debug log
       print('Image file path: ${imageFile.path}'); // Debug log
 
       // Create multipart request
-      var request = http.MultipartRequest(
+      http.MultipartRequest request = http.MultipartRequest(
         'POST',
         Uri.parse('$_baseUrl/meals/analyze'),
       );
@@ -44,15 +45,15 @@ class NutritionApiService {
       print('Request method: ${request.method}'); // Debug log
       print('Request fields: ${request.fields}'); // Debug log
       print(
-          'Request files: ${request.files.map((f) => 'Field: ${f.field}, Filename: ${f.filename}, ContentType: ${f.contentType}, Size: ${f.length} bytes')}'); // Debug log
+          'Request files: ${request.files.map((http.MultipartFile f) => 'Field: ${f.field}, Filename: ${f.filename}, ContentType: ${f.contentType}, Size: ${f.length} bytes')}'); // Debug log
 
-      final streamedResponse = await request.send().timeout(
+      final http.StreamedResponse streamedResponse = await request.send().timeout(
         const Duration(seconds: 60),
         onTimeout: () {
           throw NutritionApiException('Request timeout');
         },
       );
-      final response = await http.Response.fromStream(streamedResponse);
+      final http.Response response = await http.Response.fromStream(streamedResponse);
 
       print('Response status: ${response.statusCode}'); // Debug log
       print('Response headers: ${response.headers}'); // Debug log
@@ -90,9 +91,9 @@ class NutritionApiService {
   /// Generate a personalized meal plan based on user preferences and goals
   Future<MealPlanResponse> generateMealPlan(MealPlanRequest request) async {
     try {
-      final response = await http.post(
+      final http.Response response = await http.post(
         Uri.parse('$_baseUrl/nutrition-plans/generate'),
-        headers: {
+        headers: <String, String>{
           'Content-Type': 'application/json',
         },
         body: jsonEncode(request.toJson()),
@@ -129,7 +130,7 @@ class NutritionApiService {
   /// Health check method to verify API availability
   Future<bool> checkApiHealth() async {
     try {
-      final response = await http
+      final http.Response response = await http
           .get(
             Uri.parse('$_baseUrl/'),
           )
@@ -144,10 +145,10 @@ class NutritionApiService {
   /// Get sustainable brand recommendations for a specific product
   Future<RecommendedBrands> getBrandRecommendations(String product) async {
     try {
-      final response = await http.get(
+      final http.Response response = await http.get(
         Uri.parse(
             '$_baseUrl/recommendations/brands?product=${Uri.encodeComponent(product)}'),
-        headers: {
+        headers: <String, String>{
           'Content-Type': 'application/json',
         },
       ).timeout(
@@ -195,7 +196,7 @@ class NutritionApiService {
     return const MealAnalysisResponse(
       foodName: "Chicken Pesto Fusilli with Cherry Tomatoes",
       totalCalories: 780,
-      caloriesPerIngredient: {
+      caloriesPerIngredient: <String, int>{
         "Fusilli Pasta": 340,
         "Grilled Chicken Breast": 192,
         "Pesto Sauce": 237,
@@ -217,7 +218,7 @@ class NutritionApiService {
   // Mock meal plan for testing when API is not available
   MealPlanResponse _getMockMealPlan(MealPlanRequest request) {
     // Create mock data for the number of days requested
-    final List<DailyMealPlan> dailyPlans = [];
+    final List<DailyMealPlan> dailyPlans = <DailyMealPlan>[];
 
     for (int day = 1; day <= request.durationDays; day++) {
       dailyPlans.add(DailyMealPlan(
@@ -231,7 +232,7 @@ class NutritionApiService {
           totalCalories: 425,
           recipe:
               'Cook oats with milk, top with berries and almonds, drizzle with honey.',
-          ingredients: const [
+          ingredients: const <Ingredient>[
             Ingredient(
                 ingredient: 'Rolled oats', quantity: '1/2 cup', calories: 150),
             Ingredient(
@@ -240,14 +241,14 @@ class NutritionApiService {
                 ingredient: 'Almonds', quantity: '1/4 cup', calories: 160),
             Ingredient(ingredient: 'Honey', quantity: '1 tbsp', calories: 65),
           ],
-          suggestedBrands: ['Quaker Oats', 'Nature Valley'],
+          suggestedBrands: <String>['Quaker Oats', 'Nature Valley'],
         ),
         lunch: MealOption(
           description: 'Quinoa Salad with Chickpeas',
           totalCalories: 385,
           recipe:
               'Mix cooked quinoa with chickpeas, vegetables, and olive oil dressing.',
-          ingredients: const [
+          ingredients: const <Ingredient>[
             Ingredient(
                 ingredient: 'Quinoa',
                 quantity: '1/2 cup cooked',
@@ -261,13 +262,13 @@ class NutritionApiService {
             Ingredient(
                 ingredient: 'Olive oil', quantity: '1 tbsp', calories: 115),
           ],
-          suggestedBrands: ['Eden Organic', 'Bertolli'],
+          suggestedBrands: <String>['Eden Organic', 'Bertolli'],
         ),
         dinner: MealOption(
           description: 'Grilled Salmon with Sweet Potato',
           totalCalories: 520,
           recipe: 'Grill salmon fillet, roast sweet potato, steam broccoli.',
-          ingredients: const [
+          ingredients: const <Ingredient>[
             Ingredient(
                 ingredient: 'Salmon fillet', quantity: '6 oz', calories: 350),
             Ingredient(
@@ -278,14 +279,14 @@ class NutritionApiService {
             Ingredient(
                 ingredient: 'Olive oil', quantity: '1 tbsp', calories: 45),
           ],
-          suggestedBrands: ['Wild Planet', 'Organic Valley'],
+          suggestedBrands: <String>['Wild Planet', 'Organic Valley'],
         ),
-        snacks: [
+        snacks: <MealOption>[
           MealOption(
             description: 'Greek Yogurt with Nuts',
             totalCalories: 180,
             recipe: 'Mix Greek yogurt with mixed nuts.',
-            ingredients: const [
+            ingredients: const <Ingredient>[
               Ingredient(
                   ingredient: 'Greek yogurt',
                   quantity: '3/4 cup',
@@ -293,7 +294,7 @@ class NutritionApiService {
               Ingredient(
                   ingredient: 'Mixed nuts', quantity: '1/4 cup', calories: 80),
             ],
-            suggestedBrands: ['Fage', 'Blue Diamond'],
+            suggestedBrands: <String>['Fage', 'Blue Diamond'],
           ),
         ],
         dailyMacros: const DailyMacros(
@@ -320,7 +321,7 @@ class NutritionApiService {
   /// Convert image file to base64 string for API requests
   Future<String> imageToBase64(File imageFile) async {
     try {
-      final bytes = await imageFile.readAsBytes();
+      final Uint8List bytes = await imageFile.readAsBytes();
       return base64Encode(bytes);
     } catch (e) {
       throw NutritionApiException('Failed to process image: ${e.toString()}');
@@ -330,10 +331,10 @@ class NutritionApiService {
   // Mock brand recommendations for testing when API is not available
   RecommendedBrands _getMockBrandRecommendations(String product) {
     // Generate mock recommendations based on product type
-    final mockBrands = <RecommendedBrand>[];
+    final List<RecommendedBrand> mockBrands = <RecommendedBrand>[];
 
     if (product.toLowerCase().contains('olive oil')) {
-      mockBrands.addAll([
+      mockBrands.addAll(<RecommendedBrand>[
         const RecommendedBrand(
           name: 'Al Jouf Organic Olive Oil',
           price: 45.0,
@@ -358,7 +359,7 @@ class NutritionApiService {
       ]);
     } else if (product.toLowerCase().contains('rice') ||
         product.toLowerCase().contains('grain')) {
-      mockBrands.addAll([
+      mockBrands.addAll(<RecommendedBrand>[
         const RecommendedBrand(
           name: 'Emirates Organic Rice',
           price: 25.0,
@@ -383,7 +384,7 @@ class NutritionApiService {
       ]);
     } else {
       // Generic sustainable food recommendations for UAE market
-      mockBrands.addAll([
+      mockBrands.addAll(<RecommendedBrand>[
         RecommendedBrand(
           name: 'UAE Organic Choice',
           price: 30.0,

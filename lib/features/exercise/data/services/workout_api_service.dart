@@ -9,9 +9,9 @@ class WorkoutApiService {
 
   Future<WorkoutPlan> generateWorkout(WorkoutGenerationRequest request) async {
     try {
-      final response = await http.post(
+      final http.Response response = await http.post(
         Uri.parse('$_baseUrl/workout-plans/generate'),
-        headers: {
+        headers: <String, String>{
           'Content-Type': 'application/json',
         },
         body: jsonEncode(request.toJson()),
@@ -51,7 +51,7 @@ class WorkoutApiService {
   // Health check method to verify API availability
   Future<bool> checkApiHealth() async {
     try {
-      final response = await http
+      final http.Response response = await http
           .get(
             Uri.parse('$_baseUrl/'),
           )

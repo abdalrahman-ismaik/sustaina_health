@@ -9,31 +9,31 @@ import '../../../profile/data/models/user_profile_model.dart';
 import 'package:uuid/uuid.dart';
 
 // API Service Provider
-final workoutApiServiceProvider = Provider<WorkoutApiService>((ref) {
+final Provider<WorkoutApiService> workoutApiServiceProvider = Provider<WorkoutApiService>((ProviderRef<WorkoutApiService> ref) {
   return WorkoutApiService();
 });
 
 // Local Workout Storage Service Provider
-final localWorkoutStorageServiceProvider =
-    Provider<LocalWorkoutStorageService>((ref) {
+final Provider<LocalWorkoutStorageService> localWorkoutStorageServiceProvider =
+    Provider<LocalWorkoutStorageService>((ProviderRef<LocalWorkoutStorageService> ref) {
   return LocalWorkoutStorageService();
 });
 
 // Workout Session Service Provider
-final workoutSessionServiceProvider = Provider<WorkoutSessionService>((ref) {
+final Provider<WorkoutSessionService> workoutSessionServiceProvider = Provider<WorkoutSessionService>((ProviderRef<WorkoutSessionService> ref) {
   return WorkoutSessionService();
 });
 
 // Repository Provider
-final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) {
+final Provider<WorkoutRepository> workoutRepositoryProvider = Provider<WorkoutRepository>((ProviderRef<WorkoutRepository> ref) {
   return WorkoutRepositoryImpl(
     apiService: ref.watch(workoutApiServiceProvider),
   );
 });
 
 // User Profile Provider (mock for now - you can integrate with actual user data)
-final userProfileProvider =
-    StateNotifierProvider<UserProfileNotifier, UserProfile>((ref) {
+final StateNotifierProvider<UserProfileNotifier, UserProfile> userProfileProvider =
+    StateNotifierProvider<UserProfileNotifier, UserProfile>((StateNotifierProviderRef<UserProfileNotifier, UserProfile> ref) {
   return UserProfileNotifier();
 });
 
@@ -78,9 +78,9 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
 }
 
 // Workout Generation Provider
-final workoutGenerationProvider =
+final StateNotifierProvider<WorkoutGenerationNotifier, AsyncValue<WorkoutPlan?>> workoutGenerationProvider =
     StateNotifierProvider<WorkoutGenerationNotifier, AsyncValue<WorkoutPlan?>>(
-        (ref) {
+        (StateNotifierProviderRef<WorkoutGenerationNotifier, AsyncValue<WorkoutPlan?>> ref) {
   return WorkoutGenerationNotifier(ref.watch(workoutRepositoryProvider));
 });
 
@@ -101,7 +101,7 @@ class WorkoutGenerationNotifier
     state = const AsyncValue.loading();
 
     try {
-      final request = WorkoutGenerationRequest(
+      final WorkoutGenerationRequest request = WorkoutGenerationRequest(
         weight: userProfile.weight!,
         height: userProfile.height!,
         age: userProfile.age!,
@@ -111,7 +111,7 @@ class WorkoutGenerationNotifier
         equipment: userProfile.availableEquipment,
       );
 
-      final workout = await _repository.generateWorkout(request);
+      final WorkoutPlan workout = await _repository.generateWorkout(request);
       state = AsyncValue.data(workout);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -124,14 +124,14 @@ class WorkoutGenerationNotifier
 }
 
 // API Health Check Provider
-final apiHealthProvider = FutureProvider<bool>((ref) async {
-  final repository = ref.watch(workoutRepositoryProvider);
+final FutureProvider<bool> apiHealthProvider = FutureProvider<bool>((FutureProviderRef<bool> ref) async {
+  final WorkoutRepository repository = ref.watch(workoutRepositoryProvider);
   return await repository.checkApiAvailability();
 });
 
 // Saved Workouts Provider (Local Storage)
-final savedWorkoutPlansProvider = StateNotifierProvider<
-    SavedWorkoutPlansNotifier, AsyncValue<List<SavedWorkoutPlan>>>((ref) {
+final StateNotifierProvider<SavedWorkoutPlansNotifier, AsyncValue<List<SavedWorkoutPlan>>> savedWorkoutPlansProvider = StateNotifierProvider<
+    SavedWorkoutPlansNotifier, AsyncValue<List<SavedWorkoutPlan>>>((StateNotifierProviderRef<SavedWorkoutPlansNotifier, AsyncValue<List<SavedWorkoutPlan>>> ref) {
   return SavedWorkoutPlansNotifier(
       ref.watch(localWorkoutStorageServiceProvider));
 });
@@ -148,7 +148,7 @@ class SavedWorkoutPlansNotifier
   Future<void> loadSavedWorkouts() async {
     state = const AsyncValue.loading();
     try {
-      final workouts = await _localStorageService.getSavedWorkoutPlans();
+      final List<SavedWorkoutPlan> workouts = await _localStorageService.getSavedWorkoutPlans();
       state = AsyncValue.data(workouts);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -160,7 +160,7 @@ class SavedWorkoutPlansNotifier
     required WorkoutPlan workout,
   }) async {
     try {
-      final workoutId = await _localStorageService.saveWorkoutPlan(
+      final String workoutId = await _localStorageService.saveWorkoutPlan(
         name: name,
         workoutPlan: workout,
       );
@@ -201,9 +201,9 @@ class SavedWorkoutPlansNotifier
 }
 
 // Saved Workouts Provider (Old - using repository)
-final savedWorkoutsProvider =
+final StateNotifierProvider<SavedWorkoutsNotifier, AsyncValue<List<WorkoutPlan>>> savedWorkoutsProvider =
     StateNotifierProvider<SavedWorkoutsNotifier, AsyncValue<List<WorkoutPlan>>>(
-        (ref) {
+        (StateNotifierProviderRef<SavedWorkoutsNotifier, AsyncValue<List<WorkoutPlan>>> ref) {
   return SavedWorkoutsNotifier(ref.watch(workoutRepositoryProvider));
 });
 
@@ -217,7 +217,7 @@ class SavedWorkoutsNotifier
 
   Future<void> loadSavedWorkouts() async {
     try {
-      final workouts = await _repository.getSavedWorkouts();
+      final List<WorkoutPlan> workouts = await _repository.getSavedWorkouts();
       state = AsyncValue.data(workouts);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -244,9 +244,9 @@ class SavedWorkoutsNotifier
 }
 
 // Active Workout Session Provider
-final activeWorkoutSessionProvider =
+final StateNotifierProvider<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?> activeWorkoutSessionProvider =
     StateNotifierProvider<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?>(
-        (ref) {
+        (StateNotifierProviderRef<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?> ref) {
   return ActiveWorkoutSessionNotifier(ref.watch(workoutSessionServiceProvider));
 });
 
@@ -262,7 +262,7 @@ class ActiveWorkoutSessionNotifier
   Future<void> _loadActiveWorkout() async {
     try {
       print('Loading active workout from storage...');
-      final activeWorkout = await _sessionService.getActiveWorkout();
+      final ActiveWorkoutSession? activeWorkout = await _sessionService.getActiveWorkout();
 
       if (activeWorkout != null) {
         print('Found active workout: ${activeWorkout.summary}');
@@ -306,7 +306,7 @@ class ActiveWorkoutSessionNotifier
         throw Exception('Cannot start workout with no exercises');
       }
 
-      final session = ActiveWorkoutSession.fromWorkoutSession(
+      final ActiveWorkoutSession session = ActiveWorkoutSession.fromWorkoutSession(
         id: _uuid.v4(),
         workoutName: workoutName.trim(),
         workoutSession: workoutSession,
@@ -359,7 +359,7 @@ class ActiveWorkoutSessionNotifier
     if (state == null) return;
 
     try {
-      final newSet = ExerciseSet(
+      final ExerciseSet newSet = ExerciseSet(
         reps: reps,
         weight: weight,
         duration: duration,
@@ -367,14 +367,14 @@ class ActiveWorkoutSessionNotifier
         notes: notes,
       );
 
-      final updatedExercises = List<CompletedExercise>.from(state!.exercises);
-      final exercise = updatedExercises[exerciseIndex];
+      final List<CompletedExercise> updatedExercises = List<CompletedExercise>.from(state!.exercises);
+      final CompletedExercise exercise = updatedExercises[exerciseIndex];
 
       updatedExercises[exerciseIndex] = exercise.copyWith(
-        sets: [...exercise.sets, newSet],
+        sets: <ExerciseSet>[...exercise.sets, newSet],
       );
 
-      final updatedSession = state!.copyWith(exercises: updatedExercises);
+      final ActiveWorkoutSession updatedSession = state!.copyWith(exercises: updatedExercises);
       await _sessionService.saveActiveWorkout(updatedSession);
       state = updatedSession;
     } catch (e) {
@@ -386,13 +386,13 @@ class ActiveWorkoutSessionNotifier
     if (state == null) return;
 
     try {
-      final updatedExercises = List<CompletedExercise>.from(state!.exercises);
+      final List<CompletedExercise> updatedExercises = List<CompletedExercise>.from(state!.exercises);
       updatedExercises[exerciseIndex] =
           updatedExercises[exerciseIndex].copyWith(
         isCompleted: true,
       );
 
-      final updatedSession = state!.copyWith(exercises: updatedExercises);
+      final ActiveWorkoutSession updatedSession = state!.copyWith(exercises: updatedExercises);
       await _sessionService.saveActiveWorkout(updatedSession);
       state = updatedSession;
     } catch (e) {
@@ -404,10 +404,10 @@ class ActiveWorkoutSessionNotifier
     if (state == null) return;
 
     try {
-      final now = DateTime.now();
-      final duration = now.difference(state!.startTime);
+      final DateTime now = DateTime.now();
+      final Duration duration = now.difference(state!.startTime);
 
-      final updatedSession = state!.copyWith(totalDuration: duration);
+      final ActiveWorkoutSession updatedSession = state!.copyWith(totalDuration: duration);
       await _sessionService.saveActiveWorkout(updatedSession);
       state = updatedSession;
     } catch (e) {
@@ -424,10 +424,10 @@ class ActiveWorkoutSessionNotifier
     try {
       print('Completing workout: ${state!.workoutName}');
 
-      final now = DateTime.now();
-      final totalDuration = now.difference(state!.startTime);
+      final DateTime now = DateTime.now();
+      final Duration totalDuration = now.difference(state!.startTime);
 
-      final completedSession = state!.copyWith(
+      final ActiveWorkoutSession completedSession = state!.copyWith(
         endTime: now,
         totalDuration: totalDuration,
         isCompleted: true,
@@ -466,8 +466,8 @@ class ActiveWorkoutSessionNotifier
 }
 
 // Completed Workouts Provider
-final completedWorkoutsProvider = StateNotifierProvider<
-    CompletedWorkoutsNotifier, AsyncValue<List<ActiveWorkoutSession>>>((ref) {
+final StateNotifierProvider<CompletedWorkoutsNotifier, AsyncValue<List<ActiveWorkoutSession>>> completedWorkoutsProvider = StateNotifierProvider<
+    CompletedWorkoutsNotifier, AsyncValue<List<ActiveWorkoutSession>>>((StateNotifierProviderRef<CompletedWorkoutsNotifier, AsyncValue<List<ActiveWorkoutSession>>> ref) {
   return CompletedWorkoutsNotifier(ref.watch(workoutSessionServiceProvider));
 });
 
@@ -483,7 +483,7 @@ class CompletedWorkoutsNotifier
   Future<void> loadCompletedWorkouts() async {
     state = const AsyncValue.loading();
     try {
-      final workouts = await _sessionService.getCompletedWorkouts();
+      final List<ActiveWorkoutSession> workouts = await _sessionService.getCompletedWorkouts();
       state = AsyncValue.data(workouts);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -501,7 +501,7 @@ class CompletedWorkoutsNotifier
 }
 
 // Workout Stats Provider
-final workoutStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final sessionService = ref.watch(workoutSessionServiceProvider);
+final FutureProvider<Map<String, dynamic>> workoutStatsProvider = FutureProvider<Map<String, dynamic>>((FutureProviderRef<Map<String, dynamic>> ref) async {
+  final WorkoutSessionService sessionService = ref.watch(workoutSessionServiceProvider);
   return await sessionService.getWorkoutStats();
 });

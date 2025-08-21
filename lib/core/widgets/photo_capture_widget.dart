@@ -30,7 +30,7 @@ class _PhotoCaptureWidgetState extends State<PhotoCaptureWidget> {
       builder: (BuildContext context) {
         return SafeArea(
           child: Wrap(
-            children: [
+            children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Take Photo'),
@@ -92,7 +92,7 @@ class _PhotoCaptureWidgetState extends State<PhotoCaptureWidget> {
       ),
       child: _imageFile != null
           ? Stack(
-              children: [
+              children: <Widget>[
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.file(
@@ -110,7 +110,7 @@ class _PhotoCaptureWidgetState extends State<PhotoCaptureWidget> {
                     icon: const Icon(
                       Icons.edit,
                       color: Colors.white,
-                      shadows: [Shadow(blurRadius: 3, color: Colors.black)],
+                      shadows: <Shadow>[Shadow(blurRadius: 3, color: Colors.black)],
                     ),
                   ),
                 ),
@@ -120,7 +120,7 @@ class _PhotoCaptureWidgetState extends State<PhotoCaptureWidget> {
               onTap: _showImageSourceDialog,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   const Icon(
                     Icons.add_a_photo,
                     size: 48,

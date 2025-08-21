@@ -15,7 +15,7 @@ class UserProfile {
     this.sex,
     this.fitnessGoal,
     this.workoutsPerWeek,
-    this.availableEquipment = const [],
+    this.availableEquipment = const <String>[],
     this.activityLevel,
   });
 
@@ -30,13 +30,13 @@ class UserProfile {
       availableEquipment: (json['available_equipment'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
-          [],
+          <String>[],
       activityLevel: json['activity_level'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'weight': weight,
       'height': height,
       'age': age,

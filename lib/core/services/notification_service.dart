@@ -18,7 +18,7 @@ class NotificationService {
   bool _isInitialized = false;
 
   // Sustainability tips data
-  static const List<String> _sustainabilityTips = [
+  static const List<String> _sustainabilityTips = <String>[
     "🌱 Take the stairs instead of the elevator to reduce energy consumption and improve your health!",
     "💧 Turn off the tap while brushing your teeth to save up to 8 gallons of water per day.",
     "🚲 Consider walking or cycling for short trips - it's great for your health and the environment!",
@@ -69,14 +69,14 @@ class NotificationService {
       );
 
       // Initialize the plugin
-      final initialized = await _flutterLocalNotificationsPlugin.initialize(
+      final bool? initialized = await _flutterLocalNotificationsPlugin.initialize(
         initializationSettings,
         onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
       );
 
       if (initialized == true) {
         // Request permissions explicitly
-        final permissionGranted = await requestPermissions();
+        final bool permissionGranted = await requestPermissions();
         debugPrint(
             'Notification initialization: $initialized, Permissions: $permissionGranted');
 
@@ -120,7 +120,7 @@ class NotificationService {
   Future<bool> requestPermissions() async {
     try {
       // Request permissions on Android
-      final androidImplementation = _flutterLocalNotificationsPlugin
+      final AndroidFlutterLocalNotificationsPlugin? androidImplementation = _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
 
@@ -137,7 +137,7 @@ class NotificationService {
       }
 
       // Request permissions on iOS
-      final iosImplementation = _flutterLocalNotificationsPlugin
+      final IOSFlutterLocalNotificationsPlugin? iosImplementation = _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
               IOSFlutterLocalNotificationsPlugin>();
 
@@ -165,23 +165,23 @@ class NotificationService {
 
       // Schedule sustainability tips throughout the day
       // Spread them across different times for better user experience
-      final now = DateTime.now();
+      final DateTime now = DateTime.now();
 
       // Schedule 8-10 tips throughout the day at random intervals
       for (int i = 0; i < 8; i++) {
         // Spread notifications throughout the day (1-12 hours from now)
-        final baseHours =
+        final double baseHours =
             (i + 1) * 1.5; // 1.5, 3, 4.5, 6, 7.5, 9, 10.5, 12 hours
-        final randomMinutes = Random().nextInt(60); // Add some randomness
-        final randomHourOffset =
+        final int randomMinutes = Random().nextInt(60); // Add some randomness
+        final double randomHourOffset =
             Random().nextDouble() * 0.5; // ±30 minutes variance
 
-        final delayHours = baseHours + randomHourOffset;
-        final totalMinutes = (delayHours * 60).round() + randomMinutes;
+        final double delayHours = baseHours + randomHourOffset;
+        final int totalMinutes = (delayHours * 60).round() + randomMinutes;
 
         // Get a different tip for each notification
-        final tipIndex = (i + now.day + now.hour) % _sustainabilityTips.length;
-        final tip = _sustainabilityTips[tipIndex];
+        final int tipIndex = (i + now.day + now.hour) % _sustainabilityTips.length;
+        final String tip = _sustainabilityTips[tipIndex];
 
         debugPrint(
             'Scheduling tip ${i + 1} in ${totalMinutes ~/ 60}h ${totalMinutes % 60}m');
@@ -208,7 +208,7 @@ class NotificationService {
   Future<void> _scheduleHealthRemindersAuto() async {
     try {
       // Schedule 2-3 health reminders at different times
-      final healthReminders = [
+      final List<String> healthReminders = <String>[
         'Time to check in with your wellness goals! 💚',
         'Remember to stay hydrated and take care of yourself! 💧',
         'How are you feeling today? Take a moment for self-care! 🌿',
@@ -216,8 +216,8 @@ class NotificationService {
 
       for (int i = 0; i < healthReminders.length; i++) {
         // Schedule health reminders at 3, 7, and 11 hours from now
-        final delayHours = 3 + (i * 4); // 3, 7, 11 hours
-        final randomMinutes = Random().nextInt(60);
+        final int delayHours = 3 + (i * 4); // 3, 7, 11 hours
+        final int randomMinutes = Random().nextInt(60);
 
         await _scheduleFlexibleNotification(
           id: 2001 + i,
@@ -287,7 +287,7 @@ class NotificationService {
     }
 
     try {
-      final randomTip =
+      final String randomTip =
           _sustainabilityTips[Random().nextInt(_sustainabilityTips.length)];
 
       await _flutterLocalNotificationsPlugin.show(
@@ -333,7 +333,7 @@ class NotificationService {
     required String body,
     required int hour,
     required int minute,
-    List<int> weekdays = const [1, 2, 3, 4, 5, 6, 7],
+    List<int> weekdays = const <int>[1, 2, 3, 4, 5, 6, 7],
   }) async {
     // This method is kept for compatibility but notifications now start automatically
     debugPrint(
@@ -381,11 +381,11 @@ class NotificationService {
   // Get scheduled notifications (Note: flexible notifications won't show here)
   Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
     try {
-      final pending =
+      final List<PendingNotificationRequest> pending =
           await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
       debugPrint(
           'Found ${pending.length} traditionally scheduled notifications:');
-      for (final notification in pending) {
+      for (final PendingNotificationRequest notification in pending) {
         debugPrint(
             'ID: ${notification.id}, Title: ${notification.title}, Body: ${notification.body}');
       }
@@ -398,7 +398,7 @@ class NotificationService {
       return pending;
     } catch (e) {
       debugPrint('Error getting scheduled notifications: $e');
-      return [];
+      return <PendingNotificationRequest>[];
     }
   }
 
@@ -410,7 +410,7 @@ class NotificationService {
       }
 
       // Check Android permissions
-      final androidImplementation = _flutterLocalNotificationsPlugin
+      final AndroidFlutterLocalNotificationsPlugin? androidImplementation = _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
 
@@ -431,16 +431,16 @@ class NotificationService {
 
   // Comprehensive diagnostic method
   Future<Map<String, dynamic>> getDiagnosticInfo() async {
-    final diagnostics = <String, dynamic>{};
+    final Map<String, dynamic> diagnostics = <String, dynamic>{};
 
     try {
       diagnostics['isInitialized'] = _isInitialized;
       diagnostics['notificationsEnabled'] = await areNotificationsEnabled();
 
-      final pending = await getScheduledNotifications();
+      final List<PendingNotificationRequest> pending = await getScheduledNotifications();
       diagnostics['scheduledCount'] = pending.length;
       diagnostics['scheduledNotifications'] = pending
-          .map((n) => {
+          .map((PendingNotificationRequest n) => <String, Object?>{
                 'id': n.id,
                 'title': n.title,
                 'body': n.body,
@@ -449,7 +449,7 @@ class NotificationService {
           .toList();
 
       // Check timezone
-      final now = tz.TZDateTime.now(tz.local);
+      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       diagnostics['currentTime'] = now.toIso8601String();
       diagnostics['timezone'] = tz.local.name;
 

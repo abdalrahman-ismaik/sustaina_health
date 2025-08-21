@@ -23,8 +23,8 @@ class _TestAIFoodRecognitionState extends ConsumerState<TestAIFoodRecognition> {
     });
 
     try {
-      final apiService = NutritionApiService();
-      final isHealthy = await apiService.checkApiHealth();
+      final NutritionApiService apiService = NutritionApiService();
+      final bool isHealthy = await apiService.checkApiHealth();
       
       setState(() {
         _status = isHealthy 
@@ -49,15 +49,15 @@ class _TestAIFoodRecognitionState extends ConsumerState<TestAIFoodRecognition> {
     });
 
     try {
-      final apiService = NutritionApiService();
+      final NutritionApiService apiService = NutritionApiService();
       // Access the private method through reflection or create a public method
       // For now, we'll test the API health only
       
       // Create a mock result for testing
-      final Map<String, dynamic> mockResult = {
+      final Map<String, dynamic> mockResult = <String, dynamic>{
         'foodName': 'Test Food',
         'calories': 250,
-        'nutritionInfo': {
+        'nutritionInfo': <String, double>{
           'protein': 15.0,
           'carbs': 30.0,
           'fat': 8.0,
@@ -93,7 +93,7 @@ class _TestAIFoodRecognitionState extends ConsumerState<TestAIFoodRecognition> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Status display
             Container(
               width: double.infinity,
@@ -130,7 +130,7 @@ class _TestAIFoodRecognitionState extends ConsumerState<TestAIFoodRecognition> {
             
             // Test buttons
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _testApiHealth,
@@ -170,7 +170,7 @@ class _TestAIFoodRecognitionState extends ConsumerState<TestAIFoodRecognition> {
             const SizedBox(height: 24),
             
             // Results display
-            if (_result != null) ...[
+            if (_result != null) ...<Widget>[
               const Text(
                 'Analysis Result:',
                 style: TextStyle(
@@ -188,7 +188,7 @@ class _TestAIFoodRecognitionState extends ConsumerState<TestAIFoodRecognition> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Food: ${_result!.foodName}',
                       style: const TextStyle(
@@ -228,7 +228,7 @@ class _TestAIFoodRecognitionState extends ConsumerState<TestAIFoodRecognition> {
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     'Test Instructions:',
                     style: TextStyle(

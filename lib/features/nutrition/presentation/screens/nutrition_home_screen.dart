@@ -9,7 +9,7 @@ class NutritionHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final apiHealthState = ref.watch(nutritionApiHealthProvider);
+    final AsyncValue<bool> apiHealthState = ref.watch(nutritionApiHealthProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -30,7 +30,7 @@ class NutritionHomeScreen extends ConsumerWidget {
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.help_outline, color: Color(0xFF121714)),
             onPressed: () => _showNutritionGuide(context),
@@ -43,7 +43,7 @@ class NutritionHomeScreen extends ConsumerWidget {
           children: <Widget>[
             // API Status Indicator
             apiHealthState.when(
-              data: (isHealthy) => Container(
+              data: (bool isHealthy) => Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -57,7 +57,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                   ),
                 ),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     Icon(
                       isHealthy ? Icons.check_circle : Icons.error,
                       color: isHealthy ? Colors.green : Colors.red,
@@ -107,7 +107,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 20),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _FeatureCard(
                           title: 'AI Analysis',
@@ -131,7 +131,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _FeatureCard(
                           title: 'Sustainable Brands',
@@ -217,7 +217,7 @@ class NutritionHomeScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
+                  colors: <Color>[
                     const Color(0xFF94e0b2),
                     const Color(0xFF94e0b2).withOpacity(0.8),
                   ],
@@ -225,7 +225,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: const Color(0xFF94e0b2).withOpacity(0.3),
                     blurRadius: 8,
@@ -237,7 +237,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                 onTap: () => context.go('/nutrition/ai-recognition'),
                 borderRadius: BorderRadius.circular(16),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -254,7 +254,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: <Widget>[
                           const Text(
                             'Analyze Food with AI',
                             style: TextStyle(
@@ -291,7 +291,7 @@ class NutritionHomeScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   const Text(
                     'Quick Actions',
                     style: TextStyle(
@@ -302,7 +302,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _QuickAction(
                           title: 'Food Analysis',
@@ -324,7 +324,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _QuickAction(
                           title: 'Sustainable Brands',
@@ -371,17 +371,17 @@ class NutritionHomeScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
+      builder: (BuildContext context) => DraggableScrollableSheet(
         initialChildSize: 0.9,
         minChildSize: 0.5,
         maxChildSize: 0.95,
-        builder: (context, scrollController) => Container(
+        builder: (BuildContext context, ScrollController scrollController) => Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
-            children: [
+            children: <Widget>[
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 height: 4,
@@ -406,13 +406,13 @@ class NutritionHomeScreen extends ConsumerWidget {
                 child: ListView(
                   controller: scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  children: [
+                  children: <Widget>[
                     GuideSection(
                       icon: Icons.camera_alt,
                       title: 'AI Food Scan',
                       description:
                           'Take a photo of your meal and get instant nutrition analysis',
-                      features: [
+                      features: <String>[
                         'Food identification with AI',
                         'Calorie and macro calculation',
                         'Sustainability scoring',
@@ -424,7 +424,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                       title: 'AI Meal Planning',
                       description:
                           'Generate personalized meal plans based on your goals',
-                      features: [
+                      features: <String>[
                         'Custom calorie targets',
                         'Dietary restrictions support',
                         'Recipe suggestions',
@@ -436,7 +436,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                       title: 'Sustainable Brand Recommendations',
                       description:
                           'Find UAE-based sustainable alternatives for any product',
-                      features: [
+                      features: <String>[
                         'Search any food product',
                         'Sustainability ratings (A+ to C)',
                         'Competitive pricing information',
@@ -447,7 +447,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                       icon: Icons.analytics,
                       title: 'Nutrition Insights',
                       description: 'Get personalized recommendations and tips',
-                      features: [
+                      features: <String>[
                         'Sustainability analysis',
                         'Health recommendations',
                         'Ingredient breakdowns',
@@ -496,7 +496,7 @@ class _FeatureCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -553,7 +553,7 @@ class _InsightCard extends StatelessWidget {
         border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -566,7 +566,7 @@ class _InsightCard extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   title,
                   style: const TextStyle(
@@ -620,7 +620,7 @@ class _QuickAction extends StatelessWidget {
           border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
-          children: [
+          children: <Widget>[
             Icon(icon, color: color, size: 32),
             const SizedBox(height: 8),
             Text(

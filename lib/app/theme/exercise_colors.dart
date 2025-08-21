@@ -56,12 +56,12 @@ class ExerciseColors {
   // Helper methods for dynamic colors
   static Color getTextColorForBackground(Color backgroundColor) {
     // Calculate relative luminance to determine if background is light or dark
-    final luminance = backgroundColor.computeLuminance();
+    final double luminance = backgroundColor.computeLuminance();
     return luminance > 0.5 ? textPrimary : textOnDark;
   }
 
   static Color getContrastingColor(Color color) {
-    final luminance = color.computeLuminance();
+    final double luminance = color.computeLuminance();
     return luminance > 0.5 ? darkGreen : backgroundLight;
   }
 
@@ -73,7 +73,7 @@ class ExerciseColors {
   static Color get loadingIndicator => primaryGreen;
 
   // Component-specific color schemes
-  static Map<String, Color> get statsCard => {
+  static Map<String, Color> get statsCard => <String, Color>{
         'background': cardBackground,
         'border': borderPrimary,
         'text': textPrimary,
@@ -81,7 +81,7 @@ class ExerciseColors {
         'label': textSecondary,
       };
 
-  static Map<String, Color> get workoutCard => {
+  static Map<String, Color> get workoutCard => <String, Color>{
         'background': cardBackground,
         'text': textPrimary,
         'subtitle': textSecondary,
@@ -90,7 +90,7 @@ class ExerciseColors {
         'shadow': cardShadow,
       };
 
-  static Map<String, Color> get emptyState => {
+  static Map<String, Color> get emptyState => <String, Color>{
         'icon': textMuted,
         'title': textSecondary,
         'subtitle': textMuted,

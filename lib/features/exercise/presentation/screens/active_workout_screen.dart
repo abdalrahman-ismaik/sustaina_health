@@ -33,14 +33,14 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     // Add null safety check
     if (widget.workoutSession.exercises.isEmpty) {
       print('WARNING: No exercises found in workout session');
-      _exercises = [];
+      _exercises = <CompletedExercise>[];
     } else {
       _exercises = List.from(widget.workoutSession.exercises);
       print('Exercises loaded: ${_exercises.length}');
 
       // Debug each exercise
       for (int i = 0; i < _exercises.length; i++) {
-        final exercise = _exercises[i];
+        final CompletedExercise exercise = _exercises[i];
         print(
             'Exercise $i: ${exercise.name}, rest: ${exercise.restTime}, sets: ${exercise.sets.length}');
       }
@@ -50,7 +50,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   // Helper method to determine if an exercise is duration-based
   bool _isDurationBasedExercise(String exerciseName, String reps) {
     // Check if exercise name contains duration-based keywords
-    final durationKeywords = [
+    final List<String> durationKeywords = <String>[
       'plank',
       'hold',
       'run',
@@ -66,11 +66,11 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       'jumping jack'
     ];
 
-    final nameLower = exerciseName.toLowerCase();
-    final repsLower = reps.toLowerCase();
+    final String nameLower = exerciseName.toLowerCase();
+    final String repsLower = reps.toLowerCase();
 
     // Check if the exercise name contains duration keywords
-    if (durationKeywords.any((keyword) => nameLower.contains(keyword))) {
+    if (durationKeywords.any((String keyword) => nameLower.contains(keyword))) {
       return true;
     }
 
@@ -88,7 +88,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
   // Helper method to determine if an exercise is typically bodyweight-only
   bool _isBodyweightExercise(String exerciseName) {
-    final bodyweightKeywords = [
+    final List<String> bodyweightKeywords = <String>[
       'push up',
       'pull up',
       'pushup',
@@ -112,8 +112,8 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       'bridge'
     ];
 
-    final nameLower = exerciseName.toLowerCase();
-    return bodyweightKeywords.any((keyword) => nameLower.contains(keyword));
+    final String nameLower = exerciseName.toLowerCase();
+    return bodyweightKeywords.any((String keyword) => nameLower.contains(keyword));
   }
 
   void _addSet(int exerciseIndex, int reps, double? weight) async {
@@ -124,20 +124,20 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
     try {
       setState(() {
-        final exercise = _exercises[exerciseIndex];
-        final newSet = ExerciseSet(
+        final CompletedExercise exercise = _exercises[exerciseIndex];
+        final ExerciseSet newSet = ExerciseSet(
           reps: reps,
           weight: weight,
           completedAt: DateTime.now(),
         );
 
         _exercises[exerciseIndex] = exercise.copyWith(
-          sets: [...exercise.sets, newSet],
+          sets: <ExerciseSet>[...exercise.sets, newSet],
         );
       });
 
       // Update the provider with the new set data
-      final updatedSession = widget.workoutSession.copyWith(
+      final ActiveWorkoutSession updatedSession = widget.workoutSession.copyWith(
         exercises: _exercises,
       );
 
@@ -168,8 +168,8 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
     try {
       setState(() {
-        final exercise = _exercises[exerciseIndex];
-        final newSet = ExerciseSet(
+        final CompletedExercise exercise = _exercises[exerciseIndex];
+        final ExerciseSet newSet = ExerciseSet(
           reps: 1, // For duration exercises, reps is typically 1
           weight: weight,
           duration: duration, // Duration in seconds
@@ -177,12 +177,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
         );
 
         _exercises[exerciseIndex] = exercise.copyWith(
-          sets: [...exercise.sets, newSet],
+          sets: <ExerciseSet>[...exercise.sets, newSet],
         );
       });
 
       // Update the provider with the new set data
-      final updatedSession = widget.workoutSession.copyWith(
+      final ActiveWorkoutSession updatedSession = widget.workoutSession.copyWith(
         exercises: _exercises,
       );
 
@@ -205,8 +205,8 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
   Future<void> _finishWorkout() async {
     // Check if user has completed at least one set
-    final hasCompletedSets =
-        _exercises.any((exercise) => exercise.sets.isNotEmpty);
+    final bool hasCompletedSets =
+        _exercises.any((CompletedExercise exercise) => exercise.sets.isNotEmpty);
 
     if (!hasCompletedSets) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -220,7 +220,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     }
 
     // Show confirmation dialog
-    final shouldFinish = await showDialog<bool>(
+    final bool? shouldFinish = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -234,7 +234,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
           content: const Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 'Are you sure you want to finish this workout?',
                 style: TextStyle(color: SleepColors.textPrimary),
@@ -249,7 +249,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
               ),
             ],
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: const Text(
@@ -295,10 +295,10 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       );
 
       // First update the current session with latest exercise data
-      final now = DateTime.now();
-      final totalDuration = now.difference(widget.workoutSession.startTime);
+      final DateTime now = DateTime.now();
+      final Duration totalDuration = now.difference(widget.workoutSession.startTime);
 
-      final updatedSession = widget.workoutSession.copyWith(
+      final ActiveWorkoutSession updatedSession = widget.workoutSession.copyWith(
         exercises: _exercises,
         endTime: now,
         totalDuration: totalDuration,
@@ -360,11 +360,11 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       return;
     }
 
-    final exercise = _exercises[exerciseIndex];
+    final CompletedExercise exercise = _exercises[exerciseIndex];
 
     // Try to get original exercise data to determine if it's duration-based
     // For now, we'll use the exercise name to detect duration-based exercises
-    final isDurationBased = _isDurationBasedExercise(exercise.name, '');
+    final bool isDurationBased = _isDurationBasedExercise(exercise.name, '');
 
     final TextEditingController primaryController = TextEditingController();
     final TextEditingController weightController = TextEditingController();
@@ -382,7 +382,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               TextField(
                 controller: primaryController,
                 keyboardType: TextInputType.number,
@@ -416,7 +416,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                 ),
             ],
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
@@ -426,7 +426,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                final primaryValue = int.tryParse(primaryController.text);
+                final int? primaryValue = int.tryParse(primaryController.text);
                 if (primaryValue == null || primaryValue <= 0) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -438,7 +438,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                   return;
                 }
 
-                final weight = weightController.text.isNotEmpty
+                final double? weight = weightController.text.isNotEmpty
                     ? double.tryParse(weightController.text)
                     : null;
 
@@ -493,7 +493,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               // Workout header info
               Container(
                 padding: const EdgeInsets.all(16),
@@ -504,7 +504,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       widget.workoutSession.workoutName,
                       style: TextStyle(
@@ -552,7 +552,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                     ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: <Widget>[
                             Icon(
                               Icons.fitness_center,
                               size: 64,
@@ -572,15 +572,15 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                       )
                     : ListView.builder(
                         itemCount: _exercises.length,
-                        itemBuilder: (context, index) {
-                          final exercise = _exercises[index];
+                        itemBuilder: (BuildContext context, int index) {
+                          final CompletedExercise exercise = _exercises[index];
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: ExerciseColors.cardBackground,
                               borderRadius: BorderRadius.circular(8),
-                              boxShadow: [
+                              boxShadow: <BoxShadow>[
                                 BoxShadow(
                                   color: ExerciseColors.cardShadow,
                                   spreadRadius: 1,
@@ -591,7 +591,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                              children: <Widget>[
                                 Text(
                                   exercise.name,
                                   style: TextStyle(
@@ -636,7 +636,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                                     ),
                                   ),
                                 ),
-                                if (exercise.sets.isNotEmpty) ...[
+                                if (exercise.sets.isNotEmpty) ...<Widget>[
                                   const SizedBox(height: 16),
                                   const Text(
                                     'Completed Sets:',
@@ -647,9 +647,9 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  ...exercise.sets.asMap().entries.map((entry) {
-                                    final setIndex = entry.key + 1;
-                                    final set = entry.value;
+                                  ...exercise.sets.asMap().entries.map((MapEntry<int, ExerciseSet> entry) {
+                                    final int setIndex = entry.key + 1;
+                                    final ExerciseSet set = entry.value;
                                     return Container(
                                       width: double.infinity,
                                       margin: const EdgeInsets.only(bottom: 4),

@@ -17,12 +17,12 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
       backgroundColor: ExerciseColors.backgroundLight,
       body: SafeArea(
         child: Column(
-          children: [
+          children: <Widget>[
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   IconButton(
                     icon: Icon(Icons.arrow_back,
                         color: ExerciseColors.textPrimary),
@@ -56,7 +56,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
+                  colors: <Color>[
                     ExerciseColors.primaryGreen,
                     ExerciseColors.primaryGreen.withOpacity(0.8),
                   ],
@@ -67,9 +67,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Row(
-                    children: [
+                    children: <Widget>[
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -87,7 +87,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             Text(
                               'Workout Completed!',
                               style: TextStyle(
@@ -111,7 +111,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
+                    children: <Widget>[
                       _buildStatColumn(
                         'Duration',
                         _formatDuration(completedWorkout.totalDuration),
@@ -144,10 +144,10 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         'Started',
                         style: TextStyle(
@@ -169,7 +169,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   if (completedWorkout.endTime != null)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
+                      children: <Widget>[
                         Text(
                           'Finished',
                           style: TextStyle(
@@ -196,7 +196,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   Text(
                     'Exercise Details',
                     style: TextStyle(
@@ -214,8 +214,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: completedWorkout.exercises.length,
-                itemBuilder: (context, index) {
-                  final exercise = completedWorkout.exercises[index];
+                itemBuilder: (BuildContext context, int index) {
+                  final CompletedExercise exercise = completedWorkout.exercises[index];
                   return _buildExerciseCard(exercise, index + 1);
                 },
               ),
@@ -234,9 +234,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Row(
-                      children: [
+                      children: <Widget>[
                         Icon(Icons.note,
                             color: ExerciseColors.buttonInfo, size: 20),
                         const SizedBox(width: 8),
@@ -269,7 +269,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
 
   Widget _buildStatColumn(String label, String value, IconData icon) {
     return Column(
-      children: [
+      children: <Widget>[
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -314,7 +314,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               : ExerciseColors.borderLight,
           width: exercise.isCompleted ? 2 : 1,
         ),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: ExerciseColors.cardShadow,
             spreadRadius: 1,
@@ -324,7 +324,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
         ],
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           // Exercise Header
           Container(
             padding: const EdgeInsets.all(16),
@@ -338,7 +338,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               ),
             ),
             child: Row(
-              children: [
+              children: <Widget>[
                 Container(
                   width: 32,
                   height: 32,
@@ -366,7 +366,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         exercise.name,
                         style: TextStyle(
@@ -412,10 +412,10 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
-                children: [
+                children: <Widget>[
                   // Sets Header
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                           child: Text('Set',
                               style: TextStyle(
@@ -447,13 +447,13 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
 
                   // Sets Data
-                  ...exercise.sets.asMap().entries.map((entry) {
-                    final setIndex = entry.key;
-                    final set = entry.value;
+                  ...exercise.sets.asMap().entries.map((MapEntry<int, ExerciseSet> entry) {
+                    final int setIndex = entry.key;
+                    final ExerciseSet set = entry.value;
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
-                        children: [
+                        children: <Widget>[
                           Expanded(
                             child: Text(
                               '${setIndex + 1}',
@@ -500,9 +500,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   // Set Notes
                   ...exercise.sets
                       .where(
-                          (set) => set.notes != null && set.notes!.isNotEmpty)
-                      .map((set) {
-                    final setIndex = exercise.sets.indexOf(set);
+                          (ExerciseSet set) => set.notes != null && set.notes!.isNotEmpty)
+                      .map((ExerciseSet set) {
+                    final int setIndex = exercise.sets.indexOf(set);
                     return Container(
                       margin: const EdgeInsets.only(top: 8),
                       padding: const EdgeInsets.all(8),
@@ -512,7 +512,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                         border: Border.all(color: Colors.yellow.shade200),
                       ),
                       child: Row(
-                        children: [
+                        children: <Widget>[
                           Icon(Icons.note,
                               size: 16, color: Colors.yellow.shade700),
                           const SizedBox(width: 8),
@@ -558,9 +558,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
   }
 
   String _formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes % 60;
-    final seconds = duration.inSeconds % 60;
+    final int hours = duration.inHours;
+    final int minutes = duration.inMinutes % 60;
+    final int seconds = duration.inSeconds % 60;
 
     if (hours > 0) {
       return '${hours}h ${minutes}m';
@@ -572,16 +572,16 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    final hour = dateTime.hour;
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    final amPm = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    final int hour = dateTime.hour;
+    final String minute = dateTime.minute.toString().padLeft(2, '0');
+    final String amPm = hour >= 12 ? 'PM' : 'AM';
+    final int displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
 
     return '$displayHour:$minute $amPm';
   }
 
   int _getTotalSets() {
     return completedWorkout.exercises
-        .fold(0, (total, exercise) => total + exercise.sets.length);
+        .fold(0, (int total, CompletedExercise exercise) => total + exercise.sets.length);
   }
 }

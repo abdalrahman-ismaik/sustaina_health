@@ -73,7 +73,7 @@ class SavedMealPlan {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'name': name,
       'mealPlan': mealPlan.toJson(),

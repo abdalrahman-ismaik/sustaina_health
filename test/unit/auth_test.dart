@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ghiraas/features/auth/domain/repositories/auth_repository.dart';
 
 void main() {
   group('Authentication Tests', () {

@@ -20,7 +20,7 @@ final Provider<GoogleSignIn?> googleSignInProvider =
   // GoogleSignIn is not supported on Windows or Linux
   if (kIsWeb || Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
     return GoogleSignIn(
-      scopes: ['email', 'profile'],
+      scopes: <String>['email', 'profile'],
     );
   }
   return null;
@@ -38,15 +38,15 @@ final Provider<AuthRepository> authRepositoryProvider =
 // Stream provider for auth state changes
 final StreamProvider<UserEntity?> authStateProvider =
     StreamProvider<UserEntity?>((StreamProviderRef<UserEntity?> ref) {
-  final authRepo = ref.watch(authRepositoryProvider);
+  final AuthRepository authRepo = ref.watch(authRepositoryProvider);
   return authRepo.authStateChanges;
 });
 
 // Stream provider for current user - directly watches auth state changes
 final StreamProvider<UserEntity?> currentUserProvider =
     StreamProvider<UserEntity?>((StreamProviderRef<UserEntity?> ref) {
-  final authRepo = ref.watch(authRepositoryProvider);
-  return authRepo.authStateChanges.map((user) {
+  final AuthRepository authRepo = ref.watch(authRepositoryProvider);
+  return authRepo.authStateChanges.map((UserEntity? user) {
     print(
         'DEBUG: Current user stream updated: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
     return user;

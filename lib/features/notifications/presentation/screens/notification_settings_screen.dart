@@ -25,7 +25,7 @@ class _NotificationSettingsScreenState
 
   List<bool> _selectedDays =
       List.filled(7, true); // All days selected by default
-  final List<String> _dayNames = [
+  final List<String> _dayNames = <String>[
     'Mon',
     'Tue',
     'Wed',
@@ -35,7 +35,7 @@ class _NotificationSettingsScreenState
     'Sun'
   ];
 
-  List<PendingNotificationRequest> _scheduledNotifications = [];
+  List<PendingNotificationRequest> _scheduledNotifications = <PendingNotificationRequest>[];
   bool _isLoading = false;
 
   @override
@@ -50,10 +50,10 @@ class _NotificationSettingsScreenState
     await _notificationService.initialize();
 
     // Check if notifications are allowed
-    final allowed = await _notificationService.areNotificationsEnabled();
+    final bool allowed = await _notificationService.areNotificationsEnabled();
 
     // Get scheduled notifications
-    final scheduled = await _notificationService.getScheduledNotifications();
+    final List<PendingNotificationRequest> scheduled = await _notificationService.getScheduledNotifications();
 
     setState(() {
       _notificationsAllowed = allowed;
@@ -63,7 +63,7 @@ class _NotificationSettingsScreenState
   }
 
   Future<void> _requestPermissions() async {
-    final granted = await _notificationService.requestPermissions();
+    final bool granted = await _notificationService.requestPermissions();
     if (!granted) {
       // Show dialog to go to settings
       _showPermissionDialog();
@@ -75,12 +75,12 @@ class _NotificationSettingsScreenState
   void _showPermissionDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         title: const Text('Notification Permission Required'),
         content: const Text(
           'To receive sustainability tips and health reminders, please enable notifications in your device settings.',
         ),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
@@ -99,13 +99,13 @@ class _NotificationSettingsScreenState
 
   Future<void> _selectTime(
       BuildContext context, bool isSustainabilityTip) async {
-    final initialTime =
+    final TimeOfDay initialTime =
         isSustainabilityTip ? _sustainabilityTipTime : _healthReminderTime;
 
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
-      builder: (context, child) {
+      builder: (BuildContext context, Widget? child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
@@ -150,7 +150,7 @@ class _NotificationSettingsScreenState
     }
 
     // Refresh scheduled notifications
-    final scheduled = await _notificationService.getScheduledNotifications();
+    final List<PendingNotificationRequest> scheduled = await _notificationService.getScheduledNotifications();
     setState(() {
       _scheduledNotifications = scheduled;
       _isLoading = false;
@@ -167,7 +167,7 @@ class _NotificationSettingsScreenState
 
     if (_healthRemindersEnabled) {
       // Convert selected days to weekday numbers (1=Monday, 7=Sunday)
-      final selectedWeekdays = <int>[];
+      final List<int> selectedWeekdays = <int>[];
       for (int i = 0; i < _selectedDays.length; i++) {
         if (_selectedDays[i]) {
           selectedWeekdays.add(i + 1); // Convert to 1-based index
@@ -190,7 +190,7 @@ class _NotificationSettingsScreenState
     }
 
     // Refresh scheduled notifications
-    final scheduled = await _notificationService.getScheduledNotifications();
+    final List<PendingNotificationRequest> scheduled = await _notificationService.getScheduledNotifications();
     setState(() {
       _scheduledNotifications = scheduled;
       _isLoading = false;
@@ -240,7 +240,7 @@ class _NotificationSettingsScreenState
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   // Permission Status Card
                   _buildPermissionStatusCard(),
                   const SizedBox(height: 24),
@@ -280,7 +280,7 @@ class _NotificationSettingsScreenState
         ),
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           Icon(
             _notificationsAllowed
                 ? Icons.notifications_active
@@ -312,7 +312,7 @@ class _NotificationSettingsScreenState
             ),
             textAlign: TextAlign.center,
           ),
-          if (!_notificationsAllowed) ...[
+          if (!_notificationsAllowed) ...<Widget>[
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _requestPermissions,
@@ -341,9 +341,9 @@ class _NotificationSettingsScreenState
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(
                 Icons.eco,
                 color: SleepColors.primaryGreen,
@@ -370,10 +370,10 @@ class _NotificationSettingsScreenState
           ),
           const SizedBox(height: 20),
           Row(
-            children: [
+            children: <Widget>[
               Switch(
                 value: _sustainabilityTipsEnabled,
-                onChanged: (value) {
+                onChanged: (bool value) {
                   setState(() => _sustainabilityTipsEnabled = value);
                   _scheduleSustainabilityTips();
                 },
@@ -389,7 +389,7 @@ class _NotificationSettingsScreenState
               ),
             ],
           ),
-          if (_sustainabilityTipsEnabled) ...[
+          if (_sustainabilityTipsEnabled) ...<Widget>[
             const SizedBox(height: 16),
             InkWell(
               onTap: () => _selectTime(context, true),
@@ -402,7 +402,7 @@ class _NotificationSettingsScreenState
                       color: SleepColors.textTertiary.withOpacity(0.3)),
                 ),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     Icon(
                       Icons.access_time,
                       color: SleepColors.primaryGreen,
@@ -442,9 +442,9 @@ class _NotificationSettingsScreenState
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(
                 Icons.favorite,
                 color: SleepColors.primaryGreen,
@@ -471,10 +471,10 @@ class _NotificationSettingsScreenState
           ),
           const SizedBox(height: 20),
           Row(
-            children: [
+            children: <Widget>[
               Switch(
                 value: _healthRemindersEnabled,
-                onChanged: (value) {
+                onChanged: (bool value) {
                   setState(() => _healthRemindersEnabled = value);
                   _scheduleHealthReminders();
                 },
@@ -490,7 +490,7 @@ class _NotificationSettingsScreenState
               ),
             ],
           ),
-          if (_healthRemindersEnabled) ...[
+          if (_healthRemindersEnabled) ...<Widget>[
             const SizedBox(height: 16),
             InkWell(
               onTap: () => _selectTime(context, false),
@@ -503,7 +503,7 @@ class _NotificationSettingsScreenState
                       color: SleepColors.textTertiary.withOpacity(0.3)),
                 ),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     Icon(
                       Icons.access_time,
                       color: SleepColors.primaryGreen,
@@ -539,11 +539,11 @@ class _NotificationSettingsScreenState
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
-              children: List.generate(7, (index) {
+              children: List.generate(7, (int index) {
                 return FilterChip(
                   label: Text(_dayNames[index]),
                   selected: _selectedDays[index],
-                  onSelected: (selected) {
+                  onSelected: (bool selected) {
                     setState(() => _selectedDays[index] = selected);
                     if (_healthRemindersEnabled) {
                       _scheduleHealthReminders();
@@ -575,9 +575,9 @@ class _NotificationSettingsScreenState
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(
                 Icons.bug_report,
                 color: SleepColors.primaryGreen,
@@ -639,9 +639,9 @@ class _NotificationSettingsScreenState
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(
                 Icons.schedule,
                 color: SleepColors.primaryGreen,
@@ -675,12 +675,12 @@ class _NotificationSettingsScreenState
                 fontSize: 14,
               ),
             ),
-          if (_scheduledNotifications.isNotEmpty) ...[
+          if (_scheduledNotifications.isNotEmpty) ...<Widget>[
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
                 await _notificationService.cancelAllNotifications();
-                final scheduled =
+                final List<PendingNotificationRequest> scheduled =
                     await _notificationService.getScheduledNotifications();
                 setState(() {
                   _scheduledNotifications = scheduled;

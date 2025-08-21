@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
@@ -23,12 +25,12 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
   }
 
   Future<void> _loadPersonalInfoFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _weightController.text = prefs.getString('profile_weight') ?? '';
       _heightController.text = prefs.getString('profile_height') ?? '';
       _ageController.text = prefs.getString('profile_age') ?? '';
-      final sex = prefs.getString('profile_sex');
+      final String? sex = prefs.getString('profile_sex');
       if (sex != null && sex.isNotEmpty) {
         _selectedSex = sex;
       }
@@ -37,16 +39,16 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  final List<String> _selectedDietaryRestrictions = [];
-  final List<String> _selectedAllergies = [];
-  final List<String> _selectedCuisines = [];
+  final List<String> _selectedDietaryRestrictions = <String>[];
+  final List<String> _selectedAllergies = <String>[];
+  final List<String> _selectedCuisines = <String>[];
 
   String _selectedGoal = 'maintenance';
   String _selectedActivityLevel = 'moderately_active';
   String _selectedSex = 'Male';
   int _durationDays = 7;
 
-  static const List<String> goalOptions = [
+  static const List<String> goalOptions = <String>[
     'weight_loss',
     'muscle_gain',
     'maintenance',
@@ -55,19 +57,19 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
     'Gaining muscles',
   ];
 
-  static const List<String> activityLevels = [
+  static const List<String> activityLevels = <String>[
     'sedentary',
     'lightly_active',
     'moderately_active',
     'very_active',
   ];
 
-  static const List<String> sexOptions = [
+  static const List<String> sexOptions = <String>[
     'Male',
     'Female',
   ];
 
-  static const List<String> dietaryRestrictionOptions = [
+  static const List<String> dietaryRestrictionOptions = <String>[
     'vegetarian',
     'vegan',
     'gluten_free',
@@ -78,7 +80,7 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
     'low_fat',
   ];
 
-  static const List<String> allergyOptions = [
+  static const List<String> allergyOptions = <String>[
     'nuts',
     'shellfish',
     'eggs',
@@ -89,7 +91,7 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
     'sesame',
   ];
 
-  static const List<String> cuisineOptions = [
+  static const List<String> cuisineOptions = <String>[
     'mediterranean',
     'asian',
     'mexican',
@@ -109,7 +111,7 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
   }
 
   void _generateMealPlan() {
-    final request = MealPlanRequest(
+    final MealPlanRequest request = MealPlanRequest(
       weight: double.tryParse(_weightController.text) ?? 70.0,
       height: double.tryParse(_heightController.text) ?? 170.0,
       age: int.tryParse(_ageController.text) ?? 25,
@@ -125,8 +127,8 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
 
   @override
   Widget build(BuildContext context) {
-    final mealPlanState = ref.watch(mealPlanGenerationProvider);
-    final apiHealthState = ref.watch(nutritionApiHealthProvider);
+    final AsyncValue<MealPlanResponse?> mealPlanState = ref.watch(mealPlanGenerationProvider);
+    final AsyncValue<bool> apiHealthState = ref.watch(nutritionApiHealthProvider);
 
     return Scaffold(
       backgroundColor: SleepColors.backgroundGrey,
@@ -149,7 +151,7 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
         centerTitle: true,
       ),
       body: mealPlanState.when(
-        data: (mealPlan) => mealPlan != null
+        data: (MealPlanResponse? mealPlan) => mealPlan != null
             ? _MealPlanResult(
                 mealPlan: mealPlan,
                 onEdit: () {
@@ -174,26 +176,26 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
                 dietaryRestrictionOptions: dietaryRestrictionOptions,
                 allergyOptions: allergyOptions,
                 cuisineOptions: cuisineOptions,
-                onGoalChanged: (goal) => setState(() => _selectedGoal = goal),
-                onActivityLevelChanged: (level) =>
+                onGoalChanged: (String goal) => setState(() => _selectedGoal = goal),
+                onActivityLevelChanged: (String level) =>
                     setState(() => _selectedActivityLevel = level),
-                onSexChanged: (sex) => setState(() => _selectedSex = sex),
-                onDurationDaysChanged: (days) =>
+                onSexChanged: (String sex) => setState(() => _selectedSex = sex),
+                onDurationDaysChanged: (int days) =>
                     setState(() => _durationDays = days),
-                onDietaryRestrictionAdded: (restriction) => setState(() {
+                onDietaryRestrictionAdded: (String restriction) => setState(() {
                   if (!_selectedDietaryRestrictions.contains(restriction)) {
                     _selectedDietaryRestrictions.add(restriction);
                   }
                 }),
-                onDietaryRestrictionRemoved: (restriction) => setState(() {
+                onDietaryRestrictionRemoved: (String restriction) => setState(() {
                   _selectedDietaryRestrictions.remove(restriction);
                 }),
-                onAllergyAdded: (allergy) => setState(() {
+                onAllergyAdded: (String allergy) => setState(() {
                   if (!_selectedAllergies.contains(allergy)) {
                     _selectedAllergies.add(allergy);
                   }
                 }),
-                onAllergyRemoved: (allergy) => setState(() {
+                onAllergyRemoved: (String allergy) => setState(() {
                   _selectedAllergies.remove(allergy);
                 }),
                 onGenerateMealPlan: _generateMealPlan,
@@ -201,7 +203,7 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
         loading: () => const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               CircularProgressIndicator(color: SleepColors.primaryGreen),
               SizedBox(height: 16),
               Text('Generating your personalized meal plan...',
@@ -209,10 +211,10 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
             ],
           ),
         ),
-        error: (error, _) => Center(
+        error: (Object error, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               const Icon(Icons.error, size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text('Error: $error',
@@ -298,10 +300,10 @@ class _MealPlanForm extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // API Status
             apiHealthState.when(
-              data: (isHealthy) => Container(
+              data: (bool isHealthy) => Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -315,7 +317,7 @@ class _MealPlanForm extends StatelessWidget {
                   ),
                 ),
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     Icon(
                       isHealthy ? Icons.check_circle : Icons.error,
                       color: isHealthy ? Colors.green : Colors.red,
@@ -353,11 +355,11 @@ class _MealPlanForm extends StatelessWidget {
 
             // Weight, Height, Age in a row
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       const Text(
                         'Weight (kg)',
                         style: TextStyle(
@@ -386,7 +388,7 @@ class _MealPlanForm extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       const Text(
                         'Height (cm)',
                         style: TextStyle(
@@ -415,7 +417,7 @@ class _MealPlanForm extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       const Text(
                         'Age',
                         style: TextStyle(
@@ -459,13 +461,13 @@ class _MealPlanForm extends StatelessWidget {
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
-              items: sexOptions.map((sex) {
+              items: sexOptions.map((String sex) {
                 return DropdownMenuItem(
                   value: sex,
                   child: Text(sex.replaceAll('_', ' ').toUpperCase()),
                 );
               }).toList(),
-              onChanged: (value) {
+              onChanged: (String? value) {
                 if (value != null) onSexChanged(value);
               },
             ),
@@ -487,13 +489,13 @@ class _MealPlanForm extends StatelessWidget {
                 border: OutlineInputBorder(),
                 suffixText: 'days',
               ),
-              items: [7, 14, 21, 28].map((days) {
+              items: <int>[7, 14, 21, 28].map((int days) {
                 return DropdownMenuItem(
                   value: days,
                   child: Text('$days day${days > 1 ? 's' : ''}'),
                 );
               }).toList(),
-              onChanged: (value) {
+              onChanged: (int? value) {
                 if (value != null) onDurationDaysChanged(value);
               },
             ),
@@ -512,10 +514,10 @@ class _MealPlanForm extends StatelessWidget {
             Wrap(
               spacing: 8,
               children: goalOptions
-                  .map((goal) => FilterChip(
+                  .map((String goal) => FilterChip(
                         label: Text(goal.replaceAll('_', ' ').toUpperCase()),
                         selected: selectedGoal == goal,
-                        onSelected: (selected) => onGoalChanged(goal),
+                        onSelected: (bool selected) => onGoalChanged(goal),
                         backgroundColor: SleepColors.surfaceGrey,
                         selectedColor: SleepColors.primaryGreen,
                       ))
@@ -536,10 +538,10 @@ class _MealPlanForm extends StatelessWidget {
             Wrap(
               spacing: 8,
               children: activityLevels
-                  .map((level) => FilterChip(
+                  .map((String level) => FilterChip(
                         label: Text(level.replaceAll('_', ' ').toUpperCase()),
                         selected: selectedActivityLevel == level,
-                        onSelected: (selected) => onActivityLevelChanged(level),
+                        onSelected: (bool selected) => onActivityLevelChanged(level),
                         backgroundColor: SleepColors.surfaceGrey,
                         selectedColor: SleepColors.primaryGreen,
                       ))
@@ -561,12 +563,12 @@ class _MealPlanForm extends StatelessWidget {
               spacing: 8,
               runSpacing: 4,
               children: dietaryRestrictionOptions
-                  .map((restriction) => FilterChip(
+                  .map((String restriction) => FilterChip(
                         label: Text(
                             restriction.replaceAll('_', ' ').toUpperCase()),
                         selected:
                             selectedDietaryRestrictions.contains(restriction),
-                        onSelected: (selected) {
+                        onSelected: (bool selected) {
                           if (selected) {
                             onDietaryRestrictionAdded(restriction);
                           } else {
@@ -594,10 +596,10 @@ class _MealPlanForm extends StatelessWidget {
               spacing: 8,
               runSpacing: 4,
               children: allergyOptions
-                  .map((allergy) => FilterChip(
+                  .map((String allergy) => FilterChip(
                         label: Text(allergy.replaceAll('_', ' ').toUpperCase()),
                         selected: selectedAllergies.contains(allergy),
-                        onSelected: (selected) {
+                        onSelected: (bool selected) {
                           if (selected) {
                             onAllergyAdded(allergy);
                           } else {
@@ -653,205 +655,81 @@ class _MealPlanResult extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Summary Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: SleepColors.primaryGreen.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: SleepColors.primaryGreen),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${mealPlan.dailyMealPlans.length}-Day Meal Plan',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: SleepColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  if (mealPlan.dailyMealPlans.isNotEmpty)
-                    Text(
-                      'Daily Average: ${mealPlan.dailyMealPlans.first.totalDailyCalories} calories',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                  if (mealPlan.dailyMealPlans.isNotEmpty)
-                    Text(
-                      'Daily Macros: ${mealPlan.dailyMealPlans.first.dailyMacros.protein}g protein | '
-                      '${mealPlan.dailyMealPlans.first.dailyMacros.carbohydrates}g carbs | '
-                      '${mealPlan.dailyMealPlans.first.dailyMacros.fat}g fat',
-                      style: const TextStyle(
-                          fontSize: 14, color: SleepColors.textSecondary),
-                    ),
-                ],
-              ),
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          title: Text('${mealPlan.dailyMealPlans.length}-Day Meal Plan'),
+          backgroundColor: SleepColors.backgroundGrey,
+          expandedHeight: 200.0,
+          floating: false,
+          pinned: true,
+          flexibleSpace: FlexibleSpaceBar(
+            background: _buildHeader(context),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: onEdit,
+              tooltip: 'Generate New Plan',
             ),
-            const SizedBox(height: 16),
-
-            // Daily Meal Plans
-            ..._buildDailyMealSections(),
-
-            // Action Buttons
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: onEdit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: SleepColors.surfaceGrey,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    child: const Text('Generate New Plan',
-                        style: TextStyle(color: SleepColors.textPrimary)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _saveMealPlan(context, ref),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: SleepColors.primaryGreen,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    child: const Text('Save Plan',
-                        style: TextStyle(color: SleepColors.textPrimary)),
-                  ),
-                ),
-              ],
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: () => _saveMealPlan(context, ref, mealPlan),
+              tooltip: 'Save Plan',
             ),
           ],
         ),
-      ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final dailyPlan = mealPlan.dailyMealPlans[index];
+              return _DailyMealCard(dailyPlan: dailyPlan);
+            },
+            childCount: mealPlan.dailyMealPlans.length,
+          ),
+        ),
+      ],
     );
   }
 
-  List<Widget> _buildDailyMealSections() {
-    return mealPlan.dailyMealPlans.map((dailyPlan) {
-      return Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Day Header
-              Text(
-                'Day ${dailyPlan.day}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: SleepColors.textPrimary,
-                ),
-              ),
-              Text(
-                '${dailyPlan.totalDailyCalories} calories total',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: SleepColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 12),
+  Widget _buildHeader(BuildContext context) {
+    final dailyAverage = mealPlan.dailyMealPlans.isNotEmpty
+        ? mealPlan.dailyMealPlans.first.totalDailyCalories
+        : 0;
+    final macros = mealPlan.dailyMealPlans.isNotEmpty
+        ? mealPlan.dailyMealPlans.first.dailyMacros
+        : const DailyMacros(protein: 0, carbohydrates: 0, fat: 0);
 
-              // Meals for this day
-              _buildMealCard('Breakfast', dailyPlan.breakfast),
-              const SizedBox(height: 8),
-              _buildMealCard('Lunch', dailyPlan.lunch),
-              const SizedBox(height: 8),
-              _buildMealCard('Dinner', dailyPlan.dinner),
-              const SizedBox(height: 8),
-
-              // Snacks
-              if (dailyPlan.snacks.isNotEmpty) ...[
-                const Text(
-                  'Snacks',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: SleepColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                ...dailyPlan.snacks.map((snack) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: _buildMealCard('Snack', snack),
-                    )),
-              ],
-            ],
-          ),
-        ),
-      );
-    }).toList();
-  }
-
-  Widget _buildMealCard(String mealType, MealOption meal) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
-        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          colors: [
+            SleepColors.primaryGreen.withOpacity(0.8),
+            SleepColors.primaryGreen.withOpacity(0.5)
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                mealType,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: SleepColors.textSecondary,
-                ),
-              ),
-              Text(
-                '${meal.calories} cal',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: SleepColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
           Text(
-            meal.name,
+            'Daily Average: $dailyAverage calories',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Macros: ${macros.protein}g P | ${macros.carbohydrates}g C | ${macros.fat}g F',
             style: const TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: SleepColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Calories: ${meal.calories} | ${meal.ingredients.length} ingredients',
-            style: const TextStyle(
-              fontSize: 12,
-              color: SleepColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Ingredients: ${meal.ingredients.map((ingredient) => '${ingredient.ingredient} (${ingredient.quantity})').join(", ")}',
-            style: const TextStyle(
-              fontSize: 12,
-              color: SleepColors.textSecondary,
+              color: Colors.white70,
             ),
           ),
         ],
@@ -859,8 +737,106 @@ class _MealPlanResult extends ConsumerWidget {
     );
   }
 
-  void _saveMealPlan(BuildContext context, WidgetRef ref) async {
-    final user = ref.read(authStateProvider).value;
+}
+
+
+class _DailyMealCard extends StatelessWidget {
+  final DailyMealPlan dailyPlan;
+
+  const _DailyMealCard({required this.dailyPlan, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: ExpansionTile(
+        title: Text(
+          'Day ${dailyPlan.day}',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: SleepColors.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          '${dailyPlan.totalDailyCalories} calories',
+          style: const TextStyle(color: SleepColors.textSecondary),
+        ),
+        children: [
+          _buildMealItem('Breakfast', dailyPlan.breakfast),
+          _buildMealItem('Lunch', dailyPlan.lunch),
+          _buildMealItem('Dinner', dailyPlan.dinner),
+          ...dailyPlan.snacks.map((snack) => _buildMealItem('Snack', snack)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMealItem(String mealType, MealOption meal) {
+    // Placeholder image URL - replace with real ones if available
+    final imageUrl =
+        'https://source.unsplash.com/random/800x600/?${meal.name.replaceAll(' ', ',')}';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: CachedNetworkImage(
+              imageUrl: imageUrl,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                color: Colors.grey[300],
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: Colors.grey[300],
+                child: const Icon(Icons.restaurant_menu),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  mealType,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: SleepColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  meal.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: SleepColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${meal.calories} calories',
+                  style: const TextStyle(color: SleepColors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+  void _saveMealPlan(BuildContext context, WidgetRef ref, MealPlanResponse mealPlan) async {
+    final UserEntity? user = ref.read(authStateProvider).value;
 
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -874,7 +850,7 @@ class _MealPlanResult extends ConsumerWidget {
 
     final TextEditingController nameController = TextEditingController();
 
-    final name = await showDialog<String>(
+    final String? name = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -887,7 +863,7 @@ class _MealPlanResult extends ConsumerWidget {
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               const Text(
                 'Give your meal plan a name:',
                 style: TextStyle(color: SleepColors.textPrimary),
@@ -913,7 +889,7 @@ class _MealPlanResult extends ConsumerWidget {
               ),
             ],
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
@@ -923,7 +899,7 @@ class _MealPlanResult extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                final planName = nameController.text.trim();
+                final String planName = nameController.text.trim();
                 if (planName.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -950,9 +926,9 @@ class _MealPlanResult extends ConsumerWidget {
 
     if (name != null && name.isNotEmpty) {
       try {
-        final planId = await ref
+        final String? planId = await ref
             .read(savedMealPlansProvider.notifier)
-            .saveMealPlan(this.mealPlan, name);
+            .saveMealPlan(mealPlan, name);
 
         if (planId != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -971,5 +947,4 @@ class _MealPlanResult extends ConsumerWidget {
         );
       }
     }
-  }
 }

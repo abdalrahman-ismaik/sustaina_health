@@ -44,7 +44,7 @@ class SleepColors {
 
   /// Get sleep duration color based on duration
   static Color getSleepDurationColor(Duration duration) {
-    final hours = duration.inHours;
+    final int hours = duration.inHours;
     if (hours >= 7 && hours <= 9) return successGreen;
     if (hours >= 6 && hours < 7) return warningOrange;
     return errorRed;
@@ -86,12 +86,10 @@ class SleepColors {
         primary: primaryGreen,
         secondary: secondaryBlue,
         surface: surfaceGrey,
-        background: backgroundGrey,
         error: errorRed,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textPrimary,
-        onBackground: textPrimary,
         onError: Colors.white,
       ),
     );

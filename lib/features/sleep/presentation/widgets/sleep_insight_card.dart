@@ -29,14 +29,14 @@ class SleepInsightCard extends ConsumerWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
+                  colors: <Color>[
                     _getInsightColor(insight.type).withOpacity(0.1),
                     _getInsightColor(insight.type).withOpacity(0.05),
                   ],
@@ -47,7 +47,7 @@ class SleepInsightCard extends ConsumerWidget {
                 ),
               ),
               child: Row(
-                children: [
+                children: <Widget>[
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -64,7 +64,7 @@ class SleepInsightCard extends ConsumerWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Text(
                           insight.title,
                           style: const TextStyle(
@@ -106,7 +106,7 @@ class SleepInsightCard extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     'Recommendations',
                     style: TextStyle(
@@ -116,11 +116,11 @@ class SleepInsightCard extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ...insight.recommendations.map((recommendation) => Padding(
+                  ...insight.recommendations.map((String recommendation) => Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Container(
                           margin: const EdgeInsets.only(top: 6),
                           width: 6,
@@ -213,7 +213,7 @@ class SleepInsightList extends ConsumerWidget {
       return Container(
         padding: const EdgeInsets.all(24),
         child: Column(
-          children: [
+          children: <Widget>[
             Icon(
               Icons.insights_outlined,
               size: 48,
@@ -246,7 +246,7 @@ class SleepInsightList extends ConsumerWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: insights.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (BuildContext context, int index) {
         return SleepInsightCard(
           insight: insights[index],
           onTap: onInsightTap,
@@ -302,8 +302,8 @@ class SleepInsightSummary extends ConsumerWidget {
       );
     }
 
-    final highImpactInsights = insights.where((i) => i.impact >= 0.7).toList();
-    final totalImpact = insights.fold<double>(0, (sum, i) => sum + i.impact);
+    final List<SleepInsight> highImpactInsights = insights.where((SleepInsight i) => i.impact >= 0.7).toList();
+    final double totalImpact = insights.fold<double>(0, (double sum, SleepInsight i) => sum + i.impact);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -317,9 +317,9 @@ class SleepInsightSummary extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(
                 Icons.insights,
                 color: SleepColors.primaryBlue,

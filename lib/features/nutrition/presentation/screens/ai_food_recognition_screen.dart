@@ -69,7 +69,7 @@ class _AIFoodRecognitionScreenState
                 content: Text(
                   'Please allow access to ${source == ImageSource.camera ? 'camera' : 'photos'} in your device settings.',
                 ),
-                actions: [
+                actions: <Widget>[
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text('OK'),
@@ -118,8 +118,8 @@ class _AIFoodRecognitionScreenState
 
   @override
   Widget build(BuildContext context) {
-    final mealAnalysisState = ref.watch(mealAnalysisProvider);
-    final apiHealthState = ref.watch(nutritionApiHealthProvider);
+    final AsyncValue<MealAnalysisResponse?> mealAnalysisState = ref.watch(mealAnalysisProvider);
+    final AsyncValue<bool> apiHealthState = ref.watch(nutritionApiHealthProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -142,10 +142,10 @@ class _AIFoodRecognitionScreenState
         centerTitle: true,
       ),
       body: Column(
-        children: [
+        children: <Widget>[
           // API Status Indicator
           apiHealthState.when(
-            data: (isHealthy) => Container(
+            data: (bool isHealthy) => Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
@@ -157,7 +157,7 @@ class _AIFoodRecognitionScreenState
                 ),
               ),
               child: Row(
-                children: [
+                children: <Widget>[
                   Icon(
                     isHealthy ? Icons.check_circle : Icons.error,
                     color: isHealthy ? Colors.green : Colors.red,
@@ -184,7 +184,7 @@ class _AIFoodRecognitionScreenState
 
           Expanded(
             child: mealAnalysisState.when(
-              data: (analysis) => analysis != null
+              data: (MealAnalysisResponse? analysis) => analysis != null
                   ? _FoodAnalysisResult(
                       analysis: analysis,
                       image: _selectedImage,
@@ -204,7 +204,7 @@ class _AIFoodRecognitionScreenState
               loading: () => const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  children: <Widget>[
                     CircularProgressIndicator(color: Color(0xFF94e0b2)),
                     SizedBox(height: 16),
                     Text('Analyzing your meal...',
@@ -213,10 +213,10 @@ class _AIFoodRecognitionScreenState
                   ],
                 ),
               ),
-              error: (error, _) => Center(
+              error: (Object error, _) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  children: <Widget>[
                     const Icon(Icons.error, size: 64, color: Colors.red),
                     const SizedBox(height: 16),
                     Text('Error: $error',
@@ -427,9 +427,9 @@ class _FoodAnalysisResult extends ConsumerWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Row(
-                    children: [
+                    children: <Widget>[
                       const Icon(
                         Icons.restaurant,
                         color: Color(0xFF688273),
@@ -451,7 +451,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
+                    children: <Widget>[
                       _NutritionPill(
                         label: 'Calories',
                         value: '${analysis.totalCalories}',
@@ -488,7 +488,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
+                  colors: <Color>[
                     const Color(0xFF94e0b2).withOpacity(0.15),
                     const Color(0xFF94e0b2).withOpacity(0.05),
                   ],
@@ -503,9 +503,9 @@ class _FoodAnalysisResult extends ConsumerWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Row(
-                    children: [
+                    children: <Widget>[
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -537,7 +537,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Row(
-                    children: [
+                    children: <Widget>[
                       Expanded(
                         child: _SustainabilityRow(
                           label: 'Environmental',
@@ -566,9 +566,9 @@ class _FoodAnalysisResult extends ConsumerWidget {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         const Row(
-                          children: [
+                          children: <Widget>[
                             Icon(
                               Icons.lightbulb,
                               color: Color(0xFF688273),
@@ -602,7 +602,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
             ),
 
             // Ingredients breakdown
-            if (analysis.caloriesPerIngredient.isNotEmpty) ...[
+            if (analysis.caloriesPerIngredient.isNotEmpty) ...<Widget>[
               const SizedBox(height: 20),
               const Text(
                 'Ingredient Breakdown',
@@ -614,7 +614,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               ...analysis.caloriesPerIngredient.entries
-                  .map((entry) => Container(
+                  .map((MapEntry<String, int> entry) => Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
@@ -626,7 +626,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
                           ),
                         ),
                         child: Row(
-                          children: [
+                          children: <Widget>[
                             Container(
                               width: 8,
                               height: 8,
@@ -737,9 +737,9 @@ class _FoodAnalysisResult extends ConsumerWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   const Row(
-                    children: [
+                    children: <Widget>[
                       Icon(
                         Icons.tips_and_updates,
                         color: Color(0xFF688273),
@@ -757,11 +757,11 @@ class _FoodAnalysisResult extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  ..._getHealthTips(analysis).map((tip) => Padding(
+                  ..._getHealthTips(analysis).map((String tip) => Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             const Text(
                               '• ',
                               style: TextStyle(
@@ -848,7 +848,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
   }
 
   List<String> _getHealthTips(MealAnalysisResponse analysis) {
-    List<String> tips = [];
+    final List<String> tips = <String>[];
 
     // Protein tips
     if (analysis.totalProtein > 40) {
@@ -891,7 +891,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
 
     return tips.isNotEmpty
         ? tips
-        : ['This looks like a balanced meal! Enjoy mindfully.'];
+        : <String>['This looks like a balanced meal! Enjoy mindfully.'];
   }
 }
 
@@ -912,7 +912,7 @@ class _NutritionPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
+      children: <Widget>[
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
@@ -921,7 +921,7 @@ class _NutritionPill extends StatelessWidget {
             border: Border.all(color: color.withOpacity(0.3)),
           ),
           child: Column(
-            children: [
+            children: <Widget>[
               Text(
                 value,
                 style: TextStyle(
@@ -978,7 +978,7 @@ class _SustainabilityMetric extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
+      children: <Widget>[
         Text(
           label,
           style: const TextStyle(
@@ -1028,7 +1028,7 @@ class _SustainabilityRow extends StatelessWidget {
     // Different color logic for environmental vs nutrition impact
     // Environmental impact: low = good (green), high = bad (red)
     // Nutrition impact: high = good (green), low = bad (red)
-    bool isNutritionImpact = label.toLowerCase().contains('nutrition');
+    final bool isNutritionImpact = label.toLowerCase().contains('nutrition');
 
     switch (impact.toLowerCase()) {
       case 'high':
@@ -1062,7 +1062,7 @@ class _SustainabilityRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+        children: <Widget>[
           Expanded(
             flex: 2,
             child: Text(
@@ -1078,7 +1078,7 @@ class _SustainabilityRow extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
-              children: [
+              children: <Widget>[
                 Icon(
                   impactIcon,
                   color: impactColor,
