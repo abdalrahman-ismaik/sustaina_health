@@ -3,57 +3,50 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import 'package:ghiraas/features/exercise/presentation/providers/workout_providers.dart';
+import 'package:ghiraas/features/exercise/data/models/workout_models.dart';
 
 class HomeDashboardScreen extends ConsumerWidget {
   const HomeDashboardScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<UserEntity?> userAsyncValue = ref.watch(currentUserProvider);
-    final UserEntity? user = userAsyncValue.value;
+  final AsyncValue<UserEntity?> userAsyncValue = ref.watch(currentUserProvider);
+  final UserEntity? user = userAsyncValue.value;
+
+  final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
+  final List<ActiveWorkoutSession>? completedWorkouts = completedWorkoutsAsync.value;
+  final int streak = completedWorkouts != null ? _calculateStreak(completedWorkouts) : 0;
 
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // Header
-              _buildHeader(context, user),
+              // Enhanced Header with Stats
+              _buildEnhancedHeader(context, user, streak),
               const SizedBox(height: 32),
 
-              // Quick Access Features
-              Text(
-                'Quick Access',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
+             
+              // Quick Actions
+              _buildSectionHeader(
+                  context, 'Quick Actions', Icons.dashboard_outlined),
               const SizedBox(height: 16),
-              _buildQuickAccessGrid(context),
+              _buildEnhancedQuickAccessGrid(context),
               const SizedBox(height: 32),
 
-              // Today's Focus
-              Text(
-                'Today\'s Focus',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
+              // Today's Focus with better design
+              _buildSectionHeader(
+                  context, 'Today\'s Focus', Icons.eco_outlined),
               const SizedBox(height: 16),
-              _buildTodaysFocusCard(context),
-              const SizedBox(height: 32),
+              _buildEnhancedTodaysFocusCard(context),
+              const SizedBox(height: 24),
 
-              // Implementation Status
-              Text(
-                'Features Status',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 16),
-              _buildImplementationStatus(context),
+              // Sustainability Tips
+              _buildSustainabilityTips(context),
               const SizedBox(height: 100), // Space for bottom navigation
             ],
           ),
@@ -62,64 +55,131 @@ class HomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, user) {
+  Widget _buildSectionHeader(
+      BuildContext context, String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: Colors.grey[800],
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEnhancedHeader(BuildContext context, UserEntity? user, int streak) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: <Color>[
-            Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+            const Color(0xFF4CAF50), // Sustainable green
+            const Color(0xFF66BB6A),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          CircleAvatar(
-            radius: 30,
-            backgroundColor:
-                Theme.of(context).colorScheme.primary.withOpacity(0.2),
-            child: Icon(
-              Icons.eco_outlined,
-              size: 32,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Welcome back,',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.7),
-                      ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 2,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  user?.displayName?.split(' ').first ?? 'User',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                child: const Icon(
+                  Icons.eco,
+                  size: 36,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Good ${_getGreeting()},',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      user?.displayName?.split(' ').first ?? 'Eco Warrior',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                       ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Ready for a sustainable day?',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Let\'s make today count! 🌱',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
                       ),
+                    ),
+                  ],
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Stats Row
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatItem(streak.toString(), 'Day Streak', Icons.local_fire_department),
+                _buildStatDivider(),
+                _buildStatItem('24', 'CO₂ Saved', Icons.cloud_outlined),
+                _buildStatDivider(),
+                _buildStatItem('85%', 'Weekly Goal', Icons.trending_up),
               ],
             ),
           ),
@@ -128,13 +188,52 @@ class HomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickAccessGrid(BuildContext context) {
+  Widget _buildStatItem(String value, String label, IconData icon) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: Colors.white70,
+          size: 20,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatDivider() {
+    return Container(
+      height: 40,
+      width: 1,
+      color: Colors.white.withOpacity(0.3),
+    );
+  }
+
+
+  Widget _buildEnhancedQuickAccessGrid(BuildContext context) {
     final List<Map<String, Object>> quickActions = <Map<String, Object>>[
       <String, Object>{
         'title': 'Exercise',
         'subtitle': 'AI Workouts',
         'icon': Icons.fitness_center_outlined,
         'route': '/exercise',
+        'color': const Color(0xFF2196F3),
         'implemented': true,
       },
       <String, Object>{
@@ -142,6 +241,7 @@ class HomeDashboardScreen extends ConsumerWidget {
         'subtitle': 'Meal Tracking',
         'icon': Icons.restaurant_outlined,
         'route': '/nutrition',
+        'color': const Color(0xFF4CAF50),
         'implemented': true,
       },
       <String, Object>{
@@ -149,13 +249,15 @@ class HomeDashboardScreen extends ConsumerWidget {
         'subtitle': 'Sleep Tracking',
         'icon': Icons.bedtime_outlined,
         'route': '/sleep',
-        'implemented': false,
+        'color': const Color(0xFF9C27B0),
+        'implemented': true,
       },
       <String, Object>{
         'title': 'Profile',
         'subtitle': 'Your Progress',
         'icon': Icons.person_outline,
         'route': '/profile',
+        'color': const Color(0xFFFF9800),
         'implemented': true,
       },
     ];
@@ -167,333 +269,286 @@ class HomeDashboardScreen extends ConsumerWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.2,
+        childAspectRatio: 1.1,
       ),
       itemCount: quickActions.length,
       itemBuilder: (BuildContext context, int index) {
         final Map<String, Object> action = quickActions[index];
-        return _buildQuickActionCard(context, action);
+        return _buildEnhancedQuickActionCard(context, action);
       },
     );
   }
 
-  Widget _buildQuickActionCard(
+  Widget _buildEnhancedQuickActionCard(
       BuildContext context, Map<String, dynamic> action) {
-    final bool isImplemented = action['implemented'] as bool;
-
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap:
-            isImplemented ? () => context.go(action['route'] as String) : null,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isImplemented
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  action['icon'] as IconData,
-                  size: 28,
-                  color: isImplemented
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.5),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                action['title'] as String,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: isImplemented
-                          ? null
-                          : Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.5),
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                action['subtitle'] as String,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: isImplemented
-                          ? Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.7)
-                          : Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.4),
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              if (!isImplemented) ...<Widget>[
-                const SizedBox(height: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Coming Soon',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.6),
-                        ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTodaysFocusCard(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: <Color>[
-              Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-              Theme.of(context).colorScheme.primary.withOpacity(0.05),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Icon(
-                  Icons.today_outlined,
-                  color: Theme.of(context).colorScheme.secondary,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Sustainability Goal',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Start your journey towards a healthier you and a healthier planet. Track your daily activities and see your positive impact grow.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    height: 1.4,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => context.go('/exercise'),
-                    icon: const Icon(Icons.fitness_center_outlined, size: 18),
-                    label: const Text('Start Workout'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => context.go('/nutrition'),
-                    icon: const Icon(Icons.restaurant_outlined, size: 18),
-                    label: const Text('Log Meal'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImplementationStatus(BuildContext context) {
-    final List<Map<String, Object>> features = <Map<String, Object>>[
-      <String, Object>{
-        'name': 'AI Workout Generation',
-        'status': 'Implemented',
-        'description': 'Generate personalized workout plans',
-        'color': Theme.of(context).colorScheme.primary,
-      },
-      <String, Object>{
-        'name': 'Food Recognition',
-        'status': 'Implemented',
-        'description': 'AI-powered meal analysis',
-        'color': Theme.of(context).colorScheme.primary,
-      },
-      <String, Object>{
-        'name': 'Meal Planning',
-        'status': 'Implemented',
-        'description': 'Sustainable meal recommendations',
-        'color': Theme.of(context).colorScheme.primary,
-      },
-      <String, Object>{
-        'name': 'Sleep Tracking',
-        'status': 'To Be Implemented',
-        'description': 'Monitor sleep patterns and quality',
-        'color': Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-      },
-      <String, Object>{
-        'name': 'Carbon Footprint',
-        'status': 'To Be Implemented',
-        'description': 'Track environmental impact',
-        'color': Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-      },
-      <String, Object>{
-        'name': 'Social Features',
-        'status': 'To Be Implemented',
-        'description': 'Connect with eco-conscious community',
-        'color': Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-      },
-    ];
-
-    return Column(
-      children: features
-          .map((Map<String, Object> feature) => _buildStatusItem(context, feature))
-          .toList(),
-    );
-  }
-
-  Widget _buildStatusItem(BuildContext context, Map<String, dynamic> feature) {
-    final bool isImplemented = feature['status'] == 'Implemented';
+    final Color actionColor = action['color'] as Color;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: actionColor.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
         border: Border.all(
-          color: isImplemented
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-              : Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+          color: actionColor.withOpacity(0.1),
           width: 1,
         ),
       ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: feature['color'] as Color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => context.go(action['route'] as String),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text(
-                  feature['name'] as String,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isImplemented
-                            ? null
-                            : Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.7),
-                      ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        actionColor.withOpacity(0.15),
+                        actionColor.withOpacity(0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    action['icon'] as IconData,
+                    size: 28,
+                    color: actionColor,
+                  ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 12),
                 Text(
-                  feature['description'] as String,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: isImplemented
-                            ? Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.7)
-                            : Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.5),
-                      ),
+                  action['title'] as String,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  action['subtitle'] as String,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedTodaysFocusCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFF1F8E9),
+            Color(0xFFE8F5E8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFF4CAF50).withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.eco,
+                  color: Color(0xFF4CAF50),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Sustainability Mission',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey[800],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Every small action creates a ripple effect. Start your sustainable journey today and watch your positive impact grow with each healthy choice you make.',
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => context.go('/exercise'),
+                  icon: const Icon(Icons.fitness_center, size: 18),
+                  label: const Text('Start Workout'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.go('/nutrition'),
+                  icon: const Icon(Icons.restaurant, size: 18),
+                  label: const Text('Log Meal'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF4CAF50),
+                    side: const BorderSide(color: Color(0xFF4CAF50)),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSustainabilityTips(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey[200]!,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.lightbulb_outline,
+                color: Color(0xFFFF9800),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Daily Eco Tip',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey[800],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isImplemented
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(8),
+              color: const Color(0xFFFF9800).withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFFFF9800).withOpacity(0.2),
+                width: 1,
+              ),
             ),
             child: Text(
-              feature['status'] as String,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isImplemented
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.6),
-                    fontWeight: FontWeight.w500,
-                  ),
+              'Did you know? Walking or cycling for just 30 minutes instead of driving can save up to 2.6 kg of CO₂ emissions! 🚴‍♀️',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+                height: 1.4,
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'morning';
+    } else if (hour < 17) {
+      return 'afternoon';
+    } else {
+      return 'evening';
+    }
+  }
+  
+  // Calculate numeric streak (days) from completed workouts list
+  int _calculateStreak(List<ActiveWorkoutSession> completedWorkouts) {
+    if (completedWorkouts.isEmpty) return 0;
+
+    final List<ActiveWorkoutSession> sortedWorkouts = completedWorkouts
+        .where((ActiveWorkoutSession w) => w.isCompleted && w.endTime != null)
+        .toList()
+      ..sort((ActiveWorkoutSession a, ActiveWorkoutSession b) => b.endTime!.compareTo(a.endTime!));
+
+    if (sortedWorkouts.isEmpty) return 0;
+
+    int streak = 0;
+    DateTime currentDate = DateTime.now();
+
+    for (final ActiveWorkoutSession workout in sortedWorkouts) {
+      final DateTime workoutDate = workout.endTime!;
+      final int daysDifference = currentDate.difference(workoutDate).inDays;
+
+      if (daysDifference <= 1) {
+        streak++;
+        currentDate = workoutDate;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+  
 }

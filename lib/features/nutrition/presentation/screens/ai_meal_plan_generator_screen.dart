@@ -16,8 +16,8 @@ class AIMealPlanGeneratorScreen extends ConsumerStatefulWidget {
       _AIMealPlanGeneratorScreenState();
 }
 
-class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorScreen> {
-
+class _AIMealPlanGeneratorScreenState
+    extends ConsumerState<AIMealPlanGeneratorScreen> {
   @override
   void initState() {
     super.initState();
@@ -36,6 +36,7 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
       }
     });
   }
+
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
@@ -127,8 +128,10 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<MealPlanResponse?> mealPlanState = ref.watch(mealPlanGenerationProvider);
-    final AsyncValue<bool> apiHealthState = ref.watch(nutritionApiHealthProvider);
+    final AsyncValue<MealPlanResponse?> mealPlanState =
+        ref.watch(mealPlanGenerationProvider);
+    final AsyncValue<bool> apiHealthState =
+        ref.watch(nutritionApiHealthProvider);
 
     return Scaffold(
       backgroundColor: SleepColors.backgroundGrey,
@@ -176,10 +179,12 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
                 dietaryRestrictionOptions: dietaryRestrictionOptions,
                 allergyOptions: allergyOptions,
                 cuisineOptions: cuisineOptions,
-                onGoalChanged: (String goal) => setState(() => _selectedGoal = goal),
+                onGoalChanged: (String goal) =>
+                    setState(() => _selectedGoal = goal),
                 onActivityLevelChanged: (String level) =>
                     setState(() => _selectedActivityLevel = level),
-                onSexChanged: (String sex) => setState(() => _selectedSex = sex),
+                onSexChanged: (String sex) =>
+                    setState(() => _selectedSex = sex),
                 onDurationDaysChanged: (int days) =>
                     setState(() => _durationDays = days),
                 onDietaryRestrictionAdded: (String restriction) => setState(() {
@@ -187,7 +192,8 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
                     _selectedDietaryRestrictions.add(restriction);
                   }
                 }),
-                onDietaryRestrictionRemoved: (String restriction) => setState(() {
+                onDietaryRestrictionRemoved: (String restriction) =>
+                    setState(() {
                   _selectedDietaryRestrictions.remove(restriction);
                 }),
                 onAllergyAdded: (String allergy) => setState(() {
@@ -207,7 +213,8 @@ class _AIMealPlanGeneratorScreenState extends ConsumerState<AIMealPlanGeneratorS
               CircularProgressIndicator(color: SleepColors.primaryGreen),
               SizedBox(height: 16),
               Text('Generating your personalized meal plan...',
-                  style: TextStyle(fontSize: 16, color: SleepColors.textSecondary)),
+                  style: TextStyle(
+                      fontSize: 16, color: SleepColors.textSecondary)),
             ],
           ),
         ),
@@ -541,7 +548,8 @@ class _MealPlanForm extends StatelessWidget {
                   .map((String level) => FilterChip(
                         label: Text(level.replaceAll('_', ' ').toUpperCase()),
                         selected: selectedActivityLevel == level,
-                        onSelected: (bool selected) => onActivityLevelChanged(level),
+                        onSelected: (bool selected) =>
+                            onActivityLevelChanged(level),
                         backgroundColor: SleepColors.surfaceGrey,
                         selectedColor: SleepColors.primaryGreen,
                       ))
@@ -736,9 +744,7 @@ class _MealPlanResult extends ConsumerWidget {
       ),
     );
   }
-
 }
-
 
 class _DailyMealCard extends StatelessWidget {
   final DailyMealPlan dailyPlan;
@@ -835,116 +841,117 @@ class _DailyMealCard extends StatelessWidget {
   }
 }
 
-  void _saveMealPlan(BuildContext context, WidgetRef ref, MealPlanResponse mealPlan) async {
-    final UserEntity? user = ref.read(authStateProvider).value;
+void _saveMealPlan(
+    BuildContext context, WidgetRef ref, MealPlanResponse mealPlan) async {
+  final UserEntity? user = ref.read(authStateProvider).value;
 
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please sign in to save meal plans'),
-          backgroundColor: Colors.orange,
+  if (user == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please sign in to save meal plans'),
+        backgroundColor: Colors.orange,
+      ),
+    );
+    return;
+  }
+
+  final TextEditingController nameController = TextEditingController();
+
+  final String? name = await showDialog<String>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text(
+          'Save Meal Plan',
+          style: TextStyle(
+            color: SleepColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      );
-      return;
-    }
-
-    final TextEditingController nameController = TextEditingController();
-
-    final String? name = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            'Save Meal Plan',
-            style: TextStyle(
-              color: SleepColors.textPrimary,
-              fontWeight: FontWeight.bold,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const Text(
+              'Give your meal plan a name:',
+              style: TextStyle(color: SleepColors.textPrimary),
             ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Text(
-                'Give your meal plan a name:',
-                style: TextStyle(color: SleepColors.textPrimary),
+            const SizedBox(height: 16),
+            TextField(
+              controller: nameController,
+              style: const TextStyle(
+                color: SleepColors.textPrimary,
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: nameController,
-                style: const TextStyle(
-                  color: SleepColors.textPrimary,
+              decoration: InputDecoration(
+                hintText: 'e.g., "7-Day Healthy Eating Plan"',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                decoration: InputDecoration(
-                  hintText: 'e.g., "7-Day Healthy Eating Plan"',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: SleepColors.primaryGreen),
-                  ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: SleepColors.primaryGreen),
                 ),
-                textCapitalization: TextCapitalization.words,
-                autofocus: true,
               ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final String planName = nameController.text.trim();
-                if (planName.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a meal plan name'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-                Navigator.of(context).pop(planName);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SleepColors.primaryGreen,
-              ),
-              child: const Text(
-                'Save',
-                style: TextStyle(color: Colors.white),
-              ),
+              textCapitalization: TextCapitalization.words,
+              autofocus: true,
             ),
           ],
-        );
-      },
-    );
-
-    if (name != null && name.isNotEmpty) {
-      try {
-        final String? planId = await ref
-            .read(savedMealPlansProvider.notifier)
-            .saveMealPlan(mealPlan, name);
-
-        if (planId != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Meal plan "$name" saved successfully!'),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final String planName = nameController.text.trim();
+              if (planName.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter a meal plan name'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+              Navigator.of(context).pop(planName);
+            },
+            style: ElevatedButton.styleFrom(
               backgroundColor: SleepColors.primaryGreen,
             ),
-          );
-        }
-      } catch (e) {
+            child: const Text(
+              'Save',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (name != null && name.isNotEmpty) {
+    try {
+      final String? planId = await ref
+          .read(savedMealPlansProvider.notifier)
+          .saveMealPlan(mealPlan, name);
+
+      if (planId != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to save meal plan: $e'),
-            backgroundColor: Colors.red,
+            content: Text('Meal plan "$name" saved successfully!'),
+            backgroundColor: SleepColors.primaryGreen,
           ),
         );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save meal plan: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
+  }
 }

@@ -14,7 +14,6 @@ class ProfileHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
-
   final NotificationService _notificationService = NotificationService();
 
   // Personal info controllers
@@ -26,7 +25,6 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   bool _sustainabilityTipsEnabled = false;
   bool _healthRemindersEnabled = false;
   bool _notificationsAllowed = false;
-
 
   @override
   void initState() {
@@ -42,6 +40,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     _ageController.dispose();
     super.dispose();
   }
+
   Future<void> _loadPersonalInfo() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -68,7 +67,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final bool sustainabilityEnabled =
         prefs.getBool('sustainability_tips_enabled') ?? false;
-    final bool healthEnabled = prefs.getBool('health_reminders_enabled') ?? false;
+    final bool healthEnabled =
+        prefs.getBool('health_reminders_enabled') ?? false;
 
     if (mounted) {
       setState(() {
@@ -86,7 +86,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<UserEntity?> userAsyncValue = ref.watch(currentUserProvider);
+    final AsyncValue<UserEntity?> userAsyncValue =
+        ref.watch(currentUserProvider);
     final UserEntity? user = userAsyncValue.value;
     print(
         'DEBUG ProfileScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
@@ -145,15 +146,17 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                               width: 128,
                               height: 128,
                               fit: BoxFit.cover,
-                              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                              errorBuilder: (BuildContext context, Object error,
+                                  StackTrace? stackTrace) {
                                 return Icon(
                                   Icons.person,
                                   size: 64,
                                   color: accentColor,
                                 );
                               },
-                              loadingBuilder:
-                                  (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent? loadingProgress) {
                                 if (loadingProgress == null) return child;
                                 return CircularProgressIndicator(
                                   value: loadingProgress.expectedTotalBytes !=
@@ -189,7 +192,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
 
             // Personal Info Section
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -248,9 +252,12 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                           child: DropdownButtonFormField<String>(
                             value: _selectedSex,
                             items: const <DropdownMenuItem<String>>[
-                              DropdownMenuItem(value: 'Male', child: Text('Male')),
-                              DropdownMenuItem(value: 'Female', child: Text('Female')),
-                              DropdownMenuItem(value: 'Other', child: Text('Other')),
+                              DropdownMenuItem(
+                                  value: 'Male', child: Text('Male')),
+                              DropdownMenuItem(
+                                  value: 'Female', child: Text('Female')),
+                              DropdownMenuItem(
+                                  value: 'Other', child: Text('Other')),
                             ],
                             onChanged: (String? value) {
                               if (value != null) {

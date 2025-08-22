@@ -97,7 +97,8 @@ class _AIWorkoutGeneratorScreenState
       if (userProfile.sex != null) {
         // Capitalize first letter for dropdown compatibility
         _selectedSex = userProfile.apiSex.isNotEmpty
-            ? userProfile.apiSex[0].toUpperCase() + userProfile.apiSex.substring(1).toLowerCase()
+            ? userProfile.apiSex[0].toUpperCase() +
+                userProfile.apiSex.substring(1).toLowerCase()
             : null;
       } else {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -160,7 +161,8 @@ class _AIWorkoutGeneratorScreenState
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<WorkoutPlan?> workoutState = ref.watch(workoutGenerationProvider);
+    final AsyncValue<WorkoutPlan?> workoutState =
+        ref.watch(workoutGenerationProvider);
     final AsyncValue<bool> apiHealthState = ref.watch(apiHealthProvider);
 
     return Scaffold(
@@ -293,7 +295,8 @@ class _AIWorkoutGeneratorScreenState
                     value: _selectedGoal,
                     label: 'Select your goal',
                     items: goalOptions,
-                    onChanged: (String? value) => setState(() => _selectedGoal = value),
+                    onChanged: (String? value) =>
+                        setState(() => _selectedGoal = value),
                   ),
 
                   // Workouts per week
@@ -452,7 +455,8 @@ class _AIWorkoutGeneratorScreenState
     required ValueChanged<String?> onChanged,
   }) {
     // If value is not in items, set value to null to avoid DropdownButton error
-    final String? dropdownValue = (value != null && items.contains(value)) ? value : null;
+    final String? dropdownValue =
+        (value != null && items.contains(value)) ? value : null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: DropdownButtonFormField<String>(
