@@ -280,6 +280,27 @@ class SavedMealPlansNotifier
       state = AsyncValue.error(e, stackTrace);
     }
   }
+
+  Future<void> updateMealPlan(SavedMealPlan plan) async {
+    try {
+      await _repository.updateSavedMealPlan(plan);
+      await loadSavedMealPlans();
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
+  }
+
+  Future<void> toggleFavorite(String planId) async {
+    final AsyncValue<List<SavedMealPlan>> current = state;
+    final List<SavedMealPlan> plans = current.maybeWhen(data: (List<SavedMealPlan> data) => data, orElse: () => <SavedMealPlan>[]);
+    final int idx = plans.indexWhere((SavedMealPlan p) => p.id == planId);
+    if (idx == -1) return;
+
+    final SavedMealPlan target = plans[idx];
+    final SavedMealPlan updated = target.copyWith(isFavorite: !target.isFavorite, lastUsed: DateTime.now());
+
+    await updateMealPlan(updated);
+  }
 }
 
 // Brand Recommendations Provider

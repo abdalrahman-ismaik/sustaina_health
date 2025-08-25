@@ -443,13 +443,15 @@ class SavedMealPlansScreen extends ConsumerWidget {
                       } else if (value == 'duplicate') {
                         _duplicateMealPlan(context, ref, mealPlan);
                       } else if (value == 'favorite') {
-                        // TODO: Implement favorite toggle when available in provider
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Favorite feature coming soon!'),
-                            backgroundColor: Color(0xFF94E0B2),
-                          ),
-                        );
+                        await ref.read(savedMealPlansProvider.notifier).toggleFavorite(mealPlan.id);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(mealPlan.isFavorite ? 'Removed from favorites' : 'Added to favorites'),
+                              backgroundColor: const Color(0xFF94E0B2),
+                            ),
+                          );
+                        }
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -458,9 +460,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
                         child: Row(
                           children: <Widget>[
                             Icon(
-                              mealPlan.isFavorite
-                                  ? Icons.favorite_border
-                                  : Icons.favorite,
+                              mealPlan.isFavorite ? Icons.favorite : Icons.favorite_border,
                               color: const Color(0xFF94E0B2),
                             ),
                             const SizedBox(width: 8),

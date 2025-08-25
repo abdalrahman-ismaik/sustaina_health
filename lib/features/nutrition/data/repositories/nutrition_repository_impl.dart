@@ -240,6 +240,22 @@ class NutritionRepositoryImpl implements NutritionRepository {
     await prefs.setStringList('saved_meal_plans', updatedPlans);
   }
 
+  @override
+  Future<void> updateSavedMealPlan(SavedMealPlan plan) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> plansJson = prefs.getStringList('saved_meal_plans') ?? <String>[];
+
+    final List<String> updatedPlans = plansJson.map((String json) {
+      final SavedMealPlan existing = SavedMealPlan.fromJson(jsonDecode(json) as Map<String, dynamic>);
+      if (existing.id == plan.id) {
+        return jsonEncode(plan.toJson());
+      }
+      return json;
+    }).toList();
+
+    await prefs.setStringList('saved_meal_plans', updatedPlans);
+  }
+
   bool _isSameDate(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&

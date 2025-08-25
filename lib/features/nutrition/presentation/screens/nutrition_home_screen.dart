@@ -345,6 +345,25 @@ class NutritionHomeScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  // Quick link to view saved meal plans
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.go('/nutrition/saved-plans'),
+                      icon: const Icon(Icons.bookmark),
+                      label: const Text('View Saved Meal Plans'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF94e0b2),
+                        foregroundColor: const Color(0xFF121714),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

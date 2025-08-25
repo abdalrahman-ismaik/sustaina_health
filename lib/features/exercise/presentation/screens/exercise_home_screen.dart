@@ -446,7 +446,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
         return Column(
           children: <Widget>[
             Container(
-              height: 120,
+              // increased height slightly to avoid minor bottom overflow on some devices
+              height: 132,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -470,7 +471,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            // reduced padding to reclaim vertical space
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -514,7 +516,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                         },
                         borderRadius: BorderRadius.circular(8),
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
+                          // reduced vertical padding to avoid exceeding container height
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -739,7 +742,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
         return Column(
           children: <Widget>[
             Container(
-              height: 140,
+              // increased slightly to avoid small overflow on tighter screens
+              height: 152,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -763,7 +767,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           },
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            // reduced padding to reclaim vertical space
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -809,7 +814,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                         },
                         borderRadius: BorderRadius.circular(8),
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
+                          // reduced vertical padding to avoid exceeding container height
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[

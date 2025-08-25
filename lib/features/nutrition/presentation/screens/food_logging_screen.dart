@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
+import '../../domain/repositories/nutrition_repository.dart' show SavedMealPlan;
 import '../../../sleep/presentation/theme/sleep_colors.dart';
 
 class FoodLoggingScreen extends ConsumerStatefulWidget {
@@ -20,6 +21,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   Widget build(BuildContext context) {
     final AsyncValue<List<FoodLogEntry>> foodLogState = ref.watch(foodLogProvider);
     final AsyncValue<DailyNutritionSummary> dailySummaryState = ref.watch(dailyNutritionSummaryProvider);
+  final AsyncValue<List<SavedMealPlan>> savedPlansState = ref.watch(savedMealPlansProvider);
 
     // Listen to food log changes and refresh daily summary
     ref.listen<AsyncValue<List<FoodLogEntry>>>(foodLogProvider,
@@ -93,7 +95,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
 
             // Daily summary
             dailySummaryState.when(
-              data: (DailyNutritionSummary summary) => _buildDailySummary(summary),
+              data: (DailyNutritionSummary summary) => _buildDailySummary(summary, savedPlansState),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (Object error, _) => const SizedBox(),
             ),
@@ -275,6 +277,52 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     );
   }
 
+  Widget _buildMacrosComparison(NutritionInfo logged, DailyMacros plan) {
+    Widget stat(String label, String left, String right, Color color) {
+      return Flexible(
+        flex: 1,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(label, style: TextStyle(color: SleepColors.textPrimary.withOpacity(0.85), fontSize: 12), overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 6),
+            Row(
+              children: <Widget>[
+                Flexible(
+                  child: Text(left, style: TextStyle(color: SleepColors.textPrimary, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                ),
+                const SizedBox(width: 6),
+                Text('/', style: TextStyle(color: SleepColors.textPrimary.withOpacity(0.7))),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(right, style: TextStyle(color: SleepColors.textPrimary.withOpacity(0.85)), overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          stat('Protein', '${logged.protein}g', '${plan.protein}g', Colors.red),
+          const SizedBox(width: 8),
+          stat('Carbs', '${logged.carbohydrates}g', '${plan.carbohydrates}g', Colors.blue),
+          const SizedBox(width: 8),
+          stat('Fat', '${logged.fat}g', '${plan.fat}g', Colors.purple),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMealTypeSelector() {
     return Wrap(
       spacing: 8,
@@ -310,8 +358,24 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     );
   }
 
-  Widget _buildDailySummary(DailyNutritionSummary summary) {
-    final double calorieProgress = summary.calorieProgress.clamp(0.0, 1.0);
+  Widget _buildDailySummary(DailyNutritionSummary summary, AsyncValue<List<SavedMealPlan>> savedPlansState) {
+    // Determine favorite meal plan if available
+    final SavedMealPlan? favorite = savedPlansState.maybeWhen(
+      data: (List<SavedMealPlan> data) {
+        try {
+          return data.firstWhere((SavedMealPlan p) => p.isFavorite);
+        } catch (_) {
+          return null;
+        }
+      },
+      orElse: () => null,
+    );
+
+    final bool hasPlan = favorite != null && favorite.mealPlan.dailyMealPlans.isNotEmpty;
+  final int targetCalories = hasPlan ? favorite.mealPlan.dailyMealPlans.first.totalDailyCalories : summary.targetCalories;
+  final DailyMacros? planMacros = hasPlan ? favorite.mealPlan.dailyMealPlans.first.dailyMacros : null;
+
+    final double calorieProgress = (summary.totalNutrition.calories / (targetCalories == 0 ? 1 : targetCalories)).clamp(0.0, 1.0);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -346,7 +410,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      '${summary.totalNutrition.calories} / ${summary.targetCalories} cal',
+                      '${summary.totalNutrition.calories} / $targetCalories cal',
                       style: const TextStyle(
                         color: SleepColors.textPrimary,
                         fontSize: 16,
@@ -360,29 +424,12 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                       valueColor: const AlwaysStoppedAnimation<Color>(
                           SleepColors.textPrimary),
                     ),
+                    const SizedBox(height: 12),
+                    if (planMacros != null) _buildMacrosComparison(summary.totalNutrition, planMacros),
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
-              Column(
-                children: <Widget>[
-                  Text(
-                    '${summary.meals.length}',
-                    style: const TextStyle(
-                      color: SleepColors.textPrimary,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    'meals logged',
-                    style: TextStyle(
-                      color: SleepColors.textPrimary,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
+              // removed meals logged count per request
             ],
           ),
         ],
@@ -793,8 +840,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-
+                    const SizedBox(height: 12),
                 // Food name
                 TextFormField(
                   controller: _foodNameController,
@@ -809,8 +855,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-
+                    const SizedBox(height: 12),
                 // Serving size
                 TextFormField(
                   controller: _servingSizeController,

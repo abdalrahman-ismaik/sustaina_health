@@ -40,6 +40,9 @@ abstract class NutritionRepository {
 
   /// Delete a saved meal plan
   Future<void> deleteSavedMealPlan(String planId);
+
+  /// Update an existing saved meal plan (e.g. toggle favorite, update metadata)
+  Future<void> updateSavedMealPlan(SavedMealPlan plan);
 }
 
 class SavedMealPlan {

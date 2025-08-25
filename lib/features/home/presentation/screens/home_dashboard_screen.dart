@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import 'package:ghiraas/features/exercise/presentation/providers/workout_providers.dart';
 import 'package:ghiraas/features/exercise/data/models/workout_models.dart';
+import 'package:ghiraas/features/nutrition/presentation/providers/nutrition_providers.dart';
+import 'package:ghiraas/features/sleep/presentation/providers/sleep_providers.dart';
+import 'package:ghiraas/features/nutrition/data/models/nutrition_models.dart';
 
 class HomeDashboardScreen extends ConsumerWidget {
   const HomeDashboardScreen({Key? key}) : super(key: key);
@@ -17,6 +20,13 @@ class HomeDashboardScreen extends ConsumerWidget {
   final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
   final List<ActiveWorkoutSession>? completedWorkouts = completedWorkoutsAsync.value;
   final int streak = completedWorkouts != null ? _calculateStreak(completedWorkouts) : 0;
+  // Nutrition & Sleep stats
+  final AsyncValue<DailyNutritionSummary> dailySummaryAsync = ref.watch(dailyNutritionSummaryProvider);
+  final int caloriesEaten = dailySummaryAsync.maybeWhen(data: (DailyNutritionSummary s) => s.totalNutrition.calories, orElse: () => 0);
+
+  final AsyncValue<Duration> sleepDurationAsync = ref.watch(sleepDurationProvider);
+  final Duration avgSleepDuration = sleepDurationAsync.maybeWhen(data: (Duration d) => d, orElse: () => Duration.zero);
+  final String avgSleepStr = avgSleepDuration == Duration.zero ? '--' : '${avgSleepDuration.inHours}h ${avgSleepDuration.inMinutes % 60}m';
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -27,7 +37,7 @@ class HomeDashboardScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               // Enhanced Header with Stats
-              _buildEnhancedHeader(context, user, streak),
+              _buildEnhancedHeader(context, user, streak, caloriesEaten, avgSleepStr),
               const SizedBox(height: 32),
 
              
@@ -83,7 +93,7 @@ class HomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEnhancedHeader(BuildContext context, UserEntity? user, int streak) {
+  Widget _buildEnhancedHeader(BuildContext context, UserEntity? user, int streak, int caloriesEaten, String avgSleepStr) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -161,8 +171,8 @@ class HomeDashboardScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 20),
-          // Stats Row
-          Container(
+      // Stats Row
+      Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
@@ -177,9 +187,9 @@ class HomeDashboardScreen extends ConsumerWidget {
               children: [
                 _buildStatItem(streak.toString(), 'Day Streak', Icons.local_fire_department),
                 _buildStatDivider(),
-                _buildStatItem('24', 'CO₂ Saved', Icons.cloud_outlined),
+                _buildStatItem('$caloriesEaten kcal', 'Calories Today', Icons.restaurant_outlined),
                 _buildStatDivider(),
-                _buildStatItem('85%', 'Weekly Goal', Icons.trending_up),
+                _buildStatItem(avgSleepStr, 'Avg Sleep', Icons.bedtime_outlined),
               ],
             ),
           ),
@@ -269,7 +279,8 @@ class HomeDashboardScreen extends ConsumerWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.1,
+        // Slightly reduce height per item to avoid small bottom overflow on some devices
+        childAspectRatio: 0.95,
       ),
       itemCount: quickActions.length,
       itemBuilder: (BuildContext context, int index) {
@@ -305,12 +316,12 @@ class HomeDashboardScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(20),
           onTap: () => context.go(action['route'] as String),
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -328,7 +339,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                     color: actionColor,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Text(
                   action['title'] as String,
                   style: TextStyle(
@@ -337,8 +348,10 @@ class HomeDashboardScreen extends ConsumerWidget {
                     color: Colors.grey[800],
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   action['subtitle'] as String,
                   style: TextStyle(
@@ -347,6 +360,8 @@ class HomeDashboardScreen extends ConsumerWidget {
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
