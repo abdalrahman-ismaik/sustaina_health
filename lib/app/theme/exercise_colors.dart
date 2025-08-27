@@ -48,10 +48,10 @@ class ExerciseColors {
   static const Color infoDark = Color(0xFF0C5460);
 
   // Opacity variants
-  static Color primaryGreenLight = primaryGreen.withOpacity(0.1);
-  static Color primaryGreenMedium = primaryGreen.withOpacity(0.3);
-  static Color darkGreenLight = darkGreen.withOpacity(0.1);
-  static Color darkGreenMedium = darkGreen.withOpacity(0.3);
+  static Color primaryGreenLight = primaryGreen.withValues(alpha: 0.1);
+  static Color primaryGreenMedium = primaryGreen.withValues(alpha: 0.3);
+  static Color darkGreenLight = darkGreen.withValues(alpha: 0.1);
+  static Color darkGreenMedium = darkGreen.withValues(alpha: 0.3);
 
   // Helper methods for dynamic colors
   static Color getTextColorForBackground(Color backgroundColor) {
@@ -68,7 +68,7 @@ class ExerciseColors {
   // Semantic color methods
   static Color get chipBackground => surfaceMedium;
   static Color get chipText => textPrimary;
-  static Color get cardShadow => Colors.black.withOpacity(0.1);
+  static Color get cardShadow => Colors.black.withValues(alpha: 0.1);
   static Color get divider => borderLight;
   static Color get loadingIndicator => primaryGreen;
 

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
@@ -7,6 +6,7 @@ import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../sleep/presentation/theme/sleep_colors.dart';
+import '../widgets/day_plan_card.dart';
 
 class AIMealPlanGeneratorScreen extends ConsumerStatefulWidget {
   const AIMealPlanGeneratorScreen({Key? key}) : super(key: key);
@@ -651,7 +651,7 @@ class _MealPlanForm extends StatelessWidget {
   }
 }
 
-class _MealPlanResult extends ConsumerWidget {
+class _MealPlanResult extends ConsumerStatefulWidget {
   final MealPlanResponse mealPlan;
   final VoidCallback onEdit;
 
@@ -662,184 +662,117 @@ class _MealPlanResult extends ConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          title: Text('${mealPlan.dailyMealPlans.length}-Day Meal Plan'),
-          backgroundColor: SleepColors.backgroundGrey,
-          expandedHeight: 200.0,
-          floating: false,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-            background: _buildHeader(context),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: onEdit,
-              tooltip: 'Generate New Plan',
-            ),
-            IconButton(
-              icon: const Icon(Icons.save),
-              onPressed: () => _saveMealPlan(context, ref, mealPlan),
-              tooltip: 'Save Plan',
-            ),
-          ],
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final dailyPlan = mealPlan.dailyMealPlans[index];
-              return _DailyMealCard(dailyPlan: dailyPlan);
-            },
-            childCount: mealPlan.dailyMealPlans.length,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    final dailyAverage = mealPlan.dailyMealPlans.isNotEmpty
-        ? mealPlan.dailyMealPlans.first.totalDailyCalories
-        : 0;
-    final macros = mealPlan.dailyMealPlans.isNotEmpty
-        ? mealPlan.dailyMealPlans.first.dailyMacros
-        : const DailyMacros(protein: 0, carbohydrates: 0, fat: 0);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            SleepColors.primaryGreen.withOpacity(0.8),
-            SleepColors.primaryGreen.withOpacity(0.5)
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Daily Average: $dailyAverage calories',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Macros: ${macros.protein}g P | ${macros.carbohydrates}g C | ${macros.fat}g F',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  ConsumerState<_MealPlanResult> createState() => _MealPlanResultState();
 }
 
-class _DailyMealCard extends StatelessWidget {
-  final DailyMealPlan dailyPlan;
+class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
+  late final PageController _pageController;
+  int _currentPage = 0;
 
-  const _DailyMealCard({required this.dailyPlan, Key? key}) : super(key: key);
+  @override
+  void initState() {
+    super.initState();
+  _pageController = PageController(viewportFraction: 0.94);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ExpansionTile(
-        title: Text(
-          'Day ${dailyPlan.day}',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: SleepColors.textPrimary,
+    final mealPlan = widget.mealPlan;
+    final int totalDays = mealPlan.dailyMealPlans.length;
+
+    return Scaffold(
+      backgroundColor: SleepColors.backgroundGrey,
+      appBar: AppBar(
+        title: Text('$totalDays-Day Meal Plan'),
+        backgroundColor: SleepColors.surfaceGrey,
+        elevation: 0,
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: widget.onEdit,
+            tooltip: 'Generate New Plan',
           ),
-        ),
-        subtitle: Text(
-          '${dailyPlan.totalDailyCalories} calories',
-          style: const TextStyle(color: SleepColors.textSecondary),
-        ),
-        children: [
-          _buildMealItem('Breakfast', dailyPlan.breakfast),
-          _buildMealItem('Lunch', dailyPlan.lunch),
-          _buildMealItem('Dinner', dailyPlan.dinner),
-          ...dailyPlan.snacks.map((snack) => _buildMealItem('Snack', snack)),
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () => _saveMealPlan(context, ref, mealPlan),
+            tooltip: 'Save Plan',
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildMealItem(String mealType, MealOption meal) {
-    // Placeholder image URL - replace with real ones if available
-    final imageUrl =
-        'https://source.unsplash.com/random/800x600/?${meal.name.replaceAll(' ', ',')}';
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                color: Colors.grey[300],
-                child: const Center(child: CircularProgressIndicator()),
-              ),
-              errorWidget: (context, url, error) => Container(
-                color: Colors.grey[300],
-                child: const Icon(Icons.restaurant_menu),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
+          // PageView area
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  mealType,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: SleepColors.textSecondary,
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: totalDays,
+              onPageChanged: (index) => setState(() => _currentPage = index),
+              itemBuilder: (context, index) {
+                final dailyPlan = mealPlan.dailyMealPlans[index];
+                return AnimatedBuilder(
+                  animation: _pageController,
+                  builder: (context, child) {
+                    double t = 0.0;
+                    if (_pageController.position.haveDimensions) {
+                      final double current = (_pageController.page ?? _currentPage.toDouble());
+                      t = current - index.toDouble();
+                    } else {
+                      t = (_currentPage - index).toDouble();
+                    }
+                    final double scale = (1 - (t.abs() * 0.06)).clamp(0.92, 1.0);
+                    final double opacity = (1 - (t.abs() * 0.3)).clamp(0.5, 1.0);
+                    return Transform.scale(
+                      scale: scale,
+                      child: Opacity(
+                        opacity: opacity,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: DayPlanCard(dailyPlan: dailyPlan),
+                );
+              },
+            ),
+          ),
+
+          // Indicator and actions
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List<Widget>.generate(totalDays, (int index) {
+                final bool selected = index == _currentPage;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: selected ? 28 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? SleepColors.primaryGreen
+                        : SleepColors.textTertiary.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                Text(
-                  meal.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: SleepColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${meal.calories} calories',
-                  style: const TextStyle(color: SleepColors.textSecondary),
-                ),
-              ],
+                );
+              }),
             ),
           ),
         ],
       ),
     );
   }
+
+  
 }
+
+
 
 void _saveMealPlan(
     BuildContext context, WidgetRef ref, MealPlanResponse mealPlan) async {

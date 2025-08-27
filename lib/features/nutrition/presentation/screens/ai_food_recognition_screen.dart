@@ -421,7 +421,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
                 color: const Color(0xFFf1f4f2),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFF94e0b2).withOpacity(0.3),
+                  color: const Color(0xFF94e0b2).withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),

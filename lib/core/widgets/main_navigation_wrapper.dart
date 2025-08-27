@@ -12,50 +12,172 @@ class MainNavigationWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double bottomInset = MediaQuery.of(context).viewPadding.bottom;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final bool compact = screenHeight < 700 || bottomInset > 20;
+    
     return Scaffold(
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _calculateSelectedIndex(context),
-        onTap: (int index) => _onItemTapped(index, context),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-        selectedLabelStyle: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.transparent,
+              Colors.black.withOpacity(0.02),
+            ],
+          ),
         ),
-        unselectedLabelStyle: TextStyle(
-          fontWeight: FontWeight.w400,
-          fontSize: 12,
+        child: SafeArea(
+          top: false,
+          minimum: EdgeInsets.only(bottom: compact ? 2 : 4),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 6, 16, compact ? 4 : 8),
+            child: Container(
+              height: compact ? 56 : 64,
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: compact ? 6 : 8),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFFFFFFF),
+                    Color(0xFFF8F9FA),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2E7D32).withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                    spreadRadius: 0,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                    spreadRadius: 0,
+                  ),
+                ],
+                border: Border.all(
+                  color: const Color(0xFF2E7D32).withOpacity(0.08),
+                  width: 1.5,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(5, (index) {
+                  final bool selected = _calculateSelectedIndex(context) == index;
+                  final IconData iconData;
+                  final IconData selectedIconData;
+                  final String label;
+
+                  switch (index) {
+                    case 0:
+                      iconData = Icons.home_outlined;
+                      selectedIconData = Icons.home;
+                      label = 'Home';
+                      break;
+                    case 1:
+                      iconData = Icons.fitness_center_outlined;
+                      selectedIconData = Icons.fitness_center;
+                      label = 'Exercise';
+                      break;
+                    case 2:
+                      iconData = Icons.restaurant_outlined;
+                      selectedIconData = Icons.restaurant;
+                      label = 'Nutrition';
+                      break;
+                    case 3:
+                      iconData = Icons.bedtime_outlined;
+                      selectedIconData = Icons.bedtime;
+                      label = 'Sleep';
+                      break;
+                    default:
+                      iconData = Icons.person_outline;
+                      selectedIconData = Icons.person;
+                      label = 'Profile';
+                  }
+
+                  return Expanded(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () => _onItemTapped(index, context),
+                      child: Container(
+                        height: compact ? 44 : 48,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              padding: EdgeInsets.all(compact ? 4 : 6),
+                              decoration: BoxDecoration(
+                                gradient: selected
+                                    ? const LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color(0xFF2E7D32),
+                                          Color(0xFF43A047),
+                                        ],
+                                      )
+                                    : null,
+                                color: selected
+                                    ? null
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: selected
+                                    ? [
+                                        BoxShadow(
+                                          color: const Color(0xFF2E7D32).withOpacity(0.25),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Icon(
+                                selected ? selectedIconData : iconData,
+                                size: compact ? 18 : 20,
+                                color: selected
+                                    ? Colors.white
+                                    : const Color(0xFF757575),
+                              ),
+                            ),
+                            if (!compact) ...[
+                              SizedBox(height: 1),
+                              Flexible(
+                                child: AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 250),
+                                  opacity: selected ? 1.0 : 0.0,
+                                  child: Text(
+                                    label,
+                                    style: TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w600,
+                                      color: selected
+                                          ? const Color(0xFF2E7D32)
+                                          : const Color(0xFF757575),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
         ),
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center_outlined),
-            activeIcon: Icon(Icons.fitness_center),
-            label: 'Exercise',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant_outlined),
-            activeIcon: Icon(Icons.restaurant),
-            label: 'Nutrition',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bedtime_outlined),
-            activeIcon: Icon(Icons.bedtime),
-            label: 'Sleep',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
       ),
     );
   }

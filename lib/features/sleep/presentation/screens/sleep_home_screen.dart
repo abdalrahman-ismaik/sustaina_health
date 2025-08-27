@@ -16,24 +16,18 @@ class SleepHomeScreen extends ConsumerWidget {
     final AsyncValue<List<SleepSession>> sleepSessionsAsync = ref.watch(sleepSessionsProvider);
 
     return Scaffold(
-      backgroundColor: SleepColors.backgroundGrey,
-      appBar: AppBar(
-        title: const Text(
-          'Sleep',
-          style: TextStyle(
-            color: SleepColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: AppBar(
+          title: const Text('Sleep'),
+          backgroundColor: SleepColors.primaryGreen,
+          foregroundColor: Colors.white,
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.help_outline),
+              onPressed: () => _showSleepGuide(context),
+            ),
+          ],
         ),
-        backgroundColor: SleepColors.surfaceGrey,
-        elevation: 0,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: SleepColors.primaryGreen),
-            onPressed: () => _showSleepGuide(context),
-          ),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.read(sleepSessionsProvider.notifier).loadSleepSessions();
@@ -77,10 +71,11 @@ class SleepHomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/sleep/tracking'),
         backgroundColor: SleepColors.primaryGreen,
-        icon: const Icon(Icons.bedtime, color: Colors.white),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.bedtime),
         label: const Text(
           'Track Sleep',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -99,48 +94,61 @@ class SleepHomeScreen extends ConsumerWidget {
       greeting = 'Good Evening';
     }
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            SleepColors.primaryGreen,
-            SleepColors.primaryGreenLight,
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [SleepColors.primaryGreen.withOpacity(0.1), Colors.white],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: [
+                Icon(
+                  Icons.bedtime,
+                  color: SleepColors.primaryGreen,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        greeting,
+                        style: TextStyle(
+                          color: SleepColors.primaryGreen,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Track your sleep to improve your rest and well-being',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: SleepColors.primaryGreen.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            greeting,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Track your sleep to improve your rest and well-being',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              height: 1.4,
-            ),
-          ),
-        ],
       ),
     );
   }

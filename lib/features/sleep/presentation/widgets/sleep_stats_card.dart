@@ -34,13 +34,13 @@ class SleepStatsCard extends ConsumerWidget {
             end: Alignment.bottomRight,
             colors: <Color>[
               color ?? SleepColors.primaryBlue,
-              (color ?? SleepColors.primaryBlue).withOpacity(0.8),
+              (color ?? SleepColors.primaryBlue).withValues(alpha: 0.8),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: <BoxShadow>[
             BoxShadow(
-              color: (color ?? SleepColors.primaryBlue).withOpacity(0.3),
+              color: (color ?? SleepColors.primaryBlue).withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -54,7 +54,7 @@ class SleepStatsCard extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -97,7 +97,7 @@ class SleepStatsCard extends ConsumerWidget {
             Text(
               subtitle,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
               ),

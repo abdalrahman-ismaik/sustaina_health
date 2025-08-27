@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/nutrition/data/models/nutrition_models.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
+
+import '../widgets/day_plan_card.dart';
 import '../providers/nutrition_providers.dart';
 import '../../domain/repositories/nutrition_repository.dart';
+import '../../../../core/widgets/app_background.dart';
 
 class SavedMealPlansScreen extends ConsumerWidget {
   const SavedMealPlansScreen({Key? key}) : super(key: key);
@@ -12,18 +16,20 @@ class SavedMealPlansScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<SavedMealPlan>> savedMealPlansAsync = ref.watch(savedMealPlansProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'My Meal Plans',
-          style: TextStyle(
-            color: Color(0xFF121714),
-            fontWeight: FontWeight.bold,
+    return AppBackground(
+      type: BackgroundType.nutrition,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text(
+            'My Meal Plans',
+            style: TextStyle(
+              color: Color(0xFF121714),
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF121714)),
         actions: <Widget>[
           IconButton(
@@ -65,6 +71,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
         ),
         icon: const Icon(Icons.auto_awesome),
       ),
+    ),
     );
   }
 
@@ -392,21 +399,27 @@ class SavedMealPlansScreen extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: mealPlan.isFavorite
-            ? const BorderSide(color: Color(0xFF94E0B2), width: 1.5)
-            : BorderSide.none,
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: const Color(0xFF2E7D32).withOpacity(0.08),
+          width: 1,
+        ),
       ),
+      color: mealPlan.isFavorite 
+          ? const Color(0xFFF1F8E9)
+          : Colors.white,
+      shadowColor: mealPlan.isFavorite
+          ? const Color(0xFF2E7D32).withOpacity(0.15)
+          : Colors.black.withOpacity(0.04),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to meal plan detail or implement usage tracking
           _showMealPlanDetail(context, mealPlan);
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -521,6 +534,19 @@ class SavedMealPlansScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: 12),
+
+              // Mini preview carousel of days with dots
+              if (mealPlan.mealPlan.dailyMealPlans.isNotEmpty) ...[
+                _MealPlanPreviewCarousel(
+                  dailyPlans: mealPlan.mealPlan.dailyMealPlans,
+                  onTapDay: (int dayIndex) => _showMealPlanDetail(
+                    context,
+                    mealPlan,
+                    initialIndex: dayIndex,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
 
               // Date information
               Row(
@@ -714,24 +740,192 @@ class SavedMealPlansScreen extends ConsumerWidget {
     );
   }
 
-  void _showMealPlanDetail(BuildContext context, SavedMealPlan mealPlan) {
+  void _showMealPlanDetail(
+    BuildContext context,
+    SavedMealPlan mealPlan, {
+    int initialIndex = 0,
+  }) {
+    final int maxIndex = (mealPlan.mealPlan.dailyMealPlans.length - 1).clamp(0, 1 << 30);
+    final int startIndex = initialIndex < 0
+        ? 0
+        : (initialIndex > maxIndex ? maxIndex : initialIndex);
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => _MealPlanDetailScreen(mealPlan: mealPlan),
+        builder: (BuildContext context) => _MealPlanDetailScreen(
+          mealPlan: mealPlan,
+          initialPage: startIndex,
+        ),
       ),
     );
   }
 }
 
-class _MealPlanDetailScreen extends StatelessWidget {
-  final SavedMealPlan mealPlan;
+class _MealPlanPreviewCarousel extends StatefulWidget {
+  final List<DailyMealPlan> dailyPlans;
+  final ValueChanged<int>? onTapDay;
 
-  const _MealPlanDetailScreen({Key? key, required this.mealPlan})
-      : super(key: key);
+  const _MealPlanPreviewCarousel({required this.dailyPlans, this.onTapDay});
+
+  @override
+  State<_MealPlanPreviewCarousel> createState() => _MealPlanPreviewCarouselState();
+}
+
+class _MealPlanPreviewCarouselState extends State<_MealPlanPreviewCarousel> {
+  late final PageController _controller;
+  int _current = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PageController(viewportFraction: 0.88);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final plans = widget.dailyPlans;
+    return Column(
+      children: [
+        SizedBox(
+          height: 110,
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: plans.length,
+            onPageChanged: (i) => setState(() => _current = i),
+            itemBuilder: (context, index) {
+              final p = plans[index];
+              return AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  double t = 0.0;
+                  if (_controller.position.haveDimensions) {
+                    final double current = (_controller.page ?? _current.toDouble());
+                    t = current - index.toDouble();
+                  } else {
+                    t = (_current - index).toDouble();
+                  }
+                  final double scale = (1 - (t.abs() * 0.06)).clamp(0.92, 1.0);
+                  final double opacity = (1 - (t.abs() * 0.3)).clamp(0.5, 1.0);
+                  return Transform.scale(
+                    scale: scale,
+                    child: Opacity(
+                      opacity: opacity,
+                      child: child,
+                    ),
+                  );
+                },
+                child: GestureDetector(
+                  onTap: () => widget.onTapDay?.call(index),
+                  child: _MiniDayPreviewCard(plan: p),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(plans.length, (index) {
+            final bool selected = index == _current;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: selected ? 18 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: selected ? const Color(0xFF2E7D32) : const Color(0xFFBDBDBD),
+                borderRadius: BorderRadius.circular(6),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
+class _MiniDayPreviewCard extends StatelessWidget {
+  final DailyMealPlan plan;
+  const _MiniDayPreviewCard({required this.plan});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF94E0B2).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.calendar_today, color: Color(0xFF2E7D32), size: 22),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Day ${plan.day}',
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF121714)),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${plan.totalDailyCalories} cal · ${plan.dailyMacros.protein}g P · ${plan.dailyMacros.carbohydrates}g C · ${plan.dailyMacros.fat}g F',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MealPlanDetailScreen extends StatefulWidget {
+  final SavedMealPlan mealPlan;
+
+  const _MealPlanDetailScreen({Key? key, required this.mealPlan, this.initialPage = 0}) : super(key: key);
+  final int initialPage;
+
+  @override
+  State<_MealPlanDetailScreen> createState() => _MealPlanDetailScreenState();
+}
+
+class _MealPlanDetailScreenState extends State<_MealPlanDetailScreen> {
+  late int _currentPage;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPage = widget.initialPage;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+  final mealPlan = widget.mealPlan;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -883,111 +1077,61 @@ class _MealPlanDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Daily Meal Plans
-            const Text(
-              'Daily Meal Plans',
-              style: TextStyle(
-                color: Color(0xFF121714),
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            ...mealPlan.mealPlan.dailyMealPlans.map(
-              (DailyMealPlan daily) => Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.grey.shade100,
-                      offset: const Offset(0, 2),
-                      blurRadius: 4,
-                    ),
-                  ],
-                ),
-                child: ExpansionTile(
-                  title: Text(
-                    'Day ${daily.day} - ${daily.date}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Color(0xFF121714),
-                    ),
-                  ),
-                  subtitle: Text(
-                    '${daily.totalDailyCalories} total calories',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                  ),
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          _buildMealCard('Breakfast', daily.breakfast),
-                          const SizedBox(height: 12),
-                          _buildMealCard('Lunch', daily.lunch),
-                          const SizedBox(height: 12),
-                          _buildMealCard('Dinner', daily.dinner),
-                          if (daily.snacks.isNotEmpty) ...<Widget>[
-                            const SizedBox(height: 12),
-                            ...daily.snacks.asMap().entries.map(
-                                  (MapEntry<int, MealOption> entry) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: _buildMealCard(
-                                        'Snack ${entry.key + 1}', entry.value),
-                                  ),
-                                ),
-                          ],
-
-                          // Daily Macros Summary
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF94E0B2).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                const Text(
-                                  'Daily Macros',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: Color(0xFF121714),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: <Widget>[
-                                    Expanded(
-                                        child: Text(
-                                            'Protein: ${daily.dailyMacros.protein}g')),
-                                    Expanded(
-                                        child: Text(
-                                            'Carbs: ${daily.dailyMacros.carbohydrates}g')),
-                                    Expanded(
-                                        child: Text(
-                                            'Fat: ${daily.dailyMacros.fat}g')),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+            // Daily Meal Plans - swipeable full-screen day cards with subtle Lottie particle background
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: Stack(
+                children: [
+                  // Lottie background (subtle, non-interactive)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      ignoring: true,
+                      child: Opacity(
+                        opacity: 0.12,
+                        child: Lottie.asset(
+                          'assets/lottie/particles_green.json',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  // Swipeable PageView of day cards with transform
+                  _TransformedPageView(
+                    itemCount: mealPlan.mealPlan.dailyMealPlans.length,
+                    initialPage: widget.initialPage,
+                    onPageChanged: (i) => setState(() => _currentPage = i),
+                    itemBuilder: (BuildContext ctx, int index) {
+                      final DailyMealPlan daily = mealPlan.mealPlan.dailyMealPlans[index];
+                      return DayPlanCard(dailyPlan: daily, horizontalPadding: 12);
+                    },
+                  ),
+
+                  // Dots indicator overlay
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 8,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(mealPlan.mealPlan.dailyMealPlans.length, (index) {
+                        final bool selected = index == _currentPage;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: selected ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? const Color(0xFF2E7D32)
+                                : const Color(0xFFBDBDBD),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -1065,102 +1209,6 @@ class _MealPlanDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMealCard(String mealType, meal) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF94E0B2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  mealType,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${meal.totalCalories} cal',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF121714),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            meal.name,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-              color: Color(0xFF121714),
-            ),
-          ),
-          if (meal.recipe.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 4),
-            Text(
-              meal.recipe,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.grey,
-              ),
-            ),
-          ],
-          if (meal.ingredients.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 8),
-            const Text(
-              'Ingredients:',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Color(0xFF121714),
-              ),
-            ),
-            const SizedBox(height: 4),
-            ...meal.ingredients.take(5).map((ingredient) => Padding(
-                  padding: const EdgeInsets.only(left: 8, bottom: 2),
-                  child: Text(
-                    '• ${ingredient.ingredient} (${ingredient.quantity})',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
-                  ),
-                )),
-            if (meal.ingredients.length > 5)
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  '... and ${meal.ingredients.length - 5} more ingredients',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-          ],
-        ],
-      ),
-    );
-  }
-
   String _formatDate(DateTime date) {
     final DateTime now = DateTime.now();
     final Duration difference = now.difference(date);
@@ -1174,5 +1222,76 @@ class _MealPlanDetailScreen extends StatelessWidget {
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
+  }
+}
+
+class _TransformedPageView extends StatefulWidget {
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+  final ValueChanged<int>? onPageChanged;
+  final int initialPage;
+
+  const _TransformedPageView({
+    required this.itemCount,
+    required this.itemBuilder,
+    this.onPageChanged,
+    this.initialPage = 0,
+  });
+
+  @override
+  State<_TransformedPageView> createState() => _TransformedPageViewState();
+}
+
+class _TransformedPageViewState extends State<_TransformedPageView> {
+  late final PageController _controller;
+  int _current = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _current = widget.initialPage;
+    _controller = PageController(
+      viewportFraction: 0.94,
+      initialPage: widget.initialPage,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageView.builder(
+      controller: _controller,
+      itemCount: widget.itemCount,
+      onPageChanged: (i) {
+        setState(() => _current = i);
+        widget.onPageChanged?.call(i);
+      },
+      itemBuilder: (context, index) {
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            double t = 0.0;
+            if (_controller.position.haveDimensions) {
+              final double current = (_controller.page ?? _current.toDouble());
+              t = current - index.toDouble();
+            } else {
+              t = (_current - index).toDouble();
+            }
+            final double scale = (1 - (t.abs() * 0.06)).clamp(0.92, 1.0);
+            final double opacity = (1 - (t.abs() * 0.3)).clamp(0.5, 1.0);
+            return Transform.scale(
+              scale: scale,
+              child: Opacity(opacity: opacity, child: child),
+            );
+          },
+          child: widget.itemBuilder(context, index),
+        );
+      },
+    );
   }
 }

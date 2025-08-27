@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import 'package:ghiraas/features/exercise/presentation/providers/workout_providers.dart';
 import 'package:ghiraas/features/exercise/data/models/workout_models.dart';
@@ -31,35 +32,53 @@ class HomeDashboardScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Enhanced Header with Stats
-              _buildEnhancedHeader(context, user, streak, caloriesEaten, avgSleepStr),
-              const SizedBox(height: 32),
+        child: Stack(
+          children: [
+            // Subtle Lottie background for green/particle aesthetic
+            Positioned.fill(
+              child: IgnorePointer(
+                ignoring: true,
+                child: Opacity(
+                  opacity: 0.08,
+                  child: Lottie.asset(
+                    'assets/lottie/particles_green.json',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
 
-             
-              // Quick Actions
-              _buildSectionHeader(
-                  context, 'Quick Actions', Icons.dashboard_outlined),
-              const SizedBox(height: 16),
-              _buildEnhancedQuickAccessGrid(context),
-              const SizedBox(height: 32),
+            // Main scrollable content
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // Enhanced Header with Stats
+                  _buildEnhancedHeader(context, user, streak, caloriesEaten, avgSleepStr),
+                  const SizedBox(height: 32),
 
-              // Today's Focus with better design
-              _buildSectionHeader(
-                  context, 'Today\'s Focus', Icons.eco_outlined),
-              const SizedBox(height: 16),
-              _buildEnhancedTodaysFocusCard(context),
-              const SizedBox(height: 24),
+                  // Quick Actions
+                  _buildSectionHeader(
+                      context, 'Quick Actions', Icons.dashboard_outlined),
+                  const SizedBox(height: 16),
+                  _buildEnhancedQuickAccessGrid(context),
+                  const SizedBox(height: 32),
 
-              // Sustainability Tips
-              _buildSustainabilityTips(context),
-              const SizedBox(height: 100), // Space for bottom navigation
-            ],
-          ),
+                  // Today's Focus with better design
+                  _buildSectionHeader(
+                      context, 'Today\'s Focus', Icons.eco_outlined),
+                  const SizedBox(height: 16),
+                  _buildEnhancedTodaysFocusCard(context),
+                  const SizedBox(height: 24),
+
+                  // Sustainability Tips
+                  _buildSustainabilityTips(context),
+                  const SizedBox(height: 100), // Space for bottom navigation
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -72,7 +91,7 @@ class HomeDashboardScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -108,7 +127,7 @@ class HomeDashboardScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4CAF50).withOpacity(0.3),
+            color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -121,10 +140,10 @@ class HomeDashboardScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 2,
                   ),
                 ),
@@ -160,7 +179,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                     Text(
                       'Let\'s make today count! 🌱',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
@@ -175,10 +194,10 @@ class HomeDashboardScreen extends ConsumerWidget {
       Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -231,7 +250,7 @@ class HomeDashboardScreen extends ConsumerWidget {
     return Container(
       height: 40,
       width: 1,
-      color: Colors.white.withOpacity(0.3),
+  color: Colors.white.withValues(alpha: 0.3),
     );
   }
 
@@ -300,13 +319,13 @@ class HomeDashboardScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: actionColor.withOpacity(0.15),
+            color: actionColor.withValues(alpha: 0.15),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: actionColor.withOpacity(0.1),
+          color: actionColor.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -325,8 +344,8 @@ class HomeDashboardScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        actionColor.withOpacity(0.15),
-                        actionColor.withOpacity(0.05),
+                        actionColor.withValues(alpha: 0.15),
+                        actionColor.withValues(alpha: 0.05),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -385,7 +404,7 @@ class HomeDashboardScreen extends ConsumerWidget {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF4CAF50).withOpacity(0.2),
+          color: const Color(0xFF4CAF50).withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -397,7 +416,7 @@ class HomeDashboardScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withOpacity(0.15),
+                  color: const Color(0xFF4CAF50).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -505,10 +524,10 @@ class HomeDashboardScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF9800).withOpacity(0.05),
+              color: const Color(0xFFFF9800).withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFFFF9800).withOpacity(0.2),
+                color: const Color(0xFFFF9800).withValues(alpha: 0.2),
                 width: 1,
               ),
             ),

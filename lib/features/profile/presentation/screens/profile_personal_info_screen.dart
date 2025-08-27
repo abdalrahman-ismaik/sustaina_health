@@ -220,7 +220,7 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
           color: selected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           boxShadow: selected
-              ? <BoxShadow>[BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
+              ? <BoxShadow>[BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]
               : <BoxShadow>[],
         ),
         alignment: Alignment.center,

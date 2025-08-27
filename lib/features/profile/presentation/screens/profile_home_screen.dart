@@ -138,7 +138,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 children: <Widget>[
                   CircleAvatar(
                     radius: 64,
-                    backgroundColor: accentColor.withOpacity(0.1),
+                    backgroundColor: accentColor.withValues(alpha: 0.1),
                     child: user?.photoURL != null && user!.photoURL!.isNotEmpty
                         ? ClipOval(
                             child: Image.network(

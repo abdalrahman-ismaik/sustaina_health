@@ -9,6 +9,7 @@ import 'completed_workout_detail_screen.dart';
 import '../providers/workout_providers.dart';
 import '../../data/models/workout_models.dart';
 import '../../../../app/theme/exercise_colors.dart';
+import '../../../../core/widgets/app_background.dart';
 
 class ExerciseHomeScreen extends ConsumerWidget {
   const ExerciseHomeScreen({Key? key}) : super(key: key);
@@ -17,8 +18,10 @@ class ExerciseHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
 
-    return Scaffold(
-      backgroundColor: ExerciseColors.backgroundLight,
+    return AppBackground(
+      type: BackgroundType.exercise,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       body: SafeArea(
         child: ListView(
           children: <Widget>[
@@ -370,6 +373,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -945,25 +949,56 @@ class _StatCard extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
-          border: Border.all(color: ExerciseColors.borderLight),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              Color(0xFFF8F9FA),
+            ],
+          ),
           borderRadius: BorderRadius.circular(16),
-          color: ExerciseColors.cardBackground,
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2E7D32).withOpacity(0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+              spreadRadius: 0,
+            ),
+          ],
+          border: Border.all(
+            color: const Color(0xFF2E7D32).withOpacity(0.08),
+            width: 1,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(title,
-                style: TextStyle(
-                    color: ExerciseColors.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500)),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Color(0xFF757575),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text(value,
-                style: TextStyle(
-                    color: ExerciseColors.textPrimary,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Color(0xFF2E7D32),
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
