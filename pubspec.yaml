@@ -13,6 +13,16 @@ dependencies:
   firebase_core: ^2.30.0
   cloud_firestore: ^4.13.6
 
+  # UI
+  cupertino_icons: ^1.0.2
+  animated_text_kit: ^4.2.2
+  animations: ^2.0.6
+
+  # Audio
+  speech_to_text: ^5.0.0
+  flutter_tts: ^3.6.4
+  avatar_glow: ^2.0.2
+
   # State Management
   provider: ^6.1.1
   riverpod: ^2.4.9
