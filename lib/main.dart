@@ -5,7 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'app/app.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/config/firebase_options.dart';
-import 'services/notification_service.dart';
+import 'core/services/enhanced_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,8 +16,8 @@ void main() async {
   // Initialize Hive
   await Hive.initFlutter();
 
-  // Initialize notifications
-  final NotificationService notificationService = NotificationService();
+  // Initialize enhanced notifications
+  final EnhancedNotificationService notificationService = EnhancedNotificationService();
   await notificationService.initialize();
 
   runApp(

@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../../services/notification_service.dart';
 import '../../../sleep/presentation/theme/sleep_colors.dart';
+import '../../../notifications/presentation/screens/notification_settings_screen.dart';
 
 class ProfileHomeScreen extends ConsumerStatefulWidget {
   const ProfileHomeScreen({Key? key}) : super(key: key);
@@ -339,9 +340,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: const <Widget>[
                   _StatCard(title: 'Total Points', value: '1,250'),
+                  SizedBox(width: 8),
                   _StatCard(title: 'Achievements', value: '15'),
                 ],
               ),
@@ -350,9 +351,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: const <Widget>[
                   _StatCard(title: 'Streak', value: '30 Days'),
+                  SizedBox(width: 8),
                   _StatCard(title: 'Carbon Reduced', value: '250 kg'),
                 ],
               ),
@@ -371,6 +372,16 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             // Notification Settings Section
             _buildNotificationSection(),
             const SizedBox(height: 16),
+            _QuickSettingTile(
+              icon: Icons.notifications_active,
+              label: 'Notification Settings',
+              trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const NotificationSettingsScreen(),
+                ),
+              ),
+            ),
             _QuickSettingTile(
               icon: Icons.lock,
               label: 'Privacy',

@@ -23,7 +23,7 @@ class MainNavigationWrapper extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
+            colors: <Color>[
               Colors.transparent,
               Colors.black.withOpacity(0.02),
             ],
@@ -41,13 +41,13 @@ class MainNavigationWrapper extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
+                  colors: <Color>[
                     Color(0xFFFFFFFF),
                     Color(0xFFF8F9FA),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(28),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: const Color(0xFF2E7D32).withOpacity(0.08),
                     blurRadius: 20,
@@ -68,7 +68,7 @@ class MainNavigationWrapper extends StatelessWidget {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: List.generate(5, (index) {
+                children: List.generate(5, (int index) {
                   final bool selected = _calculateSelectedIndex(context) == index;
                   final IconData iconData;
                   final IconData selectedIconData;
@@ -110,7 +110,7 @@ class MainNavigationWrapper extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: <Widget>[
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 300),
                               padding: EdgeInsets.all(compact ? 4 : 6),
@@ -119,7 +119,7 @@ class MainNavigationWrapper extends StatelessWidget {
                                     ? const LinearGradient(
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
-                                        colors: [
+                                        colors: <Color>[
                                           Color(0xFF2E7D32),
                                           Color(0xFF43A047),
                                         ],
@@ -130,7 +130,7 @@ class MainNavigationWrapper extends StatelessWidget {
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: selected
-                                    ? [
+                                    ? <BoxShadow>[
                                         BoxShadow(
                                           color: const Color(0xFF2E7D32).withOpacity(0.25),
                                           blurRadius: 6,
@@ -147,7 +147,7 @@ class MainNavigationWrapper extends StatelessWidget {
                                     : const Color(0xFF757575),
                               ),
                             ),
-                            if (!compact) ...[
+                            if (!compact) ...<Widget>[
                               SizedBox(height: 1),
                               Flexible(
                                 child: AnimatedOpacity(
