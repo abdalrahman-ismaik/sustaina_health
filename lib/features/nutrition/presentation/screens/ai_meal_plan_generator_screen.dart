@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ghiraas/widgets/interactive_loading.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
@@ -206,17 +207,11 @@ class _AIMealPlanGeneratorScreenState
                 }),
                 onGenerateMealPlan: _generateMealPlan,
               ),
-        loading: () => const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              CircularProgressIndicator(color: SleepColors.primaryGreen),
-              SizedBox(height: 16),
-              Text('Generating your personalized meal plan...',
-                  style: TextStyle(
-                      fontSize: 16, color: SleepColors.textSecondary)),
-            ],
-          ),
+        loading: () => InteractiveLoading(
+          title: 'Generating your meal plan',
+          subtitle: 'We are crafting healthy, sustainable meals…',
+          onCancel: () => ref.read(mealPlanGenerationProvider.notifier).clearMealPlan(),
+          color: SleepColors.primaryGreen,
         ),
         error: (Object error, _) => Center(
           child: Column(

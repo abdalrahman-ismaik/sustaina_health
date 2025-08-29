@@ -113,7 +113,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           title: 'AI Analysis',
                           subtitle: 'Get instant food insights',
                           icon: Icons.psychology,
-                          color: const Color(0xFF94e0b2),
+                          color: const Color(0xFF40916C),
                           onTap: () => context.go('/nutrition/ai-recognition'),
                         ),
                       ),
@@ -123,7 +123,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           title: 'Meal Plans',
                           subtitle: 'Personalized recommendations',
                           icon: Icons.restaurant_menu,
-                          color: const Color(0xFF688273),
+                          color: const Color(0xFF40916C),
                           onTap: () => context.go('/nutrition/ai-meal-plan'),
                         ),
                       ),
@@ -148,7 +148,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                           title: 'Food Logging',
                           subtitle: 'Track your meals',
                           icon: Icons.edit_note,
-                          color: const Color(0xFF2F7D32),
+                          color: const Color(0xFF40916C),
                           onTap: () => context.go('/nutrition/food-logging'),
                         ),
                       ),
@@ -178,7 +178,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     title: 'Sustainability Matters',
                     description:
                         'Learn how your food choices impact the environment and make informed decisions.',
-                    color: const Color(0xFF94e0b2),
+                    color: const Color(0xFF40916C),
                   ),
                   const SizedBox(height: 12),
                   _InsightCard(
@@ -194,7 +194,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                     title: 'AI-Powered Analysis',
                     description:
                         'Get detailed nutritional breakdowns and personalized health recommendations.',
-                    color: const Color(0xFF688273),
+                    color: const Color(0xFF40916C),
                   ),
                   const SizedBox(height: 12),
                   _InsightCard(
@@ -210,76 +210,82 @@ class NutritionHomeScreen extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // Featured Food Analysis Action
+            // Featured Food Analysis Action (card style matching Home quick-actions)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: <Color>[
-                    const Color(0xFF94e0b2),
-                    const Color(0xFF94e0b2).withOpacity(0.8),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+              child: Material(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    color: const Color(0xFF94e0b2).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                child: InkWell(
+                  onTap: () => context.go('/nutrition/ai-recognition'),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: const Color(0xFF40916C).withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                      ],
+                      border: Border.all(color: const Color(0xFF40916C).withOpacity(0.06)),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: <Color>[
+                                const Color(0xFF40916C).withOpacity(0.15),
+                                const Color(0xFF40916C).withOpacity(0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Color(0xFF40916C),
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              const Text(
+                                'Analyze Food with AI',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF121714),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Snap a photo and get nutrition & sustainability analysis',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF121714),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Color(0xFF121714),
+                          size: 16,
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-              child: InkWell(
-                onTap: () => context.go('/nutrition/ai-recognition'),
-                borderRadius: BorderRadius.circular(16),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Color(0xFF121714),
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          const Text(
-                            'Analyze Food with AI',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF121714),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Snap a photo and get nutrition & sustainability analysis',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF121714),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Color(0xFF121714),
-                      size: 16,
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -307,7 +313,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                         child: _QuickAction(
                           title: 'Food Analysis',
                           icon: Icons.camera_alt,
-                          color: const Color(0xFF94e0b2),
+                          color: const Color(0xFF40916C),
                           onTap: () => context.go('/nutrition/ai-recognition'),
                         ),
                       ),
@@ -316,7 +322,7 @@ class NutritionHomeScreen extends ConsumerWidget {
                         child: _QuickAction(
                           title: 'Meal Plans',
                           icon: Icons.restaurant_menu,
-                          color: const Color(0xFF688273),
+                          color: const Color(0xFF40916C),
                           onTap: () => context.go('/nutrition/ai-meal-plan'),
                         ),
                       ),
@@ -327,19 +333,19 @@ class NutritionHomeScreen extends ConsumerWidget {
                     children: <Widget>[
                       Expanded(
                         child: _QuickAction(
-                          title: 'Sustainable Brands',
-                          icon: Icons.eco,
-                          color: const Color(0xFF40916C),
-                          onTap: () =>
-                              context.go('/nutrition/brand-recommendations'),
-                        ),
+              title: 'Sustainable Brands',
+              icon: Icons.eco,
+              color: const Color(0xFF40916C),
+              onTap: () =>
+                context.go('/nutrition/brand-recommendations'),
+            ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: _QuickAction(
                           title: 'Food Logging',
                           icon: Icons.edit_note,
-                          color: const Color(0xFF2F7D32),
+                          color: const Color(0xFF40916C),
                           onTap: () => context.go('/nutrition/food-logging'),
                         ),
                       ),
@@ -503,45 +509,68 @@ class _FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: color.withOpacity(0.06)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        color.withOpacity(0.18),
+                        color.withOpacity(0.06),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF121714),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF688273),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF121714),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF688273),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -565,18 +594,29 @@ class _InsightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: color.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: color.withOpacity(0.06)),
       ),
       child: Row(
         children: <Widget>[
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              gradient: LinearGradient(
+                colors: [color.withOpacity(0.12), color.withOpacity(0.04)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -593,6 +633,8 @@ class _InsightCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF121714),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -602,6 +644,8 @@ class _InsightCard extends StatelessWidget {
                     color: Color(0xFF688273),
                     height: 1.3,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -628,30 +672,55 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.10),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: color.withOpacity(0.06)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
-        ),
-        child: Column(
-          children: <Widget>[
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-              textAlign: TextAlign.center,
+            child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [color.withOpacity(0.18), color.withOpacity(0.06)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, color: color, size: 28),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
+import 'package:ghiraas/widgets/interactive_loading.dart';
 import '../../data/models/nutrition_models.dart';
 
 class AIFoodRecognitionScreen extends ConsumerStatefulWidget {
@@ -201,17 +202,11 @@ class _AIFoodRecognitionScreenState
                       onGallery: () => _captureImageSimple(ImageSource.gallery),
                       selectedImage: _selectedImage,
                     ),
-              loading: () => const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    CircularProgressIndicator(color: Color(0xFF94e0b2)),
-                    SizedBox(height: 16),
-                    Text('Analyzing your meal...',
-                        style:
-                            TextStyle(fontSize: 16, color: Color(0xFF688273))),
-                  ],
-                ),
+              loading: () => InteractiveLoading(
+                title: 'Analyzing your meal',
+                subtitle: 'Running nutrition & sustainability checks…',
+                onCancel: () => ref.read(mealAnalysisProvider.notifier).clearAnalysis(),
+                color: const Color(0xFF40916C),
               ),
               error: (Object error, _) => Center(
                 child: Column(

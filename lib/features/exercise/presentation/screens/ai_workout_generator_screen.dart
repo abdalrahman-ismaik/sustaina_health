@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ghiraas/widgets/interactive_loading.dart';
 import '../providers/workout_providers.dart';
 import '../../data/models/workout_models.dart';
 import '../../../profile/data/models/user_profile_model.dart';
@@ -340,14 +341,14 @@ class _AIWorkoutGeneratorScreenState
                         ],
                       ],
                     ),
-                    loading: () => const SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF94E0B2),
-                        ),
-                      ),
+                    loading: () => InteractiveLoading(
+                      title: 'Generating your AI workout',
+                      subtitle: 'We are composing a routine tailored to you…',
+                      onCancel: () {
+                        // Clear generation state
+                        ref.read(workoutGenerationProvider.notifier).clearWorkout();
+                      },
+                      color: const Color(0xFF40916C),
                     ),
                     error: (Object error, _) => Column(
                       children: <Widget>[

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/nutrition/data/models/nutrition_models.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
+import 'package:ghiraas/widgets/interactive_loading.dart';
 
 class BrandRecommendationsScreen extends ConsumerStatefulWidget {
   const BrandRecommendationsScreen({Key? key}) : super(key: key);
@@ -215,10 +216,11 @@ class _BrandRecommendationsScreenState
                     },
                   );
                 },
-                loading: () => const Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF94e0b2),
-                  ),
+                loading: () => InteractiveLoading(
+                  title: 'Searching brands',
+                  subtitle: 'Finding sustainable alternatives…',
+                  onCancel: () => ref.read(brandRecommendationsProvider.notifier).clearRecommendations(),
+                  color: const Color(0xFF40916C),
                 ),
                 error: (Object error, _) => Center(
                   child: Column(

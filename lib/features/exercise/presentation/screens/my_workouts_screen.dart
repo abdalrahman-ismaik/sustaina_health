@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/workout_providers.dart';
+import 'package:ghiraas/widgets/interactive_loading.dart';
 import '../../data/models/workout_models.dart';
 
 class MyWorkoutsScreen extends ConsumerWidget {
@@ -72,8 +73,11 @@ class MyWorkoutsScreen extends ConsumerWidget {
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),
-                    child: CircularProgressIndicator(
-                      color: Color(0xFF94E0B2),
+                    child: InteractiveLoading(
+                      title: 'Loading your workouts',
+                      subtitle: 'Fetching recent sessions…',
+                      compact: true,
+                      color: const Color(0xFF40916C),
                     ),
                   ),
                 ),
