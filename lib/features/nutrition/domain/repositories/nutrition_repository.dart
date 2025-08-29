@@ -66,7 +66,8 @@ class SavedMealPlan {
     return SavedMealPlan(
       id: json['id'] as String,
       name: json['name'] as String,
-      mealPlan: MealPlanResponse.fromJson(json['mealPlan'] as Map<String, dynamic>),
+      mealPlan:
+          MealPlanResponse.fromJson(json['mealPlan'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['createdAt'] as String),
       lastUsed: json['lastUsed'] != null
           ? DateTime.parse(json['lastUsed'] as String)

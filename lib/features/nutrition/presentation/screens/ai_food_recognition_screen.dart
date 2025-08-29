@@ -119,8 +119,10 @@ class _AIFoodRecognitionScreenState
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<MealAnalysisResponse?> mealAnalysisState = ref.watch(mealAnalysisProvider);
-    final AsyncValue<bool> apiHealthState = ref.watch(nutritionApiHealthProvider);
+    final AsyncValue<MealAnalysisResponse?> mealAnalysisState =
+        ref.watch(mealAnalysisProvider);
+    final AsyncValue<bool> apiHealthState =
+        ref.watch(nutritionApiHealthProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -205,7 +207,8 @@ class _AIFoodRecognitionScreenState
               loading: () => InteractiveLoading(
                 title: 'Analyzing your meal',
                 subtitle: 'Running nutrition & sustainability checks…',
-                onCancel: () => ref.read(mealAnalysisProvider.notifier).clearAnalysis(),
+                onCancel: () =>
+                    ref.read(mealAnalysisProvider.notifier).clearAnalysis(),
                 color: const Color(0xFF40916C),
               ),
               error: (Object error, _) => Center(
@@ -670,26 +673,28 @@ class _FoodAnalysisResult extends ConsumerWidget {
                 onPressed: () {
                   // Add this food to the log
                   ref.read(foodLogProvider.notifier).addFoodLogEntry(
-                    FoodLogEntry(
-                      id: DateTime.now().toString(),
-                      userId: 'default', // Since we don't have auth yet
-                      foodName: analysis.foodName,
-                      mealType: mealType ?? 'other',
-                      servingSize: '1 serving', // Default serving size
-                      nutritionInfo: NutritionInfo(
-                        calories: analysis.totalCalories,
-                        protein: analysis.totalProtein,
-                        carbohydrates: analysis.totalCarbohydrates,
-                        fat: analysis.totalFats,
-                        fiber: 0, // Default values since not provided by analysis
-                        sugar: 0,
-                        sodium: 0,
-                      ),
-                      sustainabilityScore: analysis.sustainability.overallScore.toString(),
-                      loggedAt: DateTime.now(),
-                    ),
-                  );
-                  
+                        FoodLogEntry(
+                          id: DateTime.now().toString(),
+                          userId: 'default', // Since we don't have auth yet
+                          foodName: analysis.foodName,
+                          mealType: mealType ?? 'other',
+                          servingSize: '1 serving', // Default serving size
+                          nutritionInfo: NutritionInfo(
+                            calories: analysis.totalCalories,
+                            protein: analysis.totalProtein,
+                            carbohydrates: analysis.totalCarbohydrates,
+                            fat: analysis.totalFats,
+                            fiber:
+                                0, // Default values since not provided by analysis
+                            sugar: 0,
+                            sodium: 0,
+                          ),
+                          sustainabilityScore:
+                              analysis.sustainability.overallScore.toString(),
+                          loggedAt: DateTime.now(),
+                        ),
+                      );
+
                   // Show success message
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -697,7 +702,7 @@ class _FoodAnalysisResult extends ConsumerWidget {
                       backgroundColor: Color(0xFF94e0b2),
                     ),
                   );
-                  
+
                   // Navigate back to food logging screen
                   if (context.mounted) {
                     context.pop();

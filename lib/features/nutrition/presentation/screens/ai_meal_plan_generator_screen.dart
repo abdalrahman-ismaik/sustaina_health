@@ -210,7 +210,8 @@ class _AIMealPlanGeneratorScreenState
         loading: () => InteractiveLoading(
           title: 'Generating your meal plan',
           subtitle: 'We are crafting healthy, sustainable meals…',
-          onCancel: () => ref.read(mealPlanGenerationProvider.notifier).clearMealPlan(),
+          onCancel: () =>
+              ref.read(mealPlanGenerationProvider.notifier).clearMealPlan(),
           color: SleepColors.primaryGreen,
         ),
         error: (Object error, _) => Center(
@@ -667,7 +668,7 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
   @override
   void initState() {
     super.initState();
-  _pageController = PageController(viewportFraction: 0.94);
+    _pageController = PageController(viewportFraction: 0.94);
   }
 
   @override
@@ -716,13 +717,16 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
                   builder: (context, child) {
                     double t = 0.0;
                     if (_pageController.position.haveDimensions) {
-                      final double current = (_pageController.page ?? _currentPage.toDouble());
+                      final double current =
+                          (_pageController.page ?? _currentPage.toDouble());
                       t = current - index.toDouble();
                     } else {
                       t = (_currentPage - index).toDouble();
                     }
-                    final double scale = (1 - (t.abs() * 0.06)).clamp(0.92, 1.0);
-                    final double opacity = (1 - (t.abs() * 0.3)).clamp(0.5, 1.0);
+                    final double scale =
+                        (1 - (t.abs() * 0.06)).clamp(0.92, 1.0);
+                    final double opacity =
+                        (1 - (t.abs() * 0.3)).clamp(0.5, 1.0);
                     return Transform.scale(
                       scale: scale,
                       child: Opacity(
@@ -763,11 +767,7 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
       ),
     );
   }
-
-  
 }
-
-
 
 void _saveMealPlan(
     BuildContext context, WidgetRef ref, MealPlanResponse mealPlan) async {

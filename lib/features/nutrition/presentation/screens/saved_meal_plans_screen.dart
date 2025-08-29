@@ -14,7 +14,8 @@ class SavedMealPlansScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<SavedMealPlan>> savedMealPlansAsync = ref.watch(savedMealPlansProvider);
+    final AsyncValue<List<SavedMealPlan>> savedMealPlansAsync =
+        ref.watch(savedMealPlansProvider);
 
     return AppBackground(
       type: BackgroundType.nutrition,
@@ -30,48 +31,51 @@ class SavedMealPlansScreen extends ConsumerWidget {
           ),
           backgroundColor: Colors.transparent,
           elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF121714)),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () {
-              context.go('/nutrition/ai-meal-plan');
-            },
-            icon: const Icon(Icons.add, color: Color(0xFF121714)),
-            tooltip: 'Generate New Meal Plan',
+          iconTheme: const IconThemeData(color: Color(0xFF121714)),
+          actions: <Widget>[
+            IconButton(
+              onPressed: () {
+                context.go('/nutrition/ai-meal-plan');
+              },
+              icon: const Icon(Icons.add, color: Color(0xFF121714)),
+              tooltip: 'Generate New Meal Plan',
+            ),
+          ],
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await ref
+                .read(savedMealPlansProvider.notifier)
+                .loadSavedMealPlans();
+          },
+          child: savedMealPlansAsync.when(
+            data: (List<SavedMealPlan> mealPlans) => mealPlans.isEmpty
+                ? _buildEmptyState(context)
+                : _buildMealPlanList(context, ref, mealPlans),
+            loading: () => const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF94E0B2),
+              ),
+            ),
+            error: (Object error, StackTrace stackTrace) =>
+                _buildErrorState(context, ref, error),
           ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(savedMealPlansProvider.notifier).loadSavedMealPlans();
-        },
-        child: savedMealPlansAsync.when(
-          data: (List<SavedMealPlan> mealPlans) => mealPlans.isEmpty
-              ? _buildEmptyState(context)
-              : _buildMealPlanList(context, ref, mealPlans),
-          loading: () => const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFF94E0B2),
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            context.go('/nutrition/ai-meal-plan');
+          },
+          backgroundColor: const Color(0xFF94E0B2),
+          foregroundColor: const Color(0xFF121714),
+          label: const Text(
+            'Generate Meal Plan',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
             ),
           ),
-          error: (Object error, StackTrace stackTrace) => _buildErrorState(context, ref, error),
+          icon: const Icon(Icons.auto_awesome),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          context.go('/nutrition/ai-meal-plan');
-        },
-        backgroundColor: const Color(0xFF94E0B2),
-        foregroundColor: const Color(0xFF121714),
-        label: const Text(
-          'Generate Meal Plan',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        icon: const Icon(Icons.auto_awesome),
-      ),
-    ),
     );
   }
 
@@ -249,7 +253,8 @@ class SavedMealPlansScreen extends ConsumerWidget {
   Widget _buildMealPlanList(
       BuildContext context, WidgetRef ref, List<SavedMealPlan> mealPlans) {
     // Sort meal plans: favorites first, then by last used, then by creation date
-    final List<SavedMealPlan> sortedMealPlans = List<SavedMealPlan>.from(mealPlans);
+    final List<SavedMealPlan> sortedMealPlans =
+        List<SavedMealPlan>.from(mealPlans);
     sortedMealPlans.sort((SavedMealPlan a, SavedMealPlan b) {
       // First priority: favorites
       if (a.isFavorite && !b.isFavorite) return -1;
@@ -345,8 +350,10 @@ class SavedMealPlansScreen extends ConsumerWidget {
 
   Widget _buildFilterTabs(
       BuildContext context, WidgetRef ref, List<SavedMealPlan> mealPlans) {
-    final int favoriteCount = mealPlans.where((SavedMealPlan w) => w.isFavorite).length;
-    final int recentCount = mealPlans.where((SavedMealPlan w) => w.lastUsed != null).length;
+    final int favoriteCount =
+        mealPlans.where((SavedMealPlan w) => w.isFavorite).length;
+    final int recentCount =
+        mealPlans.where((SavedMealPlan w) => w.lastUsed != null).length;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -407,9 +414,7 @@ class SavedMealPlansScreen extends ConsumerWidget {
           width: 1,
         ),
       ),
-      color: mealPlan.isFavorite 
-          ? const Color(0xFFF1F8E9)
-          : Colors.white,
+      color: mealPlan.isFavorite ? const Color(0xFFF1F8E9) : Colors.white,
       shadowColor: mealPlan.isFavorite
           ? const Color(0xFF2E7D32).withOpacity(0.15)
           : Colors.black.withOpacity(0.04),
@@ -456,24 +461,31 @@ class SavedMealPlansScreen extends ConsumerWidget {
                       } else if (value == 'duplicate') {
                         _duplicateMealPlan(context, ref, mealPlan);
                       } else if (value == 'favorite') {
-                        await ref.read(savedMealPlansProvider.notifier).toggleFavorite(mealPlan.id);
+                        await ref
+                            .read(savedMealPlansProvider.notifier)
+                            .toggleFavorite(mealPlan.id);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(mealPlan.isFavorite ? 'Removed from favorites' : 'Added to favorites'),
+                              content: Text(mealPlan.isFavorite
+                                  ? 'Removed from favorites'
+                                  : 'Added to favorites'),
                               backgroundColor: const Color(0xFF94E0B2),
                             ),
                           );
                         }
                       }
                     },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
                       PopupMenuItem(
                         value: 'favorite',
                         child: Row(
                           children: <Widget>[
                             Icon(
-                              mealPlan.isFavorite ? Icons.favorite : Icons.favorite_border,
+                              mealPlan.isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               color: const Color(0xFF94E0B2),
                             ),
                             const SizedBox(width: 8),
@@ -745,7 +757,8 @@ class SavedMealPlansScreen extends ConsumerWidget {
     SavedMealPlan mealPlan, {
     int initialIndex = 0,
   }) {
-    final int maxIndex = (mealPlan.mealPlan.dailyMealPlans.length - 1).clamp(0, 1 << 30);
+    final int maxIndex =
+        (mealPlan.mealPlan.dailyMealPlans.length - 1).clamp(0, 1 << 30);
     final int startIndex = initialIndex < 0
         ? 0
         : (initialIndex > maxIndex ? maxIndex : initialIndex);
@@ -769,7 +782,8 @@ class _MealPlanPreviewCarousel extends StatefulWidget {
   const _MealPlanPreviewCarousel({required this.dailyPlans, this.onTapDay});
 
   @override
-  State<_MealPlanPreviewCarousel> createState() => _MealPlanPreviewCarouselState();
+  State<_MealPlanPreviewCarousel> createState() =>
+      _MealPlanPreviewCarouselState();
 }
 
 class _MealPlanPreviewCarouselState extends State<_MealPlanPreviewCarousel> {
@@ -806,7 +820,8 @@ class _MealPlanPreviewCarouselState extends State<_MealPlanPreviewCarousel> {
                 builder: (context, child) {
                   double t = 0.0;
                   if (_controller.position.haveDimensions) {
-                    final double current = (_controller.page ?? _current.toDouble());
+                    final double current =
+                        (_controller.page ?? _current.toDouble());
                     t = current - index.toDouble();
                   } else {
                     t = (_current - index).toDouble();
@@ -840,7 +855,9 @@ class _MealPlanPreviewCarouselState extends State<_MealPlanPreviewCarousel> {
               width: selected ? 18 : 6,
               height: 6,
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFF2E7D32) : const Color(0xFFBDBDBD),
+                color: selected
+                    ? const Color(0xFF2E7D32)
+                    : const Color(0xFFBDBDBD),
                 borderRadius: BorderRadius.circular(6),
               ),
             );
@@ -875,7 +892,8 @@ class _MiniDayPreviewCard extends StatelessWidget {
                 color: const Color(0xFF94E0B2).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.calendar_today, color: Color(0xFF2E7D32), size: 22),
+              child: const Icon(Icons.calendar_today,
+                  color: Color(0xFF2E7D32), size: 22),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -885,7 +903,10 @@ class _MiniDayPreviewCard extends StatelessWidget {
                 children: [
                   Text(
                     'Day ${plan.day}',
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFF121714)),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: Color(0xFF121714)),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -907,7 +928,9 @@ class _MiniDayPreviewCard extends StatelessWidget {
 class _MealPlanDetailScreen extends StatefulWidget {
   final SavedMealPlan mealPlan;
 
-  const _MealPlanDetailScreen({Key? key, required this.mealPlan, this.initialPage = 0}) : super(key: key);
+  const _MealPlanDetailScreen(
+      {Key? key, required this.mealPlan, this.initialPage = 0})
+      : super(key: key);
   final int initialPage;
 
   @override
@@ -925,7 +948,7 @@ class _MealPlanDetailScreenState extends State<_MealPlanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-  final mealPlan = widget.mealPlan;
+    final mealPlan = widget.mealPlan;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -1102,8 +1125,10 @@ class _MealPlanDetailScreenState extends State<_MealPlanDetailScreen> {
                     initialPage: widget.initialPage,
                     onPageChanged: (i) => setState(() => _currentPage = i),
                     itemBuilder: (BuildContext ctx, int index) {
-                      final DailyMealPlan daily = mealPlan.mealPlan.dailyMealPlans[index];
-                      return DayPlanCard(dailyPlan: daily, horizontalPadding: 12);
+                      final DailyMealPlan daily =
+                          mealPlan.mealPlan.dailyMealPlans[index];
+                      return DayPlanCard(
+                          dailyPlan: daily, horizontalPadding: 12);
                     },
                   ),
 
@@ -1114,7 +1139,8 @@ class _MealPlanDetailScreenState extends State<_MealPlanDetailScreen> {
                     bottom: 8,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(mealPlan.mealPlan.dailyMealPlans.length, (index) {
+                      children: List.generate(
+                          mealPlan.mealPlan.dailyMealPlans.length, (index) {
                         final bool selected = index == _currentPage;
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 250),

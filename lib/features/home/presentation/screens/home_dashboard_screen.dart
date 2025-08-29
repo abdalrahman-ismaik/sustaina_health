@@ -15,19 +15,30 @@ class HomeDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  final AsyncValue<UserEntity?> userAsyncValue = ref.watch(currentUserProvider);
-  final UserEntity? user = userAsyncValue.value;
+    final AsyncValue<UserEntity?> userAsyncValue =
+        ref.watch(currentUserProvider);
+    final UserEntity? user = userAsyncValue.value;
 
-  final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
-  final List<ActiveWorkoutSession>? completedWorkouts = completedWorkoutsAsync.value;
-  final int streak = completedWorkouts != null ? _calculateStreak(completedWorkouts) : 0;
-  // Nutrition & Sleep stats
-  final AsyncValue<DailyNutritionSummary> dailySummaryAsync = ref.watch(dailyNutritionSummaryProvider);
-  final int caloriesEaten = dailySummaryAsync.maybeWhen(data: (DailyNutritionSummary s) => s.totalNutrition.calories, orElse: () => 0);
+    final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync =
+        ref.watch(completedWorkoutsProvider);
+    final List<ActiveWorkoutSession>? completedWorkouts =
+        completedWorkoutsAsync.value;
+    final int streak =
+        completedWorkouts != null ? _calculateStreak(completedWorkouts) : 0;
+    // Nutrition & Sleep stats
+    final AsyncValue<DailyNutritionSummary> dailySummaryAsync =
+        ref.watch(dailyNutritionSummaryProvider);
+    final int caloriesEaten = dailySummaryAsync.maybeWhen(
+        data: (DailyNutritionSummary s) => s.totalNutrition.calories,
+        orElse: () => 0);
 
-  final AsyncValue<Duration> sleepDurationAsync = ref.watch(sleepDurationProvider);
-  final Duration avgSleepDuration = sleepDurationAsync.maybeWhen(data: (Duration d) => d, orElse: () => Duration.zero);
-  final String avgSleepStr = avgSleepDuration == Duration.zero ? '--' : '${avgSleepDuration.inHours}h ${avgSleepDuration.inMinutes % 60}m';
+    final AsyncValue<Duration> sleepDurationAsync =
+        ref.watch(sleepDurationProvider);
+    final Duration avgSleepDuration = sleepDurationAsync.maybeWhen(
+        data: (Duration d) => d, orElse: () => Duration.zero);
+    final String avgSleepStr = avgSleepDuration == Duration.zero
+        ? '--'
+        : '${avgSleepDuration.inHours}h ${avgSleepDuration.inMinutes % 60}m';
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -50,12 +61,14 @@ class HomeDashboardScreen extends ConsumerWidget {
 
             // Main scrollable content
             SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   // Enhanced Header with Stats
-                  _buildEnhancedHeader(context, user, streak, caloriesEaten, avgSleepStr),
+                  _buildEnhancedHeader(
+                      context, user, streak, caloriesEaten, avgSleepStr),
                   const SizedBox(height: 32),
 
                   // Quick Actions
@@ -112,7 +125,8 @@ class HomeDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEnhancedHeader(BuildContext context, UserEntity? user, int streak, int caloriesEaten, String avgSleepStr) {
+  Widget _buildEnhancedHeader(BuildContext context, UserEntity? user,
+      int streak, int caloriesEaten, String avgSleepStr) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -190,8 +204,8 @@ class HomeDashboardScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 20),
-      // Stats Row
-      Container(
+          // Stats Row
+          Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
@@ -204,11 +218,14 @@ class HomeDashboardScreen extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem(streak.toString(), 'Day Streak', Icons.local_fire_department),
+                _buildStatItem(streak.toString(), 'Day Streak',
+                    Icons.local_fire_department),
                 _buildStatDivider(),
-                _buildStatItem('$caloriesEaten kcal', 'Calories Today', Icons.restaurant_outlined),
+                _buildStatItem('$caloriesEaten kcal', 'Calories Today',
+                    Icons.restaurant_outlined),
                 _buildStatDivider(),
-                _buildStatItem(avgSleepStr, 'Avg Sleep', Icons.bedtime_outlined),
+                _buildStatItem(
+                    avgSleepStr, 'Avg Sleep', Icons.bedtime_outlined),
               ],
             ),
           ),
@@ -250,10 +267,9 @@ class HomeDashboardScreen extends ConsumerWidget {
     return Container(
       height: 40,
       width: 1,
-  color: Colors.white.withValues(alpha: 0.3),
+      color: Colors.white.withValues(alpha: 0.3),
     );
   }
-
 
   Widget _buildEnhancedQuickAccessGrid(BuildContext context) {
     final List<Map<String, Object>> quickActions = <Map<String, Object>>[
@@ -555,7 +571,7 @@ class HomeDashboardScreen extends ConsumerWidget {
       return 'evening';
     }
   }
-  
+
   // Calculate numeric streak (days) from completed workouts list
   int _calculateStreak(List<ActiveWorkoutSession> completedWorkouts) {
     if (completedWorkouts.isEmpty) return 0;
@@ -563,7 +579,8 @@ class HomeDashboardScreen extends ConsumerWidget {
     final List<ActiveWorkoutSession> sortedWorkouts = completedWorkouts
         .where((ActiveWorkoutSession w) => w.isCompleted && w.endTime != null)
         .toList()
-      ..sort((ActiveWorkoutSession a, ActiveWorkoutSession b) => b.endTime!.compareTo(a.endTime!));
+      ..sort((ActiveWorkoutSession a, ActiveWorkoutSession b) =>
+          b.endTime!.compareTo(a.endTime!));
 
     if (sortedWorkouts.isEmpty) return 0;
 
@@ -584,5 +601,4 @@ class HomeDashboardScreen extends ConsumerWidget {
 
     return streak;
   }
-  
 }

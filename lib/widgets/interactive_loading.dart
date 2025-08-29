@@ -86,7 +86,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
   static const List<GameChallenge> _gameChallenges = [
     GameChallenge(
       type: GameType.quiz,
-      question: 'Which food has the lowest greenhouse gas emissions (carbon footprint)?',
+      question:
+          'Which food has the lowest greenhouse gas emissions (carbon footprint)?',
       choices: ['Beef', 'Pork', 'Chicken', 'Lentils'],
       // Lentils are a low-impact plant protein
       correctAnswer: 3,
@@ -94,7 +95,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     ),
     GameChallenge(
       type: GameType.quiz,
-      question: 'Which action typically reduces the most greenhouse gas emissions annually?',
+      question:
+          'Which action typically reduces the most greenhouse gas emissions annually?',
       choices: [
         'Eating less meat',
         'Shorter showers',
@@ -128,7 +130,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     ),
     GameChallenge(
       type: GameType.quiz,
-      question: 'What household change often reduces heating/cooling energy the most?',
+      question:
+          'What household change often reduces heating/cooling energy the most?',
       choices: ['Insulation', 'LED bulbs', 'Unplug devices', 'Shorter showers'],
       correctAnswer: 0,
       points: 15,
@@ -136,7 +139,12 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     GameChallenge(
       type: GameType.quiz,
       question: 'Which practice most directly reduces food waste?',
-      choices: ['Meal planning', 'Buying in bulk', 'Eating out', 'Using plastic wrap'],
+      choices: [
+        'Meal planning',
+        'Buying in bulk',
+        'Eating out',
+        'Using plastic wrap'
+      ],
       correctAnswer: 0,
       points: 10,
     ),
@@ -147,7 +155,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       correctAnswer: 0,
       points: 15,
     ),
-  // removed non-quiz challenges; preserved only quiz entries
+    // removed non-quiz challenges; preserved only quiz entries
   ];
 
   @override
@@ -172,11 +180,10 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       duration: const Duration(seconds: 3),
     )..repeat();
 
-  _pulseController = AnimationController(
+    _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-
   }
 
   void _startTipRotation() {
@@ -200,8 +207,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       _prepareQuizQueue();
     }
     if (_remainingQuizIndexes.isEmpty) return; // nothing to show
-  final challengeIndex = _remainingQuizIndexes.removeLast();
-  final challenge = _gameChallenges[challengeIndex];
+    final challengeIndex = _remainingQuizIndexes.removeLast();
+    final challenge = _gameChallenges[challengeIndex];
 
     setState(() {
       _currentGameType = GameType.quiz;
@@ -209,10 +216,10 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       _gameCompleted = false;
       _selectedChoice = -1;
       _choiceLocked = false;
-  _currentChoices = List.from(challenge.choices);
-  _correctChoice = challenge.correctAnswer;
-  _currentChallengePoints = challenge.points;
-  _currentChallengeIndex = challengeIndex;
+      _currentChoices = List.from(challenge.choices);
+      _correctChoice = challenge.correctAnswer;
+      _currentChallengePoints = challenge.points;
+      _currentChallengeIndex = challengeIndex;
     });
 
     // shuffle choices and update correct index
@@ -229,10 +236,9 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     setState(() {
       _isGameActive = false;
       _gameCompleted = won;
-  _choiceLocked = false;
-  _selectedChoice = -1;
+      _choiceLocked = false;
+      _selectedChoice = -1;
     });
-
 
     if (won) {
       setState(() {
@@ -244,7 +250,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Awesome! +${_currentChallengePoints} points! Streak: $_streak 🌟'),
+            content: Text(
+                'Awesome! +${_currentChallengePoints} points! Streak: $_streak 🌟'),
             duration: const Duration(seconds: 2),
             backgroundColor: widget.color ?? const Color(0xFF40916C),
           ),
@@ -284,7 +291,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     _rotationController.dispose();
     _pulseController.dispose();
     _tipTimer?.cancel();
-  // quiz-only flow: no game timers to cancel
+    // quiz-only flow: no game timers to cancel
     super.dispose();
   }
 
@@ -584,7 +591,9 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       constraints: const BoxConstraints(minHeight: 120),
       child: SizedBox(
         width: double.infinity,
-        child: _isGameActive ? _buildActiveGame(accent) : _buildWaitingGame(accent),
+        child: _isGameActive
+            ? _buildActiveGame(accent)
+            : _buildWaitingGame(accent),
       ),
     );
   }
@@ -597,7 +606,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
   }
 
   Widget _buildQuizGame(Color accent) {
-    final challenge = (_currentChallengeIndex >= 0 && _currentChallengeIndex < _gameChallenges.length)
+    final challenge = (_currentChallengeIndex >= 0 &&
+            _currentChallengeIndex < _gameChallenges.length)
         ? _gameChallenges[_currentChallengeIndex]
         : _gameChallenges.firstWhere((c) => c.type == GameType.quiz);
 
@@ -615,7 +625,9 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _currentChallengePoints > 0 ? 'Quiz Challenge — +${_currentChallengePoints} pts' : 'Quiz Challenge',
+                _currentChallengePoints > 0
+                    ? 'Quiz Challenge — +${_currentChallengePoints} pts'
+                    : 'Quiz Challenge',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: accent,
@@ -644,8 +656,11 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                 Color borderC = accent.withOpacity(0.3);
                 if (_choiceLocked && _selectedChoice >= 0) {
                   if (index == _selectedChoice) {
-                    bg = (index == _correctChoice) ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.12);
-                    borderC = (index == _correctChoice) ? Colors.green : Colors.red;
+                    bg = (index == _correctChoice)
+                        ? Colors.green.withOpacity(0.2)
+                        : Colors.red.withOpacity(0.12);
+                    borderC =
+                        (index == _correctChoice) ? Colors.green : Colors.red;
                   } else if (index == _correctChoice) {
                     bg = Colors.green.withOpacity(0.12);
                     borderC = Colors.green;
@@ -669,7 +684,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 6),
                       decoration: BoxDecoration(
                         color: bg,
                         borderRadius: BorderRadius.circular(8),

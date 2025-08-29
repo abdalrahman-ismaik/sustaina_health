@@ -346,7 +346,9 @@ class _AIWorkoutGeneratorScreenState
                       subtitle: 'We are composing a routine tailored to you…',
                       onCancel: () {
                         // Clear generation state
-                        ref.read(workoutGenerationProvider.notifier).clearWorkout();
+                        ref
+                            .read(workoutGenerationProvider.notifier)
+                            .clearWorkout();
                       },
                       color: const Color(0xFF40916C),
                     ),

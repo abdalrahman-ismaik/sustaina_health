@@ -9,8 +9,10 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
-    final AsyncValue<Map<String, dynamic>> workoutStatsAsync = ref.watch(workoutStatsProvider);
+    final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync =
+        ref.watch(completedWorkoutsProvider);
+    final AsyncValue<Map<String, dynamic>> workoutStatsAsync =
+        ref.watch(workoutStatsProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -82,7 +84,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              error: (Object error, StackTrace stackTrace) => SliverToBoxAdapter(
+              error: (Object error, StackTrace stackTrace) =>
+                  SliverToBoxAdapter(
                 child: _buildErrorState(context, ref, error),
               ),
             ),
@@ -380,7 +383,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
                         _showDeleteConfirmation(context, ref, workout);
                       }
                     },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
                       const PopupMenuItem(
                         value: 'delete',
                         child: Row(
@@ -481,7 +485,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
         maxChildSize: 0.9,
         minChildSize: 0.5,
         expand: false,
-        builder: (BuildContext context, ScrollController scrollController) => Padding(
+        builder: (BuildContext context, ScrollController scrollController) =>
+            Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -574,7 +579,10 @@ class MyWorkoutsScreen extends ConsumerWidget {
                           ),
                         ),
                         subtitle: Text('${exercise.sets.length} sets'),
-                        children: exercise.sets.asMap().entries.map((MapEntry<int, ExerciseSet> entry) {
+                        children: exercise.sets
+                            .asMap()
+                            .entries
+                            .map((MapEntry<int, ExerciseSet> entry) {
                           final int setIndex = entry.key;
                           final ExerciseSet set = entry.value;
                           return ListTile(
@@ -712,7 +720,9 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   int _getTotalSets(ActiveWorkoutSession workout) {
-    return workout.exercises
-        .fold(0, (int total, CompletedExercise exercise) => total + exercise.sets.length);
+    return workout.exercises.fold(
+        0,
+        (int total, CompletedExercise exercise) =>
+            total + exercise.sets.length);
   }
 }

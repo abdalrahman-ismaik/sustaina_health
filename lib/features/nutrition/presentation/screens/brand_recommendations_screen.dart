@@ -34,7 +34,8 @@ class _BrandRecommendationsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<RecommendedBrands?> brandRecommendationsState = ref.watch(brandRecommendationsProvider);
+    final AsyncValue<RecommendedBrands?> brandRecommendationsState =
+        ref.watch(brandRecommendationsProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -157,7 +158,8 @@ class _BrandRecommendationsScreenState
                     separatorBuilder: (BuildContext context, int index) =>
                         const SizedBox(height: 16),
                     itemBuilder: (BuildContext context, int index) {
-                      final RecommendedBrand brand = recommendations.brands[index];
+                      final RecommendedBrand brand =
+                          recommendations.brands[index];
                       return Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -219,7 +221,9 @@ class _BrandRecommendationsScreenState
                 loading: () => InteractiveLoading(
                   title: 'Searching brands',
                   subtitle: 'Finding sustainable alternatives…',
-                  onCancel: () => ref.read(brandRecommendationsProvider.notifier).clearRecommendations(),
+                  onCancel: () => ref
+                      .read(brandRecommendationsProvider.notifier)
+                      .clearRecommendations(),
                   color: const Color(0xFF40916C),
                 ),
                 error: (Object error, _) => Center(

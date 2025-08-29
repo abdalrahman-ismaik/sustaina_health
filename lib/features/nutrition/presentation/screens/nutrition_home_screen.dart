@@ -9,7 +9,8 @@ class NutritionHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<bool> apiHealthState = ref.watch(nutritionApiHealthProvider);
+    final AsyncValue<bool> apiHealthState =
+        ref.watch(nutritionApiHealthProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -225,13 +226,14 @@ class NutritionHomeScreen extends ConsumerWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: const Color(0xFF40916C).withOpacity(0.08),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
-                          ),
+                        BoxShadow(
+                          color: const Color(0xFF40916C).withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
                       ],
-                      border: Border.all(color: const Color(0xFF40916C).withOpacity(0.06)),
+                      border: Border.all(
+                          color: const Color(0xFF40916C).withOpacity(0.06)),
                     ),
                     child: Row(
                       children: <Widget>[
@@ -333,12 +335,12 @@ class NutritionHomeScreen extends ConsumerWidget {
                     children: <Widget>[
                       Expanded(
                         child: _QuickAction(
-              title: 'Sustainable Brands',
-              icon: Icons.eco,
-              color: const Color(0xFF40916C),
-              onTap: () =>
-                context.go('/nutrition/brand-recommendations'),
-            ),
+                          title: 'Sustainable Brands',
+                          icon: Icons.eco,
+                          color: const Color(0xFF40916C),
+                          onTap: () =>
+                              context.go('/nutrition/brand-recommendations'),
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -400,7 +402,8 @@ class NutritionHomeScreen extends ConsumerWidget {
         initialChildSize: 0.9,
         minChildSize: 0.5,
         maxChildSize: 0.95,
-        builder: (BuildContext context, ScrollController scrollController) => Container(
+        builder: (BuildContext context, ScrollController scrollController) =>
+            Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -690,7 +693,7 @@ class _QuickAction extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-            child: Padding(
+          child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
               children: <Widget>[
@@ -698,7 +701,10 @@ class _QuickAction extends StatelessWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color.withOpacity(0.18), color.withOpacity(0.06)],
+                      colors: [
+                        color.withOpacity(0.18),
+                        color.withOpacity(0.06)
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
