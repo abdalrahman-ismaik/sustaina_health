@@ -44,14 +44,14 @@ class AppTheme {
   
   // Primary gradient for modern backgrounds
   static const Gradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF1B5E20), Color(0xFF43A047)],
+    colors: <Color>[Color(0xFF1B5E20), Color(0xFF43A047)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   // Nutrition gradient
   static const Gradient nutritionGradient = LinearGradient(
-    colors: [
+    colors: <Color>[
       Color(0xFFF8F9FA),
       Color(0xFFE8F5E8),
       Color(0xFFF1F8E9),
@@ -62,7 +62,7 @@ class AppTheme {
   
   // Exercise gradient
   static const Gradient exerciseGradient = LinearGradient(
-    colors: [
+    colors: <Color>[
       Color(0xFFF8F9FA),
       Color(0xFFE3F2FD),
       Color(0xFFF3E5F5),
@@ -73,7 +73,7 @@ class AppTheme {
   
   // Sleep gradient
   static const Gradient sleepGradient = LinearGradient(
-    colors: [
+    colors: <Color>[
       Color(0xFF1A1A2E),
       Color(0xFF16213E),
       Color(0xFF0F0F23),
@@ -84,7 +84,7 @@ class AppTheme {
   
   // Profile gradient
   static const Gradient profileGradient = LinearGradient(
-    colors: [
+    colors: <Color>[
       Color(0xFFF8F9FA),
       Color(0xFFEDE7F6),
       Color(0xFFF3E5F5),
@@ -307,11 +307,11 @@ class AppTheme {
         ),
         height: 64,
         elevation: elevationMedium,
-        labelTextStyle: MaterialStateProperty.all(
+        labelTextStyle: WidgetStateProperty.all(
           const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        iconTheme: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
             return const IconThemeData(size: 28, color: primaryGreen);
           }
           return const IconThemeData(size: 24, color: onSurfaceGrey);

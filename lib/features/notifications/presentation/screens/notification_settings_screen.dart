@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../../../../services/notification_service.dart';
+import '../../../../core/services/enhanced_notification_service.dart';
 import '../../../sleep/presentation/theme/sleep_colors.dart';
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -14,28 +14,11 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
-  final NotificationService _notificationService = NotificationService();
+  final EnhancedNotificationService _notificationService = 
+      EnhancedNotificationService();
 
-  bool _sustainabilityTipsEnabled = false;
-  bool _healthRemindersEnabled = false;
   bool _notificationsAllowed = false;
-
-  TimeOfDay _sustainabilityTipTime = const TimeOfDay(hour: 9, minute: 0);
-  TimeOfDay _healthReminderTime = const TimeOfDay(hour: 8, minute: 0);
-
-  List<bool> _selectedDays =
-      List.filled(7, true); // All days selected by default
-  final List<String> _dayNames = <String>[
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun'
-  ];
-
-  List<PendingNotificationRequest> _scheduledNotifications = <PendingNotificationRequest>[];
+  List<PendingNotificationRequest> _scheduledNotifications = [];
   bool _isLoading = false;
 
   @override
@@ -47,28 +30,39 @@ class _NotificationSettingsScreenState
   Future<void> _initializeNotifications() async {
     setState(() => _isLoading = true);
 
-    await _notificationService.initialize();
+    try {
+      await _notificationService.initialize();
+      
+      // Check if notifications are allowed
+      final bool allowed = await _notificationService.areNotificationsEnabled();
+      
+      // Get scheduled notifications
+      final List<PendingNotificationRequest> scheduled = 
+          await _notificationService.getScheduledNotifications();
 
-    // Check if notifications are allowed
-    final bool allowed = await _notificationService.areNotificationsEnabled();
-
-    // Get scheduled notifications
-    final List<PendingNotificationRequest> scheduled = await _notificationService.getScheduledNotifications();
-
-    setState(() {
-      _notificationsAllowed = allowed;
-      _scheduledNotifications = scheduled;
-      _isLoading = false;
-    });
+      setState(() {
+        _notificationsAllowed = allowed;
+        _scheduledNotifications = scheduled;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      debugPrint('Error initializing notifications: $e');
+    }
   }
 
   Future<void> _requestPermissions() async {
     final bool granted = await _notificationService.requestPermissions();
-    if (!granted) {
-      // Show dialog to go to settings
-      _showPermissionDialog();
-    } else {
+    if (granted) {
       setState(() => _notificationsAllowed = true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Notification permissions granted!'),
+          backgroundColor: SleepColors.successGreen,
+        ),
+      );
+    } else {
+      _showPermissionDialog();
     }
   }
 
@@ -78,9 +72,9 @@ class _NotificationSettingsScreenState
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Notification Permission Required'),
         content: const Text(
-          'To receive sustainability tips and health reminders, please enable notifications in your device settings.',
+          'To receive meal, exercise, and sleep reminders, please enable notifications in your device settings.',
         ),
-        actions: <Widget>[
+        actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
@@ -88,618 +82,334 @@ class _NotificationSettingsScreenState
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _notificationService.openNotificationSettings();
             },
-            child: const Text('Open Settings'),
+            child: const Text('OK'),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _selectTime(
-      BuildContext context, bool isSustainabilityTip) async {
-    final TimeOfDay initialTime =
-        isSustainabilityTip ? _sustainabilityTipTime : _healthReminderTime;
-
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: initialTime,
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: SleepColors.primaryGreen,
-              onPrimary: Colors.white,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() {
-        if (isSustainabilityTip) {
-          _sustainabilityTipTime = picked;
-        } else {
-          _healthReminderTime = picked;
-        }
-      });
-    }
-  }
-
-  Future<void> _scheduleSustainabilityTips() async {
-    if (!_notificationsAllowed) {
-      await _requestPermissions();
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    if (_sustainabilityTipsEnabled) {
-      await _notificationService.scheduleDailySustainabilityTips(
-        hour: _sustainabilityTipTime.hour,
-        minute: _sustainabilityTipTime.minute,
-      );
-      _showSuccessSnackBar('Sustainability tips scheduled successfully!');
-    } else {
-      await _notificationService
-          .cancelNotificationsByChannel('sustainability_tips');
-      _showSuccessSnackBar('Sustainability tips cancelled');
-    }
-
-    // Refresh scheduled notifications
-    final List<PendingNotificationRequest> scheduled = await _notificationService.getScheduledNotifications();
-    setState(() {
-      _scheduledNotifications = scheduled;
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _scheduleHealthReminders() async {
-    if (!_notificationsAllowed) {
-      await _requestPermissions();
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    if (_healthRemindersEnabled) {
-      // Convert selected days to weekday numbers (1=Monday, 7=Sunday)
-      final List<int> selectedWeekdays = <int>[];
-      for (int i = 0; i < _selectedDays.length; i++) {
-        if (_selectedDays[i]) {
-          selectedWeekdays.add(i + 1); // Convert to 1-based index
-        }
-      }
-
-      await _notificationService.scheduleHealthReminder(
-        title: 'Health Check-in 💚',
-        body:
-            'Time to log your health data and track your sustainable wellness journey!',
-        hour: _healthReminderTime.hour,
-        minute: _healthReminderTime.minute,
-        weekdays: selectedWeekdays,
-      );
-      _showSuccessSnackBar('Health reminders scheduled successfully!');
-    } else {
-      await _notificationService
-          .cancelNotificationsByChannel('health_reminders');
-      _showSuccessSnackBar('Health reminders cancelled');
-    }
-
-    // Refresh scheduled notifications
-    final List<PendingNotificationRequest> scheduled = await _notificationService.getScheduledNotifications();
-    setState(() {
-      _scheduledNotifications = scheduled;
-      _isLoading = false;
-    });
-  }
-
   Future<void> _sendTestNotification() async {
-    if (!_notificationsAllowed) {
-      await _requestPermissions();
-      return;
+    try {
+      await _notificationService.sendTestNotification();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Test notification sent!'),
+          backgroundColor: SleepColors.successGreen,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error sending test notification: $e'),
+          backgroundColor: SleepColors.errorRed,
+        ),
+      );
     }
-
-    await _notificationService.sendTestNotification();
-    _showSuccessSnackBar('Test notification sent!');
-  }
-
-  void _showSuccessSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: SleepColors.successGreen,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: SleepColors.backgroundGrey,
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: SleepColors.textPrimary),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: const Text(
           'Notification Settings',
-          style: TextStyle(color: SleepColors.textPrimary),
+          style: TextStyle(
+            color: SleepColors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: SleepColors.surfaceGrey,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: SleepColors.textPrimary),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
-              ),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  // Permission Status Card
-                  _buildPermissionStatusCard(),
-                  const SizedBox(height: 24),
-
-                  // Sustainability Tips Section
-                  _buildSustainabilityTipsSection(),
-                  const SizedBox(height: 24),
-
-                  // Health Reminders Section
-                  _buildHealthRemindersSection(),
-                  const SizedBox(height: 24),
-
-                  // Test Notification Button
-                  _buildTestSection(),
-                  const SizedBox(height: 24),
-
-                  // Scheduled Notifications
-                  _buildScheduledNotificationsSection(),
+                children: [
+                  _buildPermissionCard(),
+                  const SizedBox(height: 20),
+                  _buildTestingCard(),
+                  const SizedBox(height: 20),
+                  _buildScheduledNotificationsCard(),
                 ],
               ),
             ),
     );
   }
 
-  Widget _buildPermissionStatusCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: _notificationsAllowed
-              ? SleepColors.successGreen
-              : SleepColors.errorRed,
-          width: 2,
+  Widget _buildPermissionCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  _notificationsAllowed ? Icons.check_circle : Icons.error,
+                  color: _notificationsAllowed 
+                      ? SleepColors.successGreen 
+                      : SleepColors.errorRed,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Permission Status',
+                  style: TextStyle(
+                    color: SleepColors.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _notificationsAllowed
+                  ? 'Notifications are enabled. You will receive reminders for meals, exercise, and sleep tracking.'
+                  : 'Notifications are disabled. Enable them to receive helpful reminders.',
+              style: TextStyle(
+                color: SleepColors.textSecondary,
+                fontSize: 14,
+              ),
+            ),
+            if (!_notificationsAllowed) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _requestPermissions,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: SleepColors.primaryGreen,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Enable Notifications'),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
-      child: Column(
-        children: <Widget>[
-          Icon(
-            _notificationsAllowed
-                ? Icons.notifications_active
-                : Icons.notifications_off,
-            color: _notificationsAllowed
-                ? SleepColors.successGreen
-                : SleepColors.errorRed,
-            size: 48,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _notificationsAllowed
-                ? 'Notifications Enabled'
-                : 'Notifications Disabled',
-            style: TextStyle(
-              color: SleepColors.textPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _notificationsAllowed
-                ? 'You will receive sustainability tips and health reminders'
-                : 'Enable notifications to receive helpful tips and reminders',
-            style: TextStyle(
-              color: SleepColors.textSecondary,
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (!_notificationsAllowed) ...<Widget>[
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _requestPermissions,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SleepColors.primaryGreen,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Enable Notifications'),
-            ),
-          ],
-        ],
-      ),
     );
   }
 
-  Widget _buildSustainabilityTipsSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Icon(
-                Icons.eco,
-                color: SleepColors.primaryGreen,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Daily Sustainability Tips',
-                style: TextStyle(
-                  color: SleepColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Receive daily tips on living more sustainably and improving your health',
-            style: TextStyle(
-              color: SleepColors.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: <Widget>[
-              Switch(
-                value: _sustainabilityTipsEnabled,
-                onChanged: (bool value) {
-                  setState(() => _sustainabilityTipsEnabled = value);
-                  _scheduleSustainabilityTips();
-                },
-                activeColor: SleepColors.primaryGreen,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Enable daily tips',
-                style: TextStyle(
-                  color: SleepColors.textPrimary,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-          if (_sustainabilityTipsEnabled) ...<Widget>[
-            const SizedBox(height: 16),
-            InkWell(
-              onTap: () => _selectTime(context, true),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: SleepColors.backgroundGrey,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: SleepColors.textTertiary.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.access_time,
-                      color: SleepColors.primaryGreen,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Time: ${_sustainabilityTipTime.format(context)}',
-                      style: TextStyle(
-                        color: SleepColors.textPrimary,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const Spacer(),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: SleepColors.textSecondary,
-                      size: 16,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHealthRemindersSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Icon(
-                Icons.favorite,
-                color: SleepColors.primaryGreen,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Health Reminders',
-                style: TextStyle(
-                  color: SleepColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Get reminded to log your health data and maintain your wellness routine',
-            style: TextStyle(
-              color: SleepColors.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: <Widget>[
-              Switch(
-                value: _healthRemindersEnabled,
-                onChanged: (bool value) {
-                  setState(() => _healthRemindersEnabled = value);
-                  _scheduleHealthReminders();
-                },
-                activeColor: SleepColors.primaryGreen,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Enable reminders',
-                style: TextStyle(
-                  color: SleepColors.textPrimary,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-          if (_healthRemindersEnabled) ...<Widget>[
-            const SizedBox(height: 16),
-            InkWell(
-              onTap: () => _selectTime(context, false),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: SleepColors.backgroundGrey,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: SleepColors.textTertiary.withOpacity(0.3)),
-                ),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.access_time,
-                      color: SleepColors.primaryGreen,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Time: ${_healthReminderTime.format(context)}',
-                      style: TextStyle(
-                        color: SleepColors.textPrimary,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const Spacer(),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: SleepColors.textSecondary,
-                      size: 16,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+  Widget _buildTestingCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Text(
-              'Days of the week:',
+              'Testing & Information',
               style: TextStyle(
                 color: SleepColors.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              children: List.generate(7, (int index) {
-                return FilterChip(
-                  label: Text(_dayNames[index]),
-                  selected: _selectedDays[index],
-                  onSelected: (bool selected) {
-                    setState(() => _selectedDays[index] = selected);
-                    if (_healthRemindersEnabled) {
-                      _scheduleHealthReminders();
-                    }
-                  },
-                  backgroundColor: SleepColors.backgroundGrey,
-                  selectedColor: SleepColors.primaryGreen,
-                  labelStyle: TextStyle(
-                    color: _selectedDays[index]
-                        ? Colors.white
-                        : SleepColors.textPrimary,
-                  ),
-                );
-              }),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTestSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Icon(
-                Icons.bug_report,
-                color: SleepColors.primaryGreen,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Test Notifications',
-                style: TextStyle(
-                  color: SleepColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Send a test notification to make sure everything is working correctly',
-            style: TextStyle(
-              color: SleepColors.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _sendTestNotification,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SleepColors.primaryGreen,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text(
-                'Send Test Notification',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScheduledNotificationsSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Icon(
-                Icons.schedule,
-                color: SleepColors.primaryGreen,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Scheduled Notifications',
-                style: TextStyle(
-                  color: SleepColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (_scheduledNotifications.isEmpty)
             Text(
-              'No notifications scheduled',
-              style: TextStyle(
-                color: SleepColors.textSecondary,
-                fontSize: 14,
-              ),
-            )
-          else
-            Text(
-              '${_scheduledNotifications.length} notifications scheduled',
+              'The enhanced notification system will automatically remind you to:',
               style: TextStyle(
                 color: SleepColors.textSecondary,
                 fontSize: 14,
               ),
             ),
-          if (_scheduledNotifications.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 12),
+            ..._buildReminderList(),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                await _notificationService.cancelAllNotifications();
-                final List<PendingNotificationRequest> scheduled =
-                    await _notificationService.getScheduledNotifications();
-                setState(() {
-                  _scheduledNotifications = scheduled;
-                  _sustainabilityTipsEnabled = false;
-                  _healthRemindersEnabled = false;
-                });
-                _showSuccessSnackBar('All notifications cancelled');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SleepColors.errorRed,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _sendTestNotification,
+                icon: const Icon(Icons.send),
+                label: const Text('Send Test Notification'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SleepColors.primaryGreen,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
-              child: const Text('Cancel All Notifications'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildReminderList() {
+    final List<Map<String, dynamic>> reminders = [
+      {
+        'icon': Icons.restaurant,
+        'text': 'Log your breakfast (8:00 AM), lunch (1:00 PM), and dinner (7:00 PM)'
+      },
+      {
+        'icon': Icons.fitness_center,
+        'text': 'Exercise regularly (5:00 PM) and track workouts (8:00 PM)'
+      },
+      {
+        'icon': Icons.bedtime,
+        'text': 'Go to bed on time (10:00 PM) and log sleep (9:00 AM)'
+      },
+      {
+        'icon': Icons.eco,
+        'text': 'Follow sustainability tips throughout the day'
+      },
+    ];
+
+    return reminders.map((reminder) => Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(
+            reminder['icon'],
+            color: SleepColors.primaryGreen,
+            size: 16,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              reminder['text'],
+              style: TextStyle(
+                color: SleepColors.textSecondary,
+                fontSize: 13,
+              ),
+            ),
+          ),
         ],
+      ),
+    )).toList();
+  }
+
+  Widget _buildScheduledNotificationsCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Scheduled Notifications',
+              style: TextStyle(
+                color: SleepColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_scheduledNotifications.isEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.schedule,
+                        size: 48,
+                        color: SleepColors.primaryGreen,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Flexible Notifications Active',
+                        style: TextStyle(
+                          color: SleepColors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Your notifications are working! Due to Android battery optimization, we use flexible timing that adapts to your device\'s schedule. You\'ll still receive all your health reminders.',
+                        style: TextStyle(
+                          color: SleepColors.textSecondary,
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ] else ...[
+              Text(
+                'You have ${_scheduledNotifications.length} upcoming notifications',
+                style: TextStyle(
+                  color: SleepColors.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...(_scheduledNotifications.take(5).map((notification) =>
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: SleepColors.primaryGreen,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              notification.title ?? 'Notification',
+                              style: TextStyle(
+                                color: SleepColors.textPrimary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (notification.body != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                notification.body!,
+                                style: TextStyle(
+                                  color: SleepColors.textSecondary,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ).toList()),
+            ],
+          ],
+        ),
       ),
     );
   }
