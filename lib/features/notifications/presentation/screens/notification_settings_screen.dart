@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../../../../core/services/enhanced_notification_service.dart';
+import '../../../../core/services/firebase_notification_service.dart';
 import '../../../sleep/presentation/theme/sleep_colors.dart';
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -14,12 +14,13 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
-  final EnhancedNotificationService _notificationService = 
-      EnhancedNotificationService();
+  final FirebaseNotificationService _notificationService =
+      FirebaseNotificationService();
 
   bool _notificationsAllowed = false;
   List<PendingNotificationRequest> _scheduledNotifications = [];
   bool _isLoading = false;
+  bool? _exactAlarmsPermitted;
 
   @override
   void initState() {
@@ -32,12 +33,12 @@ class _NotificationSettingsScreenState
 
     try {
       await _notificationService.initialize();
-      
+
       // Check if notifications are allowed
       final bool allowed = await _notificationService.areNotificationsEnabled();
-      
+
       // Get scheduled notifications
-      final List<PendingNotificationRequest> scheduled = 
+      final List<PendingNotificationRequest> scheduled =
           await _notificationService.getScheduledNotifications();
 
       setState(() {
@@ -45,6 +46,15 @@ class _NotificationSettingsScreenState
         _scheduledNotifications = scheduled;
         _isLoading = false;
       });
+
+      // Check exact-alarm permission after basic initialization
+      try {
+        final bool allowedExact =
+            await _notificationService.isExactAlarmPermitted();
+        setState(() => _exactAlarmsPermitted = allowedExact);
+      } catch (e) {
+        setState(() => _exactAlarmsPermitted = true);
+      }
     } catch (e) {
       setState(() => _isLoading = false);
       debugPrint('Error initializing notifications: $e');
@@ -131,17 +141,112 @@ class _NotificationSettingsScreenState
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPermissionCard(),
-                  const SizedBox(height: 20),
-                  _buildTestingCard(),
-                  const SizedBox(height: 20),
-                  _buildScheduledNotificationsCard(),
-                ],
+          : LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                    minWidth: constraints.maxWidth,
+                    maxWidth: constraints.maxWidth,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Exact-alarm banner: shown when the system blocks exact alarms
+                      if (_exactAlarmsPermitted == false) ...[
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.yellow[100],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.yellow[700]!),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Exact alarms are disabled',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Your device is blocking exact alarms. To receive timely reminders, enable exact alarms in system settings.',
+                              ),
+                              const SizedBox(height: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        final opened =
+                                            await _notificationService
+                                                .openExactAlarmSettings();
+                                        if (opened) {
+                                          await Future.delayed(
+                                              const Duration(seconds: 1));
+                                          final allowed =
+                                              await _notificationService
+                                                  .isExactAlarmPermitted();
+                                          setState(() =>
+                                              _exactAlarmsPermitted = allowed);
+                                          if (allowed) {
+                                            await _notificationService
+                                                .rescheduleAllReminders();
+                                            final scheduled =
+                                                await _notificationService
+                                                    .getScheduledNotifications();
+                                            setState(() =>
+                                                _scheduledNotifications =
+                                                    scheduled);
+                                          }
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Could not open exact-alarm settings on this device')),
+                                          );
+                                        }
+                                      },
+                                      child: const Text('Open Settings'),
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              SleepColors.primaryGreen),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton(
+                                      onPressed: () async {
+                                        final allowed =
+                                            await _notificationService
+                                                .isExactAlarmPermitted();
+                                        setState(() =>
+                                            _exactAlarmsPermitted = allowed);
+                                      },
+                                      child: const Text('Refresh'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      _buildPermissionCard(),
+                      const SizedBox(height: 20),
+                      _buildTestingCard(),
+                      const SizedBox(height: 20),
+                      _buildScheduledNotificationsCard(),
+                    ],
+                  ),
+                ),
               ),
             ),
     );
@@ -160,8 +265,8 @@ class _NotificationSettingsScreenState
               children: [
                 Icon(
                   _notificationsAllowed ? Icons.check_circle : Icons.error,
-                  color: _notificationsAllowed 
-                      ? SleepColors.successGreen 
+                  color: _notificationsAllowed
+                      ? SleepColors.successGreen
                       : SleepColors.errorRed,
                   size: 24,
                 ),
@@ -237,20 +342,282 @@ class _NotificationSettingsScreenState
             const SizedBox(height: 12),
             ..._buildReminderList(),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _sendTestNotification,
-                icon: const Icon(Icons.send),
-                label: const Text('Send Test Notification'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: SleepColors.primaryGreen,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            Text(
+              'Test different notification methods to diagnose Android issues:',
+              style: TextStyle(
+                color: SleepColors.textSecondary,
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _sendTestNotification,
+                  icon: const Icon(Icons.send),
+                  label: const Text('Send Test Notification'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: SleepColors.primaryGreen,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final ok = await _notificationService
+                          .scheduleOneOffTestNotification(seconds: 10);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(ok
+                              ? 'Scheduled test for 10s'
+                              : 'Failed to schedule test'),
+                        ),
+                      );
+                    },
+                    child: const Text('Schedule Test (10s)'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      setState(() => _isLoading = true);
+                      try {
+                        final ok = await _notificationService
+                            .scheduleSimple30SecondTest();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(ok
+                                ? 'Simple 2min test scheduled! Check console logs.'
+                                : 'Failed to schedule simple test'),
+                            backgroundColor: ok
+                                ? SleepColors.successGreen
+                                : SleepColors.errorRed,
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: $e'),
+                            backgroundColor: SleepColors.errorRed,
+                          ),
+                        );
+                      } finally {
+                        setState(() => _isLoading = false);
+                      }
+                    },
+                    child: const Text('🔬 Simple 2min Test (With Timezone)'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      setState(() => _isLoading = true);
+                      try {
+                        final blockingCheck = await _notificationService
+                            .checkNotificationBlocking();
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Notification Blocking Analysis'),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (blockingCheck['hasIssues'] == true) ...[
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Text(
+                                        '⚠️ Issues Found:',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...(blockingCheck['issues'] as List<String>)
+                                        .map((issue) => Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 4),
+                                              child: Text('• $issue',
+                                                  style: const TextStyle(
+                                                      color: Colors.red)),
+                                            )),
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Text(
+                                        '💡 Recommendations:',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...(blockingCheck['recommendations']
+                                            as List<String>)
+                                        .map((rec) => Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 4),
+                                              child: Text('• $rec',
+                                                  style: const TextStyle(
+                                                      color: Colors.green)),
+                                            )),
+                                  ] else ...[
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Text(
+                                        '✅ No blocking issues detected',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Technical Details:',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ...blockingCheck.entries
+                                      .where((entry) =>
+                                          entry.key != 'issues' &&
+                                          entry.key != 'recommendations' &&
+                                          entry.key != 'hasIssues')
+                                      .map((entry) => Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 4),
+                                            child: Text(
+                                              '${entry.key}: ${entry.value}',
+                                              style:
+                                                  const TextStyle(fontSize: 12),
+                                            ),
+                                          )),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Close'),
+                              ),
+                              if (blockingCheck['hasIssues'] == true)
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    Navigator.of(context).pop();
+                                    // Open battery optimization settings as primary fix
+                                    final opened = await _notificationService
+                                        .openBatteryOptimizationSettings();
+                                    if (!opened) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Could not open battery optimization settings'),
+                                          backgroundColor: Colors.orange,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text('Fix Issues'),
+                                ),
+                            ],
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error checking blocking: $e'),
+                            backgroundColor: SleepColors.errorRed,
+                          ),
+                        );
+                      } finally {
+                        setState(() => _isLoading = false);
+                      }
+                    },
+                    child: const Text('� Check Notification Blocking'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      setState(() => _isLoading = true);
+                      try {
+                        final ok = await _notificationService
+                            .forceRescheduleWithImprovements();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(ok
+                                ? 'Force rescheduled with improvements! All notifications updated.'
+                                : 'Failed to force reschedule'),
+                            backgroundColor: ok
+                                ? SleepColors.successGreen
+                                : SleepColors.errorRed,
+                          ),
+                        );
+                        if (ok) {
+                          final scheduled = await _notificationService
+                              .getScheduledNotifications();
+                          setState(() => _scheduledNotifications = scheduled);
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error force rescheduling: $e'),
+                            backgroundColor: SleepColors.errorRed,
+                          ),
+                        );
+                      } finally {
+                        setState(() => _isLoading = false);
+                      }
+                    },
+                    child: const Text('� Force Reschedule with Improvements'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -262,7 +629,8 @@ class _NotificationSettingsScreenState
     final List<Map<String, dynamic>> reminders = [
       {
         'icon': Icons.restaurant,
-        'text': 'Log your breakfast (8:00 AM), lunch (1:00 PM), and dinner (7:00 PM)'
+        'text':
+            'Log your breakfast (8:00 AM), lunch (1:00 PM), and dinner (7:00 PM)'
       },
       {
         'icon': Icons.fitness_center,
@@ -278,28 +646,30 @@ class _NotificationSettingsScreenState
       },
     ];
 
-    return reminders.map((reminder) => Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Icon(
-            reminder['icon'],
-            color: SleepColors.primaryGreen,
-            size: 16,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              reminder['text'],
-              style: TextStyle(
-                color: SleepColors.textSecondary,
-                fontSize: 13,
+    return reminders
+        .map((reminder) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    reminder['icon'],
+                    color: SleepColors.primaryGreen,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      reminder['text'],
+                      style: TextStyle(
+                        color: SleepColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-        ],
-      ),
-    )).toList();
+            ))
+        .toList();
   }
 
   Widget _buildScheduledNotificationsCard() {
@@ -362,51 +732,54 @@ class _NotificationSettingsScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              ...(_scheduledNotifications.take(5).map((notification) =>
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: SleepColors.primaryGreen,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              notification.title ?? 'Notification',
-                              style: TextStyle(
-                                color: SleepColors.textPrimary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
+              ...(_scheduledNotifications
+                  .take(5)
+                  .map(
+                    (notification) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: SleepColors.primaryGreen,
+                              shape: BoxShape.circle,
                             ),
-                            if (notification.body != null) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                notification.body!,
-                                style: TextStyle(
-                                  color: SleepColors.textSecondary,
-                                  fontSize: 12,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  notification.title ?? 'Notification',
+                                  style: TextStyle(
+                                    color: SleepColors.textPrimary,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ],
-                        ),
+                                if (notification.body != null) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    notification.body!,
+                                    style: TextStyle(
+                                      color: SleepColors.textSecondary,
+                                      fontSize: 12,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ).toList()),
+                    ),
+                  )
+                  .toList()),
             ],
           ],
         ),

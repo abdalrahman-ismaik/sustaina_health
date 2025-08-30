@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../services/notification_service.dart';
+import '../../../../core/services/firebase_notification_service.dart';
 import '../../../sleep/presentation/theme/sleep_colors.dart';
 
 class NotificationTestWidget extends ConsumerWidget {
@@ -48,7 +48,8 @@ class NotificationTestWidget extends ConsumerWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final NotificationService notificationService = NotificationService();
+                      final FirebaseNotificationService notificationService =
+                          FirebaseNotificationService();
                       await notificationService.sendTestNotification();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -71,14 +72,13 @@ class NotificationTestWidget extends ConsumerWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final NotificationService notificationService = NotificationService();
-                      await notificationService.scheduleDailySustainabilityTips(
-                        hour: DateTime.now().hour,
-                        minute: DateTime.now().minute + 1, // 1 minute from now
-                      );
+                      final FirebaseNotificationService notificationService =
+                          FirebaseNotificationService();
+                      await notificationService.scheduleOneOffTestNotification(
+                          seconds: 60);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text('Daily tips scheduled!'),
+                          content: const Text('Test scheduled for 60 seconds!'),
                           backgroundColor: SleepColors.successGreen,
                         ),
                       );
@@ -90,7 +90,7 @@ class NotificationTestWidget extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Schedule Tips'),
+                    child: const Text('Schedule Test (60s)'),
                   ),
                 ),
               ],
@@ -100,15 +100,9 @@ class NotificationTestWidget extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  final NotificationService notificationService = NotificationService();
-                  await notificationService.scheduleHealthReminder(
-                    title: 'Health Check-in 💚',
-                    body:
-                        'Time to log your health data and track your wellness!',
-                    hour: DateTime.now().hour,
-                    minute: DateTime.now().minute + 2, // 2 minutes from now
-                    weekdays: <int>[DateTime.now().weekday],
-                  );
+                  final FirebaseNotificationService notificationService =
+                      FirebaseNotificationService();
+                  await notificationService.scheduleSimple30SecondTest();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Health reminder scheduled!'),
@@ -123,7 +117,7 @@ class NotificationTestWidget extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text('Schedule Health Reminder'),
+                child: const Text('Simple 10s Test'),
               ),
             ),
           ],

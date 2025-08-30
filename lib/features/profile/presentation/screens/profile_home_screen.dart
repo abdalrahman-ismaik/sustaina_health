@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../../services/notification_service.dart';
+import '../../../../core/services/firebase_notification_service.dart';
 import '../../../sleep/presentation/theme/sleep_colors.dart';
 import '../../../notifications/presentation/screens/notification_settings_screen.dart';
 
@@ -15,7 +15,8 @@ class ProfileHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
-  final NotificationService _notificationService = NotificationService();
+  final FirebaseNotificationService _notificationService =
+      FirebaseNotificationService();
 
   // Personal info controllers
   final TextEditingController _weightController = TextEditingController();
@@ -531,8 +532,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     'sustainability_tips_enabled', value);
                 // Note: Tips are now automatic when the app starts
                 if (!value) {
-                  await _notificationService
-                      .cancelNotificationsByChannel('sustainability_tips');
+                  await _notificationService.cancelAllNotifications();
                 }
               },
             ),
@@ -551,8 +551,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     'health_reminders_enabled', value);
                 // Note: Reminders are now automatic when the app starts
                 if (!value) {
-                  await _notificationService
-                      .cancelNotificationsByChannel('health_reminders');
+                  await _notificationService.cancelAllNotifications();
                 }
               },
             ),
