@@ -4,7 +4,6 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../../core/services/camera_service.dart';
 import '../../../core/widgets/photo_capture_widget.dart';
 
 class FoodPhotoExample extends StatefulWidget {

@@ -165,9 +165,10 @@ class _AIWorkoutGeneratorScreenState
     final AsyncValue<WorkoutPlan?> workoutState =
         ref.watch(workoutGenerationProvider);
     final AsyncValue<bool> apiHealthState = ref.watch(apiHealthProvider);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cs.surface,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -178,17 +179,17 @@ class _AIWorkoutGeneratorScreenState
                 children: <Widget>[
                   IconButton(
                     icon:
-                        const Icon(Icons.arrow_back, color: Color(0xFF121714)),
+                        Icon(Icons.arrow_back, color: cs.onSurface),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(right: 48.0),
+                      padding: const EdgeInsets.only(right: 48.0),
                       child: Text(
                         'AI Workout Generator',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: cs.onSurface,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                           letterSpacing: -0.015,
@@ -320,15 +321,15 @@ class _AIWorkoutGeneratorScreenState
                           child: ElevatedButton(
                             onPressed: _generateWorkout,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF94E0B2),
+                              backgroundColor: cs.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Generate New Workout',
                               style: TextStyle(
-                                color: Color(0xFF121714),
+                                color: cs.onPrimary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -337,7 +338,7 @@ class _AIWorkoutGeneratorScreenState
                         ),
                         if (workout != null) ...<Widget>[
                           const SizedBox(height: 16),
-                          _buildWorkoutPreview(workout),
+                          _buildWorkoutPreview(context, workout),
                         ],
                       ],
                     ),
@@ -350,7 +351,7 @@ class _AIWorkoutGeneratorScreenState
                             .read(workoutGenerationProvider.notifier)
                             .clearWorkout();
                       },
-                      color: const Color(0xFF40916C),
+                      color: cs.primary,
                     ),
                     error: (Object error, _) => Column(
                       children: <Widget>[
@@ -360,15 +361,15 @@ class _AIWorkoutGeneratorScreenState
                           child: ElevatedButton(
                             onPressed: _generateWorkout,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF94E0B2),
+                              backgroundColor: cs.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Generate Workout',
                               style: TextStyle(
-                                color: Color(0xFF121714),
+                                color: cs.onPrimary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -379,19 +380,19 @@ class _AIWorkoutGeneratorScreenState
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.red.shade100,
+                            color: cs.errorContainer,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red),
+                            border: Border.all(color: cs.error),
                           ),
                           child: Column(
                             children: <Widget>[
-                              const Icon(Icons.error,
-                                  color: Colors.red, size: 32),
+                              Icon(Icons.error,
+                                  color: cs.error, size: 32),
                               const SizedBox(height: 8),
                               Text(
                                 'Error: ${error.toString()}',
-                                style: const TextStyle(
-                                  color: Colors.red,
+                                style: TextStyle(
+                                  color: cs.onErrorContainer,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 textAlign: TextAlign.center,
@@ -414,12 +415,13 @@ class _AIWorkoutGeneratorScreenState
   }
 
   Widget _buildSectionTitle(String title) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 16),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Color(0xFF121714),
+        style: TextStyle(
+          color: cs.onSurface,
           fontWeight: FontWeight.bold,
           fontSize: 18,
         ),
@@ -432,6 +434,7 @@ class _AIWorkoutGeneratorScreenState
     required String label,
     TextInputType? keyboardType,
   }) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
@@ -444,7 +447,7 @@ class _AIWorkoutGeneratorScreenState
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFF94E0B2)),
+            borderSide: BorderSide(color: cs.primary),
           ),
         ),
       ),
@@ -457,6 +460,7 @@ class _AIWorkoutGeneratorScreenState
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
+    final cs = Theme.of(context).colorScheme;
     // If value is not in items, set value to null to avoid DropdownButton error
     final String? dropdownValue =
         (value != null && items.contains(value)) ? value : null;
@@ -471,7 +475,7 @@ class _AIWorkoutGeneratorScreenState
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Color(0xFF94E0B2)),
+            borderSide: BorderSide(color: cs.primary),
           ),
         ),
         items: items.map((String item) {
@@ -486,6 +490,7 @@ class _AIWorkoutGeneratorScreenState
   }
 
   Widget _buildWorkoutsPerWeekSlider() {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -493,8 +498,8 @@ class _AIWorkoutGeneratorScreenState
         children: <Widget>[
           Text(
             'Workouts per week: $_workoutsPerWeek',
-            style: const TextStyle(
-              color: Color(0xFF121714),
+            style: TextStyle(
+              color: cs.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -504,7 +509,7 @@ class _AIWorkoutGeneratorScreenState
             min: 1,
             max: 7,
             divisions: 6,
-            activeColor: const Color(0xFF94E0B2),
+            activeColor: cs.primary,
             onChanged: (double value) {
               setState(() {
                 _workoutsPerWeek = value.round();
@@ -517,6 +522,7 @@ class _AIWorkoutGeneratorScreenState
   }
 
   Widget _buildEquipmentSelector() {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Wrap(
@@ -536,10 +542,10 @@ class _AIWorkoutGeneratorScreenState
                 }
               });
             },
-            selectedColor: const Color(0xFF94E0B2),
-            checkmarkColor: const Color(0xFF121714),
+            selectedColor: cs.primary,
+            checkmarkColor: cs.onPrimary,
             labelStyle: TextStyle(
-              color: isSelected ? const Color(0xFF121714) : Colors.grey[600],
+              color: isSelected ? cs.onPrimary : cs.onSurfaceVariant,
               fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
             ),
           );
@@ -548,21 +554,22 @@ class _AIWorkoutGeneratorScreenState
     );
   }
 
-  Widget _buildWorkoutPreview(WorkoutPlan workout) {
+  Widget _buildWorkoutPreview(BuildContext context, WorkoutPlan workout) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF94E0B2).withOpacity(0.1),
+        color: cs.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF94E0B2)),
+        border: Border.all(color: cs.primary),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const Text(
+          Text(
             'Workout Generated Successfully! 🎉',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: cs.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
@@ -570,8 +577,8 @@ class _AIWorkoutGeneratorScreenState
           const SizedBox(height: 12),
           Text(
             '${workout.sessionsPerWeek} sessions per week',
-            style: const TextStyle(
-              color: Color(0xFF121714),
+            style: TextStyle(
+              color: cs.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -579,8 +586,8 @@ class _AIWorkoutGeneratorScreenState
           const SizedBox(height: 8),
           Text(
             '${workout.workoutSessions.length} unique workout sessions',
-            style: const TextStyle(
-              color: Color(0xFF121714),
+            style: TextStyle(
+              color: cs.onSurface,
               fontSize: 14,
             ),
           ),
@@ -599,15 +606,15 @@ class _AIWorkoutGeneratorScreenState
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF94E0B2),
+                    backgroundColor: cs.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'View Details',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: cs.onPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -618,16 +625,16 @@ class _AIWorkoutGeneratorScreenState
                 child: ElevatedButton(
                   onPressed: () => _showSaveWorkoutDialog(context, workout),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(color: Color(0xFF94E0B2)),
+                    backgroundColor: cs.surface,
+                    side: BorderSide(color: cs.primary),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Save Workout',
                     style: TextStyle(
-                      color: Color(0xFF94E0B2),
+                      color: cs.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -642,12 +649,13 @@ class _AIWorkoutGeneratorScreenState
 
   void _showSaveWorkoutDialog(BuildContext context, WorkoutPlan workout) {
     final UserEntity? user = ref.read(authStateProvider).value;
+    final cs = Theme.of(context).colorScheme;
 
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please sign in to save workouts'),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text('Please sign in to save workouts'),
+          backgroundColor: cs.errorContainer,
         ),
       );
       return;
@@ -659,19 +667,20 @@ class _AIWorkoutGeneratorScreenState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
+          backgroundColor: cs.surfaceContainerHigh,
+          title: Text(
             'Save Workout Plan',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: cs.onSurface,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text(
+              Text(
                 'Give your workout plan a name:',
-                style: TextStyle(color: Color(0xFF121714)),
+                style: TextStyle(color: cs.onSurface),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -683,7 +692,7 @@ class _AIWorkoutGeneratorScreenState
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFF94E0B2)),
+                    borderSide: BorderSide(color: cs.primary),
                   ),
                 ),
                 textCapitalization: TextCapitalization.words,
@@ -693,9 +702,9 @@ class _AIWorkoutGeneratorScreenState
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: cs.onSurfaceVariant),
               ),
             ),
             ElevatedButton(
@@ -703,9 +712,9 @@ class _AIWorkoutGeneratorScreenState
                 final String name = nameController.text.trim();
                 if (name.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a workout name'),
-                      backgroundColor: Colors.red,
+                    SnackBar(
+                      content: const Text('Please enter a workout name'),
+                      backgroundColor: cs.error,
                     ),
                   );
                   return;
@@ -721,7 +730,7 @@ class _AIWorkoutGeneratorScreenState
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Workout "$name" saved successfully!'),
-                        backgroundColor: const Color(0xFF94E0B2),
+                        backgroundColor: cs.primary,
                       ),
                     );
                   }
@@ -729,21 +738,21 @@ class _AIWorkoutGeneratorScreenState
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Failed to save workout: $e'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: cs.error,
                     ),
                   );
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94E0B2),
+                backgroundColor: cs.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Save',
                 style: TextStyle(
-                  color: Color(0xFF121714),
+                  color: cs.onPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

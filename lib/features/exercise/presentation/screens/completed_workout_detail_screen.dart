@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/workout_models.dart';
-import '../../../../app/theme/exercise_colors.dart';
 
 class CompletedWorkoutDetailScreen extends ConsumerWidget {
   final ActiveWorkoutSession completedWorkout;
@@ -14,7 +13,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: ExerciseColors.backgroundLight,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -25,7 +24,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                 children: <Widget>[
                   IconButton(
                     icon: Icon(Icons.arrow_back,
-                        color: ExerciseColors.textPrimary),
+                        color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   Expanded(
@@ -33,7 +32,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       'Workout Summary',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: ExerciseColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                         letterSpacing: -0.015,
@@ -41,7 +40,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.share, color: ExerciseColors.textPrimary),
+                    icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () {
                       // TODO: Implement share functionality
                     },
@@ -57,8 +56,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: <Color>[
-                    ExerciseColors.primaryGreen,
-                    ExerciseColors.primaryGreen.withOpacity(0.8),
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -74,12 +73,12 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color:
-                              ExerciseColors.backgroundLight.withOpacity(0.3),
+                              Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.check_circle,
-                          color: ExerciseColors.textOnDark,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           size: 24,
                         ),
                       ),
@@ -91,7 +90,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                             Text(
                               'Workout Completed!',
                               style: TextStyle(
-                                color: ExerciseColors.textOnDark,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -99,7 +98,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                             Text(
                               completedWorkout.workoutName,
                               style: TextStyle(
-                                color: ExerciseColors.textOnDark,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 fontSize: 14,
                               ),
                             ),
@@ -113,16 +112,19 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
                       _buildStatColumn(
+                        context,
                         'Duration',
                         _formatDuration(completedWorkout.totalDuration),
                         Icons.timer,
                       ),
                       _buildStatColumn(
+                        context,
                         'Exercises',
                         '${completedWorkout.exercises.length}',
                         Icons.fitness_center,
                       ),
                       _buildStatColumn(
+                        context,
                         'Total Sets',
                         '${_getTotalSets()}',
                         Icons.repeat,
@@ -138,9 +140,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: ExerciseColors.surfaceLight,
+                color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: ExerciseColors.borderLight),
+                border: Border.all(color: Theme.of(context).colorScheme.outline),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -151,7 +153,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       Text(
                         'Started',
                         style: TextStyle(
-                          color: ExerciseColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -159,7 +161,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       Text(
                         _formatDateTime(completedWorkout.startTime),
                         style: TextStyle(
-                          color: ExerciseColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -173,7 +175,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                         Text(
                           'Finished',
                           style: TextStyle(
-                            color: ExerciseColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -181,7 +183,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                         Text(
                           _formatDateTime(completedWorkout.endTime!),
                           style: TextStyle(
-                            color: ExerciseColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -200,7 +202,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   Text(
                     'Exercise Details',
                     style: TextStyle(
-                      color: ExerciseColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                       letterSpacing: -0.015,
@@ -216,7 +218,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                 itemCount: completedWorkout.exercises.length,
                 itemBuilder: (BuildContext context, int index) {
                   final CompletedExercise exercise = completedWorkout.exercises[index];
-                  return _buildExerciseCard(exercise, index + 1);
+                  return _buildExerciseCard(context, exercise, index + 1);
                 },
               ),
             ),
@@ -228,9 +230,9 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                 margin: const EdgeInsets.all(16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: ExerciseColors.infoLight,
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: ExerciseColors.buttonInfo),
+                  border: Border.all(color: Theme.of(context).colorScheme.tertiary),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,12 +240,12 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     Row(
                       children: <Widget>[
                         Icon(Icons.note,
-                            color: ExerciseColors.buttonInfo, size: 20),
+                            color: Theme.of(context).colorScheme.tertiary, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Workout Notes',
                           style: TextStyle(
-                            color: ExerciseColors.infoDark,
+                            color: Theme.of(context).colorScheme.onTertiaryContainer,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -254,7 +256,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     Text(
                       completedWorkout.notes!,
                       style: TextStyle(
-                        color: ExerciseColors.infoDark,
+                        color: Theme.of(context).colorScheme.onTertiaryContainer,
                         fontSize: 14,
                       ),
                     ),
@@ -267,18 +269,18 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatColumn(String label, String value, IconData icon) {
+  Widget _buildStatColumn(BuildContext context, String label, String value, IconData icon) {
     return Column(
       children: <Widget>[
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: ExerciseColors.backgroundLight.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: ExerciseColors.textOnDark,
+            color: Theme.of(context).colorScheme.onPrimary,
             size: 20,
           ),
         ),
@@ -286,7 +288,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
         Text(
           value,
           style: TextStyle(
-            color: ExerciseColors.textOnDark,
+            color: Theme.of(context).colorScheme.onPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -294,7 +296,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
         Text(
           label,
           style: TextStyle(
-            color: ExerciseColors.textOnDark,
+            color: Theme.of(context).colorScheme.onPrimary,
             fontSize: 12,
           ),
         ),
@@ -302,21 +304,21 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildExerciseCard(CompletedExercise exercise, int exerciseNumber) {
+  Widget _buildExerciseCard(BuildContext context, CompletedExercise exercise, int exerciseNumber) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: ExerciseColors.cardBackground,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: exercise.isCompleted
-              ? ExerciseColors.buttonSuccess
-              : ExerciseColors.borderLight,
+              ? Theme.of(context).colorScheme.secondary
+              : Theme.of(context).colorScheme.outline,
           width: exercise.isCompleted ? 2 : 1,
         ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: ExerciseColors.cardShadow,
+            color: Theme.of(context).colorScheme.shadow,
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -330,8 +332,8 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: exercise.isCompleted
-                  ? ExerciseColors.successLight
-                  : ExerciseColors.surfaceLight,
+                  ? Theme.of(context).colorScheme.secondaryContainer
+                  : Theme.of(context).colorScheme.surfaceContainer,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -344,18 +346,18 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   height: 32,
                   decoration: BoxDecoration(
                     color: exercise.isCompleted
-                        ? ExerciseColors.buttonSuccess
-                        : ExerciseColors.textMuted,
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Center(
                     child: exercise.isCompleted
                         ? Icon(Icons.check,
-                            color: ExerciseColors.textOnDark, size: 18)
+                            color: Theme.of(context).colorScheme.onPrimary, size: 18)
                         : Text(
                             '$exerciseNumber',
                             style: TextStyle(
-                              color: ExerciseColors.textOnDark,
+                              color: Theme.of(context).colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),
@@ -370,7 +372,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       Text(
                         exercise.name,
                         style: TextStyle(
-                          color: ExerciseColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -379,7 +381,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                         Text(
                           '${exercise.sets.length} set${exercise.sets.length == 1 ? '' : 's'} completed',
                           style: TextStyle(
-                            color: ExerciseColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 12,
                           ),
                         ),
@@ -391,13 +393,13 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: ExerciseColors.buttonSuccess,
+                      color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       'Completed',
                       style: TextStyle(
-                        color: ExerciseColors.textOnDark,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -421,29 +423,29 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
-                                  color: ExerciseColors.textSecondary))),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant))),
                       Expanded(
                           child: Text('Reps',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
-                                  color: ExerciseColors.textSecondary))),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant))),
                       Expanded(
                           child: Text('Weight',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
-                                  color: ExerciseColors.textSecondary))),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant))),
                       Expanded(
                           child: Text('Duration',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
-                                  color: ExerciseColors.textSecondary))),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant))),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Divider(height: 1, color: ExerciseColors.divider),
+                  Divider(height: 1, color: Theme.of(context).colorScheme.outline),
                   const SizedBox(height: 8),
 
                   // Sets Data
@@ -460,7 +462,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: ExerciseColors.textPrimary),
+                                  color: Theme.of(context).colorScheme.onSurface),
                             ),
                           ),
                           Expanded(
@@ -468,7 +470,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                               '${set.reps}',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: ExerciseColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -479,7 +481,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                                   : '-',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: ExerciseColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -488,7 +490,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                               set.duration != null ? '${set.duration}s' : '-',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: ExerciseColors.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -546,7 +548,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
               child: Text(
                 'No sets recorded for this exercise',
                 style: TextStyle(
-                  color: ExerciseColors.textMuted,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
                 ),

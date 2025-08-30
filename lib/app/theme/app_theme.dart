@@ -23,6 +23,7 @@ class AppTheme {
   static const Color secondaryBlue = Color(0xFF1976D2); // Blue accent
   static const Color backgroundGrey = Color(0xFFF8F9FA); // Light background
   static const Color surfaceGrey = Color(0xFFFFFFFF); // White surface
+  // Note: For dark theme, we use dark surfaces defined in darkTheme instead of pure black.
   static const Color onSurfaceGrey = Color(0xFF2E2E2E); // Dark text on light surface
   
   // Text colors with proper contrast on light backgrounds
@@ -200,7 +201,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(radiusMedium),
           ),
           elevation: elevationLow,
-          shadowColor: primaryGreen.withOpacity(0.18),
+          shadowColor: primaryGreen.withValues(alpha: 0.18),
           textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -268,7 +269,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: surfaceGrey,
         elevation: elevationLow,
-        shadowColor: primaryGreen.withOpacity(0.08),
+  shadowColor: primaryGreen.withValues(alpha: 0.08),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLarge),
         ),
@@ -298,10 +299,10 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: backgroundGrey,
       canvasColor: backgroundGrey,
-      dividerColor: textTertiary.withOpacity(0.3),
+      dividerColor: textTertiary.withValues(alpha: 0.3),
       // Modern bottom navigation styling foundation (rounded background + active indicator)
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: surfaceGrey.withOpacity(0.95),
+        backgroundColor: surfaceGrey.withValues(alpha: 0.95),
         indicatorShape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusXLarge),
         ),
@@ -321,7 +322,7 @@ class AppTheme {
         backgroundColor: Colors.transparent,
         elevation: 0,
         selectedItemColor: primaryGreen,
-        unselectedItemColor: onSurfaceGrey.withOpacity(0.85),
+        unselectedItemColor: onSurfaceGrey.withValues(alpha: 0.85),
         showUnselectedLabels: false,
         selectedIconTheme: const IconThemeData(size: 28),
         unselectedIconTheme: const IconThemeData(size: 24),
@@ -330,7 +331,244 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
-    // Return same theme as lightTheme since we're using dark theme as primary
-    return lightTheme;
+    // Modern, neon-accented dark theme
+    const Color darkBg = Color(0xFF0B0F14);
+    const Color darkSurface = Color(0xFF12161B);
+    const Color darkSurfaceHigh = Color(0xFF171C22);
+    const Color onDark = Color(0xFFE6EAF2);
+    const Color onDarkVariant = Color(0xFFA0A8B2);
+    const Color neonAccent = Color(0xFF30D091); // teal-green neon for effects
+
+    return ThemeData(
+      fontFamily: GoogleFonts.inter().fontFamily,
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      colorScheme: const ColorScheme.dark(
+        primary: primaryGreenLight,
+        primaryContainer: primaryGreen,
+        secondary: secondaryBlue,
+        surface: darkSurface,
+        error: errorRed,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: onDark,
+        onError: Colors.white,
+        surfaceContainerHighest: darkSurfaceHigh,
+        onSurfaceVariant: onDarkVariant,
+      ),
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.5,
+        ),
+        displayMedium: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.25,
+        ),
+        displaySmall: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+        headlineLarge: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+        headlineMedium: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        headlineSmall: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+        titleLarge: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+        titleMedium: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+        titleSmall: GoogleFonts.inter(
+          color: onDarkVariant,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        bodyLarge: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+        ),
+        bodyMedium: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+        ),
+        bodySmall: GoogleFonts.inter(
+          color: onDarkVariant,
+          fontSize: 12,
+          fontWeight: FontWeight.normal,
+        ),
+        labelLarge: GoogleFonts.inter(
+          color: onDark,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+        labelMedium: GoogleFonts.inter(
+          color: onDarkVariant,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        labelSmall: GoogleFonts.inter(
+          color: onDarkVariant,
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryGreenLight,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusMedium),
+          ),
+          elevation: elevationLow,
+          shadowColor: neonAccent.withValues(alpha: 0.24),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primaryGreenLight,
+          side: const BorderSide(color: primaryGreenLight, width: 1.25),
+          minimumSize: const Size(double.infinity, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusMedium),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primaryGreenLight,
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.25,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkSurfaceHigh,
+        hintStyle: const TextStyle(color: onDarkVariant),
+        labelStyle: const TextStyle(color: onDarkVariant),
+        prefixIconColor: onDarkVariant,
+        suffixIconColor: onDarkVariant,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMedium),
+          borderSide: const BorderSide(color: onDarkVariant, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMedium),
+          borderSide: const BorderSide(color: onDarkVariant, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMedium),
+          borderSide: const BorderSide(color: primaryGreenLight, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMedium),
+          borderSide: const BorderSide(color: errorRed, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMedium),
+          borderSide: const BorderSide(color: errorRed, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: darkSurface,
+        elevation: elevationLow,
+        shadowColor: neonAccent.withValues(alpha: 0.14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusLarge),
+        ),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: darkSurface,
+        foregroundColor: onDark,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: onDark,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(color: onDark),
+        actionsIconTheme: IconThemeData(color: onDark),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: darkSurfaceHigh,
+        contentTextStyle: const TextStyle(color: onDark),
+        actionTextColor: primaryGreenLight,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusSmall),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+      scaffoldBackgroundColor: darkBg,
+      canvasColor: darkBg,
+      dividerColor: onDarkVariant.withValues(alpha: 0.24),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: darkSurface.withValues(alpha: 0.95),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusXLarge),
+        ),
+        height: 64,
+        elevation: elevationLow,
+        labelTextStyle: WidgetStateProperty.all(
+          const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+        iconTheme: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(size: 28, color: primaryGreenLight);
+          }
+          return IconThemeData(size: 24, color: onDarkVariant.withValues(alpha: 0.9));
+        }),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        selectedItemColor: primaryGreenLight,
+        unselectedItemColor: onDarkVariant.withValues(alpha: 0.85),
+        showUnselectedLabels: false,
+        selectedIconTheme: const IconThemeData(size: 28),
+        unselectedIconTheme: const IconThemeData(size: 24),
+      ),
+    );
   }
 } 

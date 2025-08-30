@@ -7,7 +7,7 @@ class _EditPersonalInfoDialog extends StatefulWidget {
   final String? weight;
 
   const _EditPersonalInfoDialog(
-      {this.age, this.gender, this.height, this.weight});
+      {this.gender});
 
   @override
   State<_EditPersonalInfoDialog> createState() =>
@@ -44,7 +44,7 @@ class _EditPersonalInfoDialogState extends State<_EditPersonalInfoDialog> {
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             TextField(
               controller: _ageController,
               decoration: const InputDecoration(labelText: 'Age'),
@@ -54,7 +54,7 @@ class _EditPersonalInfoDialogState extends State<_EditPersonalInfoDialog> {
             DropdownButtonFormField<String>(
               value: _gender,
               decoration: const InputDecoration(labelText: 'Gender'),
-              items: const [
+              items: const <DropdownMenuItem<String>>[
                 DropdownMenuItem(value: 'Male', child: Text('Male')),
                 DropdownMenuItem(value: 'Female', child: Text('Female')),
                 DropdownMenuItem(value: 'Other', child: Text('Other')),
@@ -62,7 +62,7 @@ class _EditPersonalInfoDialogState extends State<_EditPersonalInfoDialog> {
                     value: 'Prefer not to say',
                     child: Text('Prefer not to say')),
               ],
-              onChanged: (val) => setState(() => _gender = val),
+              onChanged: (String? val) => setState(() => _gender = val),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -79,14 +79,14 @@ class _EditPersonalInfoDialogState extends State<_EditPersonalInfoDialog> {
           ],
         ),
       ),
-      actions: [
+      actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: () {
-            Navigator.of(context).pop({
+            Navigator.of(context).pop(<String, String?>{
               'age': _ageController.text,
               'gender': _gender,
               'height': _heightController.text,
