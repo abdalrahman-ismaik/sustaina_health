@@ -41,10 +41,10 @@ class HomeDashboardScreen extends ConsumerWidget {
         : '${avgSleepDuration.inHours}h ${avgSleepDuration.inMinutes % 60}m';
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Stack(
-          children: [
+          children: <Widget>[
             // Subtle Lottie background for green/particle aesthetic
             Positioned.fill(
               child: IgnorePointer(
@@ -100,7 +100,7 @@ class HomeDashboardScreen extends ConsumerWidget {
   Widget _buildSectionHeader(
       BuildContext context, String title, IconData icon) {
     return Row(
-      children: [
+      children: <Widget>[
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -114,11 +114,11 @@ class HomeDashboardScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Text(
+  Text(
           title,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: Colors.grey[800],
+    color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
       ],
@@ -139,7 +139,7 @@ class HomeDashboardScreen extends ConsumerWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
             blurRadius: 12,
@@ -148,7 +148,7 @@ class HomeDashboardScreen extends ConsumerWidget {
         ],
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           Row(
             children: <Widget>[
               Container(
@@ -217,7 +217,7 @@ class HomeDashboardScreen extends ConsumerWidget {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
+              children: <Widget>[
                 _buildStatItem(streak.toString(), 'Day Streak',
                     Icons.local_fire_department),
                 _buildStatDivider(),
@@ -236,7 +236,7 @@ class HomeDashboardScreen extends ConsumerWidget {
 
   Widget _buildStatItem(String value, String label, IconData icon) {
     return Column(
-      children: [
+      children: <Widget>[
         Icon(
           icon,
           color: Colors.white70,
@@ -333,7 +333,7 @@ class HomeDashboardScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: actionColor.withValues(alpha: 0.15),
             blurRadius: 12,
@@ -359,7 +359,7 @@ class HomeDashboardScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
+                      colors: <Color>[
                         actionColor.withValues(alpha: 0.15),
                         actionColor.withValues(alpha: 0.05),
                       ],
@@ -413,7 +413,7 @@ class HomeDashboardScreen extends ConsumerWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
+          colors: <Color>[
             Color(0xFFF1F8E9),
             Color(0xFFE8F5E8),
           ],
@@ -517,9 +517,9 @@ class HomeDashboardScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               const Icon(
                 Icons.lightbulb_outline,
                 color: Color(0xFFFF9800),
@@ -562,7 +562,7 @@ class HomeDashboardScreen extends ConsumerWidget {
   }
 
   String _getGreeting() {
-    final hour = DateTime.now().hour;
+    final int hour = DateTime.now().hour;
     if (hour < 12) {
       return 'morning';
     } else if (hour < 17) {

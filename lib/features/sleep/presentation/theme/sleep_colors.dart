@@ -11,16 +11,16 @@ class SleepColors {
   static const Color secondaryBlue = Color(0xFF1976D2);
   static const Color primaryBlue = Color(0xFF1976D2);
   static const Color primaryIndigo = Color(0xFF3F51B5);
-  static const Color backgroundGrey = Color(0xFFF8F9FA);
+  static const Color backgroundGrey = Color(0xFFF7F9FB); // match AppTheme
   static const Color backgroundMedium = Color(0xFFE8F5E8);
-  static const Color surfaceGrey = Color(0xFFFFFFFF);
+  static const Color surfaceGrey = Color(0xFFFAFAFA); // avoid pure white
   static const Color onSurfaceGrey = Color(0xFF2E2E2E);
   
   // Text colors
   static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
-  static const Color textTertiary = Color(0xFF9E9E9E);
-  static const Color textDisabled = Color(0xFFBDBDBD);
+  static const Color textSecondary = Color(0xFF5F6368);
+  static const Color textTertiary = Color(0xFF8A8A8A);
+  static const Color textDisabled = Color(0xFFB0B0B0);
   
   // Status colors
   static const Color errorRed = Color(0xFFD32F2F);
