@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/workout_models.dart';
 import '../providers/workout_providers.dart';
+import '../../../../widgets/achievement_popup_widget.dart';
 
 class ActiveWorkoutScreen extends ConsumerStatefulWidget {
   final ActiveWorkoutSession workoutSession;
@@ -321,17 +322,20 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
         Navigator.of(context).pop(); // Close loading dialog
       }
 
-      // Show success message
+      // Show success message with achievement popup
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Workout completed and saved successfully! 🎉'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
+        // Show achievement popup instead of SnackBar
+        AchievementPopupWidget.showExerciseCompletion(
+          context,
+          widget.workoutSession.workoutName,
         );
 
-        // Navigate back to previous screen
-        Navigator.of(context).pop();
+        // Navigate back to previous screen after a brief delay
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            Navigator.of(context).pop();
+          }
+        });
       }
     } catch (e) {
       print('Error finishing workout: $e');

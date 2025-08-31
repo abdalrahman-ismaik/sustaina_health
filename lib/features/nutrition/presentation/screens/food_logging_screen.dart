@@ -5,6 +5,7 @@ import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../domain/repositories/nutrition_repository.dart' show SavedMealPlan;
 import '../../../sleep/presentation/theme/sleep_colors.dart';
+import '../../../../widgets/achievement_popup_widget.dart';
 
 class FoodLoggingScreen extends ConsumerStatefulWidget {
   const FoodLoggingScreen({Key? key}) : super(key: key);
@@ -222,6 +223,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                                             ref
                                                 .read(foodLogProvider.notifier)
                                                 .addFoodLogEntry(entry);
+                                            // Show achievement popup
+                                            AchievementPopupWidget.showNutritionLogged(context);
                                           },
                                         ),
                                       );
@@ -656,6 +659,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
         existingEntry: entry,
         onSave: (FoodLogEntry updatedEntry) {
           ref.read(foodLogProvider.notifier).updateFoodLogEntry(updatedEntry);
+          // Show achievement popup for updating nutrition
+          AchievementPopupWidget.showNutritionLogged(context);
         },
       ),
     );

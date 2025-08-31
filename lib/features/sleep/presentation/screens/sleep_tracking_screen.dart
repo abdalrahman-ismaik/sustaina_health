@@ -4,6 +4,7 @@ import '../theme/sleep_colors.dart';
 import '../providers/sleep_providers.dart';
 import '../../data/models/sleep_models.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../widgets/achievement_popup_widget.dart';
 
 class SleepTrackingScreen extends ConsumerStatefulWidget {
   const SleepTrackingScreen({Key? key}) : super(key: key);
@@ -623,12 +624,8 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       await ref.read(sleepSessionsProvider.notifier).addSleepSession(sleepSession);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Sleep session saved successfully!'),
-            backgroundColor: SleepColors.successGreen,
-          ),
-        );
+        // Show achievement popup for sleep tracking completion
+        AchievementPopupWidget.showSleepLogged(context, '${duration.inHours}h ${duration.inMinutes % 60}m');
         Navigator.of(context).pop();
       }
     } catch (e) {

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:video_player/video_player.dart';
 import 'dart:math' as math;
 import '../../../auth/presentation/providers/auth_providers.dart';
 import 'package:ghiraas/features/exercise/presentation/providers/workout_providers.dart';
@@ -31,10 +30,26 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   late Animation<double> _floatingAnimation;
   late Animation<double> _pulseAnimation;
   
-  // Video player for greeting animation
-  VideoPlayerController? _greetingVideoController;
+  // Dynamic GIF and Avatar cycle system
   bool _showGreeting = true;
-  bool _isVideoInitialized = false;
+  bool _showAvatar = false;
+  bool _showRandomGif = false;
+  String? _currentAvatar;
+  String? _currentGif;
+  
+  final List<String> _avatars = [
+    'assets/images/avatars/avatar1.png',
+    'assets/images/avatars/avatar2.png',
+    'assets/images/avatars/avatar3.png',
+  ];
+  
+  final List<String> _homeGifs = [
+    'assets/gif/home/heart.gif',
+    'assets/gif/home/hello.gif',
+    'assets/gif/home/running.gif',
+    'assets/gif/home/swinging.gif',
+    'assets/gif/home/walking.gif',
+  ];
 
   @override
   void initState() {
@@ -101,8 +116,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
       curve: Curves.easeInOutSine, // Smoother pulse
     ));
 
-    // Initialize video controller for greeting animation
-    _initializeVideo();
+    // Initialize GIF cycle system
+    _initializeGifCycle();
 
     // Start animations
     _heroAnimationController.forward();
@@ -111,43 +126,73 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     _floatingAnimationController.repeat(reverse: true);
   }
 
-  Future<void> _initializeVideo() async {
-    try {
-      _greetingVideoController = VideoPlayerController.asset(
-        'assets/videos/greeting_animation.gif.mp4'
-      );
-      
-      await _greetingVideoController!.initialize();
-      
-      if (mounted) {
-        setState(() {
-          _isVideoInitialized = true;
-        });
-        
-        // Play the greeting video
-        await _greetingVideoController!.play();
-        
-        // Listen for video completion
-        _greetingVideoController!.addListener(() {
-          if (_greetingVideoController!.value.position >= 
-              _greetingVideoController!.value.duration) {
-            // Video finished, switch to avatar
-            if (mounted) {
-              setState(() {
-                _showGreeting = false;
-              });
-            }
-          }
-        });
-      }
-    } catch (e) {
-      // If video fails to load, skip to avatar
+  void _initializeGifCycle() {
+    // Start with greeting GIF
+    _selectRandomAvatar();
+    _selectRandomHomeGif();
+    
+    // Start the cycle: greeting -> avatar -> random gif -> repeat 3 times
+    _startGifCycleLoop();
+  }
+  
+  void _selectRandomAvatar() {
+    final random = math.Random();
+    _currentAvatar = _avatars[random.nextInt(_avatars.length)];
+  }
+  
+  void _selectRandomHomeGif() {
+    final random = math.Random();
+    _currentGif = _homeGifs[random.nextInt(_homeGifs.length)];
+  }
+  
+  void _startGifCycleLoop() {
+    _startGifSequence(0); // Start with cycle 0
+  }
+  
+  void _startGifSequence(int cycleCount) {
+    // Show greeting.gif for 6 seconds (slower)
+    Future.delayed(const Duration(seconds: 6), () {
       if (mounted) {
         setState(() {
           _showGreeting = false;
+          _showAvatar = true;
+        });
+        
+        // Show avatar for 5 seconds (increased duration)
+        Future.delayed(const Duration(seconds: 5), () {
+          if (mounted) {
+            setState(() {
+              _showAvatar = false;
+              _showRandomGif = true;
+            });
+            
+            // Show random GIF for 6 seconds (slower)
+            Future.delayed(const Duration(seconds: 6), () {
+              if (mounted) {
+                // Check if we've completed 3 cycles
+                if (cycleCount < 2) { // 0, 1, 2 = 3 cycles
+                  // Continue with same GIFs for next cycle
+                  setState(() {
+                    _showRandomGif = false;
+                    _showGreeting = true;
+                  });
+                  _startGifSequence(cycleCount + 1); // Next cycle with same GIFs
+                } else {
+                  // After 3 cycles, pick new GIFs and restart
+                  setState(() {
+                    _showRandomGif = false;
+                    _showGreeting = true;
+                  });
+                  _selectRandomAvatar(); // Pick new random avatar
+                  _selectRandomHomeGif(); // Pick new random GIF
+                  _startGifSequence(0); // Restart with new GIFs
+                }
+              }
+            });
+          }
         });
       }
-    }
+    });
   }
 
   @override
@@ -156,7 +201,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     _cardAnimationController.dispose();
     _dailyGoalAnimationController.dispose();
     _floatingAnimationController.dispose();
-    _greetingVideoController?.dispose();
     super.dispose();
   }
 
@@ -549,14 +593,16 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                       ),
                     ),
                     
-                    // 3D Character - Show greeting video first, then avatar
+                    // 3D Character - Dynamic GIF and Avatar cycle
                     AnimatedBuilder(
                       animation: _floatingAnimationController,
                       builder: (BuildContext context, Widget? child) {
-                        if (_showGreeting && _isVideoInitialized && _greetingVideoController != null) {
-                          // Show greeting video with transparent background
-                          return Container(
-                            width: 160, // Increased size
+                        Widget currentContent;
+                        
+                        if (_showGreeting) {
+                          // Show greeting GIF
+                          currentContent = Container(
+                            width: 160,
                             height: 160,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
@@ -570,85 +616,129 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(24),
-                              child: Container(
-                                color: Colors.transparent, // Remove black background
-                                child: FittedBox(
-                                  fit: BoxFit.cover, // Better video fitting
-                                  child: SizedBox(
-                                    width: _greetingVideoController!.value.size.width,
-                                    height: _greetingVideoController!.value.size.height,
-                                    child: VideoPlayer(_greetingVideoController!),
-                                  ),
+                              child: Image.asset(
+                                'assets/gif/home/greeting.gif',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        } else if (_showAvatar && _currentAvatar != null) {
+                          // Show random avatar
+                          currentContent = Container(
+                            width: 160,
+                            height: 160,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: const Color(0xFF667EEA).withValues(alpha: 0.5),
+                                  blurRadius: 25,
+                                  offset: const Offset(0, 12),
                                 ),
+                                BoxShadow(
+                                  color: const Color(0xFF764BA2).withValues(alpha: 0.3),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 20),
+                                ),
+                              ],
+                              image: DecorationImage(
+                                image: AssetImage(_currentAvatar!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        } else if (_showRandomGif && _currentGif != null) {
+                          // Show random GIF from home folder
+                          currentContent = Container(
+                            width: 160,
+                            height: 160,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: cs.secondary.withValues(alpha: 0.4),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 12),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(24),
+                              child: Image.asset(
+                                _currentGif!,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           );
                         } else {
-                          // Show floating avatar after greeting with improved animation
-                          final double floatOffset = (math.sin(_floatingAnimation.value * 2 * math.pi) * 4) +
-                                                   (math.cos(_floatingAnimation.value * 1.5 * math.pi) * 2);
-                          return Transform.translate(
-                            offset: Offset(0, floatOffset),
-                            child: Transform.scale(
-                              scale: _pulseAnimation.value,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: <Widget>[
-                                  // Avatar image with improved size and animation
-                                  Container(
-                                    width: 160, // Increased size
-                                    height: 160,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(24),
-                                      boxShadow: <BoxShadow>[
-                                        BoxShadow(
-                                          color: const Color(0xFF667EEA).withValues(alpha: 0.5),
-                                          blurRadius: 25,
-                                          offset: const Offset(0, 12),
-                                        ),
-                                        BoxShadow(
-                                          color: const Color(0xFF764BA2).withValues(alpha: 0.3),
-                                          blurRadius: 40,
-                                          offset: const Offset(0, 20),
-                                        ),
-                                      ],
-                                      image: const DecorationImage(
-                                        image: AssetImage('assets/videos/avatar.jpg'),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                  
-                                  // Achievement badge
-                                  if (progressPercentage > 50)
-                                    Positioned(
-                                      top: 10,
-                                      right: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF4CAF50),
-                                          shape: BoxShape.circle,
-                                          boxShadow: <BoxShadow>[
-                                            BoxShadow(
-                                              color: const Color(0xFF4CAF50).withValues(alpha: 0.4),
-                                              blurRadius: 8,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                        child: const Icon(
-                                          Icons.star,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
-                                      ),
-                                    ),
-                                ],
+                          // Fallback - show first avatar
+                          currentContent = Container(
+                            width: 160,
+                            height: 160,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: const Color(0xFF667EEA).withValues(alpha: 0.5),
+                                  blurRadius: 25,
+                                  offset: const Offset(0, 12),
+                                ),
+                              ],
+                              image: const DecorationImage(
+                                image: AssetImage('assets/images/avatars/avatar1.png'),
+                                fit: BoxFit.cover,
                               ),
                             ),
                           );
                         }
+                        
+                        // Apply floating animation to whatever content is showing
+                        final double floatOffset = (math.sin(_floatingAnimation.value * 2 * math.pi) * 4) +
+                                                 (math.cos(_floatingAnimation.value * 1.5 * math.pi) * 2);
+                        return Transform.translate(
+                          offset: Offset(0, floatOffset),
+                          child: Transform.scale(
+                            scale: _pulseAnimation.value,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                // Dynamic content (GIF or Avatar)
+                                currentContent,
+                                
+                                // Achievement badge (show if progress > 50%)
+                                if (progressPercentage > 50)
+                                  Positioned(
+                                    top: 10,
+                                    right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: <Color>[
+                                            Color(0xFFFFD700),
+                                            Color(0xFFFFA000),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: <BoxShadow>[
+                                          BoxShadow(
+                                            color: const Color(0xFFFFD700).withValues(alpha: 0.4),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.star,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ],

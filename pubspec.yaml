@@ -105,6 +105,10 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/avatars/
+    - assets/gif/
+    - assets/gif/home/
+    - assets/gif/widget/
     - assets/json/
     - assets/lottie/
     - assets/videos/
