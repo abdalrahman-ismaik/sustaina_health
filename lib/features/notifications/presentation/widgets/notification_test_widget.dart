@@ -69,47 +69,14 @@ class NotificationTestWidget extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final FirebaseNotificationService notificationService =
-                          FirebaseNotificationService();
-                      await notificationService.scheduleOneOffTestNotification(
-                          seconds: 60);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Test scheduled for 60 seconds!'),
-                          backgroundColor: SleepColors.successGreen,
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: SleepColors.primaryGreen,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('Schedule Test (60s)'),
-                  ),
-                ),
+                const SizedBox.shrink(),
               ],
             ),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () async {
-                  final FirebaseNotificationService notificationService =
-                      FirebaseNotificationService();
-                  await notificationService.scheduleSimple30SecondTest();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Health reminder scheduled!'),
-                      backgroundColor: SleepColors.successGreen,
-                    ),
-                  );
-                },
+                onPressed: null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SleepColors.primaryGreenDark,
                   foregroundColor: Colors.white,
