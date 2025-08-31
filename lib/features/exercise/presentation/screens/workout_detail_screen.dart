@@ -40,7 +40,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
@@ -242,7 +242,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   }
 
   Widget _buildInfoCard(String label, String value) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Column(
       children: <Widget>[
         Text(
@@ -266,7 +266,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
   Widget _buildComponentCard(
       String title, String duration, String description, Color color) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     // Restore the original better colors for warmup and cooldown
     final Color containerColor = title == 'Warmup' 
         ? Colors.orange.withValues(alpha: 0.1) 
@@ -326,7 +326,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   }
 
   Widget _buildWorkoutSession(WorkoutSession session) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: session.exercises.length,
@@ -409,7 +409,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   }
 
   Widget _buildExerciseDetail(IconData icon, String text) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -431,7 +431,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   }
 
   void _startWorkout(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {

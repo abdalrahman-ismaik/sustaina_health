@@ -6,8 +6,7 @@ class _EditPersonalInfoDialog extends StatefulWidget {
   final String? height;
   final String? weight;
 
-  const _EditPersonalInfoDialog(
-      {this.gender});
+  const _EditPersonalInfoDialog();
 
   @override
   State<_EditPersonalInfoDialog> createState() =>

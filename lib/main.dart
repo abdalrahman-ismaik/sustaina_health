@@ -23,7 +23,7 @@ void main() async {
   await notificationService.initialize();
 
   // Check if native Android started the app after device boot and request reschedule
-  const platform = MethodChannel('com.example.sustaina_health/boot');
+  const MethodChannel platform = MethodChannel('com.example.sustaina_health/boot');
   try {
     final bool launchedFromBoot =
         await platform.invokeMethod<bool>('launchedFromBoot') ?? false;

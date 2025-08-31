@@ -9,7 +9,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync =
         ref.watch(completedWorkoutsProvider);
     final AsyncValue<Map<String, dynamic>> workoutStatsAsync =
@@ -97,7 +97,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   Widget _buildStatsSection(BuildContext context, Map<String, dynamic> stats) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -167,7 +167,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   Widget _buildStatItem(BuildContext context, String label, String value, IconData icon) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.all(4),
@@ -201,7 +201,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   Widget _buildStatsLoading(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -216,7 +216,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   Widget _buildStatsError(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -234,7 +234,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -297,7 +297,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -358,7 +358,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   Widget _buildWorkoutCard(
       BuildContext context, WidgetRef ref, ActiveWorkoutSession workout) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -482,7 +482,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   void _showWorkoutDetails(BuildContext context, ActiveWorkoutSession workout) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -638,7 +638,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   void _showDeleteConfirmation(
       BuildContext context, WidgetRef ref, ActiveWorkoutSession workout) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {

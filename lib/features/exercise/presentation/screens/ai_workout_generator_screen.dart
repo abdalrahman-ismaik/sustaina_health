@@ -165,7 +165,7 @@ class _AIWorkoutGeneratorScreenState
     final AsyncValue<WorkoutPlan?> workoutState =
         ref.watch(workoutGenerationProvider);
     final AsyncValue<bool> apiHealthState = ref.watch(apiHealthProvider);
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -415,7 +415,7 @@ class _AIWorkoutGeneratorScreenState
   }
 
   Widget _buildSectionTitle(String title) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 16),
       child: Text(
@@ -434,7 +434,7 @@ class _AIWorkoutGeneratorScreenState
     required String label,
     TextInputType? keyboardType,
   }) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
@@ -460,7 +460,7 @@ class _AIWorkoutGeneratorScreenState
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     // If value is not in items, set value to null to avoid DropdownButton error
     final String? dropdownValue =
         (value != null && items.contains(value)) ? value : null;
@@ -490,7 +490,7 @@ class _AIWorkoutGeneratorScreenState
   }
 
   Widget _buildWorkoutsPerWeekSlider() {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -522,7 +522,7 @@ class _AIWorkoutGeneratorScreenState
   }
 
   Widget _buildEquipmentSelector() {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Wrap(
@@ -555,7 +555,7 @@ class _AIWorkoutGeneratorScreenState
   }
 
   Widget _buildWorkoutPreview(BuildContext context, WorkoutPlan workout) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -649,7 +649,7 @@ class _AIWorkoutGeneratorScreenState
 
   void _showSaveWorkoutDialog(BuildContext context, WorkoutPlan workout) {
     final UserEntity? user = ref.read(authStateProvider).value;
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(

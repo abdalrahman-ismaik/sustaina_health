@@ -120,7 +120,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                error: (error, stack) => _buildWeeklyProgressCard(cs, 0, 0, 0),
+                error: (Object error, StackTrace stack) => _buildWeeklyProgressCard(cs, 0, 0, 0),
                 data: (List<ActiveWorkoutSession> completedWorkouts) {
                   final Map<String, int> weeklyProgress = _calculateWeeklyProgress(completedWorkouts);
                   final int completedThisWeek = weeklyProgress['completed'] ?? 0;
@@ -1698,13 +1698,13 @@ Map<String, int> _calculateWeeklyProgress(List<ActiveWorkoutSession> completedWo
   final DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
   final DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
   
-  final int completedThisWeek = completedWorkouts.where((session) {
+  final int completedThisWeek = completedWorkouts.where((ActiveWorkoutSession session) {
     return session.startTime.isAfter(startOfWeek.subtract(const Duration(days: 1))) &&
            session.startTime.isBefore(endOfWeek.add(const Duration(days: 1))) &&
            session.isCompleted;
   }).length;
   
-  return {
+  return <String, int>{
     'completed': completedThisWeek,
     'target': 4, // Default weekly target
   };

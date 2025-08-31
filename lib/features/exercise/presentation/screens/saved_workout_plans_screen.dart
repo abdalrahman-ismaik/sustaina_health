@@ -11,7 +11,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<SavedWorkoutPlan>> savedWorkoutsAsync = ref.watch(savedWorkoutPlansProvider);
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -82,7 +82,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -201,7 +201,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   }
 
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -263,7 +263,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   Widget _buildWorkoutList(
       BuildContext context, WidgetRef ref, List<SavedWorkoutPlan> workouts) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     // Sort workouts: favorites first, then by last used, then by creation date
     final List<SavedWorkoutPlan> sortedWorkouts = List<SavedWorkoutPlan>.from(workouts);
     sortedWorkouts.sort((SavedWorkoutPlan a, SavedWorkoutPlan b) {
@@ -380,7 +380,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   }
 
   Widget _buildFilterChip(BuildContext context, String label, bool isSelected) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -404,7 +404,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   Widget _buildWorkoutCard(
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final int totalExercises = workout.workoutPlan.workoutSessions
         .fold(0, (int sum, WorkoutSession session) => sum + session.exercises.length);
 
@@ -622,7 +622,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   void _duplicateWorkout(
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) async {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     try {
       final String duplicatedName = "${workout.name} (Copy)";
       await ref.read(savedWorkoutPlansProvider.notifier).saveWorkout(
@@ -663,7 +663,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   void _showDeleteConfirmation(
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) {
-    final cs = Theme.of(context).colorScheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {
