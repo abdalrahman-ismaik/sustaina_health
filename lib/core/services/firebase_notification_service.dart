@@ -10,6 +10,27 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/services.dart';
 
+/// Top-level background message handler required by firebase_messaging.
+/// This must be a top-level or static function (not an instance or closure)
+/// so it can be invoked by the background isolate.
+Future<void> firebaseMessagingBackgroundHandler(
+    firebase_messaging.RemoteMessage message) async {
+  try {
+    // Ensure Firebase is initialized in the background isolate.
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp();
+    }
+
+    debugPrint('FCM background handler received a message: '
+        '\${message.messageId} | \\${message.notification?.title}');
+
+    // NOTE: Avoid using plugin instances that aren't safe from background isolate.
+    // Keep processing light here (logging, analytics, or scheduling work).
+  } catch (e) {
+    debugPrint('Error in background message handler: $e');
+  }
+}
+
 class FirebaseNotificationService with WidgetsBindingObserver {
   static final FirebaseNotificationService _instance =
       FirebaseNotificationService._internal();
@@ -26,11 +47,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
   bool _rescheduleInProgress = false;
   String? _fcmToken;
 
-  // Notification IDs for different types
-  static const int _mealReminderBaseId = 1000;
-  static const int _exerciseReminderBaseId = 2000;
-  static const int _sleepReminderBaseId = 3000;
-  static const int _sustainabilityTipBaseId = 4000;
+  // Local notification IDs removed; app relies on FCM topics
 
   // Notification settings keys
   static const String _settingsKey = 'notification_settings';
@@ -88,16 +105,16 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       // Aggressively handle Android battery optimization
       await _handleAndroidOptimizations();
 
-      // Subscribe to FCM topics for campaigns
+      // Subscribe to FCM topics for campaigns (topics are the single source of truth)
       final AppNotificationSettings appSettings =
           await _getNotificationSettings();
       if (appSettings.exerciseRemindersEnabled) {
-        await _firebaseMessaging.subscribeToTopic('Exercises Reminder');
-        debugPrint('Subscribed to Exercises Reminder topic for FCM campaign');
+        await _firebaseMessaging.subscribeToTopic('exercises_reminder');
+        debugPrint('Subscribed to exercises_reminder topic for FCM campaign');
       }
 
       debugPrint(
-          'Firebase notification service initialized and scheduled reminders');
+          'Firebase notification service initialized (topics-only model)');
 
       // Register for app lifecycle events
       try {
@@ -213,9 +230,8 @@ class FirebaseNotificationService with WidgetsBindingObserver {
     firebase_messaging.FirebaseMessaging.onMessageOpenedApp
         .listen(_handleBackgroundMessage);
 
-    // Handle messages when app is terminated
-    firebase_messaging.FirebaseMessaging.onBackgroundMessage(
-        _handleTerminatedMessage);
+    // Background message handler registration is performed in `main.dart`
+    // (before runApp) to ensure the handler is registered from the main isolate.
   }
 
   /// Handle FCM messages when app is in foreground
@@ -279,21 +295,18 @@ class FirebaseNotificationService with WidgetsBindingObserver {
     return _fcmToken;
   }
 
-  /// Force reschedule all notifications with improved system
+  /// Force reschedule (topics-only): cancel local notifications and reapply optimizations
   Future<bool> forceRescheduleWithImprovements() async {
     try {
-      debugPrint('🔄 Force rescheduling with improvements...');
+      debugPrint('🔄 Force rescheduling (topics-only)...');
 
-      // Cancel all existing notifications
+      // Cancel any local notifications
       await cancelAllNotifications();
 
-      // Handle Android optimizations aggressively
+      // Re-check Android optimizations
       await _handleAndroidOptimizations();
 
-      // Reschedule all reminders with improved methods
-      await _scheduleAllReminders();
-
-      debugPrint('✅ Force rescheduling completed');
+      debugPrint('✅ Force rescheduling (topics-only) completed');
       return true;
     } catch (e) {
       debugPrint('❌ Force rescheduling failed: $e');
@@ -301,621 +314,35 @@ class FirebaseNotificationService with WidgetsBindingObserver {
     }
   }
 
-  /// Schedule a one-off test notification using local notifications
-  Future<bool> scheduleOneOffTestNotification({int seconds = 60}) async {
-    try {
-      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      final tz.TZDateTime scheduledDate = now.add(Duration(seconds: seconds));
+  /// Scheduling helpers removed: App uses FCM topics and server-side campaigns.
 
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        9999,
-        'Firebase Scheduled Test',
-        'This is a scheduled test notification via Firebase service.',
-        scheduledDate,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            'test_notifications',
-            'Test Notifications',
-            channelDescription: 'Test notifications',
-            importance: Importance.high,
-            priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
+  // Removed scheduled test helpers: app now relies on FCM topics and server campaigns
 
-      debugPrint('Firebase scheduled test notification for $scheduledDate');
-      return true;
-    } catch (e) {
-      debugPrint('Error scheduling Firebase test notification: $e');
-      return false;
-    }
-  }
+  // Scheduling removed: rely on FCM topics and server-side campaigns instead
 
-  /// Schedule a simple test notification for exactly 30 seconds from now
-  Future<bool> scheduleSimple30SecondTest() async {
-    try {
-      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      final tz.TZDateTime tzScheduledTime = tz.TZDateTime.from(
-        DateTime.now().add(const Duration(minutes: 2)),
-        tz.local,
-      );
+  // Meal scheduling removed (topics-only)
 
-      debugPrint('Current TZ time: $now');
-      debugPrint('TZ Scheduled time: $tzScheduledTime');
+  // Daily meal reminders removed
 
-      // Check exact alarm permission
-      final bool exactPermitted = await isExactAlarmPermitted();
-      debugPrint('Exact alarm permitted: $exactPermitted');
+  /// Exercise reminders handled by FCM topics (no local scheduling)
 
-      if (!exactPermitted) {
-        debugPrint(
-            'Exact alarms not permitted, scheduling for 4 minutes later as fallback');
-        final tz.TZDateTime fallbackTime = tz.TZDateTime.from(
-          DateTime.now().add(const Duration(minutes: 4)),
-          tz.local,
-        );
-        await _flutterLocalNotificationsPlugin.zonedSchedule(
-          9995,
-          'Firebase 4-Minute Fallback Test',
-          'This notification was scheduled using Firebase service as fallback (exact alarms not permitted).',
-          fallbackTime,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              'test_notifications',
-              'Test Notifications',
-              channelDescription: 'Test notifications',
-              importance: Importance.high,
-              priority: Priority.high,
-              icon: '@mipmap/ic_launcher',
-              playSound: true,
-              enableVibration: true,
-              color: const Color(0xFFFFFF00), // Yellow for fallback
-              ledColor: const Color(0xFFFFFF00),
-              ledOnMs: 1000,
-              ledOffMs: 500,
-            ),
-            iOS: const DarwinNotificationDetails(),
-          ),
-          androidAllowWhileIdle: true,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-        );
-      } else {
-        await _flutterLocalNotificationsPlugin.zonedSchedule(
-          9995,
-          'Firebase 2-Minute Test',
-          'This notification was scheduled using Firebase service for exactly 2 minutes ago.',
-          tzScheduledTime,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              'test_notifications',
-              'Test Notifications',
-              channelDescription: 'Test notifications',
-              importance: Importance.high,
-              priority: Priority.high,
-              icon: '@mipmap/ic_launcher',
-              playSound: true,
-              enableVibration: true,
-              color: const Color(0xFF00FF00),
-              ledColor: const Color(0xFF00FF00),
-              ledOnMs: 1000,
-              ledOffMs: 500,
-            ),
-            iOS: const DarwinNotificationDetails(),
-          ),
-          androidAllowWhileIdle: true,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-        );
-      }
+  // Sleep scheduling removed (topics-only)
 
-      // Send immediate notification for comparison
-      await _flutterLocalNotificationsPlugin.show(
-        9994,
-        'Firebase Immediate Test',
-        'This is an immediate notification for comparison.',
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            'test_notifications',
-            'Test Notifications',
-            channelDescription: 'Test notifications',
-            importance: Importance.high,
-            priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
-            playSound: true,
-            enableVibration: true,
-            color: const Color(0xFFFF0000),
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
-        payload: 'firebase_immediate_test',
-      );
+  // Bedtime reminder removed
 
-      debugPrint('Firebase test notification scheduled');
+  // Morning sleep reminder removed
 
-      // Check pending notifications to verify scheduling
-      final pending =
-          await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
-      debugPrint('Pending notifications after scheduling: ${pending.length}');
-      for (final PendingNotificationRequest p in pending) {
-        if (p.id == 9995) {
-          debugPrint(
-              'Scheduled notification found in pending: ${p.title} at ${p.body}');
-        }
-      }
+  // Sustainability tips scheduling removed (use server/FCM topics)
 
-      return true;
-    } catch (e) {
-      debugPrint('Error in Firebase test: $e');
-      return false;
-    }
-  }
+  // Daily sustainability tips removed
 
-  /// Schedule all reminder types
-  Future<void> _scheduleAllReminders() async {
-    try {
-      // Always try to schedule, even if exact alarms are not permitted
-      // We'll use alternative methods for devices that don't support exact alarms
-      debugPrint('Scheduling all Firebase reminders...');
+  // Sustainability tips helper removed
 
-      // Schedule meal reminders
-      await _scheduleMealReminders();
+  // Exact scheduling helpers removed
 
-      // Schedule exercise reminders
-      await _scheduleExerciseReminders();
+  // Periodic fallback removed
 
-      // Schedule sleep reminders
-      await _scheduleSleepReminders();
-
-      // Schedule sustainability tips
-      await _scheduleSustainabilityTips();
-
-      debugPrint('All Firebase reminders scheduled successfully');
-    } catch (e) {
-      debugPrint('Error scheduling all Firebase reminders: $e');
-    }
-  }
-
-  /// Schedule meal reminders
-  Future<void> _scheduleMealReminders() async {
-    try {
-      final AppNotificationSettings settings = await _getNotificationSettings();
-      if (!settings.mealRemindersEnabled) return;
-
-      final Map<String, TimeOfDay> mealTimes = <String, TimeOfDay>{
-        'breakfast': const TimeOfDay(hour: 8, minute: 0),
-        'lunch': const TimeOfDay(hour: 13, minute: 0),
-        'dinner': const TimeOfDay(hour: 19, minute: 0),
-      };
-
-      for (final MapEntry<String, TimeOfDay> entry in mealTimes.entries) {
-        await _scheduleDailyMealReminder(
-          entry.key,
-          entry.value,
-          _mealReminderBaseId + mealTimes.keys.toList().indexOf(entry.key),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error scheduling Firebase meal reminders: $e');
-    }
-  }
-
-  /// Schedule a daily meal reminder
-  Future<void> _scheduleDailyMealReminder(
-    String mealType,
-    TimeOfDay time,
-    int notificationId,
-  ) async {
-    try {
-      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        time.hour,
-        time.minute,
-      );
-
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      // Try exact scheduling first
-      final bool scheduled = await _tryScheduleExactNotification(
-        id: notificationId,
-        title: '${_capitalizeFirst(mealType)} Reminder 🍽️',
-        body: 'Time to log your $mealType! Don\'t forget to track your meal.',
-        scheduledDate: scheduledDate,
-        channelId: 'meal_reminders',
-        payload: 'meal_reminder_$mealType',
-      );
-
-      if (!scheduled) {
-        // Fallback to periodic scheduling
-        await _schedulePeriodicFallback(
-          notificationId,
-          '${_capitalizeFirst(mealType)} Reminder 🍽️',
-          'Time to log your $mealType! Don\'t forget to track your meal.',
-          time,
-          'meal_reminders',
-          'meal_reminder_$mealType',
-        );
-      }
-
-      debugPrint('Firebase scheduled $mealType reminder for $time');
-    } catch (e) {
-      debugPrint('Error scheduling Firebase $mealType reminder: $e');
-    }
-  }
-
-  /// Schedule exercise reminders
-  Future<void> _scheduleExerciseReminders() async {
-    try {
-      final AppNotificationSettings settings = await _getNotificationSettings();
-      if (!settings.exerciseRemindersEnabled) return;
-
-      // Using FCM campaign "Exercises Reminder" instead of local scheduling
-      debugPrint('Using FCM campaign for exercise reminders');
-    } catch (e) {
-      debugPrint('Error scheduling Firebase exercise reminders: $e');
-    }
-  }
-
-  /// Schedule sleep reminders
-  Future<void> _scheduleSleepReminders() async {
-    try {
-      final AppNotificationSettings settings = await _getNotificationSettings();
-      if (!settings.sleepRemindersEnabled) return;
-
-      await _scheduleBedtimeReminder();
-      await _scheduleMorningSleepReminder();
-    } catch (e) {
-      debugPrint('Error scheduling Firebase sleep reminders: $e');
-    }
-  }
-
-  /// Schedule bedtime reminder
-  Future<void> _scheduleBedtimeReminder() async {
-    try {
-      const TimeOfDay bedtime = TimeOfDay(hour: 22, minute: 0);
-      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        bedtime.hour,
-        bedtime.minute,
-      );
-
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      // Try exact scheduling first
-      final bool scheduled = await _tryScheduleExactNotification(
-        id: _sleepReminderBaseId,
-        title: 'Bedtime Reminder 🌙',
-        body: 'Time to wind down! Prepare for a good night\'s sleep.',
-        scheduledDate: scheduledDate,
-        channelId: 'sleep_reminders',
-        payload: 'sleep_bedtime_reminder',
-      );
-
-      if (!scheduled) {
-        // Fallback to periodic scheduling
-        await _schedulePeriodicFallback(
-          _sleepReminderBaseId,
-          'Bedtime Reminder 🌙',
-          'Time to wind down! Prepare for a good night\'s sleep.',
-          bedtime,
-          'sleep_reminders',
-          'sleep_bedtime_reminder',
-        );
-      }
-
-      debugPrint('Firebase scheduled bedtime reminder for $bedtime');
-    } catch (e) {
-      debugPrint('Error scheduling Firebase bedtime reminder: $e');
-    }
-  }
-
-  /// Schedule morning sleep reminder
-  Future<void> _scheduleMorningSleepReminder() async {
-    try {
-      const TimeOfDay morningTime = TimeOfDay(hour: 9, minute: 0);
-      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        morningTime.hour,
-        morningTime.minute,
-      );
-
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      // Try exact scheduling first
-      final bool scheduled = await _tryScheduleExactNotification(
-        id: _sleepReminderBaseId + 1,
-        title: 'Sleep Tracking 😴',
-        body: 'Good morning! Don\'t forget to log your sleep from last night.',
-        scheduledDate: scheduledDate,
-        channelId: 'sleep_reminders',
-        payload: 'sleep_morning_reminder',
-      );
-
-      if (!scheduled) {
-        // Fallback to periodic scheduling
-        await _schedulePeriodicFallback(
-          _sleepReminderBaseId + 1,
-          'Sleep Tracking 😴',
-          'Good morning! Don\'t forget to log your sleep from last night.',
-          morningTime,
-          'sleep_reminders',
-          'sleep_morning_reminder',
-        );
-      }
-
-      debugPrint('Firebase scheduled morning sleep reminder for $morningTime');
-    } catch (e) {
-      debugPrint('Error scheduling Firebase morning sleep reminder: $e');
-    }
-  }
-
-  /// Schedule sustainability tips
-  Future<void> _scheduleSustainabilityTips() async {
-    try {
-      final AppNotificationSettings settings = await _getNotificationSettings();
-      if (!settings.sustainabilityTipsEnabled) return;
-
-      final List<TimeOfDay> tipTimes = <TimeOfDay>[
-        const TimeOfDay(hour: 11, minute: 0),
-        const TimeOfDay(hour: 15, minute: 30),
-        const TimeOfDay(hour: 18, minute: 45),
-      ];
-
-      for (int i = 0; i < tipTimes.length; i++) {
-        await _scheduleDailySustainabilityTip(
-          tipTimes[i],
-          _sustainabilityTipBaseId + i,
-        );
-      }
-    } catch (e) {
-      debugPrint('Error scheduling Firebase sustainability tips: $e');
-    }
-  }
-
-  /// Schedule a daily sustainability tip
-  Future<void> _scheduleDailySustainabilityTip(
-    TimeOfDay time,
-    int notificationId,
-  ) async {
-    try {
-      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        time.hour,
-        time.minute,
-      );
-
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      final String tip = _getRandomSustainabilityTip();
-
-      // Try exact scheduling first
-      final bool scheduled = await _tryScheduleExactNotification(
-        id: notificationId,
-        title: 'Sustainability Tip 🌱',
-        body: tip,
-        scheduledDate: scheduledDate,
-        channelId: 'sustainability_tips',
-        payload: 'sustainability_tip',
-      );
-
-      if (!scheduled) {
-        // Fallback to periodic scheduling
-        await _schedulePeriodicFallback(
-          notificationId,
-          'Sustainability Tip 🌱',
-          tip,
-          time,
-          'sustainability_tips',
-          'sustainability_tip',
-        );
-      }
-
-      debugPrint('Firebase scheduled sustainability tip for $time');
-    } catch (e) {
-      debugPrint('Error scheduling Firebase sustainability tip: $e');
-    }
-  }
-
-  /// Get a random sustainability tip
-  String _getRandomSustainabilityTip() {
-    final List<String> tips = <String>[
-      "🌱 Take the stairs instead of the elevator to reduce energy consumption and improve your health!",
-      "💧 Turn off the tap while brushing your teeth to save up to 8 gallons of water per day.",
-      "🚲 Consider walking or cycling for short trips - it's great for your health and the environment!",
-      "🌿 Eat more plant-based meals to reduce your carbon footprint and improve your nutrition.",
-      "♻️ Remember to recycle and properly sort your waste to help protect our planet.",
-      "💡 Switch to LED bulbs - they use 75% less energy and last 25 times longer!",
-      "🏡 Unplug electronics when not in use to prevent phantom energy consumption.",
-      "🌍 Choose reusable bags, bottles, and containers to reduce single-use plastic waste.",
-      "🚿 Take shorter showers to conserve water and energy - aim for 5 minutes or less!",
-      "🌳 Support local and seasonal produce to reduce transportation emissions and eat fresher food.",
-    ];
-
-    return tips[Random().nextInt(tips.length)];
-  }
-
-  /// Try to schedule an exact notification
-  Future<bool> _tryScheduleExactNotification({
-    required int id,
-    required String title,
-    required String body,
-    required tz.TZDateTime scheduledDate,
-    required String channelId,
-    String? payload,
-  }) async {
-    try {
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledDate,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channelId,
-            _getChannelName(channelId),
-            channelDescription: _getChannelDescription(channelId),
-            importance: Importance.high,
-            priority: Priority.high,
-            color: const Color(0xFF94e0b2),
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
-        payload: payload,
-        matchDateTimeComponents: DateTimeComponents.time,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        androidAllowWhileIdle: true,
-      );
-      debugPrint('✅ Exact notification scheduled: $title at $scheduledDate');
-      return true;
-    } catch (e) {
-      debugPrint('❌ Failed to schedule exact notification: $e');
-      return false;
-    }
-  }
-
-  /// Schedule periodic fallback notification
-  Future<void> _schedulePeriodicFallback(
-    int id,
-    String title,
-    String body,
-    TimeOfDay time,
-    String channelId,
-    String payload,
-  ) async {
-    try {
-      // Use periodic scheduling as fallback
-      await _flutterLocalNotificationsPlugin.periodicallyShow(
-        id,
-        title,
-        body,
-        RepeatInterval.daily,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channelId,
-            _getChannelName(channelId),
-            channelDescription: _getChannelDescription(channelId),
-            importance: Importance.high,
-            priority: Priority.high,
-            color: const Color(0xFF94e0b2),
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
-        payload: payload,
-      );
-      debugPrint('📅 Periodic fallback scheduled: $title');
-    } catch (e) {
-      debugPrint('❌ Failed to schedule periodic fallback: $e');
-      // Last resort: schedule for next minute as a test
-      await _scheduleNextMinuteFallback(id, title, body, channelId, payload);
-    }
-  }
-
-  /// Schedule next minute fallback (for testing)
-  Future<void> _scheduleNextMinuteFallback(
-    int id,
-    String title,
-    String body,
-    String channelId,
-    String payload,
-  ) async {
-    try {
-      final DateTime nextMinute =
-          DateTime.now().add(const Duration(minutes: 1));
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tz.TZDateTime.from(nextMinute, tz.local),
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channelId,
-            _getChannelName(channelId),
-            channelDescription: _getChannelDescription(channelId),
-            importance: Importance.high,
-            priority: Priority.high,
-            color: const Color(0xFFFF0000), // Red for fallback
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
-        payload: payload,
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
-      debugPrint('🔔 Next minute fallback scheduled: $title');
-    } catch (e) {
-      debugPrint('❌ Failed to schedule next minute fallback: $e');
-    }
-  }
-
-  /// Get channel name from channel ID
-  String _getChannelName(String channelId) {
-    switch (channelId) {
-      case 'meal_reminders':
-        return 'Meal Reminders';
-      case 'exercise_reminders':
-        return 'Exercise Reminders';
-      case 'sleep_reminders':
-        return 'Sleep Reminders';
-      case 'sustainability_tips':
-        return 'Sustainability Tips';
-      case 'test_notifications':
-        return 'Test Notifications';
-      default:
-        return 'Notifications';
-    }
-  }
-
-  /// Get channel description from channel ID
-  String _getChannelDescription(String channelId) {
-    switch (channelId) {
-      case 'meal_reminders':
-        return 'Reminders to log your meals';
-      case 'exercise_reminders':
-        return 'Reminders to exercise and log workouts';
-      case 'sleep_reminders':
-        return 'Reminders for sleep tracking and bedtime';
-      case 'sustainability_tips':
-        return 'Daily sustainability tips and advice';
-      case 'test_notifications':
-        return 'Test notifications';
-      default:
-        return 'App notifications';
-    }
-  }
+  // Next-minute fallback removed
 
   /// Handle Android battery optimization and permissions aggressively
   Future<void> _handleAndroidOptimizations() async {
@@ -949,11 +376,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
     }
   }
 
-  /// Capitalize first letter
-  String _capitalizeFirst(String text) {
-    if (text.isEmpty) return text;
-    return text[0].toUpperCase() + text.substring(1);
-  }
+  // Helper methods for local scheduling removed in topics-only model
 
   /// Get notification settings
   Future<AppNotificationSettings> _getNotificationSettings() async {
@@ -980,20 +403,22 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString(_settingsKey, jsonEncode(settings.toJson()));
 
+      // Cancel local notifications; scheduling is handled server-side via FCM topics
       await cancelAllNotifications();
-      await _scheduleAllReminders();
 
-      // Update FCM topic subscriptions
+      // Update FCM topic subscriptions (topics-only)
       if (settings.exerciseRemindersEnabled) {
-        await _firebaseMessaging.subscribeToTopic('Exercises Reminder');
-        debugPrint('Subscribed to Exercises Reminder topic');
+        await _firebaseMessaging.subscribeToTopic('exercises_reminder');
+        debugPrint('Subscribed to exercises_reminder topic');
       } else {
-        await _firebaseMessaging.unsubscribeFromTopic('Exercises Reminder');
-        debugPrint('Unsubscribed from Exercises Reminder topic');
+        await _firebaseMessaging.unsubscribeFromTopic('exercises_reminder');
+        debugPrint('Unsubscribed from exercises_reminder topic');
       }
 
-      debugPrint(
-          'Firebase notification settings updated and reminders rescheduled');
+      // Cancel any local notifications as we now rely on FCM topics
+      await cancelAllNotifications();
+
+      debugPrint('Firebase notification settings updated (topics-only)');
     } catch (e) {
       debugPrint('Error updating Firebase notification settings: $e');
     }
@@ -1009,84 +434,12 @@ class FirebaseNotificationService with WidgetsBindingObserver {
     }
   }
 
-  /// Get scheduled notifications
+  /// Get scheduled notifications: since reminders are topics-only, return local pending requests (likely empty)
   Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
     try {
       final List<PendingNotificationRequest> exactNotifications =
           await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
-
-      if (exactNotifications.isNotEmpty) {
-        return exactNotifications;
-      }
-
-      // Create mock notifications for UI display
-      final List<PendingNotificationRequest> mockNotifications = <PendingNotificationRequest>[];
-      final AppNotificationSettings settings = await _getNotificationSettings();
-
-      if (settings.mealRemindersEnabled) {
-        mockNotifications.addAll(<PendingNotificationRequest>[
-          PendingNotificationRequest(
-            _mealReminderBaseId,
-            'Breakfast Reminder',
-            'Time to log your breakfast and start your day healthy!',
-            'meal_breakfast',
-          ),
-          PendingNotificationRequest(
-            _mealReminderBaseId + 1,
-            'Lunch Reminder',
-            'Don\'t forget to log your lunch for balanced nutrition!',
-            'meal_lunch',
-          ),
-          PendingNotificationRequest(
-            _mealReminderBaseId + 2,
-            'Dinner Reminder',
-            'Time to log your dinner and complete your daily nutrition!',
-            'meal_dinner',
-          ),
-        ]);
-      }
-
-      if (settings.exerciseRemindersEnabled) {
-        // Exercise reminders are now handled by FCM campaigns
-        mockNotifications.addAll(<PendingNotificationRequest>[
-          PendingNotificationRequest(
-            _exerciseReminderBaseId,
-            'Exercise Reminder (FCM)',
-            'Exercise reminders delivered via Firebase Cloud Messaging campaigns',
-            'exercise_fcm',
-          ),
-        ]);
-      }
-
-      if (settings.sleepRemindersEnabled) {
-        mockNotifications.addAll(<PendingNotificationRequest>[
-          PendingNotificationRequest(
-            _sleepReminderBaseId,
-            'Bedtime Reminder',
-            'Time to wind down and prepare for restful sleep!',
-            'sleep_bedtime',
-          ),
-          PendingNotificationRequest(
-            _sleepReminderBaseId + 1,
-            'Morning Sleep Log',
-            'How did you sleep? Log your sleep data for today!',
-            'sleep_morning',
-          ),
-        ]);
-      }
-
-      if (settings.sustainabilityTipsEnabled) {
-        mockNotifications.addAll(<PendingNotificationRequest>[
-          PendingNotificationRequest(
-            _sustainabilityTipBaseId,
-            'Daily Sustainability Tip',
-            'Discover eco-friendly practices for sustainable living!',
-            'sustainability_tip',
-          ),
-        ]);
-      }
-
-      return mockNotifications;
+      return exactNotifications;
     } catch (e) {
       debugPrint('Error getting Firebase scheduled notifications: $e');
       return <PendingNotificationRequest>[];
@@ -1243,7 +596,8 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       if (!_isInitialized) {
         await initialize();
       } else {
-        await _scheduleAllReminders();
+        // No local rescheduling in topics-only model
+        await cancelAllNotifications();
       }
       debugPrint('Rescheduled all Firebase reminders');
     } catch (e) {

@@ -9,7 +9,7 @@ import '../../features/exercise/data/services/workout_session_service.dart';
 import '../../features/sleep/data/services/sleep_service.dart';
 
 class EnhancedNotificationService {
-  static final EnhancedNotificationService _instance = 
+  static final EnhancedNotificationService _instance =
       EnhancedNotificationService._internal();
   factory EnhancedNotificationService() => _instance;
   EnhancedNotificationService._internal();
@@ -43,7 +43,7 @@ class EnhancedNotificationService {
     try {
       // Initialize timezone data
       tz.initializeTimeZones();
-      
+
       // Set local timezone (you can customize this)
       tz.setLocalLocation(tz.getLocation('UTC'));
 
@@ -67,7 +67,8 @@ class EnhancedNotificationService {
       );
 
       // Initialize the plugin
-      final bool? initialized = await _flutterLocalNotificationsPlugin.initialize(
+      final bool? initialized =
+          await _flutterLocalNotificationsPlugin.initialize(
         initializationSettings,
         onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
       );
@@ -75,18 +76,18 @@ class EnhancedNotificationService {
       if (initialized == true) {
         // Request permissions
         final bool permissionGranted = await requestPermissions();
-        
+
         if (permissionGranted) {
           _isInitialized = true;
-          
+
           // Start automatic reminder scheduling
           await _scheduleAllReminders();
-          
+
           debugPrint('Enhanced notification service initialized successfully');
           return true;
         }
       }
-      
+
       return false;
     } catch (e) {
       debugPrint('Error initializing enhanced notifications: $e');
@@ -105,19 +106,19 @@ class EnhancedNotificationService {
   Future<bool> requestPermissions() async {
     try {
       // Request permissions on Android
-      final AndroidFlutterLocalNotificationsPlugin? androidImplementation = 
+      final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
           _flutterLocalNotificationsPlugin
               .resolvePlatformSpecificImplementation<
                   AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidImplementation != null) {
-        final bool? granted = await androidImplementation
-            .requestNotificationsPermission();
+        final bool? granted =
+            await androidImplementation.requestNotificationsPermission();
         return granted == true;
       }
 
       // Request permissions on iOS
-      final IOSFlutterLocalNotificationsPlugin? iosImplementation = 
+      final IOSFlutterLocalNotificationsPlugin? iosImplementation =
           _flutterLocalNotificationsPlugin
               .resolvePlatformSpecificImplementation<
                   IOSFlutterLocalNotificationsPlugin>();
@@ -142,19 +143,18 @@ class EnhancedNotificationService {
   Future<void> _scheduleAllReminders() async {
     try {
       debugPrint('Scheduling all reminders...');
-      
+
       // Schedule meal reminders
       await _scheduleMealReminders();
-      
-      // Schedule exercise reminders
-      await _scheduleExerciseReminders();
-      
+
+      // Exercise reminders are handled via FCM topics (no local scheduling)
+
       // Schedule sleep reminders
       await _scheduleSleepReminders();
-      
+
       // Schedule sustainability tips
       await _scheduleSustainabilityTips();
-      
+
       debugPrint('All reminders scheduled successfully');
     } catch (e) {
       debugPrint('Error scheduling all reminders: $e');
@@ -237,115 +237,9 @@ class EnhancedNotificationService {
     }
   }
 
-  /// Schedule exercise reminders
-  Future<void> _scheduleExerciseReminders() async {
-    try {
-      final NotificationSettings settings = await _getNotificationSettings();
-      if (!settings.exerciseRemindersEnabled) return;
+  // Exercise reminders removed - use FCM topics instead
 
-      // Schedule daily exercise reminder
-      await _scheduleDailyExerciseReminder();
-      
-      // Schedule evening check-in if no workout logged
-      await _scheduleEveningExerciseCheckIn();
-    } catch (e) {
-      debugPrint('Error scheduling exercise reminders: $e');
-    }
-  }
-
-  /// Schedule daily exercise reminder
-  Future<void> _scheduleDailyExerciseReminder() async {
-    try {
-      const TimeOfDay exerciseTime = TimeOfDay(hour: 17, minute: 0); // 5 PM
-      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        exerciseTime.hour,
-        exerciseTime.minute,
-      );
-
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        _exerciseReminderBaseId,
-        'Exercise Time! 💪',
-        'Ready for your workout? Let\'s get moving and track your progress!',
-        scheduledDate,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            'exercise_reminders',
-            'Exercise Reminders',
-            channelDescription: 'Reminders to exercise and log workouts',
-            importance: Importance.high,
-            priority: Priority.high,
-            color: const Color(0xFF94e0b2),
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
-        payload: 'exercise_reminder_daily',
-        matchDateTimeComponents: DateTimeComponents.time,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
-
-      debugPrint('Scheduled daily exercise reminder for $exerciseTime');
-    } catch (e) {
-      debugPrint('Error scheduling daily exercise reminder: $e');
-    }
-  }
-
-  /// Schedule evening exercise check-in
-  Future<void> _scheduleEveningExerciseCheckIn() async {
-    try {
-      const TimeOfDay checkInTime = TimeOfDay(hour: 20, minute: 0); // 8 PM
-      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-      tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        checkInTime.hour,
-        checkInTime.minute,
-      );
-
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-      }
-
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        _exerciseReminderBaseId + 1,
-        'Daily Check-in 📊',
-        'Did you exercise today? Don\'t forget to log your workout!',
-        scheduledDate,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            'exercise_reminders',
-            'Exercise Reminders',
-            channelDescription: 'Reminders to exercise and log workouts',
-            importance: Importance.defaultImportance,
-            priority: Priority.defaultPriority,
-            color: const Color(0xFF94e0b2),
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: const DarwinNotificationDetails(),
-        ),
-        payload: 'exercise_checkin_evening',
-        matchDateTimeComponents: DateTimeComponents.time,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
-
-      debugPrint('Scheduled evening exercise check-in for $checkInTime');
-    } catch (e) {
-      debugPrint('Error scheduling evening exercise check-in: $e');
-    }
-  }
+  // Exercise scheduling helpers removed - use FCM topics instead
 
   /// Schedule sleep reminders
   Future<void> _scheduleSleepReminders() async {
@@ -355,7 +249,7 @@ class EnhancedNotificationService {
 
       // Schedule bedtime reminder
       await _scheduleBedtimeReminder();
-      
+
       // Schedule morning sleep logging reminder
       await _scheduleMorningSleepReminder();
     } catch (e) {
@@ -546,7 +440,7 @@ class EnhancedNotificationService {
       "🚿 Take shorter showers to conserve water and energy - aim for 5 minutes or less!",
       "🌳 Support local and seasonal produce to reduce transportation emissions and eat fresher food.",
     ];
-    
+
     return tips[Random().nextInt(tips.length)];
   }
 
@@ -555,29 +449,27 @@ class EnhancedNotificationService {
     try {
       final DateTime today = DateTime.now();
       final DateTime todayStart = DateTime(today.year, today.month, today.day);
-      
+
       // Check if we've already sent reminders today
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String? lastCheck = prefs.getString(_lastCheckKey);
-      final DateTime lastCheckDate = lastCheck != null 
-          ? DateTime.parse(lastCheck) 
-          : DateTime(2000);
-      
+      final DateTime lastCheckDate =
+          lastCheck != null ? DateTime.parse(lastCheck) : DateTime(2000);
+
       // Only check once per day
       if (lastCheckDate.isAfter(todayStart)) return;
-      
+
       // Check meal logging
       await _checkMealLogging(todayStart);
-      
+
       // Check exercise logging
       await _checkExerciseLogging(todayStart);
-      
+
       // Check sleep logging
       await _checkSleepLogging(todayStart);
-      
+
       // Update last check time
       await prefs.setString(_lastCheckKey, today.toIso8601String());
-      
     } catch (e) {
       debugPrint('Error in smart reminder check: $e');
     }
@@ -588,10 +480,10 @@ class EnhancedNotificationService {
     try {
       // This would need to be connected to your actual food logging provider
       // For now, we'll simulate the check
-      
+
       // Example: Check if meals were logged today
       final int missedMeals = await _getMissedMealsCount(todayStart);
-      
+
       if (missedMeals > 0 && DateTime.now().hour >= 20) {
         await _flutterLocalNotificationsPlugin.show(
           9000,
@@ -601,7 +493,8 @@ class EnhancedNotificationService {
             android: AndroidNotificationDetails(
               'smart_reminders',
               'Smart Reminders',
-              channelDescription: 'Intelligent reminders based on your activity',
+              channelDescription:
+                  'Intelligent reminders based on your activity',
               importance: Importance.defaultImportance,
               priority: Priority.defaultPriority,
               color: const Color(0xFF94e0b2),
@@ -620,12 +513,13 @@ class EnhancedNotificationService {
   /// Check exercise logging for today
   Future<void> _checkExerciseLogging(DateTime todayStart) async {
     try {
-      final List<dynamic> todayWorkouts = await _workoutService.getCompletedWorkouts();
+      final List<dynamic> todayWorkouts =
+          await _workoutService.getCompletedWorkouts();
       final bool hasExercisedToday = todayWorkouts.any((workout) {
         final DateTime workoutDate = DateTime.parse(workout['startTime']);
         return workoutDate.isAfter(todayStart);
       });
-      
+
       if (!hasExercisedToday && DateTime.now().hour >= 21) {
         await _flutterLocalNotificationsPlugin.show(
           9001,
@@ -635,7 +529,8 @@ class EnhancedNotificationService {
             android: AndroidNotificationDetails(
               'smart_reminders',
               'Smart Reminders',
-              channelDescription: 'Intelligent reminders based on your activity',
+              channelDescription:
+                  'Intelligent reminders based on your activity',
               importance: Importance.defaultImportance,
               priority: Priority.defaultPriority,
               color: const Color(0xFF94e0b2),
@@ -655,15 +550,18 @@ class EnhancedNotificationService {
   Future<void> _checkSleepLogging(DateTime todayStart) async {
     try {
       final DateTime yesterday = todayStart.subtract(const Duration(days: 1));
-      final List<dynamic> sleepSessions = await _sleepService.getSleepSessions();
-      
+      final List<dynamic> sleepSessions =
+          await _sleepService.getSleepSessions();
+
       final bool hasLoggedSleep = sleepSessions.any((session) {
         final DateTime sessionDate = DateTime.parse(session['startTime']);
-        final DateTime sessionDateOnly = DateTime(sessionDate.year, sessionDate.month, sessionDate.day);
-        final DateTime yesterdayOnly = DateTime(yesterday.year, yesterday.month, yesterday.day);
+        final DateTime sessionDateOnly =
+            DateTime(sessionDate.year, sessionDate.month, sessionDate.day);
+        final DateTime yesterdayOnly =
+            DateTime(yesterday.year, yesterday.month, yesterday.day);
         return sessionDateOnly.isAtSameMomentAs(yesterdayOnly);
       });
-      
+
       if (!hasLoggedSleep && DateTime.now().hour >= 10) {
         await _flutterLocalNotificationsPlugin.show(
           9002,
@@ -673,7 +571,8 @@ class EnhancedNotificationService {
             android: AndroidNotificationDetails(
               'smart_reminders',
               'Smart Reminders',
-              channelDescription: 'Intelligent reminders based on your activity',
+              channelDescription:
+                  'Intelligent reminders based on your activity',
               importance: Importance.defaultImportance,
               priority: Priority.defaultPriority,
               color: const Color(0xFF94e0b2),
@@ -734,12 +633,12 @@ class EnhancedNotificationService {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String? settingsJson = prefs.getString(_settingsKey);
-      
+
       if (settingsJson != null) {
         final Map<String, dynamic> settings = jsonDecode(settingsJson);
         return NotificationSettings.fromJson(settings);
       }
-      
+
       // Return default settings
       return const NotificationSettings();
     } catch (e) {
@@ -753,11 +652,11 @@ class EnhancedNotificationService {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString(_settingsKey, jsonEncode(settings.toJson()));
-      
+
       // Reschedule all reminders with new settings
       await cancelAllNotifications();
       await _scheduleAllReminders();
-      
+
       debugPrint('Notification settings updated and reminders rescheduled');
     } catch (e) {
       debugPrint('Error updating notification settings: $e');
@@ -778,21 +677,22 @@ class EnhancedNotificationService {
   Future<List<PendingNotificationRequest>> getScheduledNotifications() async {
     try {
       // Get exact scheduled notifications
-      final List<PendingNotificationRequest> exactNotifications = 
+      final List<PendingNotificationRequest> exactNotifications =
           await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
-      
+
       // If we have exact notifications, return them
       if (exactNotifications.isNotEmpty) {
         return exactNotifications;
       }
-      
+
       // Otherwise, create mock pending notifications from our flexible notifications
       // This helps show users what notifications are scheduled even when using flexible timing
-      final List<PendingNotificationRequest> mockNotifications = <PendingNotificationRequest>[];
-      
+      final List<PendingNotificationRequest> mockNotifications =
+          <PendingNotificationRequest>[];
+
       // Add mock notifications for known scheduled types
       final NotificationSettings settings = await _getNotificationSettings();
-      
+
       if (settings.mealRemindersEnabled) {
         mockNotifications.addAll(<PendingNotificationRequest>[
           PendingNotificationRequest(
@@ -803,7 +703,7 @@ class EnhancedNotificationService {
           ),
           PendingNotificationRequest(
             _mealReminderBaseId + 1,
-            'Lunch Reminder', 
+            'Lunch Reminder',
             'Don\'t forget to log your lunch for balanced nutrition!',
             'meal_lunch',
           ),
@@ -815,7 +715,7 @@ class EnhancedNotificationService {
           ),
         ]);
       }
-      
+
       if (settings.exerciseRemindersEnabled) {
         mockNotifications.addAll(<PendingNotificationRequest>[
           PendingNotificationRequest(
@@ -832,7 +732,7 @@ class EnhancedNotificationService {
           ),
         ]);
       }
-      
+
       if (settings.sleepRemindersEnabled) {
         mockNotifications.addAll(<PendingNotificationRequest>[
           PendingNotificationRequest(
@@ -849,7 +749,7 @@ class EnhancedNotificationService {
           ),
         ]);
       }
-      
+
       if (settings.sustainabilityTipsEnabled) {
         mockNotifications.addAll(<PendingNotificationRequest>[
           PendingNotificationRequest(
@@ -866,7 +766,7 @@ class EnhancedNotificationService {
           ),
         ]);
       }
-      
+
       return mockNotifications;
     } catch (e) {
       debugPrint('Error getting scheduled notifications: $e');
@@ -877,13 +777,14 @@ class EnhancedNotificationService {
   /// Check if notifications are enabled
   Future<bool> areNotificationsEnabled() async {
     try {
-      final AndroidFlutterLocalNotificationsPlugin? androidImplementation = 
+      final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
           _flutterLocalNotificationsPlugin
               .resolvePlatformSpecificImplementation<
                   AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidImplementation != null) {
-        final bool? enabled = await androidImplementation.areNotificationsEnabled();
+        final bool? enabled =
+            await androidImplementation.areNotificationsEnabled();
         return enabled == true;
       }
 
@@ -946,10 +847,14 @@ class NotificationSettings {
   }) {
     return NotificationSettings(
       mealRemindersEnabled: mealRemindersEnabled ?? this.mealRemindersEnabled,
-      exerciseRemindersEnabled: exerciseRemindersEnabled ?? this.exerciseRemindersEnabled,
-      sleepRemindersEnabled: sleepRemindersEnabled ?? this.sleepRemindersEnabled,
-      sustainabilityTipsEnabled: sustainabilityTipsEnabled ?? this.sustainabilityTipsEnabled,
-      smartRemindersEnabled: smartRemindersEnabled ?? this.smartRemindersEnabled,
+      exerciseRemindersEnabled:
+          exerciseRemindersEnabled ?? this.exerciseRemindersEnabled,
+      sleepRemindersEnabled:
+          sleepRemindersEnabled ?? this.sleepRemindersEnabled,
+      sustainabilityTipsEnabled:
+          sustainabilityTipsEnabled ?? this.sustainabilityTipsEnabled,
+      smartRemindersEnabled:
+          smartRemindersEnabled ?? this.smartRemindersEnabled,
     );
   }
 }
