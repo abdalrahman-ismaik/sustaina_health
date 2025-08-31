@@ -22,7 +22,7 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -36,17 +36,17 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                       children: <Widget>[
                         IconButton(
                           icon: const Icon(Icons.arrow_back),
-                          color: const Color(0xFF121714),
+                          color: Theme.of(context).colorScheme.onSurface,
                           onPressed: () => Navigator.of(context).pop(),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Padding(
-                            padding: EdgeInsets.only(right: 48.0),
+                            padding: const EdgeInsets.only(right: 48.0),
                             child: Text(
                               'Goals',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Color(0xFF121714),
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                                 letterSpacing: -0.015,
@@ -56,24 +56,24 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                         ),
                       ],
                     ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 24, 16, 0),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
                       child: Text(
                         'What are your health goals?',
                         style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
                           letterSpacing: -0.015,
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                       child: Text(
                         'Select all that apply to tailor your Ghiraas experience.',
                         style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 16,
                         ),
                       ),
@@ -96,13 +96,13 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                             },
                             title: Text(
                               goal,
-                              style: const TextStyle(
-                                color: Color(0xFF121714),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 16,
                               ),
                             ),
-                            activeColor: const Color(0xFF94E0B2),
-                            checkColor: const Color(0xFF121714),
+                            activeColor: Theme.of(context).colorScheme.primary,
+                            checkColor: Theme.of(context).colorScheme.onPrimary,
                             controlAffinity: ListTileControlAffinity.leading,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -112,24 +112,24 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                       ),
                     ),
                     if (selectedGoals.isNotEmpty) ...<Widget>[
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(16, 24, 16, 0),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
                         child: Text(
                           'Prioritize your goals',
                           style: TextStyle(
-                            color: Color(0xFF121714),
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
                             letterSpacing: -0.015,
                           ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                         child: Text(
                           'Drag and drop to rank your goals in order of importance.',
                           style: TextStyle(
-                            color: Color(0xFF121714),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 16,
                           ),
                         ),
@@ -150,17 +150,17 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                           },
                           children: <Widget>[
                             for (final String goal in selectedGoals)
-                              ListTile(
+                ListTile(
                                 key: ValueKey(goal),
                                 title: Text(
                                   goal,
-                                  style: const TextStyle(
-                                    color: Color(0xFF121714),
+                  style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                                     fontSize: 16,
                                   ),
                                 ),
-                                trailing: const Icon(Icons.drag_handle,
-                                    color: Color(0xFF121714)),
+                trailing: Icon(Icons.drag_handle,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ),
                           ],
                         ),
@@ -187,16 +187,16 @@ class _ProfileHealthGoalsScreenState extends State<ProfileHealthGoalsScreen> {
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF94E0B2),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Next',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       letterSpacing: 0.015,

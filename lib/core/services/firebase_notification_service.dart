@@ -442,7 +442,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       final pending =
           await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
       debugPrint('Pending notifications after scheduling: ${pending.length}');
-      for (final p in pending) {
+      for (final PendingNotificationRequest p in pending) {
         if (p.id == 9995) {
           debugPrint(
               'Scheduled notification found in pending: ${p.title} at ${p.body}');
@@ -487,7 +487,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       final AppNotificationSettings settings = await _getNotificationSettings();
       if (!settings.mealRemindersEnabled) return;
 
-      final Map<String, TimeOfDay> mealTimes = {
+      final Map<String, TimeOfDay> mealTimes = <String, TimeOfDay>{
         'breakfast': const TimeOfDay(hour: 8, minute: 0),
         'lunch': const TimeOfDay(hour: 13, minute: 0),
         'dinner': const TimeOfDay(hour: 19, minute: 0),
@@ -527,7 +527,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       }
 
       // Try exact scheduling first
-      bool scheduled = await _tryScheduleExactNotification(
+      final bool scheduled = await _tryScheduleExactNotification(
         id: notificationId,
         title: '${_capitalizeFirst(mealType)} Reminder 🍽️',
         body: 'Time to log your $mealType! Don\'t forget to track your meal.',
@@ -599,7 +599,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       }
 
       // Try exact scheduling first
-      bool scheduled = await _tryScheduleExactNotification(
+      final bool scheduled = await _tryScheduleExactNotification(
         id: _sleepReminderBaseId,
         title: 'Bedtime Reminder 🌙',
         body: 'Time to wind down! Prepare for a good night\'s sleep.',
@@ -645,7 +645,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       }
 
       // Try exact scheduling first
-      bool scheduled = await _tryScheduleExactNotification(
+      final bool scheduled = await _tryScheduleExactNotification(
         id: _sleepReminderBaseId + 1,
         title: 'Sleep Tracking 😴',
         body: 'Good morning! Don\'t forget to log your sleep from last night.',
@@ -678,7 +678,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       final AppNotificationSettings settings = await _getNotificationSettings();
       if (!settings.sustainabilityTipsEnabled) return;
 
-      final List<TimeOfDay> tipTimes = [
+      final List<TimeOfDay> tipTimes = <TimeOfDay>[
         const TimeOfDay(hour: 11, minute: 0),
         const TimeOfDay(hour: 15, minute: 30),
         const TimeOfDay(hour: 18, minute: 45),
@@ -718,7 +718,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       final String tip = _getRandomSustainabilityTip();
 
       // Try exact scheduling first
-      bool scheduled = await _tryScheduleExactNotification(
+      final bool scheduled = await _tryScheduleExactNotification(
         id: notificationId,
         title: 'Sustainability Tip 🌱',
         body: tip,
@@ -747,7 +747,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
 
   /// Get a random sustainability tip
   String _getRandomSustainabilityTip() {
-    final List<String> tips = [
+    final List<String> tips = <String>[
       "🌱 Take the stairs instead of the elevator to reduce energy consumption and improve your health!",
       "💧 Turn off the tap while brushing your teeth to save up to 8 gallons of water per day.",
       "🚲 Consider walking or cycling for short trips - it's great for your health and the environment!",
@@ -923,7 +923,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       debugPrint('🔧 Handling Android optimizations...');
 
       // Try to request battery optimization exemption
-      final batteryGranted = await requestIgnoreBatteryOptimizations();
+      final bool batteryGranted = await requestIgnoreBatteryOptimizations();
       if (batteryGranted) {
         debugPrint('✅ Battery optimization exemption granted');
       } else {
@@ -931,7 +931,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       }
 
       // Check and handle exact alarm permissions
-      final exactAlarmAllowed = await isExactAlarmPermitted();
+      final bool exactAlarmAllowed = await isExactAlarmPermitted();
       if (!exactAlarmAllowed) {
         debugPrint('⚠️ Exact alarms not permitted, will use fallback methods');
         // Try to open settings for user to enable
@@ -1020,11 +1020,11 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       }
 
       // Create mock notifications for UI display
-      final List<PendingNotificationRequest> mockNotifications = [];
+      final List<PendingNotificationRequest> mockNotifications = <PendingNotificationRequest>[];
       final AppNotificationSettings settings = await _getNotificationSettings();
 
       if (settings.mealRemindersEnabled) {
-        mockNotifications.addAll([
+        mockNotifications.addAll(<PendingNotificationRequest>[
           PendingNotificationRequest(
             _mealReminderBaseId,
             'Breakfast Reminder',
@@ -1048,7 +1048,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
 
       if (settings.exerciseRemindersEnabled) {
         // Exercise reminders are now handled by FCM campaigns
-        mockNotifications.addAll([
+        mockNotifications.addAll(<PendingNotificationRequest>[
           PendingNotificationRequest(
             _exerciseReminderBaseId,
             'Exercise Reminder (FCM)',
@@ -1059,7 +1059,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       }
 
       if (settings.sleepRemindersEnabled) {
-        mockNotifications.addAll([
+        mockNotifications.addAll(<PendingNotificationRequest>[
           PendingNotificationRequest(
             _sleepReminderBaseId,
             'Bedtime Reminder',
@@ -1076,7 +1076,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       }
 
       if (settings.sustainabilityTipsEnabled) {
-        mockNotifications.addAll([
+        mockNotifications.addAll(<PendingNotificationRequest>[
           PendingNotificationRequest(
             _sustainabilityTipBaseId,
             'Daily Sustainability Tip',
@@ -1089,7 +1089,7 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       return mockNotifications;
     } catch (e) {
       debugPrint('Error getting Firebase scheduled notifications: $e');
-      return [];
+      return <PendingNotificationRequest>[];
     }
   }
 
@@ -1188,8 +1188,8 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       }
 
       // Analyze the results
-      final List<String> issues = [];
-      final List<String> recommendations = [];
+      final List<String> issues = <String>[];
+      final List<String> recommendations = <String>[];
 
       if (results['isIgnoringBatteryOptimizations'] == false) {
         issues.add('Battery optimization is enabled');
@@ -1411,7 +1411,7 @@ class AppNotificationSettings {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'mealRemindersEnabled': mealRemindersEnabled,
       'exerciseRemindersEnabled': exerciseRemindersEnabled,
       'sleepRemindersEnabled': sleepRemindersEnabled,

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/workout_providers.dart';
 import '../../data/models/workout_models.dart';
 import 'completed_workout_detail_screen.dart';
-import '../../../../app/theme/exercise_colors.dart';
 
 class WorkoutHistoryScreen extends ConsumerStatefulWidget {
   const WorkoutHistoryScreen({Key? key}) : super(key: key);
@@ -28,9 +27,10 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync = ref.watch(completedWorkoutsProvider);
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: ExerciseColors.backgroundLight,
+      backgroundColor: cs.surface,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -41,7 +41,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                 children: <Widget>[
                   IconButton(
                     icon: Icon(Icons.arrow_back,
-                        color: ExerciseColors.textPrimary),
+                        color: cs.onSurface),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   Expanded(
@@ -49,7 +49,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                       'Workout History',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: ExerciseColors.textPrimary,
+                        color: cs.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                         letterSpacing: -0.015,
@@ -67,16 +67,19 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
               child: Row(
                 children: <Widget>[
                   _TabButton(
+                    context: context,
                     label: 'All',
                     selected: _selectedTab == 'All',
                     onTap: () => setState(() => _selectedTab = 'All'),
                   ),
                   _TabButton(
+                    context: context,
                     label: 'This Week',
                     selected: _selectedTab == 'This Week',
                     onTap: () => setState(() => _selectedTab = 'This Week'),
                   ),
                   _TabButton(
+                    context: context,
                     label: 'This Month',
                     selected: _selectedTab == 'This Month',
                     onTap: () => setState(() => _selectedTab = 'This Month'),
@@ -92,24 +95,24 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
               child: completedWorkoutsAsync.when(
                 data: (List<ActiveWorkoutSession> completedWorkouts) {
                   if (completedWorkouts.isEmpty) {
-                    return _buildEmptyState();
+                    return _buildEmptyState(context);
                   }
 
                   // Filter workouts based on selected tab
                   final List<ActiveWorkoutSession> filteredWorkouts = _filterWorkouts(completedWorkouts);
 
                   if (filteredWorkouts.isEmpty) {
-                    return _buildEmptyFilterState();
+                    return _buildEmptyFilterState(context);
                   }
 
-                  return _buildWorkoutsList(filteredWorkouts);
+                  return _buildWorkoutsList(context, filteredWorkouts);
                 },
                 loading: () => Center(
                   child: CircularProgressIndicator(
-                    color: ExerciseColors.loadingIndicator,
+                    color: cs.primary,
                   ),
                 ),
-                error: (Object error, StackTrace stack) => _buildErrorState(error),
+                error: (Object error, StackTrace stack) => _buildErrorState(context, error),
               ),
             ),
           ],
@@ -182,7 +185,8 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     }
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -190,7 +194,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           Icon(
             Icons.fitness_center,
             size: 64,
-            color: ExerciseColors.emptyState['icon'],
+            color: cs.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
           Text(
@@ -198,7 +202,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: ExerciseColors.emptyState['title'],
+              color: cs.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -206,7 +210,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             'Start working out to see your progress here',
             style: TextStyle(
               fontSize: 14,
-              color: ExerciseColors.emptyState['subtitle'],
+              color: cs.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
@@ -214,7 +218,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
             style: ElevatedButton.styleFrom(
-              backgroundColor: ExerciseColors.emptyState['button'],
+              backgroundColor: cs.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -222,7 +226,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             child: Text(
               'Start Your First Workout',
               style: TextStyle(
-                color: ExerciseColors.emptyState['buttonText'],
+                color: cs.onPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -232,7 +236,8 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     );
   }
 
-  Widget _buildEmptyFilterState() {
+  Widget _buildEmptyFilterState(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -240,7 +245,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           Icon(
             Icons.filter_list_off,
             size: 64,
-            color: ExerciseColors.emptyState['icon'],
+            color: cs.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
           Text(
@@ -248,7 +253,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: ExerciseColors.emptyState['title'],
+              color: cs.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -256,7 +261,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             'Try selecting a different time period',
             style: TextStyle(
               fontSize: 14,
-              color: ExerciseColors.emptyState['subtitle'],
+              color: cs.onSurfaceVariant,
             ),
           ),
         ],
@@ -264,7 +269,8 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     );
   }
 
-  Widget _buildErrorState(Object error) {
+  Widget _buildErrorState(BuildContext context, Object error) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -272,7 +278,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           Icon(
             Icons.error_outline,
             size: 64,
-            color: ExerciseColors.errorDark,
+            color: cs.error,
           ),
           const SizedBox(height: 16),
           Text(
@@ -280,7 +286,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: ExerciseColors.errorDark,
+              color: cs.error,
             ),
           ),
           const SizedBox(height: 8),
@@ -288,7 +294,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             error.toString(),
             style: TextStyle(
               fontSize: 14,
-              color: ExerciseColors.textSecondary,
+              color: cs.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
@@ -300,7 +306,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                   .loadCompletedWorkouts();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: ExerciseColors.buttonPrimary,
+              backgroundColor: cs.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -308,7 +314,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             child: Text(
               'Retry',
               style: TextStyle(
-                color: ExerciseColors.textOnPrimary,
+                color: cs.onPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -318,11 +324,11 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     );
   }
 
-  Widget _buildWorkoutsList(List<ActiveWorkoutSession> workouts) {
+  Widget _buildWorkoutsList(BuildContext context, List<ActiveWorkoutSession> workouts) {
     return Column(
       children: <Widget>[
         // Stats Section
-        _buildStatsSection(workouts),
+        _buildStatsSection(context, workouts),
 
         const SizedBox(height: 16),
 
@@ -333,7 +339,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             itemCount: workouts.length,
             itemBuilder: (BuildContext context, int index) {
               final ActiveWorkoutSession workout = workouts[index];
-              return _buildWorkoutCard(workout);
+              return _buildWorkoutCard(context, workout);
             },
           ),
         ),
@@ -341,7 +347,8 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     );
   }
 
-  Widget _buildStatsSection(List<ActiveWorkoutSession> workouts) {
+  Widget _buildStatsSection(BuildContext context, List<ActiveWorkoutSession> workouts) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final Duration totalDuration = workouts.fold<Duration>(
       Duration.zero,
       (Duration sum, ActiveWorkoutSession workout) => sum + workout.totalDuration,
@@ -366,9 +373,9 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ExerciseColors.statsCard['background'],
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ExerciseColors.statsCard['border']!),
+        border: Border.all(color: cs.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,7 +383,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           Text(
             'Statistics',
             style: TextStyle(
-              color: ExerciseColors.statsCard['text'],
+              color: cs.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
@@ -386,12 +393,14 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             children: <Widget>[
               Expanded(
                 child: _StatItem(
+                  context: context,
                   label: 'Total Workouts',
                   value: '${workouts.length}',
                 ),
               ),
               Expanded(
                 child: _StatItem(
+                  context: context,
                   label: 'Total Sets',
                   value: '$totalSets',
                 ),
@@ -403,12 +412,14 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             children: <Widget>[
               Expanded(
                 child: _StatItem(
+                  context: context,
                   label: 'Total Time',
                   value: _formatDuration(totalDuration),
                 ),
               ),
               Expanded(
                 child: _StatItem(
+                  context: context,
                   label: 'Avg Duration',
                   value: _formatDuration(avgDuration),
                 ),
@@ -420,7 +431,8 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     );
   }
 
-  Widget _buildWorkoutCard(ActiveWorkoutSession workout) {
+  Widget _buildWorkoutCard(BuildContext context, ActiveWorkoutSession workout) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final int totalSets = workout.exercises.fold<int>(
       0,
       (int sum, CompletedExercise exercise) => sum + exercise.sets.length,
@@ -430,7 +442,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       child: Card(
         elevation: 2,
-        color: ExerciseColors.workoutCard['background'],
+        color: cs.surfaceContainerLow,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -457,7 +469,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                       child: Text(
                         workout.workoutName,
                         style: TextStyle(
-                          color: ExerciseColors.workoutCard['text'],
+                          color: cs.onSurface,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -465,7 +477,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                     ),
                     Icon(
                       Icons.check_circle,
-                      color: ExerciseColors.buttonSuccess,
+                      color: cs.primary,
                       size: 20,
                     ),
                   ],
@@ -474,7 +486,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                 Text(
                   _formatDate(workout.endTime!),
                   style: TextStyle(
-                    color: ExerciseColors.workoutCard['subtitle'],
+                    color: cs.onSurfaceVariant,
                     fontSize: 14,
                   ),
                 ),
@@ -482,16 +494,19 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                 Row(
                   children: <Widget>[
                     _InfoChip(
+                      context: context,
                       icon: Icons.timer,
                       label: _formatDuration(workout.totalDuration),
                     ),
                     const SizedBox(width: 12),
                     _InfoChip(
+                      context: context,
                       icon: Icons.fitness_center,
                       label: '${workout.exercises.length} exercises',
                     ),
                     const SizedBox(width: 12),
                     _InfoChip(
+                      context: context,
                       icon: Icons.repeat,
                       label: '$totalSets sets',
                     ),
@@ -537,11 +552,13 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 }
 
 class _TabButton extends StatelessWidget {
+  final BuildContext context;
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
   const _TabButton({
+    required this.context,
     required this.label,
     required this.selected,
     required this.onTap,
@@ -549,6 +566,7 @@ class _TabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -558,7 +576,7 @@ class _TabButton extends StatelessWidget {
             border: Border(
               bottom: BorderSide(
                 color: selected
-                    ? ExerciseColors.borderPrimary
+                    ? cs.primary
                     : Colors.transparent,
                 width: 3,
               ),
@@ -569,8 +587,8 @@ class _TabButton extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: selected
-                  ? ExerciseColors.textPrimary
-                  : ExerciseColors.textSecondary,
+                  ? cs.onSurface
+                  : cs.onSurfaceVariant,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
@@ -582,23 +600,26 @@ class _TabButton extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
+  final BuildContext context;
   final String label;
   final String value;
 
   const _StatItem({
+    required this.context,
     required this.label,
     required this.value,
   });
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           value,
           style: TextStyle(
-            color: ExerciseColors.statsCard['value'],
+            color: cs.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -607,7 +628,7 @@ class _StatItem extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: ExerciseColors.statsCard['label'],
+            color: cs.onSurfaceVariant,
             fontSize: 12,
           ),
         ),
@@ -617,20 +638,23 @@ class _StatItem extends StatelessWidget {
 }
 
 class _InfoChip extends StatelessWidget {
+  final BuildContext context;
   final IconData icon;
   final String label;
 
   const _InfoChip({
+    required this.context,
     required this.icon,
     required this.label,
   });
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: ExerciseColors.workoutCard['chip'],
+        color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -639,13 +663,13 @@ class _InfoChip extends StatelessWidget {
           Icon(
             icon,
             size: 14,
-            color: ExerciseColors.workoutCard['chipText'],
+            color: cs.onSurfaceVariant,
           ),
           const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
-              color: ExerciseColors.workoutCard['chipText'],
+              color: cs.onSurfaceVariant,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),

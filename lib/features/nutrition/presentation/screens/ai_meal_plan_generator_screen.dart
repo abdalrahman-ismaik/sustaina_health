@@ -679,7 +679,7 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
 
   @override
   Widget build(BuildContext context) {
-    final mealPlan = widget.mealPlan;
+    final MealPlanResponse mealPlan = widget.mealPlan;
     final int totalDays = mealPlan.dailyMealPlans.length;
 
     return Scaffold(
@@ -689,7 +689,7 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
         backgroundColor: SleepColors.surfaceGrey,
         elevation: 0,
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: widget.onEdit,
@@ -703,18 +703,18 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
         ],
       ),
       body: Column(
-        children: [
+        children: <Widget>[
           // PageView area
           Expanded(
             child: PageView.builder(
               controller: _pageController,
               itemCount: totalDays,
-              onPageChanged: (index) => setState(() => _currentPage = index),
-              itemBuilder: (context, index) {
-                final dailyPlan = mealPlan.dailyMealPlans[index];
+              onPageChanged: (int index) => setState(() => _currentPage = index),
+              itemBuilder: (BuildContext context, int index) {
+                final DailyMealPlan dailyPlan = mealPlan.dailyMealPlans[index];
                 return AnimatedBuilder(
                   animation: _pageController,
-                  builder: (context, child) {
+                  builder: (BuildContext context, Widget? child) {
                     double t = 0.0;
                     if (_pageController.position.haveDimensions) {
                       final double current =

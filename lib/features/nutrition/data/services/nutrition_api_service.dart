@@ -20,7 +20,7 @@ class NutritionApiService {
       print('Image file path: ${imageFile.path}'); // Debug log
 
       // Create multipart request
-      http.MultipartRequest request = http.MultipartRequest(
+      final http.MultipartRequest request = http.MultipartRequest(
         'POST',
         Uri.parse('$_baseUrl/meals/analyze'),
       );

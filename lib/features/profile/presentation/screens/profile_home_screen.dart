@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../../core/services/firebase_notification_service.dart';
-import '../../../sleep/presentation/theme/sleep_colors.dart';
+import '../../../../services/notification_service.dart';
 import '../../../notifications/presentation/screens/notification_settings_screen.dart';
 
 class ProfileHomeScreen extends ConsumerStatefulWidget {
@@ -15,8 +14,7 @@ class ProfileHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
-  final FirebaseNotificationService _notificationService =
-      FirebaseNotificationService();
+  final NotificationService _notificationService = NotificationService();
 
   // Personal info controllers
   final TextEditingController _weightController = TextEditingController();
@@ -93,28 +91,22 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     final UserEntity? user = userAsyncValue.value;
     print(
         'DEBUG ProfileScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor =
-        isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final Color accentColor =
-        isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
-    final Color badgeBg =
-        isDark ? const Color(0xFF2a4133) : const Color(0xFFE8F2EC);
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme cs = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: bgColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: textColor),
+          icon: Icon(Icons.arrow_back, color: cs.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Profile',
           style: TextStyle(
-            color: textColor,
+            color: cs.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -123,7 +115,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         centerTitle: true,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.help_outline, color: textColor),
+            icon: Icon(Icons.help_outline, color: cs.onSurface),
             onPressed: () => _showProfileGuide(context),
           ),
         ],
@@ -140,7 +132,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 children: <Widget>[
                   CircleAvatar(
                     radius: 64,
-                    backgroundColor: accentColor.withValues(alpha: 0.1),
+                    backgroundColor: cs.primary.withValues(alpha: 0.1),
                     child: user?.photoURL != null && user!.photoURL!.isNotEmpty
                         ? ClipOval(
                             child: Image.network(
@@ -153,7 +145,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                                 return Icon(
                                   Icons.person,
                                   size: 64,
-                                  color: accentColor,
+                                  color: cs.primary,
                                 );
                               },
                               loadingBuilder: (BuildContext context,
@@ -167,7 +159,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                                           loadingProgress.expectedTotalBytes!
                                       : null,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                      accentColor),
+                                      cs.primary),
                                 );
                               },
                             ),
@@ -175,7 +167,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                         : Icon(
                             Icons.person,
                             size: 64,
-                            color: accentColor,
+                            color: cs.primary,
                           ),
                   ),
                   const SizedBox(height: 12),
@@ -183,11 +175,11 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: textColor)),
+                          color: cs.onSurface)),
                   Text('Premium Member',
-                      style: TextStyle(fontSize: 16, color: accentColor)),
+                      style: TextStyle(fontSize: 16, color: cs.primary)),
                   Text(user?.email ?? 'No email',
-                      style: TextStyle(fontSize: 14, color: accentColor)),
+                      style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant)),
                 ],
               ),
             ),
@@ -199,7 +191,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: badgeBg,
+                  color: cs.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -209,7 +201,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: textColor)),
+                            color: cs.onSurface)),
                     const SizedBox(height: 12),
                     Row(
                       children: <Widget>[
@@ -286,14 +278,14 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text('Personal info saved!'),
-                                backgroundColor: accentColor,
+                                backgroundColor: cs.primary,
                               ),
                             );
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: accentColor,
-                          foregroundColor: Colors.white,
+                          backgroundColor: cs.primary,
+                          foregroundColor: cs.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -310,18 +302,18 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: badgeBg,
+                  color: cs.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 padding:
                     const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 child: Row(
                   children: <Widget>[
-                    Icon(Icons.verified, color: accentColor, size: 28),
+                    Icon(Icons.verified, color: cs.primary, size: 28),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text('Sustainability Champion',
-                          style: TextStyle(color: textColor, fontSize: 16)),
+                          style: TextStyle(color: cs.onSurface, fontSize: 16)),
                     ),
                   ],
                 ),
@@ -335,7 +327,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textColor)),
+                      color: cs.onSurface)),
             ),
             const SizedBox(height: 8),
             Padding(
@@ -367,7 +359,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textColor)),
+                      color: cs.onSurface)),
             ),
             const SizedBox(height: 8),
             // Notification Settings Section
@@ -379,7 +371,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               trailing: const Icon(Icons.arrow_forward_ios, size: 18),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const NotificationSettingsScreen(),
+                  builder: (BuildContext context) => const NotificationSettingsScreen(),
                 ),
               ),
             ),
@@ -435,7 +427,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Failed to logout: $e'),
-                          backgroundColor: Colors.red,
+                          backgroundColor: cs.error,
                         ),
                       );
                     }
@@ -451,16 +443,15 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }
 
   Widget _buildNotificationSection() {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _notificationsAllowed
-              ? SleepColors.successGreen
-              : SleepColors.errorRed,
+          color: _notificationsAllowed ? cs.primary : cs.error,
           width: 1,
         ),
       ),
@@ -473,16 +464,14 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 _notificationsAllowed
                     ? Icons.notifications_active
                     : Icons.notifications_off,
-                color: _notificationsAllowed
-                    ? SleepColors.successGreen
-                    : SleepColors.errorRed,
+                color: _notificationsAllowed ? cs.primary : cs.error,
                 size: 24,
               ),
               const SizedBox(width: 12),
               Text(
                 'Notification Settings',
                 style: TextStyle(
-                  color: SleepColors.textPrimary,
+                  color: cs.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -494,7 +483,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             Text(
               'Enable notifications to receive sustainability tips and health reminders',
               style: TextStyle(
-                color: SleepColors.textSecondary,
+                color: cs.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -510,8 +499,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: SleepColors.primaryGreen,
-                  foregroundColor: Colors.white,
+                  backgroundColor: cs.primary,
+                  foregroundColor: cs.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -532,7 +521,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     'sustainability_tips_enabled', value);
                 // Note: Tips are now automatic when the app starts
                 if (!value) {
-                  await _notificationService.cancelAllNotifications();
+                  await _notificationService
+                      .cancelNotificationsByChannel('sustainability_tips');
                 }
               },
             ),
@@ -551,7 +541,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     'health_reminders_enabled', value);
                 // Note: Reminders are now automatic when the app starts
                 if (!value) {
-                  await _notificationService.cancelAllNotifications();
+                  await _notificationService
+                      .cancelNotificationsByChannel('health_reminders');
                 }
               },
             ),
@@ -567,13 +558,13 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Test notification sent!'),
-                      backgroundColor: SleepColors.successGreen,
+                      backgroundColor: cs.primary,
                     ),
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: SleepColors.primaryGreen,
-                  side: BorderSide(color: SleepColors.primaryGreen),
+                  foregroundColor: cs.primary,
+                  side: BorderSide(color: cs.primary),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -593,6 +584,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Row(
       children: <Widget>[
         Expanded(
@@ -602,7 +594,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               Text(
                 title,
                 style: TextStyle(
-                  color: SleepColors.textPrimary,
+                  color: cs.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -611,7 +603,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               Text(
                 description,
                 style: TextStyle(
-                  color: SleepColors.textSecondary,
+                  color: cs.onSurfaceVariant,
                   fontSize: 14,
                 ),
               ),
@@ -621,7 +613,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: SleepColors.primaryGreen,
+          activeColor: cs.primary,
         ),
       ],
     );
@@ -636,11 +628,10 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final Color borderColor =
-        isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final Color cardColor = cs.surfaceContainerHigh;
+    final Color borderColor = cs.outlineVariant;
+    final Color textColor = cs.onSurface;
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(4),
@@ -685,10 +676,9 @@ class _QuickSettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor =
-        isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final Color bgColor = cs.surfaceContainerHigh;
+    final Color textColor = cs.onSurface;
     return InkWell(
       onTap: onTap,
       child: Container(

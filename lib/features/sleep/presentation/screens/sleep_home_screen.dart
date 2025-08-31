@@ -19,8 +19,8 @@ class SleepHomeScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: const Text('Sleep'),
-          backgroundColor: SleepColors.primaryGreen,
-          foregroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.help_outline),
@@ -70,8 +70,8 @@ class SleepHomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/sleep/tracking'),
-        backgroundColor: SleepColors.primaryGreen,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         icon: const Icon(Icons.bedtime),
         label: const Text(
           'Track Sleep',
@@ -105,7 +105,10 @@ class SleepHomeScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
-            colors: [SleepColors.primaryGreen.withOpacity(0.1), Colors.white],
+            colors: <Color>[
+              Theme.of(context).colorScheme.primary.withOpacity(0.08),
+              Theme.of(context).colorScheme.surface,
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -114,21 +117,21 @@ class SleepHomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 Icon(
                   Icons.bedtime,
-                  color: SleepColors.primaryGreen,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 28,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         greeting,
                         style: TextStyle(
-                          color: SleepColors.primaryGreen,
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
@@ -137,7 +140,7 @@ class SleepHomeScreen extends ConsumerWidget {
                       Text(
                         'Track your sleep to improve your rest and well-being',
                         style: TextStyle(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                           height: 1.4,
                         ),
@@ -154,14 +157,14 @@ class SleepHomeScreen extends ConsumerWidget {
   }
 
   Widget _buildQuickStartButton(BuildContext context) {
-    return Container(
+  return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+    color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+      color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -179,12 +182,12 @@ class SleepHomeScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: SleepColors.primaryGreen.withOpacity(0.1),
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.bedtime,
-                    color: SleepColors.primaryGreen,
+          color: Theme.of(context).colorScheme.primary,
                     size: 24,
                   ),
                 ),
@@ -196,7 +199,7 @@ class SleepHomeScreen extends ConsumerWidget {
                       Text(
                         'Start Sleep Tracking',
                         style: TextStyle(
-                          color: SleepColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -205,7 +208,7 @@ class SleepHomeScreen extends ConsumerWidget {
                       Text(
                         'Begin tracking your sleep session',
                         style: TextStyle(
-                          color: SleepColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -214,7 +217,7 @@ class SleepHomeScreen extends ConsumerWidget {
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: SleepColors.textSecondary,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 16,
                 ),
               ],

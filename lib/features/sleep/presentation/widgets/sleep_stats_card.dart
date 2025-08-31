@@ -24,23 +24,27 @@ class SleepStatsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color accent = color ?? SleepColors.primaryBlue;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          color: scheme.surface,
+      gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: <Color>[
-              color ?? SleepColors.primaryBlue,
-              (color ?? SleepColors.primaryBlue).withValues(alpha: 0.8),
+        accent.withValues(alpha: 0.10),
+              Colors.transparent,
             ],
           ),
           borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: accent.withValues(alpha: 0.30), width: 1),
           boxShadow: <BoxShadow>[
             BoxShadow(
-              color: (color ?? SleepColors.primaryBlue).withValues(alpha: 0.3),
+        color: accent.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -54,23 +58,24 @@ class SleepStatsCard extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: accent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     icon,
-                    color: Colors.white,
+                    color: accent,
                     size: 20,
                   ),
                 ),
                 const Spacer(),
                 if (isLoading)
-                  const SizedBox(
+                  SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(accent),
+                      backgroundColor: scheme.surfaceContainerHighest,
                     ),
                   ),
               ],
@@ -78,8 +83,8 @@ class SleepStatsCard extends ConsumerWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: scheme.onSurfaceVariant,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -87,8 +92,8 @@ class SleepStatsCard extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               value,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: scheme.onSurface,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -97,7 +102,7 @@ class SleepStatsCard extends ConsumerWidget {
             Text(
               subtitle,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.8),
+                color: scheme.onSurfaceVariant,
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
               ),

@@ -25,13 +25,13 @@ class DayPlanCard extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+              children: <Widget>[
                 // Header
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
+                      colors: <Color>[
                         SleepColors.primaryGreen.withValues(alpha: 0.95),
                         SleepColors.primaryGreen.withValues(alpha: 0.65),
                       ],
@@ -41,7 +41,7 @@ class DayPlanCard extends StatelessWidget {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         'Day ${dailyPlan.day}',
                         style: const TextStyle(
@@ -65,14 +65,14 @@ class DayPlanCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         _buildMealItem(context, 'Breakfast', dailyPlan.breakfast),
                         const SizedBox(height: 12),
                         _buildMealItem(context, 'Lunch', dailyPlan.lunch),
                         const SizedBox(height: 12),
                         _buildMealItem(context, 'Dinner', dailyPlan.dinner),
                         const SizedBox(height: 12),
-                        ...dailyPlan.snacks.map((snack) => Padding(
+                        ...dailyPlan.snacks.map((MealOption snack) => Padding(
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: _buildMealItem(context, 'Snack', snack),
                             )),
@@ -116,7 +116,7 @@ class DayPlanCard extends StatelessWidget {
       onTap: () => _showMealDetails(context, mealType, meal),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Container(
             width: 84,
             height: 84,
@@ -130,7 +130,7 @@ class DayPlanCard extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   mealType,
                   style: TextStyle(
@@ -169,14 +169,14 @@ class DayPlanCard extends StatelessWidget {
           initialChildSize: 0.6,
           minChildSize: 0.3,
           maxChildSize: 0.95,
-          builder: (context, scrollController) {
+          builder: (BuildContext context, ScrollController scrollController) {
             return SingleChildScrollView(
               controller: scrollController,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Center(
                       child: Container(
                         width: 40,
@@ -198,20 +198,20 @@ class DayPlanCard extends StatelessWidget {
                       style: TextStyle(color: SleepColors.textSecondary),
                     ),
                     const SizedBox(height: 12),
-                    if (meal.description.isNotEmpty) ...[
+                    if (meal.description.isNotEmpty) ...<Widget>[
                       const Text('Description', style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
                       Text(meal.description),
                       const SizedBox(height: 12),
                     ],
-                    if (meal.ingredients.isNotEmpty) ...[
+                    if (meal.ingredients.isNotEmpty) ...<Widget>[
                       const Text('Ingredients', style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
-                      ...meal.ingredients.map((ing) => Padding(
+                      ...meal.ingredients.map((Ingredient ing) => Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
+                              children: <Widget>[
                                 Expanded(child: Text(ing.ingredient)),
                                 const SizedBox(width: 8),
                                 Text(ing.quantity, style: TextStyle(color: SleepColors.textSecondary)),
@@ -220,16 +220,16 @@ class DayPlanCard extends StatelessWidget {
                           )),
                       const SizedBox(height: 12),
                     ],
-                    if (meal.recipe.isNotEmpty) ...[
+                    if (meal.recipe.isNotEmpty) ...<Widget>[
                       const Text('Recipe', style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
                       Text(meal.recipe),
                       const SizedBox(height: 12),
                     ],
-                    if (meal.suggestedBrands.isNotEmpty) ...[
+                    if (meal.suggestedBrands.isNotEmpty) ...<Widget>[
                       const Text('Suggested Brands', style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
-                      ...meal.suggestedBrands.map((b) => Padding(
+                      ...meal.suggestedBrands.map((String b) => Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Text('• $b'),
                           )),

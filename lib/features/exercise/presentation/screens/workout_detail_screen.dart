@@ -40,27 +40,29 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            // Header
-            Padding(
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              // Header
+              Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: <Widget>[
                   IconButton(
                     icon:
-                        const Icon(Icons.arrow_back, color: Color(0xFF121714)),
+                        Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Workout Plan',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Color(0xFF121714),
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                         letterSpacing: -0.015,
@@ -68,7 +70,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.share, color: Color(0xFF121714)),
+                    icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () {
                       // TODO: Implement share functionality
                     },
@@ -82,17 +84,17 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF94E0B2).withOpacity(0.1),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF94E0B2)),
+                border: Border.all(color: Theme.of(context).colorScheme.primary),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text(
+                  Text(
                     'Plan Overview',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -142,13 +144,13 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: Theme.of(context).colorScheme.errorContainer,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade200),
+                border: Border.all(color: Theme.of(context).colorScheme.error),
               ),
               child: Row(
                 children: <Widget>[
-                  Icon(Icons.favorite, color: Colors.red.shade600),
+                  Icon(Icons.favorite, color: Theme.of(context).colorScheme.onErrorContainer),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -157,7 +159,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                         Text(
                           'Cardio - ${widget.workout.cardio.duration} min',
                           style: TextStyle(
-                            color: Colors.red.shade800,
+                            color: Theme.of(context).colorScheme.onErrorContainer,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -165,7 +167,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                         Text(
                           widget.workout.cardio.description,
                           style: TextStyle(
-                            color: Colors.red.shade700,
+                            color: Theme.of(context).colorScheme.onErrorContainer,
                             fontSize: 12,
                           ),
                           maxLines: 2,
@@ -181,13 +183,13 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             // Workout Sessions Tabs
             if (widget.workout.workoutSessions.isNotEmpty) ...<Widget>[
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
+                margin: const EdgeInsets.symmetric(horizontal: 15),
                 child: TabBar(
                   controller: _tabController,
                   isScrollable: true,
-                  labelColor: const Color(0xFF121714),
-                  unselectedLabelColor: Colors.grey,
-                  indicatorColor: const Color(0xFF94E0B2),
+                  labelColor: Theme.of(context).colorScheme.onSurface,
+                  unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                  indicatorColor: Theme.of(context).colorScheme.primary,
                   tabs: widget.workout.workoutSessions
                       .asMap()
                       .entries
@@ -196,7 +198,8 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                   }).toList(),
                 ),
               ),
-              Expanded(
+              Container(
+                height: 400, // Fixed height for the TabBarView in scrollable layout
                 child: TabBarView(
                   controller: _tabController,
                   children: widget.workout.workoutSessions.map((WorkoutSession session) {
@@ -215,15 +218,15 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                 child: ElevatedButton(
                   onPressed: () => _startWorkout(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF94E0B2),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Start Workout',
                     style: TextStyle(
-                      color: Color(0xFF121714),
+                      color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -231,27 +234,29 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildInfoCard(String label, String value) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Column(
       children: <Widget>[
         Text(
           value,
-          style: const TextStyle(
-            color: Color(0xFF121714),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF121714),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 12,
           ),
         ),
@@ -261,12 +266,20 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
   Widget _buildComponentCard(
       String title, String duration, String description, Color color) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    // Restore the original better colors for warmup and cooldown
+    final Color containerColor = title == 'Warmup' 
+        ? Colors.orange.withValues(alpha: 0.1) 
+        : Colors.blue.withValues(alpha: 0.1);
+    final Color textColor = title == 'Warmup' ? Colors.orange.shade700 : Colors.blue.shade700;
+    final Color borderColor = title == 'Warmup' ? Colors.orange : Colors.blue;
+    
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: containerColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,14 +288,14 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             children: <Widget>[
               Icon(
                 title == 'Warmup' ? Icons.whatshot : Icons.self_improvement,
-                color: color,
+                color: textColor,
                 size: 16,
               ),
               const SizedBox(width: 4),
               Text(
                 title,
                 style: TextStyle(
-                  color: color,
+                  color: textColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
@@ -293,7 +306,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
           Text(
             duration,
             style: TextStyle(
-              color: color,
+              color: textColor,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -301,7 +314,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
           Text(
             description,
             style: TextStyle(
-              color: color.withOpacity(0.8),
+              color: textColor.withValues(alpha: 0.8),
               fontSize: 10,
             ),
             maxLines: 3,
@@ -313,6 +326,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   }
 
   Widget _buildWorkoutSession(WorkoutSession session) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: session.exercises.length,
@@ -320,14 +334,15 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         final Exercise exercise = session.exercises[index];
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20), // Increased padding for height
+          constraints: const BoxConstraints(minHeight: 100), // Minimum height constraint
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cs.surfaceContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(color: cs.outline),
             boxShadow: <BoxShadow>[
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: cs.shadow.withValues(alpha: 0.1),
                 spreadRadius: 1,
                 blurRadius: 4,
                 offset: const Offset(0, 2),
@@ -338,17 +353,17 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             children: <Widget>[
               // Exercise number
               Container(
-                width: 40,
-                height: 40,
+                width: 45, // Increased width
+                height: 45, // Increased height
                 decoration: BoxDecoration(
-                  color: const Color(0xFF94E0B2),
-                  borderRadius: BorderRadius.circular(20),
+                  color: cs.primary,
+                  borderRadius: BorderRadius.circular(22.5),
                 ),
                 child: Center(
                   child: Text(
                     '${index + 1}',
-                    style: const TextStyle(
-                      color: Color(0xFF121714),
+                    style: TextStyle(
+                      color: cs.onPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -356,7 +371,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                 ),
               ),
 
-              const SizedBox(width: 16),
+              const SizedBox(width: 18), // Increased spacing
 
               // Exercise details
               Expanded(
@@ -365,20 +380,20 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                   children: <Widget>[
                     Text(
                       exercise.name,
-                      style: const TextStyle(
-                        color: Color(0xFF121714),
+                      style: TextStyle(
+                        color: cs.onSurface,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 17, // Slightly larger text
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
+                    const SizedBox(height: 8), // Increased spacing
+                    Wrap( // Changed from Row to Wrap for better responsiveness
+                      spacing: 16,
+                      runSpacing: 4,
                       children: <Widget>[
                         _buildExerciseDetail(
                             Icons.fitness_center, '${exercise.sets} sets'),
-                        const SizedBox(width: 16),
                         _buildExerciseDetail(Icons.repeat, exercise.reps),
-                        const SizedBox(width: 16),
                         _buildExerciseDetail(
                             Icons.timer, '${exercise.rest}s rest'),
                       ],
@@ -394,19 +409,20 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   }
 
   Widget _buildExerciseDetail(IconData icon, String text) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Icon(
           icon,
           size: 14,
-          color: Colors.grey[600],
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         const SizedBox(width: 4),
         Text(
           text,
           style: TextStyle(
-            color: Colors.grey[600],
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 12,
           ),
         ),
@@ -415,23 +431,24 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   }
 
   void _startWorkout(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
+          title: Text(
             'Start Workout Session',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text(
+              Text(
                 'Which workout session would you like to start?',
-                style: TextStyle(color: Color(0xFF121714)),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               ),
               const SizedBox(height: 16),
               // Show available workout sessions
@@ -445,15 +462,15 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                     onPressed: () =>
                         _startWorkoutSession(context, index, session),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF94E0B2),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: Text(
                       'Session ${index + 1} (${session.exercises.length} exercises)',
-                      style: const TextStyle(
-                        color: Color(0xFF121714),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -465,9 +482,9 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
           ],
@@ -484,9 +501,9 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(
-              color: Color(0xFF94E0B2),
+              color: Theme.of(context).colorScheme.primary,
             ),
           );
         },

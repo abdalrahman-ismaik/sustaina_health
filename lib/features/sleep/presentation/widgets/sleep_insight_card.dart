@@ -17,13 +17,13 @@ class SleepInsightCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+    child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: SleepColors.backgroundMedium,
+      color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _getInsightColor(insight.type).withOpacity(0.3),
+            color: _getInsightColor(insight.type).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -33,12 +33,12 @@ class SleepInsightCard extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+        gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: <Color>[
-                    _getInsightColor(insight.type).withOpacity(0.1),
-                    _getInsightColor(insight.type).withOpacity(0.05),
+          _getInsightColor(insight.type).withValues(alpha: 0.10),
+          _getInsightColor(insight.type).withValues(alpha: 0.05),
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -51,7 +51,7 @@ class SleepInsightCard extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _getInsightColor(insight.type).withOpacity(0.2),
+                      color: _getInsightColor(insight.type).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -67,8 +67,8 @@ class SleepInsightCard extends ConsumerWidget {
                       children: <Widget>[
                         Text(
                           insight.title,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -77,7 +77,7 @@ class SleepInsightCard extends ConsumerWidget {
                         Text(
                           insight.description,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 14,
                           ),
                         ),
@@ -87,7 +87,7 @@ class SleepInsightCard extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _getInsightColor(insight.type).withOpacity(0.2),
+                      color: _getInsightColor(insight.type).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -110,7 +110,7 @@ class SleepInsightCard extends ConsumerWidget {
                   Text(
                     'Recommendations',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -131,11 +131,11 @@ class SleepInsightCard extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(
+        Expanded(
                           child: Text(
                             recommendation,
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 13,
                             ),
                           ),
@@ -202,9 +202,10 @@ class SleepInsightList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (isLoading) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryBlue),
+          valueColor: const AlwaysStoppedAnimation<Color>(SleepColors.primaryBlue),
+          backgroundColor: Theme.of(context).colorScheme.surface,
         ),
       );
     }
@@ -217,13 +218,13 @@ class SleepInsightList extends ConsumerWidget {
             Icon(
               Icons.insights_outlined,
               size: 48,
-              color: Colors.white.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
             Text(
               'No insights available yet',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -232,7 +233,7 @@ class SleepInsightList extends ConsumerWidget {
             Text(
               'Start tracking your sleep to get personalized insights',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -272,29 +273,30 @@ class SleepInsightSummary extends ConsumerWidget {
       return Container(
         height: 80,
         decoration: BoxDecoration(
-          color: SleepColors.backgroundMedium,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Center(
+        child: Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryBlue),
+            valueColor: const AlwaysStoppedAnimation<Color>(SleepColors.primaryBlue),
+            backgroundColor: Theme.of(context).colorScheme.surface,
           ),
         ),
       );
     }
 
     if (insights.isEmpty) {
-      return Container(
+    return Container(
         height: 80,
         decoration: BoxDecoration(
-          color: SleepColors.backgroundMedium,
+      color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
           child: Text(
             'No insights available',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 14,
             ),
           ),
@@ -308,10 +310,10 @@ class SleepInsightSummary extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SleepColors.backgroundMedium,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SleepColors.primaryBlue.withOpacity(0.3),
+          color: SleepColors.primaryBlue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -329,7 +331,7 @@ class SleepInsightSummary extends ConsumerWidget {
               Text(
                 'Sleep Insights',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -356,21 +358,21 @@ class SleepInsightSummary extends ConsumerWidget {
           Text(
             '${highImpactInsights.length} high-impact insights available',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 14,
             ),
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
             value: totalImpact / (insights.length * 10),
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
             valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryBlue),
           ),
           const SizedBox(height: 8),
           Text(
             'Average impact: ${(totalImpact / insights.length * 100).round()}%',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
             ),
           ),

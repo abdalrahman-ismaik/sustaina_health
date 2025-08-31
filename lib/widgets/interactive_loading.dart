@@ -39,7 +39,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
   // Game state (quiz-only)
   GameType _currentGameType = GameType.none;
   bool _gameCompleted = false;
-  List<String> _currentChoices = [];
+  List<String> _currentChoices = <String>[];
   int _correctChoice = -1;
   // Per-game interaction state
   int _selectedChoice = -1;
@@ -48,9 +48,9 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
   int _currentChallengePoints = 0;
   int _currentChallengeIndex = -1;
   // quiz queue to avoid repeats until pool exhausted
-  List<int> _remainingQuizIndexes = [];
+  List<int> _remainingQuizIndexes = <int>[];
 
-  static const List<SustainabilityTip> _tips = [
+  static const List<SustainabilityTip> _tips = <SustainabilityTip>[
     SustainabilityTip(
       text: 'Eating 1 less burger per week saves 52 lbs of CO₂ annually!',
       carbonImpact: 2.3,
@@ -83,12 +83,12 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     ),
   ];
 
-  static const List<GameChallenge> _gameChallenges = [
+  static const List<GameChallenge> _gameChallenges = <GameChallenge>[
     GameChallenge(
       type: GameType.quiz,
       question:
           'Which food has the lowest greenhouse gas emissions (carbon footprint)?',
-      choices: ['Beef', 'Pork', 'Chicken', 'Lentils'],
+      choices: <String>['Beef', 'Pork', 'Chicken', 'Lentils'],
       // Lentils are a low-impact plant protein
       correctAnswer: 3,
       points: 20,
@@ -97,7 +97,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       type: GameType.quiz,
       question:
           'Which action typically reduces the most greenhouse gas emissions annually?',
-      choices: [
+      choices: <String>[
         'Eating less meat',
         'Shorter showers',
         'Turning off the tap while brushing',
@@ -110,21 +110,21 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     GameChallenge(
       type: GameType.quiz,
       question: 'Which of these is a plant-based protein?',
-      choices: ['Tofu', 'Chicken', 'Cheese', 'Fish'],
+      choices: <String>['Tofu', 'Chicken', 'Cheese', 'Fish'],
       correctAnswer: 0,
       points: 15,
     ),
     GameChallenge(
       type: GameType.quiz,
       question: 'Which transport mode has the lowest emissions per km?',
-      choices: ['Bike', 'Car', 'Bus', 'Plane'],
+      choices: <String>['Bike', 'Car', 'Bus', 'Plane'],
       correctAnswer: 0,
       points: 15,
     ),
     GameChallenge(
       type: GameType.quiz,
       question: 'Which food typically requires the least water to produce?',
-      choices: ['Lentils', 'Rice', 'Almonds', 'Beef'],
+      choices: <String>['Lentils', 'Rice', 'Almonds', 'Beef'],
       correctAnswer: 0,
       points: 15,
     ),
@@ -132,14 +132,14 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       type: GameType.quiz,
       question:
           'What household change often reduces heating/cooling energy the most?',
-      choices: ['Insulation', 'LED bulbs', 'Unplug devices', 'Shorter showers'],
+      choices: <String>['Insulation', 'LED bulbs', 'Unplug devices', 'Shorter showers'],
       correctAnswer: 0,
       points: 15,
     ),
     GameChallenge(
       type: GameType.quiz,
       question: 'Which practice most directly reduces food waste?',
-      choices: [
+      choices: <String>[
         'Meal planning',
         'Buying in bulk',
         'Eating out',
@@ -151,7 +151,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     GameChallenge(
       type: GameType.quiz,
       question: 'Which protein is generally most climate-friendly?',
-      choices: ['Beans', 'Beef', 'Lamb', 'Pork'],
+      choices: <String>['Beans', 'Beef', 'Lamb', 'Pork'],
       correctAnswer: 0,
       points: 15,
     ),
@@ -168,8 +168,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
   }
 
   void _prepareQuizQueue() {
-    _remainingQuizIndexes = List<int>.generate(_gameChallenges.length, (i) => i)
-        .where((i) => _gameChallenges[i].type == GameType.quiz)
+    _remainingQuizIndexes = List<int>.generate(_gameChallenges.length, (int i) => i)
+        .where((int i) => _gameChallenges[i].type == GameType.quiz)
         .toList();
     _remainingQuizIndexes.shuffle();
   }
@@ -207,8 +207,8 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       _prepareQuizQueue();
     }
     if (_remainingQuizIndexes.isEmpty) return; // nothing to show
-    final challengeIndex = _remainingQuizIndexes.removeLast();
-    final challenge = _gameChallenges[challengeIndex];
+    final int challengeIndex = _remainingQuizIndexes.removeLast();
+    final GameChallenge challenge = _gameChallenges[challengeIndex];
 
     setState(() {
       _currentGameType = GameType.quiz;
@@ -223,7 +223,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     });
 
     // shuffle choices and update correct index
-    final correct = _currentChoices[_correctChoice];
+    final String correct = _currentChoices[_correctChoice];
     _currentChoices.shuffle();
     _correctChoice = _currentChoices.indexOf(correct);
   }
@@ -272,7 +272,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     });
   }
 
-  void _handleGameAction(dynamic action) {
+  void _handleGameAction(action) {
     if (!_isGameActive || _gameCompleted) return;
 
     if (_currentGameType == GameType.quiz) {
@@ -297,7 +297,9 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
 
   @override
   Widget build(BuildContext context) {
-    final Color accent = widget.color ?? const Color(0xFF40916C);
+  final ThemeData theme = Theme.of(context);
+  final ColorScheme cs = theme.colorScheme;
+  final Color accent = widget.color ?? cs.secondary;
 
     if (widget.compact) {
       return _buildCompactView(accent);
@@ -312,19 +314,19 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: accent.withOpacity(0.1),
+          color: accent.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: accent.withOpacity(0.3)),
+          border: Border.all(color: accent.withValues(alpha: 0.30)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             SizedBox(
               width: 24,
               height: 24,
               child: AnimatedBuilder(
                 animation: _rotationController,
-                builder: (context, child) {
+                builder: (BuildContext context, Widget? child) {
                   return Transform.rotate(
                     angle: _rotationController.value * 2 * math.pi,
                     child: Icon(Icons.eco, color: accent, size: 24),
@@ -338,13 +340,13 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                children: [
+                children: <Widget>[
                   Text(
                     widget.title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -362,7 +364,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                 ],
               ),
             ),
-            if (widget.onCancel != null) ...[
+            if (widget.onCancel != null) ...<Widget>[
               const SizedBox(width: 8),
               SizedBox(
                 height: 32,
@@ -372,7 +374,13 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     minimumSize: Size.zero,
                   ),
-                  child: const Text('Cancel', style: TextStyle(fontSize: 12)),
+      child: Text(
+        'Cancel',
+        style: Theme.of(context)
+        .textTheme
+        .labelMedium
+        ?.copyWith(fontSize: 12),
+      ),
                 ),
               ),
             ],
@@ -399,7 +407,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+                children: <Widget>[
                   _buildHeader(accent),
                   const SizedBox(height: 20),
                   _buildProgressSection(accent),
@@ -421,30 +429,31 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
   Widget _buildHeader(Color accent) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: <Widget>[
         SizedBox(
           width: 120,
           height: 120,
           child: Stack(
             alignment: Alignment.center,
-            children: [
+            children: <Widget>[
               AnimatedBuilder(
                 animation: _pulseController,
-                builder: (context, child) {
-                  final pulseValue = _pulseController.value;
+                builder: (BuildContext context, Widget? child) {
+                  final double pulseValue = _pulseController.value;
                   return Container(
                     width: 100 + (pulseValue * 20),
                     height: 100 + (pulseValue * 20),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: accent.withOpacity(0.1 + pulseValue * 0.1),
+                      color: accent.withValues(
+                          alpha: (0.10 + pulseValue * 0.10).clamp(0.0, 1.0)),
                     ),
                   );
                 },
               ),
               AnimatedBuilder(
                 animation: _rotationController,
-                builder: (context, child) {
+                builder: (BuildContext context, Widget? child) {
                   return Transform.rotate(
                     angle: _rotationController.value * 2 * math.pi,
                     child: Container(
@@ -453,18 +462,18 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: accent,
-                        boxShadow: [
+                        boxShadow: <BoxShadow>[
                           BoxShadow(
-                            color: accent.withOpacity(0.3),
+                            color: accent.withValues(alpha: 0.30),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.eco,
                         size: 40,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSecondary,
                       ),
                     ),
                   );
@@ -477,17 +486,20 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
         Text(
           widget.title,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        if (widget.subtitle != null) ...[
+        if (widget.subtitle != null) ...<Widget>[
           const SizedBox(height: 4),
           Text(
             widget.subtitle!,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.black54),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ],
@@ -499,26 +511,28 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: accent.withOpacity(0.1),
+        color: accent.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(12),
       ),
       child: IntrinsicHeight(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
+          children: <Widget>[
             _buildStatItem('Score', _score.toString(), Icons.star, accent),
             Container(
               width: 1,
-              color: Colors.grey.withOpacity(0.3),
+              color:
+                  Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.30),
             ),
             _buildStatItem('Streak', _streak.toString(),
-                Icons.local_fire_department, Colors.orange),
+                Icons.local_fire_department, Theme.of(context).colorScheme.tertiary),
             Container(
               width: 1,
-              color: Colors.grey.withOpacity(0.3),
+              color:
+                  Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.30),
             ),
             _buildStatItem(
-                'Trees', _treesPlanted.toString(), Icons.park, Colors.green),
+                'Trees', _treesPlanted.toString(), Icons.park, Theme.of(context).colorScheme.primary),
           ],
         ),
       ),
@@ -530,7 +544,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     return Expanded(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 4),
           Text(
@@ -543,10 +557,10 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
           ),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.black54,
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
       ),
@@ -554,7 +568,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
   }
 
   Widget _buildTipSection(Color accent) {
-    final currentTip = _tips[_tipIndex];
+    final SustainabilityTip currentTip = _tips[_tipIndex];
     return Container(
       width: double.infinity,
       child: AnimatedSwitcher(
@@ -563,18 +577,23 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
           key: ValueKey(_tipIndex),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.blue.withOpacity(0.3)),
+      border: Border.all(
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.30)),
           ),
           child: Row(
-            children: [
-              Icon(currentTip.icon, color: Colors.blue, size: 24),
+            children: <Widget>[
+        Icon(currentTip.icon,
+          color: Theme.of(context).colorScheme.primary, size: 24),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   currentTip.text,
-                  style: const TextStyle(fontSize: 13),
+          style: Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.copyWith(fontSize: 13),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -606,24 +625,24 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
   }
 
   Widget _buildQuizGame(Color accent) {
-    final challenge = (_currentChallengeIndex >= 0 &&
+    final GameChallenge challenge = (_currentChallengeIndex >= 0 &&
             _currentChallengeIndex < _gameChallenges.length)
         ? _gameChallenges[_currentChallengeIndex]
-        : _gameChallenges.firstWhere((c) => c.type == GameType.quiz);
+        : _gameChallenges.firstWhere((GameChallenge c) => c.type == GameType.quiz);
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: accent.withOpacity(0.1),
+    color: accent.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: accent, width: 2),
+    border: Border.all(color: accent, width: 2),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: <Widget>[
               Text(
                 _currentChallengePoints > 0
                     ? 'Quiz Challenge — +${_currentChallengePoints} pts'
@@ -639,34 +658,47 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
           const SizedBox(height: 8),
           Text(
             challenge.question,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+      style: Theme.of(context)
+        .textTheme
+        .bodySmall
+        ?.copyWith(fontSize: 12, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          LayoutBuilder(builder: (context, constraints) {
+          LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
             // Use Wrap so choices wrap to the next line instead of overflowing
             return Wrap(
               spacing: 6,
               runSpacing: 6,
-              children: _currentChoices.asMap().entries.map((entry) {
-                final index = entry.key;
-                final choice = entry.value;
+              children: _currentChoices.asMap().entries.map((MapEntry<int, String> entry) {
+                final int index = entry.key;
+                final String choice = entry.value;
                 final bool isSelected = _selectedChoice == index;
-                Color bg = Colors.white;
-                Color borderC = accent.withOpacity(0.3);
+        Color bg = Theme.of(context).colorScheme.surface;
+        Color borderC = accent.withValues(alpha: 0.30);
                 if (_choiceLocked && _selectedChoice >= 0) {
                   if (index == _selectedChoice) {
                     bg = (index == _correctChoice)
-                        ? Colors.green.withOpacity(0.2)
-                        : Colors.red.withOpacity(0.12);
-                    borderC =
-                        (index == _correctChoice) ? Colors.green : Colors.red;
+            ? Theme.of(context)
+              .colorScheme
+              .secondary
+              .withValues(alpha: 0.20)
+            : Theme.of(context)
+              .colorScheme
+              .error
+              .withValues(alpha: 0.12);
+          borderC = (index == _correctChoice)
+            ? Theme.of(context).colorScheme.secondary
+            : Theme.of(context).colorScheme.error;
                   } else if (index == _correctChoice) {
-                    bg = Colors.green.withOpacity(0.12);
-                    borderC = Colors.green;
+          bg = Theme.of(context)
+            .colorScheme
+            .secondary
+            .withValues(alpha: 0.12);
+          borderC = Theme.of(context).colorScheme.secondary;
                   }
                 } else if (isSelected) {
-                  bg = accent.withOpacity(0.08);
+          bg = accent.withValues(alpha: 0.08);
                 }
 
                 return SizedBox(
@@ -694,7 +726,10 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                       child: Text(
                         choice,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12),
+            style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(fontSize: 12),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -725,16 +760,22 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+    color: Theme.of(context)
+      .colorScheme
+      .surfaceContainerHighest
+      .withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+    border: Border.all(
+      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.30)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
           Icon(
             _gameCompleted ? Icons.check_circle : Icons.timer,
-            color: _gameCompleted ? Colors.green : accent,
+      color: _gameCompleted
+        ? Theme.of(context).colorScheme.secondary
+        : accent,
             size: 32,
           ),
           const SizedBox(height: 8),
@@ -757,7 +798,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
       width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
+        children: <Widget>[
           if (widget.onCancel != null)
             Expanded(
               child: Padding(
@@ -765,10 +806,12 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                 child: ElevatedButton.icon(
                   onPressed: widget.onCancel,
                   icon: const Icon(Icons.close, size: 18),
-                  label: const Text('Cancel'),
+          label: const Text('Cancel'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    foregroundColor: Colors.white,
+          backgroundColor:
+            Theme.of(context).colorScheme.surfaceContainerHighest,
+          foregroundColor:
+            Theme.of(context).colorScheme.onSurface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -797,7 +840,7 @@ class _InteractiveLoadingState extends State<InteractiveLoading>
                 label: const Text('Share Tip'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accent,
-                  foregroundColor: Colors.white,
+          foregroundColor: Theme.of(context).colorScheme.onSecondary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

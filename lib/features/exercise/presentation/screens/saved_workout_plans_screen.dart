@@ -11,20 +11,21 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<List<SavedWorkoutPlan>> savedWorkoutsAsync = ref.watch(savedWorkoutPlansProvider);
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cs.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'My Workout Plans',
           style: TextStyle(
-            color: Color(0xFF121714),
+            color: cs.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: cs.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF121714)),
+        iconTheme: IconThemeData(color: cs.onSurface),
         actions: <Widget>[
           IconButton(
             onPressed: () {
@@ -35,7 +36,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                 ),
               );
             },
-            icon: const Icon(Icons.add, color: Color(0xFF121714)),
+            icon: Icon(Icons.add, color: cs.onSurface),
             tooltip: 'Generate New Workout',
           ),
         ],
@@ -50,9 +51,9 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
           data: (List<SavedWorkoutPlan> workouts) => workouts.isEmpty
               ? _buildEmptyState(context)
               : _buildWorkoutList(context, ref, workouts),
-          loading: () => const Center(
+          loading: () => Center(
             child: CircularProgressIndicator(
-              color: Color(0xFF94E0B2),
+              color: cs.primary,
             ),
           ),
           error: (Object error, StackTrace stackTrace) => _buildErrorState(context, ref, error),
@@ -67,8 +68,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
             ),
           );
         },
-        backgroundColor: const Color(0xFF94E0B2),
-        foregroundColor: const Color(0xFF121714),
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
         label: const Text(
           'Generate Workout',
           style: TextStyle(
@@ -81,6 +82,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -90,30 +92,30 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: const Color(0xFF94E0B2).withOpacity(0.1),
+                color: cs.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.bookmark_border,
                 size: 80,
-                color: Color(0xFF94E0B2),
+                color: cs.primary,
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'No Saved Workouts Yet',
               style: TextStyle(
-                color: Color(0xFF121714),
+                color: cs.onSurface,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Generate AI workouts and save your favorites here!\nYour saved plans will appear below.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey,
+                color: cs.onSurfaceVariant,
                 fontSize: 16,
               ),
             ),
@@ -132,20 +134,20 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF94E0B2),
+                  backgroundColor: cs.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                icon: const Icon(
+                icon: Icon(
                   Icons.auto_awesome,
-                  color: Color(0xFF121714),
+                  color: cs.onPrimary,
                 ),
-                label: const Text(
+                label: Text(
                   'Generate Your First Workout',
                   style: TextStyle(
-                    color: Color(0xFF121714),
+                    color: cs.onPrimary,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -159,33 +161,33 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: cs.surfaceContainer,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: cs.outline),
               ),
               child: Column(
                 children: <Widget>[
                   Row(
                     children: <Widget>[
                       Icon(Icons.info_outline,
-                          color: Colors.grey.shade600, size: 20),
+                          color: cs.onSurfaceVariant, size: 20),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Pro Tip',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF121714),
+                            color: cs.onSurface,
                           ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Save generated workouts by tapping "Save Workout" after viewing the details. Saved plans can be started anytime!',
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: cs.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),
@@ -199,22 +201,23 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
   }
 
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 80,
-              color: Colors.red,
+              color: cs.error,
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Failed to Load Workouts',
               style: TextStyle(
-                color: Color(0xFF121714),
+                color: cs.onSurface,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -223,8 +226,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
             Text(
               error.toString(),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.grey,
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -236,17 +239,17 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                     .loadSavedWorkouts();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94E0B2),
+                backgroundColor: cs.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Retry',
                 style: TextStyle(
-                  color: Color(0xFF121714),
+                  color: cs.onPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -260,6 +263,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   Widget _buildWorkoutList(
       BuildContext context, WidgetRef ref, List<SavedWorkoutPlan> workouts) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     // Sort workouts: favorites first, then by last used, then by creation date
     final List<SavedWorkoutPlan> sortedWorkouts = List<SavedWorkoutPlan>.from(workouts);
     sortedWorkouts.sort((SavedWorkoutPlan a, SavedWorkoutPlan b) {
@@ -288,8 +292,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: <Color>[
-                const Color(0xFF94E0B2).withOpacity(0.8),
-                const Color(0xFF94E0B2).withOpacity(0.6),
+                cs.primary.withValues(alpha: 0.8),
+                cs.primary.withValues(alpha: 0.6),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -302,10 +306,10 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const Text(
+                    Text(
                       'Your Workout Plans',
                       style: TextStyle(
-                        color: Color(0xFF121714),
+                        color: cs.onPrimary,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -313,8 +317,8 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Text(
                       '${workouts.length} saved ${workouts.length == 1 ? 'plan' : 'plans'}',
-                      style: const TextStyle(
-                        color: Color(0xFF121714),
+                      style: TextStyle(
+                        color: cs.onPrimary,
                         fontSize: 14,
                       ),
                     ),
@@ -324,12 +328,12 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: cs.onPrimary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   Icons.bookmark,
-                  color: const Color(0xFF121714),
+                  color: cs.onPrimary,
                   size: 24,
                 ),
               ),
@@ -364,32 +368,33 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: <Widget>[
-          _buildFilterChip('All (${workouts.length})', true),
+          _buildFilterChip(context, 'All (${workouts.length})', true),
           const SizedBox(width: 8),
           if (favoriteCount > 0)
-            _buildFilterChip('Favorites ($favoriteCount)', false),
+            _buildFilterChip(context, 'Favorites ($favoriteCount)', false),
           const SizedBox(width: 8),
-          if (recentCount > 0) _buildFilterChip('Recent ($recentCount)', false),
+          if (recentCount > 0) _buildFilterChip(context, 'Recent ($recentCount)', false),
         ],
       ),
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected) {
+  Widget _buildFilterChip(BuildContext context, String label, bool isSelected) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: isSelected
-            ? const Color(0xFF94E0B2)
-            : const Color(0xFF94E0B2).withOpacity(0.1),
+            ? cs.primary
+            : cs.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         label,
         style: TextStyle(
           color: isSelected
-              ? const Color(0xFF121714)
-              : const Color(0xFF121714).withOpacity(0.7),
+              ? cs.onPrimary
+              : cs.onSurface.withValues(alpha: 0.7),
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -399,16 +404,18 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   Widget _buildWorkoutCard(
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final int totalExercises = workout.workoutPlan.workoutSessions
         .fold(0, (int sum, WorkoutSession session) => sum + session.exercises.length);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
+      color: cs.surfaceContainerLow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: workout.isFavorite
-            ? const BorderSide(color: Color(0xFF94E0B2), width: 1.5)
+            ? BorderSide(color: cs.primary, width: 1.5)
             : BorderSide.none,
       ),
       child: InkWell(
@@ -441,21 +448,21 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                     Container(
                       margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF94E0B2),
+                      decoration: BoxDecoration(
+                        color: cs.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.favorite,
-                        color: Colors.white,
+                        color: cs.onPrimary,
                         size: 12,
                       ),
                     ),
                   Expanded(
                     child: Text(
                       workout.name,
-                      style: const TextStyle(
-                        color: Color(0xFF121714),
+                      style: TextStyle(
+                        color: cs.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -471,7 +478,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                       workout.isFavorite
                           ? Icons.favorite
                           : Icons.favorite_border,
-                      color: workout.isFavorite ? Colors.red : Colors.grey,
+                      color: workout.isFavorite ? cs.error : cs.onSurfaceVariant,
                     ),
                   ),
                   PopupMenuButton<String>(
@@ -483,23 +490,23 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'duplicate',
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.copy, color: Color(0xFF94E0B2)),
-                            SizedBox(width: 8),
-                            Text('Duplicate'),
+                            Icon(Icons.copy, color: cs.primary),
+                            const SizedBox(width: 8),
+                            const Text('Duplicate'),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.delete, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete'),
+                            Icon(Icons.delete, color: cs.error),
+                            const SizedBox(width: 8),
+                            const Text('Delete'),
                           ],
                         ),
                       ),
@@ -516,19 +523,22 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                 runSpacing: 8,
                 children: <Widget>[
                   _buildStatChip(
+                    context,
                     Icons.calendar_today,
                     '${workout.workoutPlan.sessionsPerWeek}/week',
-                    const Color(0xFF94E0B2),
+                    cs.primary,
                   ),
                   _buildStatChip(
+                    context,
                     Icons.fitness_center,
                     '$totalExercises exercises',
-                    Colors.blue,
+                    cs.secondary,
                   ),
                   _buildStatChip(
+                    context,
                     Icons.schedule,
                     '${workout.workoutPlan.workoutSessions.length} sessions',
-                    Colors.purple,
+                    cs.tertiary,
                   ),
                 ],
               ),
@@ -544,16 +554,16 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                     children: <Widget>[
                       Text(
                         'Created: ${_formatDate(workout.createdAt)}',
-                        style: const TextStyle(
-                          color: Colors.grey,
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
                           fontSize: 12,
                         ),
                       ),
                       if (workout.lastUsed != null)
                         Text(
                           'Last used: ${_formatDate(workout.lastUsed!)}',
-                          style: const TextStyle(
-                            color: Colors.grey,
+                          style: TextStyle(
+                            color: cs.onSurfaceVariant,
                             fontSize: 12,
                           ),
                         ),
@@ -563,13 +573,13 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF94E0B2).withOpacity(0.1),
+                      color: cs.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Tap to start',
                       style: TextStyle(
-                        color: Color(0xFF94E0B2),
+                        color: cs.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -584,13 +594,13 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatChip(IconData icon, String text, Color color) {
+  Widget _buildStatChip(BuildContext context, IconData icon, String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -612,6 +622,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   void _duplicateWorkout(
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) async {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     try {
       final String duplicatedName = "${workout.name} (Copy)";
       await ref.read(savedWorkoutPlansProvider.notifier).saveWorkout(
@@ -622,14 +633,14 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Workout duplicated as "$duplicatedName"'),
-          backgroundColor: const Color(0xFF94E0B2),
+          backgroundColor: cs.primary,
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to duplicate workout: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: cs.error,
         ),
       );
     }
@@ -652,27 +663,29 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
 
   void _showDeleteConfirmation(
       BuildContext context, WidgetRef ref, SavedWorkoutPlan workout) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
+          backgroundColor: cs.surfaceContainerHigh,
+          title: Text(
             'Delete Workout Plan',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: cs.onSurface,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Are you sure you want to delete "${workout.name}"? This action cannot be undone.',
-            style: const TextStyle(color: Color(0xFF121714)),
+            style: TextStyle(color: cs.onSurface),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: cs.onSurfaceVariant),
               ),
             ),
             ElevatedButton(
@@ -686,7 +699,7 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                     SnackBar(
                       content: Text(
                           'Workout "${workout.name}" deleted successfully'),
-                      backgroundColor: const Color(0xFF94E0B2),
+                      backgroundColor: cs.primary,
                     ),
                   );
                 } catch (e) {
@@ -694,21 +707,21 @@ class SavedWorkoutPlansScreen extends ConsumerWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Failed to delete workout: $e'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: cs.error,
                     ),
                   );
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: cs.error,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Delete',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: cs.onError,
                   fontWeight: FontWeight.bold,
                 ),
               ),

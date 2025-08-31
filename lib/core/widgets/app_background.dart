@@ -21,14 +21,15 @@ class AppBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        gradient: _getGradient(),
+        gradient: _getGradient(isDark),
       ),
       child: Stack(
-        children: [
+        children: <Widget>[
           // Particle system background (if applicable)
-          if (_hasParticles()) _buildParticleSystem(),
+          if (_hasParticles()) _buildParticleSystem(isDark),
           
           // Main content
           child,
@@ -37,55 +38,78 @@ class AppBackground extends StatelessWidget {
     );
   }
 
-  LinearGradient _getGradient() {
+  LinearGradient _getGradient(bool isDark) {
     switch (type) {
       case BackgroundType.nutrition:
         return LinearGradient(
           begin: gradientBegin ?? Alignment.topLeft,
           end: gradientEnd ?? Alignment.bottomRight,
-          colors: [
-            const Color(0xFFF8F9FA),
-            const Color(0xFFE8F5E8),
-            const Color(0xFFF1F8E9),
+          colors: <Color>[
+            if (isDark) ...<Color>[
+              const Color(0xFF0E1319),
+              const Color(0xFF0F1D17),
+              const Color(0xFF0F1A13),
+            ] else ...<Color>[
+              const Color(0xFFF8F9FA),
+              const Color(0xFFE8F5E8),
+              const Color(0xFFF1F8E9),
+            ],
           ],
         );
       case BackgroundType.exercise:
         return LinearGradient(
           begin: gradientBegin ?? Alignment.topLeft,
           end: gradientEnd ?? Alignment.bottomRight,
-          colors: [
-            const Color(0xFFF8F9FA),
-            const Color(0xFFE3F2FD),
-            const Color(0xFFF3E5F5),
+          colors: <Color>[
+            if (isDark) ...<Color>[
+              const Color(0xFF0E1319),
+              const Color(0xFF111A24),
+              const Color(0xFF121722),
+            ] else ...<Color>[
+              const Color(0xFFF8F9FA),
+              const Color(0xFFE3F2FD),
+              const Color(0xFFF3E5F5),
+            ],
           ],
         );
       case BackgroundType.sleep:
         return LinearGradient(
           begin: gradientBegin ?? Alignment.topCenter,
           end: gradientEnd ?? Alignment.bottomCenter,
-          colors: [
-            const Color(0xFF1A1A2E),
-            const Color(0xFF16213E),
-            const Color(0xFF0F0F23),
+          colors: <Color>[
+            const Color(0xFF0B0F14),
+            const Color(0xFF101826),
+            const Color(0xFF0F1420),
           ],
         );
       case BackgroundType.profile:
         return LinearGradient(
           begin: gradientBegin ?? Alignment.topLeft,
           end: gradientEnd ?? Alignment.bottomRight,
-          colors: [
-            const Color(0xFFF8F9FA),
-            const Color(0xFFEDE7F6),
-            const Color(0xFFF3E5F5),
+          colors: <Color>[
+            if (isDark) ...<Color>[
+              const Color(0xFF0E1319),
+              const Color(0xFF171C22),
+              const Color(0xFF151A20),
+            ] else ...<Color>[
+              const Color(0xFFF8F9FA),
+              const Color(0xFFEDE7F6),
+              const Color(0xFFF3E5F5),
+            ],
           ],
         );
       case BackgroundType.general:
         return LinearGradient(
           begin: gradientBegin ?? Alignment.topLeft,
           end: gradientEnd ?? Alignment.bottomRight,
-          colors: [
-            const Color(0xFFF8F9FA),
-            const Color(0xFFE8F5E8),
+          colors: <Color>[
+            if (isDark) ...<Color>[
+              const Color(0xFF0E1319),
+              const Color(0xFF161C24),
+            ] else ...<Color>[
+              const Color(0xFFF8F9FA),
+              const Color(0xFFE8F5E8),
+            ],
           ],
         );
     }
@@ -96,9 +120,9 @@ class AppBackground extends StatelessWidget {
            type == BackgroundType.sleep;
   }
 
-  Widget _buildParticleSystem() {
+  Widget _buildParticleSystem(bool isDark) {
     String assetPath;
-    double opacity = particleOpacity ?? 0.08;
+    double opacity = particleOpacity ?? (isDark ? 0.14 : 0.08);
 
     switch (type) {
       case BackgroundType.nutrition:
@@ -106,7 +130,7 @@ class AppBackground extends StatelessWidget {
         break;
       case BackgroundType.sleep:
         assetPath = 'assets/lottie/stars_particles.json';
-        opacity = particleOpacity ?? 0.12;
+        opacity = particleOpacity ?? (isDark ? 0.18 : 0.12);
         break;
       default:
         return const SizedBox.shrink();
@@ -159,14 +183,15 @@ class ModernCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: backgroundColor ?? Colors.white,
+  color: backgroundColor ?? Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(borderRadius ?? 16),
-        boxShadow: customShadows ?? _buildShadows(),
+        boxShadow: customShadows ?? _buildShadows(isDark),
         border: Border.all(
-          color: const Color(0xFF2E7D32).withOpacity(0.04),
+          color: (isDark ? const Color(0xFF30D091) : const Color(0xFF2E7D32)).withValues(alpha: 0.10),
           width: 1,
         ),
       ),
@@ -177,38 +202,38 @@ class ModernCard extends StatelessWidget {
     );
   }
 
-  List<BoxShadow> _buildShadows() {
+  List<BoxShadow> _buildShadows(bool isDark) {
     if (hasGlow) {
-      return [
+      return <BoxShadow>[
         BoxShadow(
-          color: const Color(0xFF2E7D32).withOpacity(0.08),
+          color: (isDark ? const Color(0xFF30D091) : const Color(0xFF2E7D32)).withValues(alpha: 0.18),
           blurRadius: 20,
           offset: const Offset(0, 8),
           spreadRadius: 0,
         ),
         BoxShadow(
-          color: const Color(0xFF2E7D32).withOpacity(0.04),
+          color: (isDark ? const Color(0xFF30D091) : const Color(0xFF2E7D32)).withValues(alpha: 0.12),
           blurRadius: 40,
           offset: const Offset(0, 16),
           spreadRadius: 4,
         ),
         BoxShadow(
-          color: Colors.black.withOpacity(0.04),
+          color: (isDark ? Colors.black : Colors.black).withValues(alpha: 0.20),
           blurRadius: 6,
           offset: const Offset(0, 2),
           spreadRadius: 0,
         ),
       ];
     } else {
-      return [
+      return <BoxShadow>[
         BoxShadow(
-          color: Colors.black.withOpacity(0.06),
+          color: Colors.black.withValues(alpha: 0.30),
           blurRadius: 12,
           offset: const Offset(0, 4),
           spreadRadius: 0,
         ),
         BoxShadow(
-          color: Colors.black.withOpacity(0.04),
+          color: Colors.black.withValues(alpha: 0.16),
           blurRadius: 6,
           offset: const Offset(0, 2),
           spreadRadius: 0,
@@ -239,16 +264,17 @@ class ModernButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: width,
       height: height ?? 52,
       decoration: BoxDecoration(
-        gradient: _getGradient(),
+    gradient: _getGradient(isDark),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: _getShadows(),
+    boxShadow: _getShadows(isDark),
       ),
       child: Material(
-        color: Colors.transparent,
+    color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
@@ -258,11 +284,11 @@ class ModernButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (icon != null) ...[
+              children: <Widget>[
+                if (icon != null) ...<Widget>[
                   Icon(
                     icon,
-                    color: _getTextColor(),
+                    color: _getTextColor(isDark),
                     size: 20,
                   ),
                   const SizedBox(width: 8),
@@ -270,7 +296,7 @@ class ModernButton extends StatelessWidget {
                 Text(
                   text,
                   style: TextStyle(
-                    color: _getTextColor(),
+                    color: _getTextColor(isDark),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.2,
@@ -284,13 +310,13 @@ class ModernButton extends StatelessWidget {
     );
   }
 
-  LinearGradient? _getGradient() {
+  LinearGradient? _getGradient(bool isDark) {
     switch (type) {
       case ModernButtonType.primary:
         return const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
+          colors: <Color>[
             Color(0xFF2E7D32),
             Color(0xFF43A047),
           ],
@@ -299,16 +325,21 @@ class ModernButton extends StatelessWidget {
         return LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            const Color(0xFFF8F9FA),
+          colors: <Color>[
+            if (isDark) ...<Color>[
+              const Color(0xFF1A1F27),
+              const Color(0xFF12161B),
+            ] else ...<Color>[
+              Colors.white,
+              Color(0xFFF8F9FA),
+            ],
           ],
         );
       case ModernButtonType.accent:
         return const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
+          colors: <Color>[
             Color(0xFF1976D2),
             Color(0xFF42A5F5),
           ],
@@ -316,26 +347,26 @@ class ModernButton extends StatelessWidget {
     }
   }
 
-  Color _getTextColor() {
+  Color _getTextColor(bool isDark) {
     switch (type) {
       case ModernButtonType.primary:
       case ModernButtonType.accent:
         return Colors.white;
       case ModernButtonType.secondary:
-        return const Color(0xFF2E7D32);
+        return isDark ? const Color(0xFFE6EAF2) : const Color(0xFF2E7D32);
     }
   }
 
-  List<BoxShadow> _getShadows() {
-    return [
+  List<BoxShadow> _getShadows(bool isDark) {
+    return <BoxShadow>[
       BoxShadow(
-        color: _getGradient()!.colors.first.withOpacity(0.25),
+        color: _getGradient(isDark)!.colors.first.withValues(alpha: 0.28),
         blurRadius: 12,
         offset: const Offset(0, 6),
         spreadRadius: 0,
       ),
       BoxShadow(
-        color: Colors.black.withOpacity(0.04),
+        color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.06),
         blurRadius: 6,
         offset: const Offset(0, 2),
         spreadRadius: 0,

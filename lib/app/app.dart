@@ -12,10 +12,9 @@ class GhiraasApp extends ConsumerWidget {
     final GoRouter router = ref.watch(appRouterProvider);
     return MaterialApp.router(
       title: 'Ghiraas',
-      theme:
-          AppTheme.lightTheme, // This is actually our dark sustainability theme
+  theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.light, // Force use our custom dark theme
+  themeMode: ThemeMode.system, // Respect system setting; both themes are accessible
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

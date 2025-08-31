@@ -156,8 +156,8 @@ class _SettingsTile extends StatelessWidget {
       required this.title,
       required this.subtitle,
       this.onTap,
-      Key? key,
-      this.trailing})
+      this.trailing,
+      Key? key})
       : super(key: key);
 
   @override

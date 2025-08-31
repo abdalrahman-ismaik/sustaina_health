@@ -9,24 +9,25 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     final AsyncValue<List<ActiveWorkoutSession>> completedWorkoutsAsync =
         ref.watch(completedWorkoutsProvider);
     final AsyncValue<Map<String, dynamic>> workoutStatsAsync =
         ref.watch(workoutStatsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cs.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'My Workouts',
           style: TextStyle(
-            color: Color(0xFF121714),
+            color: cs.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: cs.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF121714)),
+        iconTheme: IconThemeData(color: cs.onSurface),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -40,9 +41,9 @@ class MyWorkoutsScreen extends ConsumerWidget {
             // Stats Section
             SliverToBoxAdapter(
               child: workoutStatsAsync.when(
-                data: (Map<String, dynamic> stats) => _buildStatsSection(stats),
-                loading: () => _buildStatsLoading(),
-                error: (Object error, _) => _buildStatsError(),
+                data: (Map<String, dynamic> stats) => _buildStatsSection(context, stats),
+                loading: () => _buildStatsLoading(context),
+                error: (Object error, _) => _buildStatsError(context),
               ),
             ),
 
@@ -52,8 +53,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 child: Text(
                   'Recent Workouts',
-                  style: const TextStyle(
-                    color: Color(0xFF121714),
+                  style: TextStyle(
+                    color: cs.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -79,7 +80,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                       title: 'Loading your workouts',
                       subtitle: 'Fetching recent sessions…',
                       compact: true,
-                      color: const Color(0xFF40916C),
+                      color: cs.primary,
                     ),
                   ),
                 ),
@@ -95,15 +96,16 @@ class MyWorkoutsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsSection(Map<String, dynamic> stats) {
+  Widget _buildStatsSection(BuildContext context, Map<String, dynamic> stats) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: <Color>[
-            const Color(0xFF94E0B2).withOpacity(0.8),
-            const Color(0xFF94E0B2).withOpacity(0.6),
+            cs.primary.withValues(alpha: 0.2),
+            cs.primary.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -113,10 +115,10 @@ class MyWorkoutsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const Text(
+          Text(
             'Workout Statistics',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: cs.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -125,14 +127,14 @@ class MyWorkoutsScreen extends ConsumerWidget {
           Row(
             children: <Widget>[
               Expanded(
-                child: _buildStatItem(
+                child: _buildStatItem(context,
                   'Total Workouts',
                   '${stats['totalWorkouts']}',
                   Icons.fitness_center,
                 ),
               ),
               Expanded(
-                child: _buildStatItem(
+                child: _buildStatItem(context,
                   'This Week',
                   '${stats['thisWeekWorkouts']}',
                   Icons.calendar_today,
@@ -144,14 +146,14 @@ class MyWorkoutsScreen extends ConsumerWidget {
           Row(
             children: <Widget>[
               Expanded(
-                child: _buildStatItem(
+                child: _buildStatItem(context,
                   'Total Time',
                   _formatDuration(stats['totalDuration'] as Duration),
                   Icons.timer,
                 ),
               ),
               Expanded(
-                child: _buildStatItem(
+                child: _buildStatItem(context,
                   'Avg Duration',
                   _formatDuration(stats['averageDuration'] as Duration),
                   Icons.trending_up,
@@ -164,22 +166,23 @@ class MyWorkoutsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon) {
+  Widget _buildStatItem(BuildContext context, String label, String value, IconData icon) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.3),
+        color: cs.surface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         children: <Widget>[
-          Icon(icon, color: const Color(0xFF121714), size: 24),
+          Icon(icon, color: cs.onSurface, size: 24),
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              color: Color(0xFF121714),
+            style: TextStyle(
+              color: cs.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -187,8 +190,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF121714),
+            style: TextStyle(
+              color: cs.onSurface,
               fontSize: 12,
             ),
           ),
@@ -197,38 +200,41 @@ class MyWorkoutsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsLoading() {
+  Widget _buildStatsLoading(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Center(
-        child: CircularProgressIndicator(color: Color(0xFF94E0B2)),
+      child: Center(
+        child: CircularProgressIndicator(color: cs.primary),
       ),
     );
   }
 
-  Widget _buildStatsError() {
+  Widget _buildStatsError(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.red.shade100,
+        color: cs.errorContainer,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Center(
+      child: Center(
         child: Text(
           'Failed to load statistics',
-          style: TextStyle(color: Colors.red),
+          style: TextStyle(color: cs.onErrorContainer),
         ),
       ),
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -237,30 +243,30 @@ class MyWorkoutsScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: const Color(0xFF94E0B2).withOpacity(0.1),
+                color: cs.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.fitness_center,
                 size: 80,
-                color: Color(0xFF94E0B2),
+                color: cs.primary,
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'No Workouts Yet',
               style: TextStyle(
-                color: Color(0xFF121714),
+                color: cs.onSurface,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Start your first workout to see your progress here!',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey,
+                color: cs.onSurfaceVariant,
                 fontSize: 16,
               ),
             ),
@@ -268,17 +274,17 @@ class MyWorkoutsScreen extends ConsumerWidget {
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94E0B2),
+                backgroundColor: cs.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Start First Workout',
                 style: TextStyle(
-                  color: Color(0xFF121714),
+                  color: cs.onPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -291,21 +297,22 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           children: <Widget>[
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 80,
-              color: Colors.red,
+              color: cs.error,
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Failed to Load Workouts',
               style: TextStyle(
-                color: Color(0xFF121714),
+                color: cs.onSurface,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -314,8 +321,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
             Text(
               error.toString(),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.grey,
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -327,17 +334,17 @@ class MyWorkoutsScreen extends ConsumerWidget {
                     .loadCompletedWorkouts();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF94E0B2),
+                backgroundColor: cs.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Retry',
                 style: TextStyle(
-                  color: Color(0xFF121714),
+                  color: cs.onPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -351,6 +358,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   Widget _buildWorkoutCard(
       BuildContext context, WidgetRef ref, ActiveWorkoutSession workout) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -370,8 +378,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       workout.workoutName,
-                      style: const TextStyle(
-                        color: Color(0xFF121714),
+                      style: TextStyle(
+                        color: cs.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -385,13 +393,13 @@ class MyWorkoutsScreen extends ConsumerWidget {
                     },
                     itemBuilder: (BuildContext context) =>
                         <PopupMenuEntry<String>>[
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.delete, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete'),
+                            Icon(Icons.delete, color: cs.error),
+                            const SizedBox(width: 8),
+                            const Text('Delete'),
                           ],
                         ),
                       ),
@@ -405,19 +413,19 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   _buildWorkoutStatChip(
                     Icons.timer,
                     _formatDuration(workout.totalDuration),
-                    const Color(0xFF94E0B2),
+                    cs.primary,
                   ),
                   const SizedBox(width: 8),
                   _buildWorkoutStatChip(
                     Icons.fitness_center,
                     '${workout.exercises.length} exercises',
-                    Colors.blue,
+                    cs.secondary,
                   ),
                   const SizedBox(width: 8),
                   _buildWorkoutStatChip(
                     Icons.repeat,
                     '${_getTotalSets(workout)} sets',
-                    Colors.purple,
+                    cs.tertiary,
                   ),
                 ],
               ),
@@ -427,15 +435,15 @@ class MyWorkoutsScreen extends ConsumerWidget {
                 children: <Widget>[
                   Text(
                     _formatDate(workout.startTime),
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: cs.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),
                   if (workout.notes != null)
                     Icon(
                       Icons.note,
-                      color: Colors.grey.shade600,
+                      color: cs.onSurfaceVariant,
                       size: 16,
                     ),
                 ],
@@ -451,9 +459,9 @@ class MyWorkoutsScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -474,6 +482,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
   }
 
   void _showWorkoutDetails(BuildContext context, ActiveWorkoutSession workout) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -497,7 +506,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: cs.onSurfaceVariant,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -507,17 +516,17 @@ class MyWorkoutsScreen extends ConsumerWidget {
               // Header
               Text(
                 workout.workoutName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF121714),
+                  color: cs.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 '${_formatDate(workout.startTime)} • ${_formatDuration(workout.totalDuration)}',
-                style: const TextStyle(
-                  color: Colors.grey,
+                style: TextStyle(
+                  color: cs.onSurfaceVariant,
                   fontSize: 16,
                 ),
               ),
@@ -528,23 +537,23 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: cs.surfaceContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      const Text(
+                      Text(
                         'Notes:',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF121714),
+                          color: cs.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         workout.notes!,
-                        style: const TextStyle(color: Colors.grey),
+                        style: TextStyle(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -552,12 +561,12 @@ class MyWorkoutsScreen extends ConsumerWidget {
               ],
 
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Exercises',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF121714),
+                  color: cs.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
@@ -588,11 +597,11 @@ class MyWorkoutsScreen extends ConsumerWidget {
                           return ListTile(
                             leading: CircleAvatar(
                               radius: 16,
-                              backgroundColor: const Color(0xFF94E0B2),
+                              backgroundColor: cs.primary,
                               child: Text(
                                 '${setIndex + 1}',
-                                style: const TextStyle(
-                                  color: Color(0xFF121714),
+                                style: TextStyle(
+                                  color: cs.onPrimary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
@@ -629,27 +638,28 @@ class MyWorkoutsScreen extends ConsumerWidget {
 
   void _showDeleteConfirmation(
       BuildContext context, WidgetRef ref, ActiveWorkoutSession workout) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
+          title: Text(
             'Delete Workout',
             style: TextStyle(
-              color: Color(0xFF121714),
+              color: cs.onSurface,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Are you sure you want to delete "${workout.workoutName}"? This action cannot be undone.',
-            style: const TextStyle(color: Color(0xFF121714)),
+            style: TextStyle(color: cs.onSurface),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: cs.onSurfaceVariant),
               ),
             ),
             ElevatedButton(
@@ -663,7 +673,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                     SnackBar(
                       content: Text(
                           'Workout "${workout.workoutName}" deleted successfully'),
-                      backgroundColor: const Color(0xFF94E0B2),
+                      backgroundColor: cs.primary,
                     ),
                   );
                 } catch (e) {
@@ -671,21 +681,21 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Failed to delete workout: $e'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: cs.error,
                     ),
                   );
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: cs.error,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Delete',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: cs.onError,
                   fontWeight: FontWeight.bold,
                 ),
               ),
