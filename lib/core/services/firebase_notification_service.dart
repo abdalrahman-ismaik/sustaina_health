@@ -89,7 +89,8 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       await _handleAndroidOptimizations();
 
       // Subscribe to FCM topics for campaigns
-      final AppNotificationSettings appSettings = await _getNotificationSettings();
+      final AppNotificationSettings appSettings =
+          await _getNotificationSettings();
       if (appSettings.exerciseRemindersEnabled) {
         await _firebaseMessaging.subscribeToTopic('Exercises Reminder');
         debugPrint('Subscribed to Exercises Reminder topic for FCM campaign');
@@ -352,7 +353,8 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       debugPrint('Exact alarm permitted: $exactPermitted');
 
       if (!exactPermitted) {
-        debugPrint('Exact alarms not permitted, scheduling for 4 minutes later as fallback');
+        debugPrint(
+            'Exact alarms not permitted, scheduling for 4 minutes later as fallback');
         final tz.TZDateTime fallbackTime = tz.TZDateTime.from(
           DateTime.now().add(const Duration(minutes: 4)),
           tz.local,
@@ -437,11 +439,13 @@ class FirebaseNotificationService with WidgetsBindingObserver {
       debugPrint('Firebase test notification scheduled');
 
       // Check pending notifications to verify scheduling
-      final pending = await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
+      final pending =
+          await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
       debugPrint('Pending notifications after scheduling: ${pending.length}');
       for (final p in pending) {
         if (p.id == 9995) {
-          debugPrint('Scheduled notification found in pending: ${p.title} at ${p.body}');
+          debugPrint(
+              'Scheduled notification found in pending: ${p.title} at ${p.body}');
         }
       }
 
