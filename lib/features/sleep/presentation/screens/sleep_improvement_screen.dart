@@ -12,15 +12,16 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
   bool _reminderEnabled = false;
 
   void _pickTime() async {
+    final colorScheme = Theme.of(context).colorScheme;
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _bedtime,
       builder: (BuildContext context, Widget? child) => Theme(
-        data: ThemeData.dark().copyWith(
-          colorScheme: const ColorScheme.dark(
-            primary: Color(0xFF94e0b2),
-            surface: Color(0xFF2a4133),
-            onSurface: Colors.white,
+        data: Theme.of(context).copyWith(
+          colorScheme: colorScheme.copyWith(
+            primary: colorScheme.primary,
+            surface: colorScheme.surface,
+            onSurface: colorScheme.onSurface,
           ),
         ),
         child: child!,
@@ -33,19 +34,21 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFF141f18),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF141f18),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Sleep Improvement',
           style: TextStyle(
-            color: Colors.white,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -59,10 +62,10 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const Text(
+              Text(
                 'Personalized Tips',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -87,10 +90,10 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                 ),
               ],
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Bedtime Reminder',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -102,45 +105,45 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                     value: _reminderEnabled,
                     onChanged: (bool val) =>
                         setState(() => _reminderEnabled = val),
-                    activeColor: const Color(0xFF94e0b2),
-                    inactiveTrackColor: const Color(0xFF2a4133),
+                    activeColor: colorScheme.primary,
+                    inactiveTrackColor: colorScheme.surfaceVariant,
                   ),
                   const SizedBox(width: 8),
-                  const Text('Enable Reminder',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                  Text('Enable Reminder',
+                      style: TextStyle(color: colorScheme.onSurface, fontSize: 16)),
                 ],
               ),
               if (_reminderEnabled) ...<Widget>[
                 const SizedBox(height: 12),
                 Row(
                   children: <Widget>[
-                    const Icon(Icons.access_time, color: Color(0xFF94e0b2)),
+                    Icon(Icons.access_time, color: colorScheme.primary),
                     const SizedBox(width: 8),
                     Text(
                       'Bedtime: ${_bedtime.format(context)}',
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2a4133),
+                        backgroundColor: colorScheme.surfaceVariant,
+                        foregroundColor: colorScheme.onSurfaceVariant,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
                       ),
                       onPressed: _pickTime,
-                      child: const Text('Change',
-                          style: TextStyle(color: Colors.white)),
+                      child: const Text('Change'),
                     ),
                   ],
                 ),
               ],
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Eco-Friendly Sleep Improvements',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -165,7 +168,8 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF94e0b2),
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24)),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -176,14 +180,13 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                         content: Text(_reminderEnabled
                             ? 'Bedtime reminder set for ${_bedtime.format(context)}!'
                             : 'Sleep improvement tips saved!'),
-                        backgroundColor: const Color(0xFF2a4133),
+                        backgroundColor: colorScheme.surfaceVariant,
                       ),
                     );
                   },
                   child: Text(
                     _reminderEnabled ? 'Set Reminder' : 'Save Tips',
                     style: const TextStyle(
-                      color: Color(0xFF141f18),
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -207,16 +210,18 @@ class _TipTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         children: <Widget>[
-          Icon(icon, color: const Color(0xFF94e0b2)),
+          Icon(icon, color: colorScheme.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
             ),
           ),
         ],

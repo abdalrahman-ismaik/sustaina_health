@@ -5,19 +5,21 @@ class SleepAnalysisScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFF141f18),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF141f18),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Sleep Analysis',
           style: TextStyle(
-            color: Colors.white,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -31,10 +33,10 @@ class SleepAnalysisScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const Text(
+              Text(
                 'Weekly Trends',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -44,12 +46,22 @@ class SleepAnalysisScreen extends StatelessWidget {
                 height: 160,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2a4133),
+                  color: colorScheme.surfaceVariant.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: colorScheme.outline.withOpacity(0.15),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.shadow.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: const Center(
+                child: Center(
                   child: Text('Sleep Trends Chart',
-                      style: TextStyle(color: Color(0xFF9bbfaa))),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant)),
                 ),
               ),
               const SizedBox(height: 20),
@@ -63,10 +75,10 @@ class SleepAnalysisScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Sleep Stages Breakdown',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -76,21 +88,31 @@ class SleepAnalysisScreen extends StatelessWidget {
                 height: 140,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2a4133),
+                  color: colorScheme.surfaceVariant.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: colorScheme.outline.withOpacity(0.15),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.shadow.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: const Center(
+                child: Center(
                   child: Text('Bar/Pie Chart Placeholder',
-                      style: TextStyle(color: Color(0xFF9bbfaa))),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant)),
                 ),
               ),
               const SizedBox(height: 20),
               const _SleepStageBreakdown(),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'AI Insights & Recommendations',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -100,19 +122,29 @@ class SleepAnalysisScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2a4133),
+                  color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: colorScheme.outline.withOpacity(0.15),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.shadow.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: const Text(
+                child: Text(
                   'Try to maintain a consistent sleep schedule. Reduce screen time before bed for better deep sleep. Consider eco-friendly bedding for improved sustainability.',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: colorScheme.onPrimaryContainer, fontSize: 16),
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Sustainability Impact',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                 ),
@@ -122,12 +154,22 @@ class SleepAnalysisScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2a4133),
+                  color: colorScheme.secondaryContainer,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: colorScheme.outline.withOpacity(0.15),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.shadow.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: const Text(
+                child: Text(
                   'You saved 2kWh of energy this week by using energy-efficient sleep devices and natural ventilation.',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: colorScheme.onSecondaryContainer, fontSize: 16),
                 ),
               ),
               const SizedBox(height: 80),
@@ -147,14 +189,16 @@ class _SummaryStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Column(
       children: <Widget>[
         Text(title,
-            style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
+            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
         const SizedBox(height: 4),
         Text(value,
-            style: const TextStyle(
-                color: Colors.white,
+            style: TextStyle(
+                color: colorScheme.onSurface,
                 fontSize: 18,
                 fontWeight: FontWeight.bold)),
       ],
@@ -186,15 +230,17 @@ class _SleepStageRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(stage,
-              style: const TextStyle(color: Color(0xFF9bbfaa), fontSize: 14)),
+              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
           Text(value,
-              style: const TextStyle(color: Colors.white, fontSize: 14)),
+              style: TextStyle(color: colorScheme.onSurface, fontSize: 14)),
         ],
       ),
     );

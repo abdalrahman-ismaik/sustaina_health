@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/workout_models.dart';
 import '../providers/workout_providers.dart';
 import 'active_workout_screen.dart';
+import '../../../../widgets/achievement_popup_widget.dart';
 
 class WorkoutDetailScreen extends ConsumerStatefulWidget {
   final WorkoutPlan workout;
@@ -22,6 +23,7 @@ class WorkoutDetailScreen extends ConsumerStatefulWidget {
 class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -42,6 +44,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -532,14 +535,37 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         Navigator.of(context).pop(); // Close loading dialog
         Navigator.of(context).pop(); // Close selection dialog
 
-        Navigator.push(
+        Navigator.push<bool?>(
           context,
           MaterialPageRoute(
             builder: (BuildContext context) => ActiveWorkoutScreen(
               workoutSession: activeSession,
             ),
           ),
-        );
+        ).then((bool? completed) {
+          // Debug logging
+          print('Workout navigation returned with result: $completed');
+          print('Mounted status: $mounted');
+          
+          // If workout was completed successfully, show achievement popup
+          if (completed == true && mounted) {
+            print('Showing achievement popup for workout: ${activeSession.workoutName}');
+            
+            // Use scaffold context which should remain valid
+            final BuildContext? scaffoldContext = _scaffoldKey.currentContext;
+            if (scaffoldContext != null && scaffoldContext.mounted) {
+              print('Using scaffold context for achievement popup');
+              AchievementPopupWidget.showExerciseCompletion(
+                scaffoldContext,
+                activeSession.workoutName,
+              );
+            } else {
+              print('Scaffold context is null or not mounted');
+            }
+          } else {
+            print('Not showing popup - completed: $completed, mounted: $mounted');
+          }
+        });
       }
     } catch (e) {
       print('Error starting workout: $e');

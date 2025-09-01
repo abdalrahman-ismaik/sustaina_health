@@ -37,15 +37,15 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   String? _currentAvatar;
   String? _currentGif;
   
-  final List<String> _avatars = [
+  final List<String> _avatars = <String>[
     'assets/images/avatars/avatar1.png',
     'assets/images/avatars/avatar2.png',
     'assets/images/avatars/avatar3.png',
   ];
   
-  final List<String> _homeGifs = [
+  final List<String> _homeGifs = <String>[
     'assets/gif/home/heart.gif',
-    'assets/gif/home/hello.gif',
+    'assets/gif/home/greeting.gif',
     'assets/gif/home/running.gif',
     'assets/gif/home/swinging.gif',
     'assets/gif/home/walking.gif',
@@ -136,12 +136,12 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   }
   
   void _selectRandomAvatar() {
-    final random = math.Random();
+    final math.Random random = math.Random();
     _currentAvatar = _avatars[random.nextInt(_avatars.length)];
   }
   
   void _selectRandomHomeGif() {
-    final random = math.Random();
+    final math.Random random = math.Random();
     _currentGif = _homeGifs[random.nextInt(_homeGifs.length)];
   }
   
@@ -297,19 +297,19 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                           // Enhanced Hero Welcome Section
                           _buildEnhancedHeroSection(
                             context, cs, isDark, user, streak, caloriesEaten, avgSleepStr),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 28),
 
-                          // Quick Actions with 3D Effects
+                          // Quick Actions with improved layout
                           _buildSectionHeader(context, cs, 'Quick Actions', Icons.dashboard_outlined),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
                           _buildEnhanced3DQuickActionsGrid(context, cs, isDark),
                           const SizedBox(height: 32),
 
                           // Today's Focus with Modern Design
                           _buildSectionHeader(context, cs, 'Today\'s Focus', Icons.eco_outlined),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
                           _buildModernFocusCard(context, cs, isDark),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 28),
 
                           // Enhanced Sustainability Tips
                           _buildModernSustainabilityTips(context, cs, isDark),
@@ -381,7 +381,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
-                  'Sustaina Health',
+                  'Ghiraas',
                   style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 18,
@@ -980,12 +980,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: <Color>[
-                cs.primary.withValues(alpha: 0.15),
-                cs.primary.withValues(alpha: 0.05),
-              ],
-            ),
+            color: cs.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -1044,9 +1039,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 1.1,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.0, // Perfect square for equal sizing
       ),
       itemCount: quickActions.length,
       itemBuilder: (BuildContext context, int index) {
@@ -1068,63 +1063,40 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         return Transform.scale(
           scale: animationValue,
           child: Container(
+            height: 140, // Fixed height for equal sizing
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: <Color>[
-                  cs.surfaceContainerHigh,
-                  cs.surfaceContainer,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(24),
+              color: isDark 
+                ? cs.surfaceContainer
+                : cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: actionColor.withValues(alpha: 0.3),
-                width: 1,
+                color: actionColor.withValues(alpha: 0.4),
+                width: 2,
               ),
               boxShadow: <BoxShadow>[
                 BoxShadow(
-                  color: cs.shadow.withValues(alpha: 0.1),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-                if (isDark) BoxShadow(
-                  color: actionColor.withValues(alpha: 0.2),
-                  blurRadius: 16,
-                  offset: const Offset(0, 0),
-                  spreadRadius: 2,
+                  color: cs.shadow.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
                 onTap: () => context.go(action['route'] as String),
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        width: 56,
+                        height: 56,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: <Color>[
-                              actionColor.withValues(alpha: 0.2),
-                              actionColor.withValues(alpha: 0.1),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              color: actionColor.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                          color: actionColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
                           action['icon'] as IconData,
@@ -1136,25 +1108,20 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                       Text(
                         action['title'] as String,
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                           color: cs.onSurface,
                         ),
                         textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         action['subtitle'] as String,
                         style: TextStyle(
                           fontSize: 12,
-                          color: cs.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
+                          color: cs.onSurface.withValues(alpha: 0.7),
                         ),
                         textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

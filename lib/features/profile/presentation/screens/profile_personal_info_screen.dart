@@ -30,8 +30,10 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -45,17 +47,17 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
                     children: <Widget>[
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
-                        color: const Color(0xFF121714),
+                        color: colorScheme.onSurface,
                         onPressed: () => Navigator.of(context).pop(),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: Padding(
-                          padding: EdgeInsets.only(right: 48.0),
+                          padding: const EdgeInsets.only(right: 48.0),
                           child: Text(
                             'About you',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Color(0xFF121714),
+                              color: colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                               letterSpacing: -0.015,
@@ -152,16 +154,17 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF94E0B2),
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(32),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Next',
                       style: TextStyle(
-                        color: Color(0xFF121714),
+                        color: colorScheme.onPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                         letterSpacing: 0.015,
@@ -178,28 +181,47 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
   }
 
   InputDecoration _inputDecoration(String label) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InputDecoration(
       labelText: label,
       filled: true,
-      fillColor: const Color(0xFFF1F4F2),
+      fillColor: colorScheme.surface,
       contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-      border: OutlineInputBorder(
+      enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(
+          color: colorScheme.outline,
+          width: 1.5,
+        ),
       ),
-      labelStyle: const TextStyle(
-        color: Color(0xFF688273),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(
+          color: colorScheme.primary,
+          width: 2,
+        ),
+      ),
+      labelStyle: TextStyle(
+        color: colorScheme.onSurface.withOpacity(0.7),
         fontSize: 16,
+      ),
+      floatingLabelStyle: TextStyle(
+        color: colorScheme.primary,
       ),
     );
   }
 
   Widget _unitToggle(String left, String right, String groupValue, ValueChanged<String> onChanged) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F4F2),
+        color: colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.3),
+          width: 1,
+        ),
       ),
       child: Row(
         children: <Widget>[
@@ -211,23 +233,30 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
   }
 
   Widget _toggleButton(String text, bool selected, VoidCallback onTap) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         height: 40,
         decoration: BoxDecoration(
-          color: selected ? Colors.white : Colors.transparent,
+          color: selected ? colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           boxShadow: selected
-              ? <BoxShadow>[BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)]
+              ? <BoxShadow>[
+                  BoxShadow(
+                    color: colorScheme.shadow.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ]
               : <BoxShadow>[],
         ),
         alignment: Alignment.center,
         child: Text(
           text,
           style: TextStyle(
-            color: selected ? const Color(0xFF121714) : const Color(0xFF688273),
+            color: selected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
             fontSize: 14,
           ),

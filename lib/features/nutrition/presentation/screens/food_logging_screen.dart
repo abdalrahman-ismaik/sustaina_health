@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../domain/repositories/nutrition_repository.dart' show SavedMealPlan;
-import '../../../sleep/presentation/theme/sleep_colors.dart';
 import '../../../../widgets/achievement_popup_widget.dart';
+import 'nutrition_insights_screen.dart';
 
 class FoodLoggingScreen extends ConsumerStatefulWidget {
   const FoodLoggingScreen({Key? key}) : super(key: key);
@@ -18,6 +18,38 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   String selectedMealType = 'breakfast';
   DateTime selectedDate = DateTime.now();
 
+  PreferredSizeWidget _buildModernAppBar(BuildContext context, ColorScheme cs, bool isDark) {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: cs.surface,
+      automaticallyImplyLeading: false, // Remove back arrow
+      title: Text(
+        'Food Logging',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: cs.onSurface,
+        ),
+      ),
+      centerTitle: true,
+      actions: <Widget>[
+        IconButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const NutritionInsightsScreen(),
+              ),
+            );
+          },
+          icon: Icon(
+            Icons.analytics_outlined,
+            color: cs.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final AsyncValue<List<FoodLogEntry>> foodLogState =
@@ -26,6 +58,9 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
         ref.watch(dailyNutritionSummaryProvider);
     final AsyncValue<List<SavedMealPlan>> savedPlansState =
         ref.watch(savedMealPlansProvider);
+
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Listen to food log changes and refresh daily summary
     ref.listen<AsyncValue<List<FoodLogEntry>>>(foodLogProvider,
@@ -43,25 +78,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: SleepColors.textPrimary),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Food Logging',
-          style: TextStyle(
-            color: SleepColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            letterSpacing: -0.015,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      backgroundColor: cs.surface,
+      appBar: _buildModernAppBar(context, cs, isDark),
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -70,28 +88,30 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: SleepColors.surfaceGrey,
+                color: isDark 
+                  ? cs.surfaceContainer
+                  : cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: <Widget>[
                   Icon(Icons.calendar_today,
-                      color: Colors.grey.shade600, size: 20),
+                      color: cs.onSurface.withOpacity(0.7), size: 20),
                   const SizedBox(width: 8),
                   Text(
                     _formatSelectedDate(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: SleepColors.textPrimary,
+                      color: cs.onSurface,
                     ),
                   ),
                   const Spacer(),
                   TextButton(
                     onPressed: () => _selectDate(context),
-                    child: const Text(
+                    child: Text(
                       'Change Date',
-                      style: TextStyle(color: SleepColors.primaryGreen),
+                      style: TextStyle(color: cs.primary),
                     ),
                   ),
                 ],
@@ -112,11 +132,15 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                 child: Container(
                   margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark 
+                      ? cs.surfaceContainer 
+                      : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: <BoxShadow>[
                       BoxShadow(
-                        color: Colors.grey.shade200,
+                        color: isDark 
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.grey.shade200,
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -134,43 +158,46 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                               width: 120,
                               height: 120,
                               decoration: BoxDecoration(
-                                color:
-                                    SleepColors.primaryGreen.withOpacity(0.1),
+                                color: cs.surfaceContainerHighest,
                                 shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: cs.primary,
+                                  width: 2,
+                                ),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.camera_alt,
                                 size: 48,
-                                color: SleepColors.primaryGreen,
+                                color: cs.primary,
                               ),
                             ),
                             const SizedBox(height: 16),
-                            const Text(
+                            Text(
                               'Log Food with Camera',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: SleepColors.textPrimary,
+                                color: cs.onSurface,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const Text(
+                            Text(
                               'Take a photo of your meal and let AI analyze the nutrition information automatically',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey,
+                                color: cs.onSurface.withOpacity(0.7),
                               ),
                             ),
                             const SizedBox(height: 24),
 
                             // Meal type selector
-                            const Text(
+                            Text(
                               'Select meal type:',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: SleepColors.textPrimary,
+                                color: cs.onSurface,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -183,26 +210,35 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                               child: Column(
                                 children: <Widget>[
                                   ElevatedButton.icon(
-                                    onPressed: () {
-                                      context.push(
+                                    onPressed: () async {
+                                      final bool? result = await context.push<bool>(
                                           '/nutrition/ai-recognition?mealType=$selectedMealType');
+                                      
+                                      // If food was logged successfully, show achievement popup
+                                      if (result == true && mounted) {
+                                        Future.delayed(const Duration(milliseconds: 300), () {
+                                          if (mounted) {
+                                            AchievementPopupWidget.showNutritionLogged(context);
+                                          }
+                                        });
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: SleepColors.primaryGreen,
+                                      backgroundColor: cs.primary,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 16),
                                     ),
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.camera_alt,
-                                      color: SleepColors.textPrimary,
+                                      color: cs.onPrimary,
                                     ),
-                                    label: const Text(
+                                    label: Text(
                                       'Start Camera Logging',
                                       style: TextStyle(
-                                        color: SleepColors.textPrimary,
+                                        color: cs.onPrimary,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
@@ -230,8 +266,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                                       );
                                     },
                                     style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(
-                                        color: SleepColors.primaryGreen,
+                                      side: BorderSide(
+                                        color: cs.primary,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -241,14 +277,14 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                                       minimumSize:
                                           const Size(double.infinity, 0),
                                     ),
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.edit_note,
-                                      color: SleepColors.primaryGreen,
+                                      color: cs.primary,
                                     ),
-                                    label: const Text(
+                                    label: Text(
                                       'Manual Entry',
                                       style: TextStyle(
-                                        color: SleepColors.primaryGreen,
+                                        color: cs.primary,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
@@ -291,6 +327,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   }
 
   Widget _buildMacrosComparison(NutritionInfo logged, DailyMacros plan) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    
     Widget stat(String label, String left, String right, Color color) {
       return Flexible(
         flex: 1,
@@ -299,7 +337,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
           children: <Widget>[
             Text(label,
                 style: TextStyle(
-                    color: SleepColors.textPrimary.withOpacity(0.85),
+                    color: cs.onSurface.withOpacity(0.85),
                     fontSize: 12),
                 overflow: TextOverflow.ellipsis),
             const SizedBox(height: 6),
@@ -308,19 +346,19 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                 Flexible(
                   child: Text(left,
                       style: TextStyle(
-                          color: SleepColors.textPrimary,
+                          color: cs.onSurface,
                           fontWeight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis),
                 ),
                 const SizedBox(width: 6),
                 Text('/',
                     style: TextStyle(
-                        color: SleepColors.textPrimary.withOpacity(0.7))),
+                        color: cs.onSurface.withOpacity(0.7))),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(right,
                       style: TextStyle(
-                          color: SleepColors.textPrimary.withOpacity(0.85)),
+                          color: cs.onSurface.withOpacity(0.85)),
                       overflow: TextOverflow.ellipsis),
                 ),
               ],
@@ -333,7 +371,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: cs.onPrimary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -351,6 +389,9 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   }
 
   Widget _buildMealTypeSelector() {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Wrap(
       spacing: 8,
       children:
@@ -362,12 +403,13 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
-                  ? SleepColors.primaryGreen
-                  : SleepColors.surfaceGrey,
+                  ? cs.primary
+                  : isDark 
+                    ? cs.surfaceContainer
+                    : cs.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color:
-                    isSelected ? SleepColors.primaryGreen : Colors.transparent,
+                color: isSelected ? cs.primary : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -375,8 +417,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
               type.substring(0, 1).toUpperCase() + type.substring(1),
               style: TextStyle(
                 color: isSelected
-                    ? SleepColors.textPrimary
-                    : SleepColors.textSecondary,
+                    ? cs.onPrimary
+                    : cs.onSurface.withOpacity(0.8),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -388,6 +430,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
 
   Widget _buildDailySummary(DailyNutritionSummary summary,
       AsyncValue<List<SavedMealPlan>> savedPlansState) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    
     // Determine favorite meal plan if available
     final SavedMealPlan? favorite = savedPlansState.maybeWhen(
       data: (List<SavedMealPlan> data) {
@@ -418,8 +462,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: <Color>[
-            SleepColors.primaryGreen.withOpacity(0.8),
-            SleepColors.primaryGreen.withOpacity(0.6),
+            cs.primary.withOpacity(0.8),
+            cs.primary.withOpacity(0.6),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -429,10 +473,10 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const Text(
+          Text(
             'Today\'s Progress',
             style: TextStyle(
-              color: SleepColors.textPrimary,
+              color: cs.onPrimary,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -446,8 +490,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                   children: <Widget>[
                     Text(
                       '${summary.totalNutrition.calories} / $targetCalories cal',
-                      style: const TextStyle(
-                        color: SleepColors.textPrimary,
+                      style: TextStyle(
+                        color: cs.onPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -455,9 +499,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
                       value: calorieProgress,
-                      backgroundColor: Colors.white.withOpacity(0.3),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                          SleepColors.textPrimary),
+                      backgroundColor: cs.onPrimary.withOpacity(0.3),
+                      valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
                     ),
                     const SizedBox(height: 12),
                     if (planMacros != null)
@@ -475,33 +518,35 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   }
 
   Widget _buildFoodLogList(List<FoodLogEntry> entries) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    
     if (entries.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Icon(
                 Icons.no_food,
                 size: 64,
-                color: Colors.grey,
+                color: cs.onSurface.withOpacity(0.5),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'No food logged today',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: cs.onSurface.withOpacity(0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Use the camera to log your first meal!',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey,
+                  color: cs.onSurface.withOpacity(0.5),
                 ),
               ),
             ],
@@ -513,14 +558,14 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'Today\'s Food Log',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: SleepColors.textPrimary,
+              color: cs.onSurface,
             ),
           ),
         ),
@@ -541,6 +586,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   }
 
   Widget _buildFoodLogCard(FoodLogEntry entry) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 1,
@@ -570,10 +617,10 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                 children: <Widget>[
                   Text(
                     entry.foodName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: SleepColors.textPrimary,
+                      color: cs.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -599,9 +646,9 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                       const SizedBox(width: 8),
                       Text(
                         '${entry.nutritionInfo.calories} cal',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: cs.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -610,7 +657,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.grey),
+              icon: Icon(Icons.more_vert, color: cs.onSurface.withOpacity(0.6)),
               onPressed: () => _showFoodLogOptions(context, entry),
             ),
           ],
@@ -667,6 +714,8 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   }
 
   void _showFoodLogOptions(BuildContext context, FoodLogEntry entry) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) => Container(
@@ -675,7 +724,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
-              leading: const Icon(Icons.edit, color: SleepColors.primaryGreen),
+              leading: Icon(Icons.edit, color: cs.primary),
               title: const Text('Edit Entry'),
               onTap: () {
                 Navigator.pop(context);
@@ -697,12 +746,14 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   }
 
   void _deleteFoodLogEntry(FoodLogEntry entry) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    
     // Daily summary will be automatically refreshed by the listener
     ref.read(foodLogProvider.notifier).deleteFoodLogEntry(entry.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${entry.foodName} deleted from log'),
-        backgroundColor: SleepColors.primaryGreen,
+        backgroundColor: cs.primary,
       ),
     );
   }
@@ -795,6 +846,8 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
   }
 
   void _submitForm() {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    
     if (_formKey.currentState?.validate() ?? false) {
       FoodLogEntry entry;
       if (widget.existingEntry != null) {
@@ -839,7 +892,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
           content: Text(widget.existingEntry != null
               ? 'Food entry updated!'
               : 'Food logged successfully!'),
-          backgroundColor: SleepColors.primaryGreen,
+          backgroundColor: cs.primary,
         ),
       );
     }
@@ -847,12 +900,15 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: isDark ? cs.surface : Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SingleChildScrollView(
@@ -869,10 +925,10 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                   children: <Widget>[
                     Text(
                       '${widget.existingEntry != null ? 'Edit' : 'Add'} ${widget.mealType.substring(0, 1).toUpperCase()}${widget.mealType.substring(1)} Item',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: SleepColors.textPrimary,
+                        color: cs.onSurface,
                       ),
                     ),
                     const Spacer(),
@@ -1011,7 +1067,7 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                   child: ElevatedButton(
                     onPressed: _submitForm,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: SleepColors.primaryGreen,
+                      backgroundColor: cs.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1021,8 +1077,8 @@ class _ManualFoodEntrySheetState extends ConsumerState<_ManualFoodEntrySheet> {
                       widget.existingEntry != null
                           ? 'Update Food Entry'
                           : 'Save Food Entry',
-                      style: const TextStyle(
-                        color: SleepColors.textPrimary,
+                      style: TextStyle(
+                        color: cs.onPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),

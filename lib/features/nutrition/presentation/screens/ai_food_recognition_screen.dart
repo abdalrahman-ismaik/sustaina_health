@@ -124,25 +124,30 @@ class _AIFoodRecognitionScreenState
     final AsyncValue<bool> apiHealthState =
         ref.watch(nutritionApiHealthProvider);
 
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Color(0xFF121714)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
+        title: Text(
           'AI Food Analyzer',
-          style: TextStyle(
-            color: Color(0xFF121714),
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
             letterSpacing: -0.015,
           ),
         ),
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.close, color: colorScheme.onSurface),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -255,6 +260,9 @@ class _CameraView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -266,7 +274,7 @@ class _CameraView extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 24),
             height: 220,
             decoration: BoxDecoration(
-              color: const Color(0xFFf1f4f2),
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(24),
             ),
             child: selectedImage != null
@@ -279,23 +287,22 @@ class _CameraView extends StatelessWidget {
                       height: double.infinity,
                     ),
                   )
-                : const Center(
+                : Center(
                     child: Icon(Icons.camera_alt,
-                        size: 64, color: Color(0xFF688273)),
+                        size: 64, color: colorScheme.onSurfaceVariant),
                   ),
           ),
 
           const SizedBox(height: 32),
 
           // Description Text
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
               'Take a photo of your meal to get personalized nutrition insights, sustainability analysis, and health recommendations',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
                 height: 1.4,
               ),
             ),
@@ -314,11 +321,11 @@ class _CameraView extends StatelessWidget {
                       print('Camera button pressed'); // Debug logging
                       onCapture();
                     },
-                    icon: const Icon(Icons.camera, color: Color(0xFF121714)),
-                    label: const Text('Camera',
-                        style: TextStyle(color: Color(0xFF121714))),
+                    icon: Icon(Icons.camera, color: colorScheme.onPrimary),
+                    label: Text('Camera',
+                        style: TextStyle(color: colorScheme.onPrimary)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF94e0b2),
+                      backgroundColor: colorScheme.primary,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -332,12 +339,12 @@ class _CameraView extends StatelessWidget {
                       print('Gallery button pressed'); // Debug logging
                       onGallery();
                     },
-                    icon: const Icon(Icons.photo_library,
-                        color: Color(0xFF688273)),
-                    label: const Text('Gallery',
-                        style: TextStyle(color: Color(0xFF688273))),
+                    icon: Icon(Icons.photo_library,
+                        color: colorScheme.primary),
+                    label: Text('Gallery',
+                        style: TextStyle(color: colorScheme.primary)),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFdde4e0)),
+                      side: BorderSide(color: colorScheme.outline),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -371,6 +378,9 @@ class _FoodAnalysisResult extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -485,18 +495,11 @@ class _FoodAnalysisResult extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: <Color>[
-                    const Color(0xFF94e0b2).withOpacity(0.15),
-                    const Color(0xFF94e0b2).withOpacity(0.05),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: colorScheme.primary.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: const Color(0xFF94e0b2).withOpacity(0.4),
-                  width: 2,
+                  color: colorScheme.primary.withValues(alpha: 0.3),
+                  width: 1,
                 ),
               ),
               child: Column(
@@ -507,22 +510,21 @@ class _FoodAnalysisResult extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF94e0b2).withOpacity(0.2),
+                          color: colorScheme.primary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.eco,
-                          color: Color(0xFF688273),
+                          color: colorScheme.primary,
                           size: 24,
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
+                      Text(
                         'Sustainability Analysis',
-                        style: TextStyle(
-                          fontSize: 18,
+                        style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF121714),
+                          color: colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -700,13 +702,16 @@ class _FoodAnalysisResult extends ConsumerWidget {
                     const SnackBar(
                       content: Text('Food logged successfully!'),
                       backgroundColor: Color(0xFF94e0b2),
+                      duration: Duration(seconds: 2),
                     ),
                   );
 
-                  // Navigate back to food logging screen
-                  if (context.mounted) {
-                    context.pop();
-                  }
+                  // Navigate back with success result
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (context.mounted) {
+                      context.pop(true); // true indicates successful logging
+                    }
+                  });
                 },
                 icon: const Icon(Icons.check, color: Colors.white),
                 label: const Text(

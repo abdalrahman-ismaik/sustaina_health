@@ -5,31 +5,21 @@ class ProfileSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor =
-        isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
-    final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final Color borderColor =
-        isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final Color accentColor =
-        isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
-    final Color tileBg =
-        isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: bgColor,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: textColor),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Settings',
           style: TextStyle(
-            color: textColor,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -129,14 +119,14 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
       child: Text(
         title,
         style: TextStyle(
-          color: textColor,
+          color: colorScheme.onSurface,
           fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
@@ -151,35 +141,43 @@ class _SettingsTile extends StatelessWidget {
   final String subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
-  const _SettingsTile(
-      {required this.icon,
+  
+  const _SettingsTile({
+      required this.icon,
       required this.title,
       required this.subtitle,
-      this.onTap,
       this.trailing,
+      this.onTap,
       Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor =
-        isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final Color subtitleColor =
-        isDark ? const Color(0xFF9bbfaa) : const Color(0xFF51946c);
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
-          color: bgColor,
+          color: colorScheme.surfaceVariant.withOpacity(0.3),
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: colorScheme.outline.withOpacity(0.15),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: <Widget>[
-            Icon(icon, color: textColor),
+            Icon(icon, color: colorScheme.primary, size: 24),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -187,12 +185,12 @@ class _SettingsTile extends StatelessWidget {
                 children: <Widget>[
                   Text(title,
                       style: TextStyle(
-                          color: textColor,
+                          color: colorScheme.onSurface,
                           fontSize: 16,
                           fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
                   Text(subtitle,
-                      style: TextStyle(color: subtitleColor, fontSize: 14)),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
                 ],
               ),
             ),
@@ -200,7 +198,9 @@ class _SettingsTile extends StatelessWidget {
               const SizedBox(width: 8),
               trailing!,
             ] else ...<Widget>[
-              const Icon(Icons.arrow_forward_ios, size: 18),
+              Icon(Icons.arrow_forward_ios, 
+                   size: 18, 
+                   color: colorScheme.onSurfaceVariant),
             ],
           ],
         ),

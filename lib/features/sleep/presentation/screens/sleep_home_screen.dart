@@ -3,17 +3,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/sleep_providers.dart';
-import '../theme/sleep_colors.dart';
 import '../../data/models/sleep_models.dart';
 
 class SleepHomeScreen extends ConsumerWidget {
   const SleepHomeScreen({Key? key}) : super(key: key);
+
+  /// Get sleep quality color based on score (0-10)
+  Color getSleepQualityColor(double score, ColorScheme colorScheme) {
+    if (score >= 8.0) return colorScheme.primary;
+    if (score >= 6.0) return Colors.orange;
+    return colorScheme.error;
+  }
+
+  /// Get sleep duration color based on duration
+  Color getSleepDurationColor(Duration duration, ColorScheme colorScheme) {
+    final int hours = duration.inHours;
+    if (hours >= 7 && hours <= 9) return colorScheme.primary;
+    if (hours >= 6 && hours < 7) return Colors.orange;
+    return colorScheme.error;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<SleepSession?> latestSessionAsync = ref.watch(latestSleepSessionProvider);
     final AsyncValue<SleepStats> sleepStatsAsync = ref.watch(sleepStatsProvider);
     final AsyncValue<List<SleepSession>> sleepSessionsAsync = ref.watch(sleepSessionsProvider);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -49,19 +64,19 @@ class SleepHomeScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 // Sleep Time Graph
-                _buildSleepTimeGraph(context, ref, sleepSessionsAsync),
+                _buildSleepTimeGraph(context, ref, sleepSessionsAsync, colorScheme),
                 const SizedBox(height: 24),
 
                 // Latest Sleep Session
-                _buildLatestSleepCard(context, ref, latestSessionAsync),
+                _buildLatestSleepCard(context, ref, latestSessionAsync, colorScheme),
                 const SizedBox(height: 24),
 
                 // Basic Stats
-                _buildBasicStats(context, ref, sleepStatsAsync),
+                _buildBasicStats(context, ref, sleepStatsAsync, colorScheme),
                 const SizedBox(height: 24),
 
                 // Sleep Advice Section (moved to end)
-                _buildSleepAdviceSection(),
+                _buildSleepAdviceSection(colorScheme),
                 const SizedBox(height: 24),
               ],
             ),
@@ -94,77 +109,74 @@ class SleepHomeScreen extends ConsumerWidget {
       greeting = 'Good Evening';
     }
 
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.all(0),
-      shape: RoundedRectangleBorder(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: <Color>[
-              Theme.of(context).colorScheme.primary.withOpacity(0.08),
-              Theme.of(context).colorScheme.surface,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Icon(
-                  Icons.bedtime,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        greeting,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Icon(
+                Icons.bedtime,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      greeting,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Track your sleep to improve your rest and well-being',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: 14,
-                          height: 1.4,
-                        ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Track your sleep to improve your rest and well-being',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                        fontSize: 14,
+                        height: 1.4,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildQuickStartButton(BuildContext context) {
-  return Container(
+    return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-    color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-      color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -182,12 +194,12 @@ class SleepHomeScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.bedtime,
-          color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.onPrimary,
                     size: 24,
                   ),
                 ),
@@ -199,7 +211,7 @@ class SleepHomeScreen extends ConsumerWidget {
                       Text(
                         'Start Sleep Tracking',
                         style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -208,7 +220,7 @@ class SleepHomeScreen extends ConsumerWidget {
                       Text(
                         'Begin tracking your sleep session',
                         style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -217,7 +229,7 @@ class SleepHomeScreen extends ConsumerWidget {
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 16,
                 ),
               ],
@@ -228,18 +240,22 @@ class SleepHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSleepAdviceSection() {
+  Widget _buildSleepAdviceSection(ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.15),
+          width: 1,
+        ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -250,14 +266,14 @@ class SleepHomeScreen extends ConsumerWidget {
             children: <Widget>[
               Icon(
                 Icons.lightbulb_outline,
-                color: SleepColors.primaryGreen,
+                color: colorScheme.primary,
                 size: 24,
               ),
               const SizedBox(width: 12),
               Text(
                 'Sleep Advice',
                 style: TextStyle(
-                  color: SleepColors.textPrimary,
+                  color: colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -266,16 +282,19 @@ class SleepHomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           _buildAdviceItem(
+            colorScheme,
             '🌙 Maintain a consistent sleep schedule',
             'Go to bed and wake up at the same time every day, even on weekends.',
           ),
           const SizedBox(height: 12),
           _buildAdviceItem(
+            colorScheme,
             '📱 Avoid screens 1 hour before bedtime',
             'Blue light from devices can interfere with your natural sleep cycle.',
           ),
           const SizedBox(height: 12),
           _buildAdviceItem(
+            colorScheme,
             '🌡️ Keep your bedroom cool and dark',
             'A temperature of 18-20°C (65-68°F) is ideal for sleep.',
           ),
@@ -284,14 +303,14 @@ class SleepHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAdviceItem(String title, String description) {
+  Widget _buildAdviceItem(ColorScheme colorScheme, String title, String description) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           title,
           style: TextStyle(
-            color: SleepColors.textPrimary,
+            color: colorScheme.onSurface,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -300,7 +319,7 @@ class SleepHomeScreen extends ConsumerWidget {
         Text(
           description,
           style: TextStyle(
-            color: SleepColors.textSecondary,
+            color: colorScheme.onSurfaceVariant,
             fontSize: 14,
             height: 1.4,
           ),
@@ -309,18 +328,22 @@ class SleepHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSleepTimeGraph(BuildContext context, WidgetRef ref, AsyncValue<List<SleepSession>> sessionsAsync) {
+  Widget _buildSleepTimeGraph(BuildContext context, WidgetRef ref, AsyncValue<List<SleepSession>> sessionsAsync, ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.15),
+          width: 1,
+        ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -331,14 +354,14 @@ class SleepHomeScreen extends ConsumerWidget {
             children: <Widget>[
               Icon(
                 Icons.show_chart,
-                color: SleepColors.primaryGreen,
+                color: colorScheme.primary,
                 size: 24,
               ),
               const SizedBox(width: 12),
               Text(
                 'Sleep Time Trend',
                 style: TextStyle(
-                  color: SleepColors.textPrimary,
+                  color: colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -352,7 +375,7 @@ class SleepHomeScreen extends ConsumerWidget {
                 return Container(
                   height: 200,
                   decoration: BoxDecoration(
-                    color: SleepColors.backgroundGrey,
+                    color: colorScheme.surfaceVariant,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -362,13 +385,13 @@ class SleepHomeScreen extends ConsumerWidget {
                         Icon(
                           Icons.bar_chart_outlined,
                           size: 48,
-                          color: SleepColors.textTertiary,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No sleep data yet',
                           style: TextStyle(
-                            color: SleepColors.textSecondary,
+                            color: colorScheme.onSurfaceVariant,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -377,7 +400,7 @@ class SleepHomeScreen extends ConsumerWidget {
                         Text(
                           'Start tracking to see your sleep trends',
                           style: TextStyle(
-                            color: SleepColors.textTertiary,
+                            color: colorScheme.onSurfaceVariant.withOpacity(0.7),
                             fontSize: 14,
                           ),
                         ),
@@ -409,7 +432,7 @@ class SleepHomeScreen extends ConsumerWidget {
                               return Text(
                                 days[value.toInt()],
                                 style: TextStyle(
-                                  color: SleepColors.textSecondary,
+                                  color: colorScheme.onSurfaceVariant,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -427,7 +450,7 @@ class SleepHomeScreen extends ConsumerWidget {
                             return Text(
                               '${value.toInt()}h',
                               style: TextStyle(
-                                color: SleepColors.textSecondary,
+                                color: colorScheme.onSurfaceVariant,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -445,7 +468,7 @@ class SleepHomeScreen extends ConsumerWidget {
                         barRods: <BarChartRodData>[
                           BarChartRodData(
                             toY: hours,
-                            color: hours >= 7 ? SleepColors.primaryGreen : SleepColors.warningOrange,
+                            color: hours >= 7 ? colorScheme.primary : colorScheme.error,
                             width: 20,
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                           ),
@@ -458,7 +481,7 @@ class SleepHomeScreen extends ConsumerWidget {
                       drawVerticalLine: false,
                       getDrawingHorizontalLine: (double value) {
                         return FlLine(
-                          color: SleepColors.textTertiary.withOpacity(0.2),
+                          color: colorScheme.outline.withOpacity(0.3),
                           strokeWidth: 1,
                         );
                       },
@@ -470,19 +493,19 @@ class SleepHomeScreen extends ConsumerWidget {
             loading: () => Container(
               height: 200,
               decoration: BoxDecoration(
-                color: SleepColors.backgroundGrey,
+                color: colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
+                  valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                 ),
               ),
             ),
             error: (Object error, StackTrace stack) => Container(
               height: 200,
               decoration: BoxDecoration(
-                color: SleepColors.backgroundGrey,
+                color: colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -491,14 +514,14 @@ class SleepHomeScreen extends ConsumerWidget {
                   children: <Widget>[
                     Icon(
                       Icons.error_outline,
-                      color: SleepColors.errorRed,
+                      color: colorScheme.error,
                       size: 32,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Failed to load sleep data',
                       style: TextStyle(
-                        color: SleepColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                         fontSize: 14,
                       ),
                     ),
@@ -536,18 +559,22 @@ class SleepHomeScreen extends ConsumerWidget {
     return last7Days;
   }
 
-  Widget _buildLatestSleepCard(BuildContext context, WidgetRef ref, AsyncValue<SleepSession?> latestSessionAsync) {
+  Widget _buildLatestSleepCard(BuildContext context, WidgetRef ref, AsyncValue<SleepSession?> latestSessionAsync, ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.15),
+          width: 1,
+        ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -558,14 +585,14 @@ class SleepHomeScreen extends ConsumerWidget {
             children: <Widget>[
               Icon(
                 Icons.bedtime,
-                color: SleepColors.primaryGreen,
+                color: colorScheme.primary,
                 size: 24,
               ),
               const SizedBox(width: 12),
               Text(
                 'Latest Sleep',
                 style: TextStyle(
-                  color: SleepColors.textPrimary,
+                  color: colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -579,22 +606,22 @@ class SleepHomeScreen extends ConsumerWidget {
                 return Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: SleepColors.backgroundGrey,
+                    color: colorScheme.surfaceVariant,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+                    border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
                   ),
                   child: Column(
                     children: <Widget>[
                       Icon(
                         Icons.bedtime_outlined,
                         size: 48,
-                        color: SleepColors.textTertiary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'No sleep sessions yet',
                         style: TextStyle(
-                          color: SleepColors.textPrimary,
+                          color: colorScheme.onSurface,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -603,7 +630,7 @@ class SleepHomeScreen extends ConsumerWidget {
                       Text(
                         'Start tracking to see your sleep data here',
                         style: TextStyle(
-                          color: SleepColors.textSecondary,
+                          color: colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                         textAlign: TextAlign.center,
@@ -616,9 +643,9 @@ class SleepHomeScreen extends ConsumerWidget {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: SleepColors.backgroundGrey,
+                  color: colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: SleepColors.primaryGreen.withOpacity(0.2)),
+                  border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -628,7 +655,7 @@ class SleepHomeScreen extends ConsumerWidget {
                         Text(
                           'Last Night',
                           style: TextStyle(
-                            color: SleepColors.textPrimary,
+                            color: colorScheme.onSurface,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -637,13 +664,13 @@ class SleepHomeScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: SleepColors.getSleepQualityColor(session.sleepQuality).withOpacity(0.1),
+                            color: getSleepQualityColor(session.sleepQuality, colorScheme).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
                             '${session.sleepQuality.toStringAsFixed(1)}/10',
                             style: TextStyle(
-                              color: SleepColors.getSleepQualityColor(session.sleepQuality),
+                              color: getSleepQualityColor(session.sleepQuality, colorScheme),
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
@@ -659,6 +686,7 @@ class SleepHomeScreen extends ConsumerWidget {
                             'Duration',
                             '${session.totalDuration.inHours}h ${session.totalDuration.inMinutes % 60}m',
                             Icons.access_time,
+                            colorScheme,
                           ),
                         ),
                         Expanded(
@@ -666,6 +694,7 @@ class SleepHomeScreen extends ConsumerWidget {
                             'Mood',
                             session.mood,
                             Icons.mood,
+                            colorScheme,
                           ),
                         ),
                       ],
@@ -677,33 +706,33 @@ class SleepHomeScreen extends ConsumerWidget {
             loading: () => Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: SleepColors.backgroundGrey,
+                color: colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
+                  valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                 ),
               ),
             ),
             error: (Object error, StackTrace stack) => Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: SleepColors.backgroundGrey,
+                color: colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: <Widget>[
                   Icon(
                     Icons.error_outline,
-                    color: SleepColors.errorRed,
+                    color: colorScheme.error,
                     size: 32,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Failed to load sleep data',
                     style: TextStyle(
-                      color: SleepColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),
@@ -716,7 +745,7 @@ class SleepHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSessionDetail(String label, String value, IconData icon) {
+  Widget _buildSessionDetail(String label, String value, IconData icon, ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -724,14 +753,14 @@ class SleepHomeScreen extends ConsumerWidget {
           children: <Widget>[
             Icon(
               icon,
-              color: SleepColors.textSecondary,
+              color: colorScheme.onSurfaceVariant,
               size: 16,
             ),
             const SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(
-                color: SleepColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -741,7 +770,7 @@ class SleepHomeScreen extends ConsumerWidget {
         Text(
           value,
           style: TextStyle(
-            color: SleepColors.textPrimary,
+            color: colorScheme.onSurface,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -750,18 +779,22 @@ class SleepHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBasicStats(BuildContext context, WidgetRef ref, AsyncValue<SleepStats> statsAsync) {
+  Widget _buildBasicStats(BuildContext context, WidgetRef ref, AsyncValue<SleepStats> statsAsync, ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.15),
+          width: 1,
+        ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -772,14 +805,14 @@ class SleepHomeScreen extends ConsumerWidget {
             children: <Widget>[
               Icon(
                 Icons.analytics_outlined,
-                color: SleepColors.primaryGreen,
+                color: colorScheme.primary,
                 size: 24,
               ),
               const SizedBox(width: 12),
               Text(
                 'Sleep Overview',
                 style: TextStyle(
-                  color: SleepColors.textPrimary,
+                  color: colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -795,7 +828,8 @@ class SleepHomeScreen extends ConsumerWidget {
                     'Average Quality',
                     '${stats.averageQuality.toStringAsFixed(1)}/10',
                     Icons.star,
-                    SleepColors.getSleepQualityColor(stats.averageQuality),
+                    getSleepQualityColor(stats.averageQuality, colorScheme),
+                    colorScheme,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -804,7 +838,8 @@ class SleepHomeScreen extends ConsumerWidget {
                     'Average Duration',
                     '${stats.averageDuration.inHours}h ${stats.averageDuration.inMinutes % 60}m',
                     Icons.access_time,
-                    SleepColors.getSleepDurationColor(stats.averageDuration),
+                    getSleepDurationColor(stats.averageDuration, colorScheme),
+                    colorScheme,
                   ),
                 ),
               ],
@@ -812,33 +847,33 @@ class SleepHomeScreen extends ConsumerWidget {
             loading: () => Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: SleepColors.backgroundGrey,
+                color: colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(SleepColors.primaryGreen),
+                  valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                 ),
               ),
             ),
             error: (Object error, StackTrace stack) => Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: SleepColors.backgroundGrey,
+                color: colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: <Widget>[
                   Icon(
                     Icons.error_outline,
-                    color: SleepColors.errorRed,
+                    color: colorScheme.error,
                     size: 32,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Failed to load stats',
                     style: TextStyle(
-                      color: SleepColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),
@@ -851,13 +886,23 @@ class SleepHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(String title, String value, IconData icon, Color color, ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SleepColors.backgroundGrey,
+        color: colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1.5,
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: <Widget>[
@@ -870,7 +915,7 @@ class SleepHomeScreen extends ConsumerWidget {
           Text(
             value,
             style: TextStyle(
-              color: SleepColors.textPrimary,
+              color: colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -879,7 +924,7 @@ class SleepHomeScreen extends ConsumerWidget {
           Text(
             title,
             style: TextStyle(
-              color: SleepColors.textSecondary,
+              color: colorScheme.onSurfaceVariant,
               fontSize: 12,
             ),
             textAlign: TextAlign.center,
@@ -890,12 +935,14 @@ class SleepHomeScreen extends ConsumerWidget {
   }
 
   void _showSleepGuide(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: Text(
           'Sleep Tracking Guide',
-          style: TextStyle(color: SleepColors.textPrimary),
+          style: TextStyle(color: colorScheme.onSurface),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -904,16 +951,16 @@ class SleepHomeScreen extends ConsumerWidget {
             Text(
               'How to use the sleep module:',
               style: TextStyle(
-                color: SleepColors.textPrimary,
+                color: colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 12),
-            _buildGuideItem('1. Tap "Track Sleep" to start a new sleep session'),
-            _buildGuideItem('2. Set your bedtime and wake time'),
-            _buildGuideItem('3. Rate your sleep quality and mood'),
-            _buildGuideItem('4. View your sleep statistics and trends'),
-            _buildGuideItem('5. Set goals to improve your sleep habits'),
+            _buildGuideItem('1. Tap "Track Sleep" to start a new sleep session', colorScheme),
+            _buildGuideItem('2. Set your bedtime and wake time', colorScheme),
+            _buildGuideItem('3. Rate your sleep quality and mood', colorScheme),
+            _buildGuideItem('4. View your sleep statistics and trends', colorScheme),
+            _buildGuideItem('5. Set goals to improve your sleep habits', colorScheme),
           ],
         ),
         actions: <Widget>[
@@ -921,7 +968,7 @@ class SleepHomeScreen extends ConsumerWidget {
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
               'Got it',
-              style: TextStyle(color: SleepColors.primaryGreen),
+              style: TextStyle(color: colorScheme.primary),
             ),
           ),
         ],
@@ -929,13 +976,13 @@ class SleepHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGuideItem(String text) {
+  Widget _buildGuideItem(String text, ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         text,
         style: TextStyle(
-          color: SleepColors.textSecondary,
+          color: colorScheme.onSurfaceVariant,
           fontSize: 14,
         ),
       ),

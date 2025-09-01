@@ -76,8 +76,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -88,7 +90,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   child: Row(
                     children: <Widget>[
-                      Icon(Icons.close, color: Color(0xFF121714), size: 28),
+                      Icon(Icons.close, color: colorScheme.onSurface, size: 28),
                       Expanded(
                         child: Center(
                           child: Text(
@@ -96,7 +98,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
-                              color: Color(0xFF121714),
+                              color: colorScheme.onSurface,
                               letterSpacing: -0.015,
                             ),
                           ),
@@ -111,26 +113,30 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: Text(
                       _error!,
-                      style: TextStyle(color: Colors.red, fontSize: 14),
+                      style: TextStyle(color: colorScheme.error, fontSize: 14),
                     ),
                   ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: TextField(
                     controller: _nameController,
-                    style: const TextStyle(
-                      color: Color(0xFF212121), // Dark text for readability
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
                       fontSize: 16,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Full Name',
                       filled: true,
-                      fillColor: Color(0xFFF1F4F2),
+                      fillColor: colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
-                      hintStyle: TextStyle(color: Color(0xFF688273)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                      ),
+                      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                       contentPadding: EdgeInsets.all(16),
                     ),
                   ),
@@ -139,19 +145,23 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: TextField(
                     controller: _emailController,
-                    style: const TextStyle(
-                      color: Color(0xFF212121), // Dark text for readability
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
                       fontSize: 16,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Email',
                       filled: true,
-                      fillColor: Color(0xFFF1F4F2),
+                      fillColor: colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
-                      hintStyle: TextStyle(color: Color(0xFF688273)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                      ),
+                      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                       contentPadding: EdgeInsets.all(16),
                     ),
                   ),
@@ -161,22 +171,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   child: TextField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: const TextStyle(
-                      color: Color(0xFF212121), // Dark text for readability
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
                       fontSize: 16,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Password',
                       filled: true,
-                      fillColor: Color(0xFFF1F4F2),
+                      fillColor: colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
-                      hintStyle: TextStyle(color: Color(0xFF688273)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                      ),
+                      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                       contentPadding: EdgeInsets.all(16),
                       suffixIcon: IconButton(
-                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Color(0xFF688273)),
+                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: colorScheme.onSurfaceVariant),
                         onPressed: () {
                           setState(() {
                             _obscurePassword = !_obscurePassword;
@@ -194,7 +208,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       Text(
                         'Password Strength',
                         style: TextStyle(
-                          color: Color(0xFF121714),
+                          color: colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                           fontSize: 16,
                         ),
@@ -205,8 +219,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         child: LinearProgressIndicator(
                           value: 0.6,
                           minHeight: 8,
-                          backgroundColor: Color(0xFFDDE4E0),
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF121714)),
+                          backgroundColor: colorScheme.surfaceContainerHighest,
+                          valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                         ),
                       ),
                     ],
@@ -217,22 +231,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   child: TextField(
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
-                    style: const TextStyle(
-                      color: Color(0xFF212121), // Dark text for readability
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
                       fontSize: 16,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Confirm Password',
                       filled: true,
-                      fillColor: Color(0xFFF1F4F2),
+                      fillColor: colorScheme.surfaceContainerHighest,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
-                      hintStyle: TextStyle(color: Color(0xFF688273)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                      ),
+                      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                       contentPadding: EdgeInsets.all(16),
                       suffixIcon: IconButton(
-                        icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility, color: Color(0xFF688273)),
+                        icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility, color: colorScheme.onSurfaceVariant),
                         onPressed: () {
                           setState(() {
                             _obscureConfirmPassword = !_obscureConfirmPassword;
@@ -249,19 +267,19 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       Expanded(
                         child: Text(
                           'I agree to the Terms and Conditions',
-                          style: TextStyle(color: Color(0xFF121714), fontSize: 16),
+                          style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
                         ),
                       ),
                       Checkbox(
                         value: _agreeTerms,
-                        activeColor: Color(0xFF94E0B2),
+                        activeColor: colorScheme.primary,
                         onChanged: (bool? val) {
                           setState(() {
                             _agreeTerms = val ?? false;
                           });
                         },
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                        side: BorderSide(color: Color(0xFFDDE4E0), width: 2),
+                        side: BorderSide(color: colorScheme.outline, width: 2),
                       ),
                     ],
                   ),
@@ -273,7 +291,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     height: 48,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF94E0B2),
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
                         shape: StadiumBorder(),
                         elevation: 0,
                       ),
@@ -282,12 +301,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           ? SizedBox(
                               width: 24,
                               height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF121714)),
+                              child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onPrimary),
                             )
                           : Text(
                               'Sign Up',
                               style: TextStyle(
-                                color: Color(0xFF121714),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -303,14 +321,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: GestureDetector(
                     onTap: () => GoRouter.of(context).go('/login'),
-                    child: Text(
-                      'Already have an account? Login',
-                      style: TextStyle(
-                        color: Color(0xFF688273),
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                      ),
+                    child: RichText(
                       textAlign: TextAlign.center,
+                      text: TextSpan(
+                        text: 'Already have an account? ',
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 14,
+                        ),
+                        children: <InlineSpan>[
+                          TextSpan(
+                            text: 'Login',
+                            style: TextStyle(
+                              color: colorScheme.primary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

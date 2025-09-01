@@ -856,7 +856,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
   }
 
   Widget _buildGoalsProgress(DailyNutritionSummary summary, ColorScheme cs, bool isDark) {
-    final proteinTarget = (summary.targetCalories * 0.2 / 4).round(); // 20% of calories from protein
+    final calorieProgress = (summary.totalNutrition.calories / summary.targetCalories).clamp(0.0, 1.0);
     
     return Container(
       padding: const EdgeInsets.all(20),
@@ -903,6 +903,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           
           // Protein Goal (assuming 20% of calories from protein)
+          final proteinTarget = (summary.targetCalories * 0.2 / 4).round();
           _buildGoalProgressItem(
             'Protein',
             summary.totalNutrition.protein,

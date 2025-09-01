@@ -952,15 +952,12 @@ class _MealPlanDetailScreenState extends State<_MealPlanDetailScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: <Color>[
-                    cs.primary.withValues(alpha: 0.28),
-                    cs.primary.withValues(alpha: 0.18),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: cs.primary.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: cs.primary.withValues(alpha: 0.3),
+                  width: 1,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

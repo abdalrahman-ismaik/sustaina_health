@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/workout_models.dart';
 import '../providers/workout_providers.dart';
-import '../../../../widgets/achievement_popup_widget.dart';
 
 class ActiveWorkoutScreen extends ConsumerStatefulWidget {
   final ActiveWorkoutSession workoutSession;
@@ -322,20 +321,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
         Navigator.of(context).pop(); // Close loading dialog
       }
 
-      // Show success message with achievement popup
+      // Navigate back to previous screen with completion result
       if (mounted) {
-        // Show achievement popup instead of SnackBar
-        AchievementPopupWidget.showExerciseCompletion(
-          context,
-          widget.workoutSession.workoutName,
-        );
-
-        // Navigate back to previous screen after a brief delay
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            Navigator.of(context).pop();
-          }
-        });
+        print('ActiveWorkoutScreen: Navigating back with completion result: true');
+        Navigator.of(context).pop(true); // true indicates successful completion
+      } else {
+        print('ActiveWorkoutScreen: Not mounted, cannot navigate back');
       }
     } catch (e) {
       print('Error finishing workout: $e');
@@ -483,7 +474,6 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.workoutSession.workoutName),

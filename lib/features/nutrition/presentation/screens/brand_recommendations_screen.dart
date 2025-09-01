@@ -34,27 +34,31 @@ class _BrandRecommendationsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     final AsyncValue<RecommendedBrands?> brandRecommendationsState =
         ref.watch(brandRecommendationsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF121714)),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text(
+        title: Text(
           'Sustainable Brands',
-          style: TextStyle(
-            color: Color(0xFF121714),
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
           ),
         ),
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.close, color: colorScheme.onSurface),
+            onPressed: () => context.pop(),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

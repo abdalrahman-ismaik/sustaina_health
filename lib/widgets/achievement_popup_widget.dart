@@ -22,11 +22,12 @@ class AchievementPopupWidget extends StatefulWidget {
     required String title,
     required String message,
   }) {
+    print('AchievementPopupWidget.show called with title: $title');
     showDialog(
       context: context,
       barrierDismissible: true,
       barrierColor: Colors.transparent,
-      builder: (context) => AchievementPopupWidget(
+      builder: (BuildContext context) => AchievementPopupWidget(
         title: title,
         message: message,
         onClose: () => Navigator.of(context).pop(),
@@ -36,6 +37,7 @@ class AchievementPopupWidget extends StatefulWidget {
 
   /// Convenience methods for different achievement types
   static void showExerciseCompletion(BuildContext context, String exerciseName) {
+    print('AchievementPopupWidget.showExerciseCompletion called for: $exerciseName');
     show(
       context,
       title: 'Workout Complete! 💪',
@@ -69,7 +71,7 @@ class _AchievementPopupWidgetState extends State<AchievementPopupWidget>
   late Animation<Offset> _slideAnimation;
 
   String? _randomGif;
-  final List<String> _celebrationGifs = [
+  final List<String> _celebrationGifs = <String>[
     'assets/gif/widget/clapping.gif',
     'assets/gif/widget/good.gif',
     'assets/gif/widget/like.gif',
@@ -88,7 +90,7 @@ class _AchievementPopupWidgetState extends State<AchievementPopupWidget>
   }
 
   void _selectRandomGif() {
-    final random = math.Random();
+    final math.Random random = math.Random();
     _randomGif = _celebrationGifs[random.nextInt(_celebrationGifs.length)];
   }
 
@@ -157,12 +159,12 @@ class _AchievementPopupWidgetState extends State<AchievementPopupWidget>
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AnimatedBuilder(
       animation: _animationController,
-      builder: (context, child) {
+      builder: (BuildContext context, Widget? child) {
         return Material(
           color: Colors.black.withOpacity(0.5 * _opacityAnimation.value),
           child: Center(
@@ -177,16 +179,16 @@ class _AchievementPopupWidgetState extends State<AchievementPopupWidget>
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: isDark ? [
+                      colors: isDark ? <Color>[
                         const Color(0xFF2C1810),
                         const Color(0xFF1A237E),
-                      ] : [
+                      ] : <Color>[
                         const Color(0xFFFFF3E0),
                         const Color(0xFFE8EAF6),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
+                    boxShadow: <BoxShadow>[
                       BoxShadow(
                         color: colorScheme.primary.withOpacity(0.3),
                         blurRadius: 30,
@@ -197,12 +199,12 @@ class _AchievementPopupWidgetState extends State<AchievementPopupWidget>
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
+                    children: <Widget>[
                       // Celebration GIF
                       if (_randomGif != null)
                         AnimatedBuilder(
                           animation: _scaleController,
-                          builder: (context, child) {
+                          builder: (BuildContext context, Widget? child) {
                             return Transform.scale(
                               scale: 1.0 + (_scaleController.value * 0.1),
                               child: Container(
@@ -210,7 +212,7 @@ class _AchievementPopupWidgetState extends State<AchievementPopupWidget>
                                 height: 120,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
+                                  boxShadow: <BoxShadow>[
                                     BoxShadow(
                                       color: colorScheme.primary.withOpacity(0.4),
                                       blurRadius: 20,

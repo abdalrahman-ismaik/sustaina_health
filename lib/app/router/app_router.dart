@@ -31,6 +31,8 @@ import '../../features/profile/presentation/screens/profile_home_screen.dart';
 import '../../features/profile/presentation/screens/profile_settings_screen.dart';
 import '../../features/profile/presentation/screens/profile_achievements_screen.dart';
 import '../../features/profile/presentation/screens/profile_sustainability_dashboard_screen.dart';
+import '../../features/profile/presentation/screens/privacy_security_screen.dart';
+import '../../features/profile/presentation/screens/app_preferences_screen.dart';
 import 'route_names.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
@@ -311,6 +313,18 @@ final Provider<GoRouter> appRouterProvider =
                 path: 'settings',
                 builder: (BuildContext context, GoRouterState state) =>
                     ProfileSettingsScreen(),
+                routes: <RouteBase>[
+                  GoRoute(
+                    path: 'privacy',
+                    builder: (BuildContext context, GoRouterState state) =>
+                        const PrivacySecurityScreen(),
+                  ),
+                  GoRoute(
+                    path: 'app',
+                    builder: (BuildContext context, GoRouterState state) =>
+                        const AppPreferencesScreen(),
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'achievements',
@@ -325,6 +339,13 @@ final Provider<GoRouter> appRouterProvider =
             ],
           ),
         ],
+      ),
+      
+      // Global routes
+      GoRoute(
+        path: RouteNames.privacy,
+        builder: (BuildContext context, GoRouterState state) =>
+            const PrivacySecurityScreen(),
       ),
     ],
   );

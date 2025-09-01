@@ -5,17 +5,7 @@ class ProfileAchievementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor =
-        isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
-    final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final Color borderColor =
-        isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final Color accentColor =
-        isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
-    final Color tileBg =
-        isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
+    final colorScheme = Theme.of(context).colorScheme;
 
     final List<_AchievementCategory> categories = <_AchievementCategory>[
       _AchievementCategory(
@@ -46,18 +36,18 @@ class ProfileAchievementsScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: bgColor,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: textColor),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Achievements',
           style: TextStyle(
-            color: textColor,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -76,7 +66,7 @@ class ProfileAchievementsScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textColor)),
+                      color: colorScheme.onSurface)),
             ),
             const SizedBox(height: 8),
             Padding(
@@ -98,7 +88,7 @@ class ProfileAchievementsScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textColor)),
+                      color: colorScheme.onSurface)),
             ),
             const SizedBox(height: 8),
             Padding(
@@ -119,14 +109,24 @@ class ProfileAchievementsScreen extends StatelessWidget {
                       SnackBar(
                         content:
                             Text('Badge ${i + 1}: Achievement details (mock)'),
-                        backgroundColor: cardColor,
+                        backgroundColor: colorScheme.surfaceVariant,
                       ),
                     );
                   },
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: tileBg,
+                      color: colorScheme.surfaceVariant.withOpacity(0.3),
+                      border: Border.all(
+                        color: colorScheme.outline.withOpacity(0.15),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.shadow.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
@@ -141,7 +141,7 @@ class ProfileAchievementsScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                   'Tap on a badge to view achievement details and progress toward the next level.',
-                  style: TextStyle(color: textColor, fontSize: 14)),
+                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
             ),
             const SizedBox(height: 80),
           ],
@@ -160,26 +160,32 @@ class _AchievementCategory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color cardColor = isDark ? const Color(0xFF1e2f25) : Colors.white;
-    final Color borderColor =
-        isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       decoration: BoxDecoration(
-        color: cardColor,
+        color: colorScheme.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.15),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: <Widget>[
-          Icon(icon, color: textColor),
+          Icon(icon, color: colorScheme.primary, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Text(label,
                 style: TextStyle(
-                    color: textColor,
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 15)),
           ),

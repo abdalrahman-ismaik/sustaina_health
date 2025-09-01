@@ -5,32 +5,21 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor =
-        isDark ? const Color(0xFF141f18) : const Color(0xFFF8FBFA);
-    final Color cardColor =
-        isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
-    final Color accentColor =
-        isDark ? const Color(0xFF94e0b2) : const Color(0xFF51946c);
-    final Color barBg =
-        isDark ? const Color(0xFF3c5d49) : const Color(0xFFD1E6D9);
-    final Color barFg =
-        isDark ? const Color(0xFF94e0b2) : const Color(0xFF38e07b);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        backgroundColor: bgColor,
+        backgroundColor: colorScheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: textColor),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Impact Metrics',
           style: TextStyle(
-            color: textColor,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 20,
             letterSpacing: -0.015,
@@ -64,33 +53,21 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textColor)),
+                      color: colorScheme.onSurface)),
             ),
             const SizedBox(height: 8),
-            _EcoScoreBar(
+            const _EcoScoreBar(
                 label: 'Exercise Sustainability',
-                value: 85,
-                barBg: barBg,
-                barFg: barFg,
-                textColor: textColor),
-            _EcoScoreBar(
+                value: 85),
+            const _EcoScoreBar(
                 label: 'Food Sustainability',
-                value: 90,
-                barBg: barBg,
-                barFg: barFg,
-                textColor: textColor),
-            _EcoScoreBar(
+                value: 90),
+            const _EcoScoreBar(
                 label: 'Sleep Sustainability',
-                value: 75,
-                barBg: barBg,
-                barFg: barFg,
-                textColor: textColor),
-            _EcoScoreBar(
+                value: 75),
+            const _EcoScoreBar(
                 label: 'Overall Eco-Impact',
-                value: 80,
-                barBg: barBg,
-                barFg: barFg,
-                textColor: textColor),
+                value: 80),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -98,29 +75,21 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textColor)),
+                      color: colorScheme.onSurface)),
             ),
             const SizedBox(height: 8),
-            _RecommendationTile(
+            const _RecommendationTile(
                 icon: Icons.eco,
-                text: 'Reduce meat consumption',
-                textColor: textColor,
-                bgColor: cardColor),
-            _RecommendationTile(
+                text: 'Reduce meat consumption'),
+            const _RecommendationTile(
                 icon: Icons.location_on,
-                text: 'Choose local produce',
-                textColor: textColor,
-                bgColor: cardColor),
-            _RecommendationTile(
+                text: 'Choose local produce'),
+            const _RecommendationTile(
                 icon: Icons.directions_bike,
-                text: 'Walk or bike more',
-                textColor: textColor,
-                bgColor: cardColor),
-            _RecommendationTile(
+                text: 'Walk or bike more'),
+            const _RecommendationTile(
                 icon: Icons.recycling,
-                text: 'Use eco-friendly products',
-                textColor: textColor,
-                bgColor: cardColor),
+                text: 'Use eco-friendly products'),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -128,19 +97,15 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textColor)),
+                      color: colorScheme.onSurface)),
             ),
             const SizedBox(height: 8),
-            _RecommendationTile(
+            const _RecommendationTile(
                 icon: Icons.wb_sunny,
-                text: 'Summer: Conserve water',
-                textColor: textColor,
-                bgColor: cardColor),
-            _RecommendationTile(
+                text: 'Summer: Conserve water'),
+            const _RecommendationTile(
                 icon: Icons.ac_unit,
-                text: 'Winter: Reduce energy use',
-                textColor: textColor,
-                bgColor: cardColor),
+                text: 'Winter: Reduce energy use'),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -148,19 +113,15 @@ class ProfileSustainabilityDashboardScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textColor)),
+                      color: colorScheme.onSurface)),
             ),
             const SizedBox(height: 8),
-            _RecommendationTile(
+            const _RecommendationTile(
                 icon: Icons.group,
-                text: 'Join a local cleanup',
-                textColor: textColor,
-                bgColor: cardColor),
-            _RecommendationTile(
+                text: 'Join a local cleanup'),
+            const _RecommendationTile(
                 icon: Icons.park,
-                text: 'Participate in a tree planting event',
-                textColor: textColor,
-                bgColor: cardColor),
+                text: 'Participate in a tree planting event'),
             const SizedBox(height: 80),
           ],
         ),
@@ -177,27 +138,35 @@ class _ImpactMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color cardColor =
-        isDark ? const Color(0xFF1e2f25) : const Color(0xFFE8F2EC);
-    final Color textColor = isDark ? Colors.white : const Color(0xFF0e1a13);
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: 170,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(title,
               style: TextStyle(
-                  color: textColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                  color: colorScheme.onSurfaceVariant, fontSize: 16, fontWeight: FontWeight.w500)),
           const SizedBox(height: 6),
           Text(value,
               style: TextStyle(
-                  color: textColor, fontSize: 22, fontWeight: FontWeight.bold)),
+                  color: colorScheme.onSurface, fontSize: 22, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -207,20 +176,16 @@ class _ImpactMetricCard extends StatelessWidget {
 class _EcoScoreBar extends StatelessWidget {
   final String label;
   final int value;
-  final Color barBg;
-  final Color barFg;
-  final Color textColor;
-  const _EcoScoreBar(
-      {required this.label,
-      required this.value,
-      required this.barBg,
-      required this.barFg,
-      required this.textColor,
-      Key? key})
-      : super(key: key);
+  
+  const _EcoScoreBar({
+    required this.label,
+    required this.value,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
       child: Column(
@@ -230,11 +195,11 @@ class _EcoScoreBar extends StatelessWidget {
             children: <Widget>[
               Text(label,
                   style: TextStyle(
-                      color: textColor,
+                      color: colorScheme.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w500)),
               Text('$value/100',
-                  style: TextStyle(color: textColor, fontSize: 14)),
+                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
             ],
           ),
           const SizedBox(height: 4),
@@ -243,7 +208,7 @@ class _EcoScoreBar extends StatelessWidget {
               Container(
                 height: 8,
                 decoration: BoxDecoration(
-                  color: barBg,
+                  color: colorScheme.outline.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -251,7 +216,7 @@ class _EcoScoreBar extends StatelessWidget {
                 height: 8,
                 width: MediaQuery.of(context).size.width * value / 100 - 32,
                 decoration: BoxDecoration(
-                  color: barFg,
+                  color: colorScheme.primary,
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -266,31 +231,40 @@ class _EcoScoreBar extends StatelessWidget {
 class _RecommendationTile extends StatelessWidget {
   final IconData icon;
   final String text;
-  final Color textColor;
-  final Color bgColor;
-  const _RecommendationTile(
-      {required this.icon,
-      required this.text,
-      required this.textColor,
-      required this.bgColor,
-      Key? key})
-      : super(key: key);
+  
+  const _RecommendationTile({
+    required this.icon,
+    required this.text,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: <Widget>[
-          Icon(icon, color: textColor),
+          Icon(icon, color: colorScheme.primary),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(text, style: TextStyle(color: textColor, fontSize: 16)),
+            child: Text(text, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16)),
           ),
         ],
       ),

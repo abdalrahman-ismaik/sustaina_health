@@ -69,7 +69,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: authState.when(
           data: (UserEntity? user) {
@@ -105,6 +105,8 @@ class _SignedInView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -112,13 +114,13 @@ class _SignedInView extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F4F2),
+              color: colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               Icons.check_circle,
               size: 48,
-              color: const Color(0xFF94E0B2),
+              color: colorScheme.primary,
             ),
           ),
           const SizedBox(height: 24),
@@ -127,7 +129,7 @@ class _SignedInView extends ConsumerWidget {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF121714),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -135,14 +137,14 @@ class _SignedInView extends ConsumerWidget {
             '${user.displayName ?? user.email}',
             style: TextStyle(
               fontSize: 16,
-              color: const Color(0xFF688273),
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 32),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF94E0B2),
-              foregroundColor: const Color(0xFF121714),
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               shape: const StadiumBorder(),
               elevation: 0,
@@ -189,6 +191,8 @@ class _SignInForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -202,13 +206,13 @@ class _SignInForm extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF94E0B2),
+                color: colorScheme.primary,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.eco,
                 size: 40,
-                color: Color(0xFF121714),
+                color: colorScheme.onPrimary,
               ),
             ),
             const SizedBox(height: 24),
@@ -219,7 +223,7 @@ class _SignInForm extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 28,
-                color: const Color(0xFF121714),
+                color: colorScheme.onSurface,
                 letterSpacing: -0.5,
               ),
             ),
@@ -228,7 +232,7 @@ class _SignInForm extends StatelessWidget {
               'Welcome back! Please sign in to continue.',
               style: TextStyle(
                 fontSize: 16,
-                color: const Color(0xFF688273),
+                color: colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -241,20 +245,20 @@ class _SignInForm extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
+                  color: colorScheme.errorContainer,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.shade200),
+                  border: Border.all(color: colorScheme.error.withOpacity(0.5)),
                 ),
                 child: Row(
                   children: <Widget>[
                     Icon(Icons.error_outline,
-                        color: Colors.red.shade600, size: 20),
+                        color: colorScheme.error, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         error!,
                         style: TextStyle(
-                          color: Colors.red.shade700,
+                          color: colorScheme.onErrorContainer,
                           fontSize: 14,
                         ),
                       ),
@@ -267,17 +271,17 @@ class _SignInForm extends StatelessWidget {
             TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              style: const TextStyle(
-                color: Color(0xFF212121), // Dark text for readability
+              style: TextStyle(
+                color: colorScheme.onSurface,
                 fontSize: 16,
               ),
               decoration: InputDecoration(
                 labelText: 'Email',
                 hintText: 'Enter your email address',
                 prefixIcon:
-                    Icon(Icons.email_outlined, color: const Color(0xFF688273)),
+                    Icon(Icons.email_outlined, color: colorScheme.onSurfaceVariant),
                 filled: true,
-                fillColor: const Color(0xFFF1F4F2),
+                fillColor: colorScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -285,10 +289,10 @@ class _SignInForm extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide:
-                      const BorderSide(color: Color(0xFF94E0B2), width: 2),
+                      BorderSide(color: colorScheme.primary, width: 2),
                 ),
-                labelStyle: const TextStyle(color: Color(0xFF688273)),
-                hintStyle: const TextStyle(color: Color(0xFF688273)),
+                labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                 contentPadding: const EdgeInsets.all(20),
               ),
             ),
@@ -298,24 +302,24 @@ class _SignInForm extends StatelessWidget {
             TextField(
               controller: passwordController,
               obscureText: obscurePassword,
-              style: const TextStyle(
-                color: Color(0xFF212121), // Dark text for readability
+              style: TextStyle(
+                color: colorScheme.onSurface,
                 fontSize: 16,
               ),
               decoration: InputDecoration(
                 labelText: 'Password',
                 hintText: 'Enter your password',
                 prefixIcon:
-                    Icon(Icons.lock_outline, color: const Color(0xFF688273)),
+                    Icon(Icons.lock_outline, color: colorScheme.onSurfaceVariant),
                 suffixIcon: IconButton(
                   icon: Icon(
                     obscurePassword ? Icons.visibility_off : Icons.visibility,
-                    color: const Color(0xFF688273),
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   onPressed: onObscurePasswordChanged,
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF1F4F2),
+                fillColor: colorScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -323,10 +327,10 @@ class _SignInForm extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide:
-                      const BorderSide(color: Color(0xFF94E0B2), width: 2),
+                      BorderSide(color: colorScheme.primary, width: 2),
                 ),
-                labelStyle: const TextStyle(color: Color(0xFF688273)),
-                hintStyle: const TextStyle(color: Color(0xFF688273)),
+                labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                 contentPadding: const EdgeInsets.all(20),
               ),
             ),
@@ -342,20 +346,20 @@ class _SignInForm extends StatelessWidget {
                       scale: 1.2,
                       child: Checkbox(
                         value: rememberMe,
-                        activeColor: const Color(0xFF94E0B2),
+                        activeColor: colorScheme.primary,
                         onChanged: (bool? val) =>
                             onRememberMeChanged(val ?? false),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4)),
-                        side: const BorderSide(
-                            color: Color(0xFFDDE4E0), width: 2),
+                        side: BorderSide(
+                            color: colorScheme.outline, width: 2),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'Remember Me',
                       style: TextStyle(
-                        color: const Color(0xFF121714),
+                        color: colorScheme.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
@@ -367,7 +371,7 @@ class _SignInForm extends StatelessWidget {
                   child: Text(
                     'Forgot Password?',
                     style: TextStyle(
-                      color: const Color(0xFF94E0B2),
+                      color: colorScheme.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       decoration: TextDecoration.underline,
@@ -384,8 +388,8 @@ class _SignInForm extends StatelessWidget {
               height: 56,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF94E0B2),
-                  foregroundColor: const Color(0xFF121714),
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
@@ -393,12 +397,12 @@ class _SignInForm extends StatelessWidget {
                 ),
                 onPressed: loading ? null : onSignIn,
                 child: loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFF121714),
+                          color: colorScheme.onPrimary,
                         ),
                       )
                     : const Text(
@@ -417,13 +421,13 @@ class _SignInForm extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                     child:
-                        Divider(color: const Color(0xFFDDE4E0), thickness: 1)),
+                        Divider(color: colorScheme.outline, thickness: 1)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     'or continue with',
                     style: TextStyle(
-                      color: const Color(0xFF688273),
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -431,7 +435,7 @@ class _SignInForm extends StatelessWidget {
                 ),
                 Expanded(
                     child:
-                        Divider(color: const Color(0xFFDDE4E0), thickness: 1)),
+                        Divider(color: colorScheme.outline, thickness: 1)),
               ],
             ),
             const SizedBox(height: 24),
@@ -442,11 +446,11 @@ class _SignInForm extends StatelessWidget {
               height: 56,
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF121714),
+                  backgroundColor: colorScheme.surface,
+                  foregroundColor: colorScheme.onSurface,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
-                  side: const BorderSide(color: Color(0xFFDDE4E0), width: 1.5),
+                  side: BorderSide(color: colorScheme.outline, width: 1.5),
                   elevation: 0,
                 ),
                 onPressed: loading ? null : onSignInWithGoogle,
@@ -454,7 +458,7 @@ class _SignInForm extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Icon(
@@ -481,14 +485,14 @@ class _SignInForm extends StatelessWidget {
                 text: TextSpan(
                   text: "Don't have an account? ",
                   style: TextStyle(
-                    color: const Color(0xFF688273),
+                    color: colorScheme.onSurfaceVariant,
                     fontSize: 16,
                   ),
                   children: <InlineSpan>[
                     TextSpan(
                       text: 'Sign Up',
                       style: TextStyle(
-                        color: const Color(0xFF94E0B2),
+                        color: colorScheme.primary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,

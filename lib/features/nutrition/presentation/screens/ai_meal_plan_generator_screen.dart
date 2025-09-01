@@ -6,7 +6,6 @@ import 'package:ghiraas/widgets/interactive_loading.dart';
 import '../providers/nutrition_providers.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../sleep/presentation/theme/sleep_colors.dart';
 import '../widgets/day_plan_card.dart';
 
 class AIMealPlanGeneratorScreen extends ConsumerStatefulWidget {
@@ -134,25 +133,30 @@ class _AIMealPlanGeneratorScreenState
     final AsyncValue<bool> apiHealthState =
         ref.watch(nutritionApiHealthProvider);
 
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    
     return Scaffold(
-      backgroundColor: SleepColors.backgroundGrey,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: SleepColors.surfaceGrey,
+        automaticallyImplyLeading: false,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: SleepColors.textPrimary),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
+        title: Text(
           'AI Meal Plan Generator',
-          style: TextStyle(
-            color: SleepColors.textPrimary,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
             letterSpacing: -0.015,
           ),
         ),
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.close, color: colorScheme.onSurface),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
       body: mealPlanState.when(
         data: (MealPlanResponse? mealPlan) => mealPlan != null
@@ -212,7 +216,7 @@ class _AIMealPlanGeneratorScreenState
           subtitle: 'We are crafting healthy, sustainable meals…',
           onCancel: () =>
               ref.read(mealPlanGenerationProvider.notifier).clearMealPlan(),
-          color: SleepColors.primaryGreen,
+          color: colorScheme.primary,
         ),
         error: (Object error, _) => Center(
           child: Column(
@@ -298,6 +302,9 @@ class _MealPlanForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -311,11 +318,12 @@ class _MealPlanForm extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color:
-                      isHealthy ? Colors.green.shade100 : Colors.red.shade100,
+                  color: isHealthy 
+                    ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+                    : colorScheme.errorContainer.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: isHealthy ? Colors.green : Colors.red,
+                    color: isHealthy ? colorScheme.primary : colorScheme.error,
                     width: 1,
                   ),
                 ),
@@ -323,7 +331,7 @@ class _MealPlanForm extends StatelessWidget {
                   children: <Widget>[
                     Icon(
                       isHealthy ? Icons.check_circle : Icons.error,
-                      color: isHealthy ? Colors.green : Colors.red,
+                      color: isHealthy ? colorScheme.primary : colorScheme.error,
                       size: 16,
                     ),
                     const SizedBox(width: 8),
@@ -332,9 +340,7 @@ class _MealPlanForm extends StatelessWidget {
                           ? 'AI Meal Planning Available'
                           : 'AI Service Unavailable - Using Mock Data',
                       style: TextStyle(
-                        color: isHealthy
-                            ? Colors.green.shade800
-                            : Colors.red.shade800,
+                        color: isHealthy ? colorScheme.primary : colorScheme.error,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -346,12 +352,11 @@ class _MealPlanForm extends StatelessWidget {
             ),
 
             // Personal Information Section
-            const Text(
+            Text(
               'Personal Information',
-              style: TextStyle(
-                fontSize: 18,
+              style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: SleepColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -363,20 +368,19 @@ class _MealPlanForm extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      const Text(
+                      Text(
                         'Weight (kg)',
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: SleepColors.textPrimary,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
                       TextField(
                         controller: weightController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                          color: SleepColors.textPrimary,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
                         ),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -392,20 +396,19 @@ class _MealPlanForm extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      const Text(
+                      Text(
                         'Height (cm)',
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: SleepColors.textPrimary,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
                       TextField(
                         controller: heightController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                          color: SleepColors.textPrimary,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
                         ),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -421,20 +424,19 @@ class _MealPlanForm extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      const Text(
+                      Text(
                         'Age',
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: theme.textTheme.labelLarge?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: SleepColors.textPrimary,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
                       TextField(
                         controller: ageController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                          color: SleepColors.textPrimary,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
                         ),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -450,12 +452,11 @@ class _MealPlanForm extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Sex Selection
-            const Text(
+            Text(
               'Sex',
-              style: TextStyle(
-                fontSize: 16,
+              style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: SleepColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -477,12 +478,11 @@ class _MealPlanForm extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Duration
-            const Text(
+            Text(
               'Meal Plan Duration',
-              style: TextStyle(
-                fontSize: 16,
+              style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: SleepColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -505,12 +505,11 @@ class _MealPlanForm extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Goal Selection
-            const Text(
+            Text(
               'Nutrition Goal',
-              style: TextStyle(
-                fontSize: 16,
+              style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: SleepColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -521,20 +520,20 @@ class _MealPlanForm extends StatelessWidget {
                         label: Text(goal.replaceAll('_', ' ').toUpperCase()),
                         selected: selectedGoal == goal,
                         onSelected: (bool selected) => onGoalChanged(goal),
-                        backgroundColor: SleepColors.surfaceGrey,
-                        selectedColor: SleepColors.primaryGreen,
+                        backgroundColor: colorScheme.surface,
+                        selectedColor: colorScheme.primary.withOpacity(0.12),
+                        checkmarkColor: colorScheme.primary,
                       ))
                   .toList(),
             ),
             const SizedBox(height: 16),
 
             // Activity Level
-            const Text(
+            Text(
               'Activity Level',
-              style: TextStyle(
-                fontSize: 16,
+              style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: SleepColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -546,20 +545,20 @@ class _MealPlanForm extends StatelessWidget {
                         selected: selectedActivityLevel == level,
                         onSelected: (bool selected) =>
                             onActivityLevelChanged(level),
-                        backgroundColor: SleepColors.surfaceGrey,
-                        selectedColor: SleepColors.primaryGreen,
+                        backgroundColor: colorScheme.surface,
+                        selectedColor: colorScheme.primary.withOpacity(0.12),
+                        checkmarkColor: colorScheme.primary,
                       ))
                   .toList(),
             ),
             const SizedBox(height: 16),
 
             // Dietary Preferences
-            const Text(
+            Text(
               'Dietary Preferences',
-              style: TextStyle(
-                fontSize: 16,
+              style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: SleepColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -579,20 +578,20 @@ class _MealPlanForm extends StatelessWidget {
                             onDietaryRestrictionRemoved(restriction);
                           }
                         },
-                        backgroundColor: SleepColors.surfaceGrey,
-                        selectedColor: SleepColors.primaryGreen,
+                        backgroundColor: colorScheme.surface,
+                        selectedColor: colorScheme.primary.withOpacity(0.12),
+                        checkmarkColor: colorScheme.primary,
                       ))
                   .toList(),
             ),
             const SizedBox(height: 16),
 
             // Food Intolerance/Allergies
-            const Text(
+            Text(
               'Food Allergies & Intolerances',
-              style: TextStyle(
-                fontSize: 16,
+              style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: SleepColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -610,9 +609,9 @@ class _MealPlanForm extends StatelessWidget {
                             onAllergyRemoved(allergy);
                           }
                         },
-                        backgroundColor: SleepColors.surfaceGrey,
-                        selectedColor:
-                            SleepColors.errorRed, // Red color for allergies
+                        backgroundColor: colorScheme.surface,
+                        selectedColor: colorScheme.error.withOpacity(0.12),
+                        checkmarkColor: colorScheme.error,
                       ))
                   .toList(),
             ),
@@ -624,18 +623,18 @@ class _MealPlanForm extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onGenerateMealPlan,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: SleepColors.primaryGreen,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   'Generate Meal Plan',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: SleepColors.textPrimary,
+                    color: colorScheme.onPrimary,
                   ),
                 ),
               ),
@@ -679,24 +678,33 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     final MealPlanResponse mealPlan = widget.mealPlan;
     final int totalDays = mealPlan.dailyMealPlans.length;
 
     return Scaffold(
-      backgroundColor: SleepColors.backgroundGrey,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Text('$totalDays-Day Meal Plan'),
-        backgroundColor: SleepColors.surfaceGrey,
+        automaticallyImplyLeading: false,
+        title: Text(
+          '$totalDays-Day Meal Plan',
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         centerTitle: true,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: Icon(Icons.edit, color: colorScheme.onSurface),
             onPressed: widget.onEdit,
             tooltip: 'Generate New Plan',
           ),
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: Icon(Icons.save, color: colorScheme.onSurface),
             onPressed: () => _saveMealPlan(context, ref, mealPlan),
             tooltip: 'Save Plan',
           ),
@@ -755,8 +763,8 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
                   height: 8,
                   decoration: BoxDecoration(
                     color: selected
-                        ? SleepColors.primaryGreen
-                        : SleepColors.textTertiary.withOpacity(0.3),
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 );
@@ -771,6 +779,8 @@ class _MealPlanResultState extends ConsumerState<_MealPlanResult> {
 
 void _saveMealPlan(
     BuildContext context, WidgetRef ref, MealPlanResponse mealPlan) async {
+  final ThemeData theme = Theme.of(context);
+  final ColorScheme colorScheme = theme.colorScheme;
   final UserEntity? user = ref.read(authStateProvider).value;
 
   if (user == null) {
@@ -788,26 +798,28 @@ void _saveMealPlan(
   final String? name = await showDialog<String>(
     context: context,
     builder: (BuildContext context) {
+      final ThemeData theme = Theme.of(context);
+      final ColorScheme colorScheme = theme.colorScheme;
       return AlertDialog(
-        title: const Text(
+        title: Text(
           'Save Meal Plan',
           style: TextStyle(
-            color: SleepColors.textPrimary,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Text(
+            Text(
               'Give your meal plan a name:',
-              style: TextStyle(color: SleepColors.textPrimary),
+              style: TextStyle(color: colorScheme.onSurface),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: nameController,
-              style: const TextStyle(
-                color: SleepColors.textPrimary,
+              style: TextStyle(
+                color: colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 hintText: 'e.g., "7-Day Healthy Eating Plan"',
@@ -816,7 +828,7 @@ void _saveMealPlan(
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: SleepColors.primaryGreen),
+                  borderSide: BorderSide(color: colorScheme.primary),
                 ),
               ),
               textCapitalization: TextCapitalization.words,
@@ -847,11 +859,12 @@ void _saveMealPlan(
               Navigator.of(context).pop(planName);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: SleepColors.primaryGreen,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
             ),
-            child: const Text(
+            child: Text(
               'Save',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: colorScheme.onPrimary),
             ),
           ),
         ],
@@ -869,7 +882,7 @@ void _saveMealPlan(
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Meal plan "$name" saved successfully!'),
-            backgroundColor: SleepColors.primaryGreen,
+            backgroundColor: colorScheme.primary,
           ),
         );
       }

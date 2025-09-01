@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../theme/sleep_colors.dart';
 import '../providers/sleep_providers.dart';
 import '../../data/models/sleep_models.dart';
 import 'package:uuid/uuid.dart';
@@ -24,21 +23,31 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
 
   final List<String> moodOptions = <String>['Poor', 'Fair', 'Good', 'Excellent'];
 
+  // Helper methods for sleep quality colors
+  Color _getSleepQualityColor(double quality, ColorScheme colorScheme) {
+    if (quality >= 8) return colorScheme.primary;
+    if (quality >= 6) return colorScheme.secondary;
+    if (quality >= 4) return colorScheme.tertiary;
+    return colorScheme.error;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      backgroundColor: SleepColors.backgroundGrey,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Track Sleep',
           style: TextStyle(
-            color: SleepColors.textPrimary,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: SleepColors.surfaceGrey,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: SleepColors.textPrimary),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -50,32 +59,35 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: <Color>[
-                    SleepColors.primaryGreen,
-                    SleepColors.primaryGreenLight,
-                  ],
-                ),
+                color: colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.outline.withOpacity(0.15),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: colorScheme.shadow.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text(
+                  Text(
                     'How did you sleep?',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: colorScheme.onPrimaryContainer,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Enter your sleep details to track your rest',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: colorScheme.onPrimaryContainer.withOpacity(0.8),
                       fontSize: 16,
                     ),
                   ),
@@ -113,13 +125,22 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildDateSelectionSection() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +148,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           Text(
             'Sleep Date',
             style: TextStyle(
-              color: SleepColors.textPrimary,
+              color: colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -143,9 +164,9 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                 builder: (BuildContext context, Widget? child) {
                   return Theme(
                     data: Theme.of(context).copyWith(
-                      colorScheme: const ColorScheme.light(
-                        primary: SleepColors.primaryGreen,
-                        onPrimary: Colors.white,
+                      colorScheme: colorScheme.copyWith(
+                        primary: colorScheme.primary,
+                        onPrimary: colorScheme.onPrimary,
                       ),
                     ),
                     child: child!,
@@ -166,15 +187,15 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: SleepColors.backgroundGrey,
+                color: colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: SleepColors.textTertiary.withOpacity(0.3)),
+                border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
               ),
               child: Row(
                 children: <Widget>[
                   Icon(
                     Icons.calendar_today,
-                    color: SleepColors.primaryGreen,
+                    color: colorScheme.primary,
                     size: 24,
                   ),
                   const SizedBox(width: 12),
@@ -185,7 +206,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                         Text(
                           'Date',
                           style: TextStyle(
-                            color: SleepColors.textSecondary,
+                            color: colorScheme.onSurfaceVariant,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -194,7 +215,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                         Text(
                           '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
                           style: TextStyle(
-                            color: SleepColors.textPrimary,
+                            color: colorScheme.onSurface,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -204,7 +225,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                   ),
                   Icon(
                     Icons.arrow_drop_down,
-                    color: SleepColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                     size: 24,
                   ),
                 ],
@@ -217,13 +238,22 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildTimeSelectionSection() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +261,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           Text(
             'Sleep Time',
             style: TextStyle(
-              color: SleepColors.textPrimary,
+              color: colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -264,6 +294,8 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildTimePicker(String label, TimeOfDay? time, IconData icon, Function(TimeOfDay) onTimeSelected) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return InkWell(
       onTap: () async {
         final TimeOfDay? selectedTime = await showTimePicker(
@@ -272,9 +304,9 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           builder: (BuildContext context, Widget? child) {
             return Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.light(
-                  primary: SleepColors.primaryGreen,
-                  onPrimary: Colors.white,
+                colorScheme: colorScheme.copyWith(
+                  primary: colorScheme.primary,
+                  onPrimary: colorScheme.onPrimary,
                 ),
               ),
               child: child!,
@@ -288,18 +320,18 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: SleepColors.backgroundGrey,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: SleepColors.textTertiary.withOpacity(0.3)),
+          border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
         ),
         child: Column(
           children: <Widget>[
-            Icon(icon, color: SleepColors.primaryGreen, size: 24),
+            Icon(icon, color: colorScheme.primary, size: 24),
             const SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
-                color: SleepColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -308,7 +340,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
             Text(
               time?.format(context) ?? 'Select Time',
               style: TextStyle(
-                color: time != null ? SleepColors.textPrimary : SleepColors.textTertiary,
+                color: time != null ? colorScheme.onSurface : colorScheme.onSurfaceVariant.withOpacity(0.7),
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -320,13 +352,22 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildSleepQualitySection() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,7 +375,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           Text(
             'Sleep Quality',
             style: TextStyle(
-              color: SleepColors.textPrimary,
+              color: colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -346,20 +387,20 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
               Text(
                 'Rate your sleep (1-10)',
                 style: TextStyle(
-                  color: SleepColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 14,
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: SleepColors.getSleepQualityColor(sleepQuality).withOpacity(0.1),
+                  color: _getSleepQualityColor(sleepQuality, colorScheme).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   '${sleepQuality.round()}/10',
                   style: TextStyle(
-                    color: SleepColors.getSleepQualityColor(sleepQuality),
+                    color: _getSleepQualityColor(sleepQuality, colorScheme),
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -373,8 +414,8 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
             min: 1,
             max: 10,
             divisions: 9,
-            activeColor: SleepColors.primaryGreen,
-            inactiveColor: SleepColors.textTertiary.withOpacity(0.3),
+            activeColor: colorScheme.primary,
+            inactiveColor: colorScheme.outline.withOpacity(0.3),
             onChanged: (double value) => setState(() => sleepQuality = value),
           ),
         ],
@@ -383,13 +424,22 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildMoodSection() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,7 +447,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           Text(
             'How do you feel?',
             style: TextStyle(
-              color: SleepColors.textPrimary,
+              color: colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -416,14 +466,14 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                     setState(() => mood = moodOption);
                   }
                 },
-                selectedColor: SleepColors.primaryGreen.withOpacity(0.2),
-                backgroundColor: SleepColors.backgroundGrey,
+                selectedColor: colorScheme.primary.withOpacity(0.2),
+                backgroundColor: colorScheme.surface,
                 labelStyle: TextStyle(
-                  color: isSelected ? SleepColors.primaryGreen : SleepColors.textSecondary,
+                  color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
                 side: BorderSide(
-                  color: isSelected ? SleepColors.primaryGreen : SleepColors.textTertiary.withOpacity(0.3),
+                  color: isSelected ? colorScheme.primary : colorScheme.outline.withOpacity(0.3),
                 ),
               );
             }).toList(),
@@ -434,13 +484,22 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildNotesSection() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SleepColors.surfaceGrey,
+        color: colorScheme.surfaceVariant.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SleepColors.textTertiary.withOpacity(0.2)),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,7 +507,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
           Text(
             'Notes (Optional)',
             style: TextStyle(
-              color: SleepColors.textPrimary,
+              color: colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -458,23 +517,23 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
             maxLines: 3,
             decoration: InputDecoration(
               hintText: 'How was your sleep? Any observations?',
-              hintStyle: TextStyle(color: SleepColors.textTertiary),
+              hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.7)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: SleepColors.textTertiary.withOpacity(0.3)),
+                borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: SleepColors.textTertiary.withOpacity(0.3)),
+                borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: SleepColors.primaryGreen, width: 2),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
               filled: true,
-              fillColor: SleepColors.backgroundGrey,
+              fillColor: colorScheme.surface,
             ),
-            style: TextStyle(color: SleepColors.textPrimary),
+            style: TextStyle(color: colorScheme.onSurface),
             onChanged: (String value) => setState(() => notes = value),
           ),
         ],
@@ -484,6 +543,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
 
   Widget _buildSaveButton() {
     final bool isValid = bedtime != null && wakeTime != null;
+    final colorScheme = Theme.of(context).colorScheme;
     
     return SizedBox(
       width: double.infinity,
@@ -491,8 +551,8 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       child: ElevatedButton(
         onPressed: isValid && !isSaving ? _saveSleepSession : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: SleepColors.primaryGreen,
-          foregroundColor: Colors.white,
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -521,9 +581,9 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   Future<void> _saveSleepSession() async {
     if (bedtime == null || wakeTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select both bedtime and wake time'),
-          backgroundColor: SleepColors.errorRed,
+        SnackBar(
+          content: const Text('Please select both bedtime and wake time'),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
@@ -538,9 +598,9 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       if (existingSessions.isNotEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('A sleep session already exists for this date. Please edit the existing entry instead.'),
-              backgroundColor: SleepColors.errorRed,
+            SnackBar(
+              content: const Text('A sleep session already exists for this date. Please edit the existing entry instead.'),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -576,9 +636,9 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
       if (duration.inHours > 24) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sleep duration cannot exceed 24 hours'),
-              backgroundColor: SleepColors.errorRed,
+            SnackBar(
+              content: const Text('Sleep duration cannot exceed 24 hours'),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -633,7 +693,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to save sleep session: $e'),
-            backgroundColor: SleepColors.errorRed,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
