@@ -467,11 +467,12 @@ class _SignInForm extends StatelessWidget {
                     color: Colors.red,
                   ),
                 ),
-                label: const Text(
+                label: Text(
                   'Continue with Google',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),

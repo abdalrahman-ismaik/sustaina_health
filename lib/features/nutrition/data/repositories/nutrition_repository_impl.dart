@@ -1,17 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/repositories/nutrition_repository.dart';
 import '../models/nutrition_models.dart';
 import '../services/nutrition_api_service.dart';
+import '../services/firestore_nutrition_service.dart';
 
 class NutritionRepositoryImpl implements NutritionRepository {
   final NutritionApiService _apiService;
+  final FirestoreNutritionService _firestoreService;
   final Uuid _uuid = const Uuid();
+  
+  // Deduplication mechanism
+  final Set<String> _recentlySaved = <String>{};
+  Timer? _cleanupTimer;
 
-  NutritionRepositoryImpl({required NutritionApiService apiService})
-      : _apiService = apiService;
+  NutritionRepositoryImpl({
+    required NutritionApiService apiService,
+    FirestoreNutritionService? firestoreService,
+  }) : _apiService = apiService,
+       _firestoreService = firestoreService ?? FirestoreNutritionService();
 
   @override
   Future<MealAnalysisResponse> analyzeMeal(File imageFile,
@@ -31,20 +41,53 @@ class NutritionRepositoryImpl implements NutritionRepository {
 
   @override
   Future<String> saveFoodLogEntry(FoodLogEntry entry) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> existingEntriesJson =
-        prefs.getStringList('food_log_entries') ?? <String>[];
-
     final FoodLogEntry entryWithId =
         entry.id.isEmpty ? entry.copyWith(id: _uuid.v4()) : entry;
 
-    final List<String> updatedEntries = <String>[
-      ...existingEntriesJson,
-      jsonEncode(entryWithId.toJson())
-    ];
-    await prefs.setStringList('food_log_entries', updatedEntries);
+    // Create a unique key for deduplication based on food name, nutrition info, and timestamp
+    final String dedupeKey = '${entryWithId.foodName}_${entryWithId.nutritionInfo.calories}_${entryWithId.loggedAt.millisecondsSinceEpoch}';
+    
+    // Check if we've recently saved this exact entry
+    if (_recentlySaved.contains(dedupeKey)) {
+      print('🔄 Skipping duplicate save for "${entryWithId.foodName}" - already saved recently');
+      return entryWithId.id;
+    }
 
-    return entryWithId.id;
+    try {
+      // Add to deduplication cache
+      _recentlySaved.add(dedupeKey);
+      
+      // Start cleanup timer if not already running
+      _cleanupTimer?.cancel();
+      _cleanupTimer = Timer(const Duration(seconds: 30), () {
+        _recentlySaved.clear();
+      });
+
+      // Save to local storage
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<String> existingEntriesJson =
+          prefs.getStringList('food_log_entries') ?? <String>[];
+
+      final List<String> updatedEntries = <String>[
+        ...existingEntriesJson,
+        jsonEncode(entryWithId.toJson())
+      ];
+      await prefs.setStringList('food_log_entries', updatedEntries);
+
+      // Save to Firestore cloud storage
+      await _firestoreService.ensureNutritionModuleExists();
+      await _firestoreService.saveFoodLogEntry(entryWithId);
+      
+      print('✅ Food log entry "${entryWithId.foodName}" saved to both local storage and Firestore cloud! [${DateTime.now().millisecondsSinceEpoch}]');
+
+      return entryWithId.id;
+    } catch (e) {
+      // Remove from cache if save failed
+      _recentlySaved.remove(dedupeKey);
+      print('❌ Error saving food log entry: $e');
+      // If Firestore fails, at least we have local storage
+      rethrow;
+    }
   }
 
   @override
@@ -150,35 +193,57 @@ class NutritionRepositoryImpl implements NutritionRepository {
 
   @override
   Future<void> deleteFoodLogEntry(String entryId) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> entriesJson =
-        prefs.getStringList('food_log_entries') ?? <String>[];
+    try {
+      // Delete from local storage
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<String> entriesJson =
+          prefs.getStringList('food_log_entries') ?? <String>[];
 
-    final List<String> updatedEntries = entriesJson.where((String json) {
-      final FoodLogEntry entry =
-          FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
-      return entry.id != entryId;
-    }).toList();
+      final List<String> updatedEntries = entriesJson.where((String json) {
+        final FoodLogEntry entry =
+            FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
+        return entry.id != entryId;
+      }).toList();
 
-    await prefs.setStringList('food_log_entries', updatedEntries);
+      await prefs.setStringList('food_log_entries', updatedEntries);
+
+      // Delete from Firestore cloud storage
+      await _firestoreService.deleteFoodLogEntry(entryId);
+      
+      print('✅ Food log entry deleted from both local storage and Firestore cloud!');
+    } catch (e) {
+      print('❌ Error deleting food log entry: $e');
+      rethrow;
+    }
   }
 
   @override
   Future<void> updateFoodLogEntry(FoodLogEntry entry) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> entriesJson =
-        prefs.getStringList('food_log_entries') ?? <String>[];
+    try {
+      // Update local storage
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<String> entriesJson =
+          prefs.getStringList('food_log_entries') ?? <String>[];
 
-    final List<String> updatedEntries = entriesJson.map((String json) {
-      final FoodLogEntry existingEntry =
-          FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
-      if (existingEntry.id == entry.id) {
-        return jsonEncode(entry.toJson());
-      }
-      return json;
-    }).toList();
+      final List<String> updatedEntries = entriesJson.map((String json) {
+        final FoodLogEntry existingEntry =
+            FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>);
+        if (existingEntry.id == entry.id) {
+          return jsonEncode(entry.toJson());
+        }
+        return json;
+      }).toList();
 
-    await prefs.setStringList('food_log_entries', updatedEntries);
+      await prefs.setStringList('food_log_entries', updatedEntries);
+
+      // Update in Firestore cloud storage
+      await _firestoreService.updateFoodLogEntry(entry);
+      
+      print('✅ Food log entry "${entry.foodName}" updated in both local storage and Firestore cloud!');
+    } catch (e) {
+      print('❌ Error updating food log entry: $e');
+      rethrow;
+    }
   }
 
   @override
@@ -201,10 +266,6 @@ class NutritionRepositoryImpl implements NutritionRepository {
 
   @override
   Future<String> saveMealPlan(MealPlanResponse mealPlan, String name) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> existingPlansJson =
-        prefs.getStringList('saved_meal_plans') ?? <String>[];
-
     final SavedMealPlan savedPlan = SavedMealPlan(
       id: _uuid.v4(),
       name: name,
@@ -212,13 +273,30 @@ class NutritionRepositoryImpl implements NutritionRepository {
       createdAt: DateTime.now(),
     );
 
-    final List<String> updatedPlans = <String>[
-      ...existingPlansJson,
-      jsonEncode(savedPlan.toJson())
-    ];
-    await prefs.setStringList('saved_meal_plans', updatedPlans);
+    try {
+      // Save to local storage
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<String> existingPlansJson =
+          prefs.getStringList('saved_meal_plans') ?? <String>[];
+      
+      final List<String> updatedPlans = <String>[
+        ...existingPlansJson,
+        jsonEncode(savedPlan.toJson())
+      ];
+      await prefs.setStringList('saved_meal_plans', updatedPlans);
 
-    return savedPlan.id;
+      // Save to Firestore cloud storage
+      await _firestoreService.ensureNutritionModuleExists();
+      await _firestoreService.saveMealPlan(savedPlan.id, mealPlan);
+      
+      print('✅ Meal plan "${savedPlan.name}" saved to both local storage and Firestore cloud!');
+      
+      return savedPlan.id;
+    } catch (e) {
+      print('❌ Error saving meal plan: $e');
+      // If Firestore fails, at least we have local storage
+      rethrow;
+    }
   }
 
   @override
@@ -275,5 +353,37 @@ class NutritionRepositoryImpl implements NutritionRepository {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
+  }
+
+  /// Sync food log entry to cloud only (used by data migration service)
+  Future<void> syncFoodLogEntryToCloudOnly(FoodLogEntry entry) async {
+    try {
+      await _firestoreService.ensureNutritionModuleExists();
+      await _firestoreService.saveFoodLogEntry(entry);
+      print('🔄 [MIGRATION] Food log entry "${entry.foodName}" synced to cloud only [${DateTime.now().millisecondsSinceEpoch}]');
+    } catch (e) {
+      print('❌ Error syncing food log entry to cloud: $e');
+      rethrow;
+    }
+  }
+
+  /// Sync meal plan to cloud only (used by data migration service)
+  Future<void> syncMealPlanToCloudOnly(MealPlanResponse mealPlan, String name) async {
+    try {
+      final String planId = _uuid.v4();
+      await _firestoreService.ensureNutritionModuleExists();
+      await _firestoreService.saveMealPlan(planId, mealPlan);
+      print('🔄 Meal plan "$name" synced to cloud');
+    } catch (e) {
+      print('❌ Error syncing meal plan to cloud: $e');
+      rethrow;
+    }
+  }
+
+  /// Dispose of resources, particularly the cleanup timer
+  void dispose() {
+    _cleanupTimer?.cancel();
+    _cleanupTimer = null;
+    _recentlySaved.clear();
   }
 }

@@ -12,6 +12,7 @@ dependencies:
   firebase_auth: ^4.17.4
   firebase_core: ^2.30.0
   cloud_firestore: ^4.13.6
+  firebase_storage: ^11.5.6
   firebase_messaging: ^14.7.10
 
   # State Management
@@ -24,12 +25,6 @@ dependencies:
   # Networking
   http: ^1.1.0
   dio: ^5.3.2
-
-  # Firebase (commented out until needed)
-  # firebase_core: ^2.24.2
-  # firebase_auth: ^4.15.3
-  # cloud_firestore: ^4.13.6
-  firebase_storage: ^11.5.6
 
   # UI & Animation
   flutter_hooks: ^0.20.3

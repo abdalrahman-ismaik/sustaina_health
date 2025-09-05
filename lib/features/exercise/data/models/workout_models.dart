@@ -156,6 +156,10 @@ class SavedWorkoutPlan {
   final DateTime createdAt;
   final DateTime? lastUsed;
   final bool isFavorite;
+  // Sync fields for hybrid storage
+  final bool isSynced;
+  final DateTime lastUpdated;
+  final String? firestoreId; // Firestore document ID (may differ from local ID)
 
   const SavedWorkoutPlan({
     required this.id,
@@ -165,6 +169,9 @@ class SavedWorkoutPlan {
     required this.createdAt,
     this.lastUsed,
     this.isFavorite = false,
+    this.isSynced = false,
+    required this.lastUpdated,
+    this.firestoreId,
   });
 
   factory SavedWorkoutPlan.fromJson(Map<String, dynamic> json) {
@@ -179,6 +186,11 @@ class SavedWorkoutPlan {
           ? DateTime.parse(json['lastUsed'] as String)
           : null,
       isFavorite: json['isFavorite'] as bool? ?? false,
+      isSynced: json['isSynced'] as bool? ?? false,
+      lastUpdated: json['lastUpdated'] != null
+          ? DateTime.parse(json['lastUpdated'] as String)
+          : DateTime.parse(json['createdAt'] as String), // fallback to createdAt
+      firestoreId: json['firestoreId'] as String?,
     );
   }
 
@@ -191,6 +203,9 @@ class SavedWorkoutPlan {
       'createdAt': createdAt.toIso8601String(),
       'lastUsed': lastUsed?.toIso8601String(),
       'isFavorite': isFavorite,
+      'isSynced': isSynced,
+      'lastUpdated': lastUpdated.toIso8601String(),
+      'firestoreId': firestoreId,
     };
   }
 
@@ -202,6 +217,9 @@ class SavedWorkoutPlan {
     DateTime? createdAt,
     DateTime? lastUsed,
     bool? isFavorite,
+    bool? isSynced,
+    DateTime? lastUpdated,
+    String? firestoreId,
   }) {
     return SavedWorkoutPlan(
       id: id ?? this.id,
@@ -211,6 +229,9 @@ class SavedWorkoutPlan {
       createdAt: createdAt ?? this.createdAt,
       lastUsed: lastUsed ?? this.lastUsed,
       isFavorite: isFavorite ?? this.isFavorite,
+      isSynced: isSynced ?? this.isSynced,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      firestoreId: firestoreId ?? this.firestoreId,
     );
   }
 }

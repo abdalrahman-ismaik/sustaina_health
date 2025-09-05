@@ -9,31 +9,35 @@ class LocalWorkoutStorageService {
   Future<String> saveWorkoutPlan({
     required String name,
     required WorkoutPlan workoutPlan,
+    SavedWorkoutPlan? savedWorkout, // Allow passing pre-configured workout
   }) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String workoutId = DateTime.now().millisecondsSinceEpoch.toString();
+      final DateTime now = DateTime.now();
 
-      final SavedWorkoutPlan savedWorkout = SavedWorkoutPlan(
+      final SavedWorkoutPlan workoutToSave = savedWorkout ?? SavedWorkoutPlan(
         id: workoutId,
         userId: 'local_user', // For local storage, we'll use a fixed user ID
         name: name,
         workoutPlan: workoutPlan,
-        createdAt: DateTime.now(),
+        createdAt: now,
         isFavorite: false,
+        isSynced: false, // New workouts start as unsynced
+        lastUpdated: now,
       );
 
       // Get existing workouts
       final List<SavedWorkoutPlan> existingWorkouts = await getSavedWorkoutPlans();
 
       // Add new workout
-      existingWorkouts.add(savedWorkout);
+      existingWorkouts.add(workoutToSave);
 
       // Save back to shared preferences
       final List<Map<String, dynamic>> workoutsJson = existingWorkouts.map((SavedWorkoutPlan w) => w.toJson()).toList();
       await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
 
-      return workoutId;
+      return savedWorkout?.id ?? workoutId;
     } catch (e) {
       throw Exception('Failed to save workout locally: $e');
     }
@@ -79,7 +83,11 @@ class LocalWorkoutStorageService {
       final int index = workouts.indexWhere((SavedWorkoutPlan w) => w.id == id);
 
       if (index != -1) {
-        workouts[index] = workouts[index].copyWith(lastUsed: DateTime.now());
+        workouts[index] = workouts[index].copyWith(
+          lastUsed: DateTime.now(),
+          lastUpdated: DateTime.now(),
+          isSynced: false, // Mark as needing sync
+        );
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         final List<Map<String, dynamic>> workoutsJson = workouts.map((SavedWorkoutPlan w) => w.toJson()).toList();
@@ -90,6 +98,24 @@ class LocalWorkoutStorageService {
     }
   }
 
+  /// Update a specific workout plan
+  Future<void> updateWorkoutPlan(String id, SavedWorkoutPlan updatedWorkout) async {
+    try {
+      final List<SavedWorkoutPlan> workouts = await getSavedWorkoutPlans();
+      final int index = workouts.indexWhere((SavedWorkoutPlan w) => w.id == id);
+
+      if (index != -1) {
+        workouts[index] = updatedWorkout;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final List<Map<String, dynamic>> workoutsJson = workouts.map((SavedWorkoutPlan w) => w.toJson()).toList();
+        await prefs.setString(_savedWorkoutsKey, json.encode(workoutsJson));
+      }
+    } catch (e) {
+      throw Exception('Failed to update workout plan: $e');
+    }
+  }
+
   /// Toggle favorite status of a workout plan
   Future<void> toggleFavorite(String id, bool isFavorite) async {
     try {
@@ -97,7 +123,11 @@ class LocalWorkoutStorageService {
       final int index = workouts.indexWhere((SavedWorkoutPlan w) => w.id == id);
 
       if (index != -1) {
-        workouts[index] = workouts[index].copyWith(isFavorite: isFavorite);
+        workouts[index] = workouts[index].copyWith(
+          isFavorite: isFavorite,
+          lastUpdated: DateTime.now(),
+          isSynced: false, // Mark as needing sync
+        );
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         final List<Map<String, dynamic>> workoutsJson = workouts.map((SavedWorkoutPlan w) => w.toJson()).toList();

@@ -16,6 +16,7 @@ import '../../features/home/presentation/screens/home_dashboard_screen.dart';
 import '../../features/exercise/presentation/screens/exercise_home_screen.dart';
 import '../../features/exercise/presentation/screens/ai_workout_generator_screen.dart';
 import '../../features/exercise/presentation/screens/workout_history_screen.dart';
+import '../../features/exercise/presentation/screens/hybrid_workout_example.dart';
 import '../../features/nutrition/presentation/screens/nutrition_home_screen.dart';
 import '../../features/nutrition/presentation/screens/food_logging_screen.dart';
 import '../../features/nutrition/presentation/screens/ai_food_recognition_screen.dart';
@@ -237,6 +238,11 @@ final Provider<GoRouter> appRouterProvider =
                 path: 'history',
                 builder: (BuildContext context, GoRouterState state) =>
                     WorkoutHistoryScreen(),
+              ),
+              GoRoute(
+                path: 'storage-demo',
+                builder: (BuildContext context, GoRouterState state) =>
+                    HybridWorkoutExample(),
               ),
             ],
           ),

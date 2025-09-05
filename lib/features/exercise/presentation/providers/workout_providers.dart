@@ -7,6 +7,8 @@ import '../../domain/repositories/workout_repository.dart';
 import '../../data/models/workout_models.dart';
 import '../../../profile/data/models/user_profile_model.dart';
 import 'package:uuid/uuid.dart';
+// Import hybrid storage components
+import 'workout_repository_providers.dart';
 
 // API Service Provider
 final Provider<WorkoutApiService> workoutApiServiceProvider = Provider<WorkoutApiService>((ProviderRef<WorkoutApiService> ref) {
@@ -200,48 +202,11 @@ class SavedWorkoutPlansNotifier
   }
 }
 
-// Saved Workouts Provider (Old - using repository)
-final StateNotifierProvider<SavedWorkoutsNotifier, AsyncValue<List<WorkoutPlan>>> savedWorkoutsProvider =
-    StateNotifierProvider<SavedWorkoutsNotifier, AsyncValue<List<WorkoutPlan>>>(
-        (StateNotifierProviderRef<SavedWorkoutsNotifier, AsyncValue<List<WorkoutPlan>>> ref) {
-  return SavedWorkoutsNotifier(ref.watch(workoutRepositoryProvider));
-});
-
-class SavedWorkoutsNotifier
-    extends StateNotifier<AsyncValue<List<WorkoutPlan>>> {
-  final WorkoutRepository _repository;
-
-  SavedWorkoutsNotifier(this._repository) : super(const AsyncValue.loading()) {
-    loadSavedWorkouts();
-  }
-
-  Future<void> loadSavedWorkouts() async {
-    try {
-      final List<WorkoutPlan> workouts = await _repository.getSavedWorkouts();
-      state = AsyncValue.data(workouts);
-    } catch (e, stackTrace) {
-      state = AsyncValue.error(e, stackTrace);
-    }
-  }
-
-  Future<void> saveWorkout(WorkoutPlan workout) async {
-    try {
-      await _repository.saveWorkout(workout);
-      await loadSavedWorkouts(); // Refresh the list
-    } catch (e, stackTrace) {
-      state = AsyncValue.error(e, stackTrace);
-    }
-  }
-
-  Future<void> deleteWorkout(String workoutId) async {
-    try {
-      await _repository.deleteWorkout(workoutId);
-      await loadSavedWorkouts(); // Refresh the list
-    } catch (e, stackTrace) {
-      state = AsyncValue.error(e, stackTrace);
-    }
-  }
-}
+// Saved Workouts Provider (Updated - using hybrid storage)
+// Use the new hybrid repository providers instead
+final workoutPlansProvider = workoutPlansStreamProvider;
+final createWorkoutActionProvider = createWorkoutProvider; 
+final workoutOperationsProvider = workoutActionsProvider;
 
 // Active Workout Session Provider
 final StateNotifierProvider<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?> activeWorkoutSessionProvider =

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../pages/data_sync_page.dart';
 
 class ProfileSettingsScreen extends StatelessWidget {
   const ProfileSettingsScreen({Key? key}) : super(key: key);
@@ -60,6 +61,18 @@ class ProfileSettingsScreen extends StatelessWidget {
               subtitle: 'Export or delete your data',
               onTap: () =>
                   Navigator.of(context).pushNamed('/profile/settings/data'),
+            ),
+            _SettingsTile(
+              icon: Icons.cloud_sync,
+              title: 'Data Synchronization',
+              subtitle: 'Sync local data to cloud storage',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const DataSyncPage(),
+                  ),
+                );
+              },
             ),
             _SectionHeader(title: 'App Preferences'),
             _SettingsTile(

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../data/services/nutrition_api_service.dart';
+import '../../data/services/firestore_nutrition_service.dart';
 import '../../data/repositories/nutrition_repository_impl.dart';
 import '../../domain/repositories/nutrition_repository.dart';
 
@@ -11,11 +12,18 @@ final Provider<NutritionApiService> nutritionApiServiceProvider =
   return NutritionApiService();
 });
 
+// Firestore Service Provider
+final Provider<FirestoreNutritionService> firestoreNutritionServiceProvider =
+    Provider<FirestoreNutritionService>((ProviderRef<FirestoreNutritionService> ref) {
+  return FirestoreNutritionService();
+});
+
 // Repository Provider
 final Provider<NutritionRepository> nutritionRepositoryProvider =
     Provider<NutritionRepository>((ProviderRef<NutritionRepository> ref) {
   return NutritionRepositoryImpl(
     apiService: ref.watch(nutritionApiServiceProvider),
+    firestoreService: ref.watch(firestoreNutritionServiceProvider),
   );
 });
 

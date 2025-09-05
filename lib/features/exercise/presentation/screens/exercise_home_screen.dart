@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'workout_history_screen.dart';
 import 'ai_workout_generator_screen.dart';
 import 'saved_workout_plans_screen.dart';
@@ -447,6 +448,49 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
+                ),
+              ),
+              // Storage Demo Button (Development Only)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHigh,
+                    border: Border.all(color: cs.secondary, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.go('/exercise/storage-demo');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.storage,
+                          color: cs.secondary,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Storage Demo (Dev)',
+                          style: TextStyle(
+                            color: cs.secondary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               // Recent Workouts & Outdoor Suggestions

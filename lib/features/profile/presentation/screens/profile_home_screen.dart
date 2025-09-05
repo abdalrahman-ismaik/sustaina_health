@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../../services/notification_service.dart';
 import '../../../notifications/presentation/screens/notification_settings_screen.dart';
+import '../../data/services/hybrid_profile_service.dart';
+import '../../data/models/user_profile_model.dart';
 
 class ProfileHomeScreen extends ConsumerStatefulWidget {
   const ProfileHomeScreen({Key? key}) : super(key: key);
@@ -16,6 +18,7 @@ class ProfileHomeScreen extends ConsumerStatefulWidget {
 
 class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   final NotificationService _notificationService = NotificationService();
+  final HybridProfileService _profileService = HybridProfileService();
 
   // Personal info controllers
   final TextEditingController _weightController = TextEditingController();
@@ -26,12 +29,15 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   bool _sustainabilityTipsEnabled = false;
   bool _healthRemindersEnabled = false;
   bool _notificationsAllowed = false;
+  bool _isSyncing = false;
 
   @override
   void initState() {
     super.initState();
     _initializeNotifications();
     _loadPersonalInfo();
+    // Automatically sync local data to cloud on app start
+    _syncLocalDataToCloud();
   }
 
   @override
@@ -43,21 +49,73 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }
 
   Future<void> _loadPersonalInfo() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _weightController.text = prefs.getString('profile_weight') ?? '';
-      _heightController.text = prefs.getString('profile_height') ?? '';
-      _ageController.text = prefs.getString('profile_age') ?? '';
-      _selectedSex = prefs.getString('profile_sex') ?? 'Male';
-    });
+    try {
+      // Try to load from hybrid service (which will check cloud first, then local)
+      final UserProfile? profile = await _profileService.getUserProfile();
+      
+      if (profile != null) {
+        setState(() {
+          _weightController.text = profile.weight?.toString() ?? '';
+          _heightController.text = profile.height?.toString() ?? '';
+          _ageController.text = profile.age?.toString() ?? '';
+          _selectedSex = profile.sex ?? 'Male';
+        });
+        print('✅ Personal info loaded from cloud storage');
+      } else {
+        // Fallback to SharedPreferences for backward compatibility
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        setState(() {
+          _weightController.text = prefs.getString('profile_weight') ?? '';
+          _heightController.text = prefs.getString('profile_height') ?? '';
+          _ageController.text = prefs.getString('profile_age') ?? '';
+          _selectedSex = prefs.getString('profile_sex') ?? 'Male';
+        });
+        print('📁 Personal info loaded from local storage (fallback)');
+      }
+    } catch (e) {
+      print('❌ Error loading personal info: $e');
+      // Fallback to local storage if cloud fails
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _weightController.text = prefs.getString('profile_weight') ?? '';
+        _heightController.text = prefs.getString('profile_height') ?? '';
+        _ageController.text = prefs.getString('profile_age') ?? '';
+        _selectedSex = prefs.getString('profile_sex') ?? 'Male';
+      });
+    }
   }
 
   Future<void> _savePersonalInfo() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('profile_weight', _weightController.text);
-    await prefs.setString('profile_height', _heightController.text);
-    await prefs.setString('profile_age', _ageController.text);
-    await prefs.setString('profile_sex', _selectedSex);
+    try {
+      // Create UserProfile object
+      final UserProfile profile = UserProfile(
+        weight: _weightController.text.isNotEmpty ? double.tryParse(_weightController.text) : null,
+        height: _heightController.text.isNotEmpty ? int.tryParse(_heightController.text) : null,
+        age: _ageController.text.isNotEmpty ? int.tryParse(_ageController.text) : null,
+        sex: _selectedSex,
+      );
+
+      // Save using hybrid service (saves to both local and cloud)
+      await _profileService.saveUserProfile(profile);
+      
+      // Also save to SharedPreferences for backward compatibility
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profile_weight', _weightController.text);
+      await prefs.setString('profile_height', _heightController.text);
+      await prefs.setString('profile_age', _ageController.text);
+      await prefs.setString('profile_sex', _selectedSex);
+      
+      print('✅ Personal info saved to both local storage and Firestore cloud!');
+    } catch (e) {
+      print('❌ Error saving personal info: $e');
+      // Fallback to SharedPreferences if hybrid service fails
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profile_weight', _weightController.text);
+      await prefs.setString('profile_height', _heightController.text);
+      await prefs.setString('profile_age', _ageController.text);
+      await prefs.setString('profile_sex', _selectedSex);
+      print('📁 Personal info saved to local storage (fallback)');
+    }
   }
 
   Future<void> _initializeNotifications() async {
@@ -85,6 +143,144 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     await prefs.setBool(key, value);
   }
 
+  Future<void> _syncLocalDataToCloud() async {
+    try {
+      // Get current data from local storage
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String weight = prefs.getString('profile_weight') ?? '';
+      final String height = prefs.getString('profile_height') ?? '';
+      final String age = prefs.getString('profile_age') ?? '';
+      final String sex = prefs.getString('profile_sex') ?? 'Male';
+
+      if (weight.isNotEmpty || height.isNotEmpty || age.isNotEmpty) {
+        // Create UserProfile and sync to cloud
+        final UserProfile profile = UserProfile(
+          weight: weight.isNotEmpty ? double.tryParse(weight) : null,
+          height: height.isNotEmpty ? int.tryParse(height) : null,
+          age: age.isNotEmpty ? int.tryParse(age) : null,
+          sex: sex,
+        );
+
+        await _profileService.saveUserProfile(profile);
+        print('🔄 Successfully synced local personal data to cloud storage');
+      }
+    } catch (e) {
+      print('❌ Error syncing local data to cloud: $e');
+    }
+  }
+
+  Future<void> _showEditPersonalInfoDialog() async {
+    String tempSelectedSex = _selectedSex;
+    
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (BuildContext dialogContext) => StatefulBuilder(
+        builder: (BuildContext context, StateSetter setDialogState) => AlertDialog(
+          title: const Text('Edit Personal Info'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextField(
+                  controller: _ageController,
+                  decoration: const InputDecoration(
+                    labelText: 'Age',
+                    hintText: 'Enter your age',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _heightController,
+                  decoration: const InputDecoration(
+                    labelText: 'Height (cm)',
+                    hintText: 'Enter your height',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _weightController,
+                  decoration: const InputDecoration(
+                    labelText: 'Weight (kg)',
+                    hintText: 'Enter your weight',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: tempSelectedSex,
+                  decoration: const InputDecoration(
+                    labelText: 'Sex',
+                  ),
+                  items: ['Male', 'Female', 'Other']
+                      .map((String value) => DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          ))
+                      .toList(),
+                  onChanged: (String? newValue) {
+                    setDialogState(() {
+                      tempSelectedSex = newValue ?? 'Male';
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                if (Navigator.of(dialogContext).canPop()) {
+                  Navigator.of(dialogContext).pop();
+                }
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Update the main state with the dialog selection
+                setState(() {
+                  _selectedSex = tempSelectedSex;
+                });
+                
+                try {
+                  await _savePersonalInfo();
+                  
+                  if (Navigator.of(dialogContext).canPop()) {
+                    Navigator.of(dialogContext).pop();
+                  }
+                  
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Personal information updated successfully!'),
+                        backgroundColor: Colors.green,
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error saving information: $e'),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final AsyncValue<UserEntity?> userAsyncValue =
@@ -100,10 +296,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
       appBar: AppBar(
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: cs.onSurface),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        automaticallyImplyLeading: false, // This removes the back arrow
         title: Text(
           'Profile',
           style: TextStyle(
@@ -361,15 +554,70 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                             color: cs.onSurface,
                           ),
                         ),
-                        TextButton.icon(
-                          onPressed: () {
-                            // Navigate to detailed personal info
-                          },
-                          icon: Icon(Icons.edit, size: 16, color: cs.primary),
-                          label: Text(
-                            'Edit',
-                            style: TextStyle(color: cs.primary),
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            TextButton.icon(
+                              onPressed: _isSyncing ? null : () async {
+                                setState(() {
+                                  _isSyncing = true;
+                                });
+                                
+                                try {
+                                  await _syncLocalDataToCloud();
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Data synced to cloud storage!'),
+                                        backgroundColor: Colors.blue,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Sync failed: $e'),
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  if (mounted) {
+                                    setState(() {
+                                      _isSyncing = false;
+                                    });
+                                  }
+                                }
+                              },
+                              icon: _isSyncing 
+                                  ? SizedBox(
+                                      width: 16, 
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                                      ),
+                                    )
+                                  : Icon(Icons.cloud_upload, size: 16, color: cs.primary),
+                              label: Text(
+                                _isSyncing ? 'Syncing...' : 'Sync',
+                                style: TextStyle(color: cs.primary),
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                _showEditPersonalInfoDialog();
+                              },
+                              icon: Icon(Icons.edit, size: 16, color: cs.primary),
+                              label: Text(
+                                'Edit',
+                                style: TextStyle(color: cs.primary),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

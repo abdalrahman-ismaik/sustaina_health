@@ -369,9 +369,9 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
       curve: Curves.elasticOut,
       builder: (context, double value, child) {
         return Transform.translate(
-          offset: Offset(0, 30 * (1 - value)),
+          offset: Offset(0, 30 * (1 - value.clamp(0.0, 1.0))),
           child: Opacity(
-            opacity: value,
+            opacity: value.clamp(0.0, 1.0),
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
