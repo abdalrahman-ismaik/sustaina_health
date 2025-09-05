@@ -46,13 +46,38 @@ class HybridProfileService {
       if (_isUserSignedIn) {
         try {
           await _firestoreService.ensureProfileModuleExists();
-          await _firestoreService.saveHealthGoal(goals);
+          // If goals is a map of individual goals, save each one
+          if (goals.containsKey('goals') && goals['goals'] is List) {
+            for (final goal in goals['goals']) {
+              if (goal is Map<String, dynamic>) {
+                await _firestoreService.saveHealthGoal(goal);
+              }
+            }
+          } else {
+            // If it's a single goal object, save it directly
+            await _firestoreService.saveHealthGoal(goals);
+          }
         } catch (e) {
           print('Cloud save failed, but local save succeeded: $e');
         }
       }
     } catch (e) {
       throw Exception('Failed to save health goals: $e');
+    }
+  }
+
+  /// Save individual health goal to cloud storage
+  Future<String?> saveHealthGoal(Map<String, dynamic> goal) async {
+    try {
+      // Save to cloud if user is signed in
+      if (_isUserSignedIn) {
+        await _firestoreService.ensureProfileModuleExists();
+        final goalId = await _firestoreService.saveHealthGoal(goal);
+        return goalId;
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to save health goal: $e');
     }
   }
 
@@ -167,7 +192,17 @@ class HybridProfileService {
       // Sync health goals
       final localGoals = await _getHealthGoalsLocally();
       if (localGoals != null) {
-        await _firestoreService.saveHealthGoal(localGoals);
+        // If localGoals contains a list of goals, save each one
+        if (localGoals.containsKey('goals') && localGoals['goals'] is List) {
+          for (final goal in localGoals['goals']) {
+            if (goal is Map<String, dynamic>) {
+              await _firestoreService.saveHealthGoal(goal);
+            }
+          }
+        } else {
+          // If it's a single goal object, save it directly
+          await _firestoreService.saveHealthGoal(localGoals);
+        }
       }
       
       // Sync preferences

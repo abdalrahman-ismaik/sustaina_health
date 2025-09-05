@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/services/workout_api_service.dart';
 import '../../data/services/local_workout_storage_service.dart';
 import '../../data/services/workout_session_service.dart';
+import '../../data/services/hybrid_workout_session_service.dart';
 import '../../data/repositories/workout_repository_impl.dart';
 import '../../domain/repositories/workout_repository.dart';
 import '../../data/models/workout_models.dart';
@@ -24,6 +25,11 @@ final Provider<LocalWorkoutStorageService> localWorkoutStorageServiceProvider =
 // Workout Session Service Provider
 final Provider<WorkoutSessionService> workoutSessionServiceProvider = Provider<WorkoutSessionService>((ProviderRef<WorkoutSessionService> ref) {
   return WorkoutSessionService();
+});
+
+// Hybrid Workout Session Service Provider (local + cloud)
+final Provider<HybridWorkoutSessionService> hybridWorkoutSessionServiceProvider = Provider<HybridWorkoutSessionService>((ProviderRef<HybridWorkoutSessionService> ref) {
+  return HybridWorkoutSessionService();
 });
 
 // Repository Provider
@@ -212,12 +218,12 @@ final workoutOperationsProvider = workoutActionsProvider;
 final StateNotifierProvider<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?> activeWorkoutSessionProvider =
     StateNotifierProvider<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?>(
         (StateNotifierProviderRef<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?> ref) {
-  return ActiveWorkoutSessionNotifier(ref.watch(workoutSessionServiceProvider));
+  return ActiveWorkoutSessionNotifier(ref.watch(hybridWorkoutSessionServiceProvider));
 });
 
 class ActiveWorkoutSessionNotifier
     extends StateNotifier<ActiveWorkoutSession?> {
-  final WorkoutSessionService _sessionService;
+  final HybridWorkoutSessionService _sessionService;
   final Uuid _uuid = const Uuid();
 
   ActiveWorkoutSessionNotifier(this._sessionService) : super(null) {
@@ -433,12 +439,12 @@ class ActiveWorkoutSessionNotifier
 // Completed Workouts Provider
 final StateNotifierProvider<CompletedWorkoutsNotifier, AsyncValue<List<ActiveWorkoutSession>>> completedWorkoutsProvider = StateNotifierProvider<
     CompletedWorkoutsNotifier, AsyncValue<List<ActiveWorkoutSession>>>((StateNotifierProviderRef<CompletedWorkoutsNotifier, AsyncValue<List<ActiveWorkoutSession>>> ref) {
-  return CompletedWorkoutsNotifier(ref.watch(workoutSessionServiceProvider));
+  return CompletedWorkoutsNotifier(ref.watch(hybridWorkoutSessionServiceProvider));
 });
 
 class CompletedWorkoutsNotifier
     extends StateNotifier<AsyncValue<List<ActiveWorkoutSession>>> {
-  final WorkoutSessionService _sessionService;
+  final HybridWorkoutSessionService _sessionService;
 
   CompletedWorkoutsNotifier(this._sessionService)
       : super(const AsyncValue.loading()) {
@@ -462,6 +468,19 @@ class CompletedWorkoutsNotifier
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
     }
+  }
+
+  Future<void> syncToCloud() async {
+    try {
+      await _sessionService.syncLocalToCloud();
+      await loadCompletedWorkouts(); // Refresh after sync
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
+  }
+
+  Future<Map<String, dynamic>> getSyncStatus() async {
+    return await _sessionService.getSyncStatus();
   }
 }
 

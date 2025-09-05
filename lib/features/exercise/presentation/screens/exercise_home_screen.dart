@@ -1914,3 +1914,73 @@ void _showExerciseGuide(BuildContext context) {
     },
   );
 }
+
+Future<void> _showDeleteWorkoutDialog(BuildContext context, ActiveWorkoutSession workout, WidgetRef ref) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // User must tap button
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Delete Workout'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              const Text('Are you sure you want to delete this workout session?'),
+              const SizedBox(height: 8),
+              Text(
+                workout.workoutName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              if (workout.endTime != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Completed on ${workout.endTime!.day}/${workout.endTime!.month}/${workout.endTime!.year}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 8),
+              const Text(
+                'This action cannot be undone.',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              // Delete the workout using the provider
+              final notifier = ref.read(completedWorkoutsProvider.notifier);
+              await notifier.deleteWorkout(workout.id);
+              
+              // Show success message
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Workout deleted successfully'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    },
+  );
+}

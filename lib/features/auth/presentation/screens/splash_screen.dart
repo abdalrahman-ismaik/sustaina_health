@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:async';
+import '../../data/services/onboarding_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -45,12 +46,20 @@ class _SplashScreenState extends State<SplashScreen>
     // Start the animation
     _animationController.forward();
 
-    // Navigate to onboarding screen after 3 seconds
-    // Use GoRouter for navigation
-    Timer(const Duration(seconds: 3), () {
+    // Let the router handle navigation based on auth state
+    // Remove automatic navigation - router redirect will handle this
+    Timer(const Duration(seconds: 3), () async {
       if (mounted) {
-        // Import go_router at the top if not already
-        context.go('/onboarding/welcome');
+        // Check if user has seen onboarding before
+        final hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
+        
+        if (!hasSeenOnboarding) {
+          // First time user - show onboarding
+          context.go('/onboarding/welcome');
+        } else {
+          // Returning user - let router decide based on auth state
+          context.go('/login');
+        }
       }
     });
   }

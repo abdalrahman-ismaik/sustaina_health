@@ -10,6 +10,7 @@ class RouteNames {
 
   // Profile Setup Routes
   static const String profileSetup = '/profile-setup';
+  static const String personalInfoSetup = '/personal-info-setup';
   static const String personalInfo = '/profile-setup/personal-info';
   static const String healthGoals = '/profile-setup/health-goals';
   static const String sustainabilityPrefs =

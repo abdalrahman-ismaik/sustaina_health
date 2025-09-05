@@ -9,6 +9,7 @@ import '../../features/auth/presentation/screens/onboarding_sustainability_scree
 import '../../features/auth/presentation/screens/password_recovery_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
+import '../../features/auth/presentation/screens/personal_info_setup_screen.dart';
 import '../../features/profile/presentation/screens/profile_personal_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_health_goals_screen.dart';
 import '../../features/profile/presentation/screens/profile_sustainability_screen.dart';
@@ -36,12 +37,14 @@ import '../../features/profile/presentation/screens/privacy_security_screen.dart
 import '../../features/profile/presentation/screens/app_preferences_screen.dart';
 import 'route_names.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
+import '../../features/auth/data/services/profile_setup_service.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import '../../core/widgets/main_navigation_wrapper.dart';
 
 final Provider<GoRouter> appRouterProvider =
     Provider<GoRouter>((ProviderRef<GoRouter> ref) {
   final AsyncValue<UserEntity?> authState = ref.watch(authStateProvider);
+  final AsyncValue<bool> profileSetupCompleted = ref.watch(profileSetupCompletedProvider);
 
   return GoRouter(
     initialLocation: RouteNames.splash,
@@ -56,15 +59,43 @@ final Provider<GoRouter> appRouterProvider =
         RouteNames.register,
         RouteNames.forgotPassword,
       ].contains(state.uri.path);
+      
+      final bool isOnProfileSetupPage = state.uri.path == RouteNames.personalInfoSetup;
 
       // If not logged in and not on auth pages, redirect to login
-      if (!isLoggedIn && !isOnAuthPage) {
+      if (!isLoggedIn && !isOnAuthPage && !isOnProfileSetupPage) {
         return RouteNames.login;
       }
-      // If logged in and on auth pages (except splash), redirect to home
-      if (isLoggedIn && isOnAuthPage && state.uri.path != RouteNames.splash) {
-        return RouteNames.home;
+      
+      // If logged in, check profile setup status
+      if (isLoggedIn) {
+        // Skip redirect if already on personal info setup page
+        if (isOnProfileSetupPage) {
+          return null;
+        }
+        
+        // Check if profile setup is completed
+        if (profileSetupCompleted.hasValue) {
+          final bool hasCompletedSetup = profileSetupCompleted.value ?? false;
+          
+          // If profile not completed, redirect to profile setup (skip onboarding)
+          if (!hasCompletedSetup) {
+            return RouteNames.personalInfoSetup;
+          }
+          
+          // If profile completed and on auth pages (except splash), redirect to home
+          if (hasCompletedSetup && isOnAuthPage && state.uri.path != RouteNames.splash) {
+            return RouteNames.home;
+          }
+        } else {
+          // If profile setup status is still loading, wait for it
+          // Don't redirect yet, let the provider load
+          if (profileSetupCompleted.isLoading && state.uri.path != RouteNames.splash) {
+            return null; // Stay on current page while loading
+          }
+        }
       }
+      
       return null;
     },
     routes: <RouteBase>[
@@ -177,6 +208,31 @@ final Provider<GoRouter> appRouterProvider =
             CustomTransitionPage(
           key: state.pageKey,
           child: const PasswordRecoveryScreen(),
+          transitionsBuilder: (BuildContext context,
+              Animation<double> animation,
+              Animation<double> secondaryAnimation,
+              Widget child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+
+      // Personal Info Setup (after authentication)
+      GoRoute(
+        path: RouteNames.personalInfoSetup,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            CustomTransitionPage(
+          key: state.pageKey,
+          child: const PersonalInfoSetupScreen(isFirstTime: true),
           transitionsBuilder: (BuildContext context,
               Animation<double> animation,
               Animation<double> secondaryAnimation,

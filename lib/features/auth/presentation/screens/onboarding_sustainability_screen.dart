@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/widgets/onboarding_progress_bar.dart';
 import '../providers/onboarding_progress_provider.dart';
+import '../../data/services/onboarding_service.dart';
 
 class OnboardingSustainabilityScreen extends ConsumerWidget {
   const OnboardingSustainabilityScreen({super.key});
@@ -287,7 +288,12 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                         ],
                       ),
                       child: ElevatedButton(
-                        onPressed: () => context.go('/login'),
+                        onPressed: () async {
+                          // Mark onboarding as completed
+                          await OnboardingService.markOnboardingCompleted();
+                          // Navigate to login
+                          context.go('/login');
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,

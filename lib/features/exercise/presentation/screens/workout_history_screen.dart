@@ -440,82 +440,113 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: Card(
-        elevation: 2,
-        color: cs.surfaceContainerLow,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => CompletedWorkoutDetailScreen(
-                  completedWorkout: workout,
-                ),
-              ),
-            );
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
+      child: Stack(
+        children: <Widget>[
+          Card(
+            elevation: 2,
+            color: cs.surfaceContainerLow,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => CompletedWorkoutDetailScreen(
+                      completedWorkout: workout,
+                    ),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        workout.workoutName,
-                        style: TextStyle(
-                          color: cs.onSurface,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            workout.workoutName,
+                            style: TextStyle(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
+                        Icon(
+                          Icons.check_circle,
+                          color: cs.primary,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _formatDate(workout.endTime!),
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: 14,
                       ),
                     ),
-                    Icon(
-                      Icons.check_circle,
-                      color: cs.primary,
-                      size: 20,
+                    const SizedBox(height: 12),
+                    Row(
+                      children: <Widget>[
+                        _InfoChip(
+                          context: context,
+                          icon: Icons.timer,
+                          label: _formatDuration(workout.totalDuration),
+                        ),
+                        const SizedBox(width: 12),
+                        _InfoChip(
+                          context: context,
+                          icon: Icons.fitness_center,
+                          label: '${workout.exercises.length} exercises',
+                        ),
+                        const SizedBox(width: 12),
+                        _InfoChip(
+                          context: context,
+                          icon: Icons.repeat,
+                          label: '$totalSets sets',
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  _formatDate(workout.endTime!),
-                  style: TextStyle(
-                    color: cs.onSurfaceVariant,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: <Widget>[
-                    _InfoChip(
-                      context: context,
-                      icon: Icons.timer,
-                      label: _formatDuration(workout.totalDuration),
-                    ),
-                    const SizedBox(width: 12),
-                    _InfoChip(
-                      context: context,
-                      icon: Icons.fitness_center,
-                      label: '${workout.exercises.length} exercises',
-                    ),
-                    const SizedBox(width: 12),
-                    _InfoChip(
-                      context: context,
-                      icon: Icons.repeat,
-                      label: '$totalSets sets',
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          // Delete button positioned at top-right
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: () => _showDeleteWorkoutDialog(context, workout),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: Colors.red.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -548,6 +579,76 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     } else {
       return '${minutes}m';
     }
+  }
+
+  Future<void> _showDeleteWorkoutDialog(BuildContext context, ActiveWorkoutSession workout) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Workout'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                const Text('Are you sure you want to delete this workout session?'),
+                const SizedBox(height: 8),
+                Text(
+                  workout.workoutName,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                if (workout.endTime != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Completed on ${workout.endTime!.day}/${workout.endTime!.month}/${workout.endTime!.year}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                const Text(
+                  'This action cannot be undone.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // Delete the workout using the provider
+                final notifier = ref.read(completedWorkoutsProvider.notifier);
+                await notifier.deleteWorkout(workout.id);
+                
+                // Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Workout deleted successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

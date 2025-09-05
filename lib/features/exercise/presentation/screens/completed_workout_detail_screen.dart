@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/workout_models.dart';
+import '../providers/workout_providers.dart';
 
 class CompletedWorkoutDetailScreen extends ConsumerWidget {
   final ActiveWorkoutSession completedWorkout;
@@ -39,11 +40,37 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onSurface),
-                    onPressed: () {
-                      // TODO: Implement share functionality
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.onSurface),
+                    onSelected: (String value) {
+                      if (value == 'share') {
+                        // TODO: Implement share functionality
+                      } else if (value == 'delete') {
+                        _showDeleteWorkoutDialog(context, ref);
+                      }
                     },
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'share',
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.share),
+                            SizedBox(width: 8),
+                            Text('Share'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'delete',
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.delete, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -585,5 +612,77 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
   int _getTotalSets() {
     return completedWorkout.exercises
         .fold(0, (int total, CompletedExercise exercise) => total + exercise.sets.length);
+  }
+
+  Future<void> _showDeleteWorkoutDialog(BuildContext context, WidgetRef ref) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Workout'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                const Text('Are you sure you want to delete this workout session?'),
+                const SizedBox(height: 8),
+                Text(
+                  completedWorkout.workoutName,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                if (completedWorkout.endTime != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Completed on ${completedWorkout.endTime!.day}/${completedWorkout.endTime!.month}/${completedWorkout.endTime!.year}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                const Text(
+                  'This action cannot be undone.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop(); // Go back to previous screen
+                
+                // Delete the workout using the provider
+                final notifier = ref.read(completedWorkoutsProvider.notifier);
+                await notifier.deleteWorkout(completedWorkout.id);
+                
+                // Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Workout deleted successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

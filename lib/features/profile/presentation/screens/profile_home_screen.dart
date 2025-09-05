@@ -697,6 +697,12 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               onTap: () => context.go('/profile/settings/privacy'),
             ),
             _buildEnhancedQuickSettingTile(
+              icon: Icons.person_outline,
+              label: 'Complete Profile Setup',
+              description: 'Update your personal information and preferences',
+              onTap: () => context.go('/personal-info-setup'),
+            ),
+            _buildEnhancedQuickSettingTile(
               icon: Icons.settings_outlined,
               label: 'App Preferences',
               description: 'Customize your app experience',

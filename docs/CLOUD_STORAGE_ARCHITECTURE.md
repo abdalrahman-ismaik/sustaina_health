@@ -15,14 +15,38 @@ The Sustaina Health app implements a **modular, hierarchical Firestore structure
         │
         ├── 🏋️ exercise/
         │   └── data/
-        │       ├── workouts/
-        │       │   └── {workoutId}/
+        │       ├── workout_plans/
+        │       │   └── {planId}/
         │       │       ├── id: string
         │       │       ├── name: string
+        │       │       ├── description: string
         │       │       ├── exercises: array
-        │       │       ├── duration: number
+        │       │       ├── category: string
+        │       │       ├── difficulty: string
+        │       │       ├── estimatedDuration: number
         │       │       ├── createdAt: timestamp
+        │       │       ├── lastUsed: timestamp
         │       │       └── updatedAt: timestamp
+        │       │
+        │       ├── completed_workouts/
+        │       │   └── {sessionId}/
+        │       │       ├── id: string
+        │       │       ├── workoutName: string
+        │       │       ├── startTime: timestamp
+        │       │       ├── endTime: timestamp
+        │       │       ├── totalDuration: number (seconds)
+        │       │       ├── isCompleted: boolean
+        │       │       ├── exercises: array
+        │       │       │   ├── name: string
+        │       │       │   ├── sets: array
+        │       │       │   │   ├── reps: number
+        │       │       │   │   ├── weight: number
+        │       │       │   │   ├── duration: number
+        │       │       │   │   ├── restTime: number
+        │       │       │   │   └── completedAt: timestamp
+        │       │       │   └── isCompleted: boolean
+        │       │       ├── notes: string
+        │       │       └── savedAt: timestamp
         │       │
         │       ├── exercise_history/
         │       └── fitness_goals/
@@ -392,6 +416,61 @@ Future<void> ensureProfileModuleExists() async {
       'lastUpdated': FieldValue.serverTimestamp(),
     });
   }
+}
+```
+
+### Exercise Cloud Storage Implementation
+
+#### Service Architecture
+The exercise module uses a hybrid approach combining local and cloud storage:
+
+```dart
+// Core Services
+- WorkoutSessionService: Local storage using SharedPreferences
+- FirestoreWorkoutService: Cloud operations for Firestore
+- HybridWorkoutSessionService: Smart fallback combining both
+
+// State Management
+- CompletedWorkoutsNotifier: Manages workout history with cloud sync
+- ActiveWorkoutSessionNotifier: Handles current workout sessions
+```
+
+#### Completed Workout Saving
+```dart
+Future<void> saveCompletedWorkout(ActiveWorkoutSession session) async {
+  // Always save locally first for immediate availability
+  await _localService.saveCompletedWorkout(session);
+  
+  // Try cloud save with graceful fallback
+  try {
+    if (_cloudService.isUserAuthenticated && await _cloudService.hasInternetConnection()) {
+      await _cloudService.saveCompletedWorkout(session);
+      debugPrint('✅ Completed workout saved to cloud: ${session.workoutName}');
+    } else {
+      debugPrint('📁 Cloud unavailable, workout saved locally only');
+    }
+  } catch (e) {
+    debugPrint('⚠️ Failed to save workout to cloud, keeping local copy: $e');
+  }
+}
+```
+
+#### Smart Data Retrieval
+```dart
+Future<List<ActiveWorkoutSession>> getCompletedWorkouts() async {
+  try {
+    // Try cloud first if available
+    if (_cloudService.isUserAuthenticated && await _cloudService.hasInternetConnection()) {
+      final cloudWorkouts = await _cloudService.getAllCompletedWorkouts();
+      _syncCloudToLocal(cloudWorkouts); // Update local for offline access
+      return cloudWorkouts;
+    }
+  } catch (e) {
+    debugPrint('📁 Failed to load from cloud, falling back to local: $e');
+  }
+  
+  // Fallback to local storage
+  return await _localService.getCompletedWorkouts();
 }
 ```
 
