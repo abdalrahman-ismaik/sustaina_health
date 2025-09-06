@@ -786,7 +786,7 @@ class _NutritionHomeHelper {
     ColorScheme colorScheme,
   ) {
     return Row(
-      children: [
+      children: <Widget>[
         Expanded(
           child: _buildStatCard(
             'Total Scans',
@@ -819,29 +819,29 @@ class _NutritionHomeHelper {
 
   static String _calculateTotalScans(AsyncValue<List<FoodLogEntry>> foodLogState) {
     return foodLogState.when(
-      data: (entries) => entries.length.toString(),
+      data: (List<FoodLogEntry> entries) => entries.length.toString(),
       loading: () => '-',
-      error: (error, stack) => '0',
+      error: (Object error, StackTrace stack) => '0',
     );
   }
 
   static String _calculateSavedPlansCount(AsyncValue<List<SavedMealPlan>> savedMealPlansState) {
     return savedMealPlansState.when(
-      data: (plans) => plans.length.toString(),
+      data: (List<SavedMealPlan> plans) => plans.length.toString(),
       loading: () => '-',
-      error: (error, stack) => '0',
+      error: (Object error, StackTrace stack) => '0',
     );
   }
 
   static int _calculateEcoScorePercentage(AsyncValue<List<FoodLogEntry>> foodLogState) {
     return foodLogState.when(
-      data: (entries) {
+      data: (List<FoodLogEntry> entries) {
         if (entries.isEmpty) return 0;
         
         double totalScore = 0;
         int validEntries = 0;
         
-        for (final entry in entries) {
+        for (final FoodLogEntry entry in entries) {
           // Calculate average sustainability score if available
           if (entry.sustainabilityScore != null) {
             // Convert string score to numeric value
@@ -865,11 +865,11 @@ class _NutritionHomeHelper {
         if (validEntries == 0) return 0;
         
         // Return the average score as percentage
-        double averageScore = totalScore / validEntries;
+        final double averageScore = totalScore / validEntries;
         return averageScore.round().clamp(0, 100);
       },
       loading: () => 0,
-      error: (error, stack) => 0,
+      error: (Object error, StackTrace stack) => 0,
     );
   }
 
@@ -883,7 +883,7 @@ class _NutritionHomeHelper {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Icon(
             icon,
             color: color,

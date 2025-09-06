@@ -12,7 +12,7 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
   bool _reminderEnabled = false;
 
   void _pickTime() async {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _bedtime,
@@ -34,7 +34,7 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -106,7 +106,7 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                     onChanged: (bool val) =>
                         setState(() => _reminderEnabled = val),
                     activeColor: colorScheme.primary,
-                    inactiveTrackColor: colorScheme.surfaceVariant,
+                    inactiveTrackColor: colorScheme.surfaceContainerHighest,
                   ),
                   const SizedBox(width: 8),
                   Text('Enable Reminder',
@@ -126,7 +126,7 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                     const SizedBox(width: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.surfaceVariant,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
                         foregroundColor: colorScheme.onSurfaceVariant,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
@@ -180,7 +180,7 @@ class _SleepImprovementScreenState extends State<SleepImprovementScreen> {
                         content: Text(_reminderEnabled
                             ? 'Bedtime reminder set for ${_bedtime.format(context)}!'
                             : 'Sleep improvement tips saved!'),
-                        backgroundColor: colorScheme.surfaceVariant,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
                       ),
                     );
                   },
@@ -210,7 +210,7 @@ class _TipTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),

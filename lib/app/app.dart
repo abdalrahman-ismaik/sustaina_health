@@ -14,7 +14,7 @@ class GhiraasApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final GoRouter router = ref.watch(appRouterProvider);
     final ThemeMode themeMode = ref.watch(themeProvider);
-    final appInitialization = ref.watch(appInitializationProvider);
+    final AsyncValue<void> appInitialization = ref.watch(appInitializationProvider);
     
     return MaterialApp.router(
       title: 'Ghiraas',
@@ -24,7 +24,7 @@ class GhiraasApp extends ConsumerWidget {
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       // Show a loading screen while app is initializing
-      builder: (context, child) {
+      builder: (BuildContext context, Widget? child) {
         return appInitialization.when(
           data: (_) => AutoSyncWidget(
             showProgressIndicator: true,
@@ -35,7 +35,7 @@ class GhiraasApp extends ConsumerWidget {
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  children: <Widget>[
                     CircularProgressIndicator(),
                     SizedBox(height: 16),
                     Text('Initializing Ghiraas...'),
@@ -44,7 +44,7 @@ class GhiraasApp extends ConsumerWidget {
               ),
             ),
           ),
-          error: (error, stack) {
+          error: (Object error, StackTrace stack) {
             // Still show the app even if initialization fails
             print('App initialization error: $error');
             return AutoSyncWidget(

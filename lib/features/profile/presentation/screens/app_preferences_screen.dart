@@ -10,8 +10,8 @@ class AppPreferencesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final themeMode = ref.watch(themeProvider);
-    final themeNotifier = ref.read(themeProvider.notifier);
+    final ThemeMode themeMode = ref.watch(themeProvider);
+    final ThemeNotifier themeNotifier = ref.read(themeProvider.notifier);
     
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +29,7 @@ class AppPreferencesScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Header Section
             Container(
               width: double.infinity,
@@ -37,13 +37,13 @@ class AppPreferencesScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: isDark 
-                    ? [cs.primaryContainer, cs.primary.withOpacity(0.7)]
-                    : [cs.primary, cs.primary.withOpacity(0.8)],
+                    ? <Color>[cs.primaryContainer, cs.primary.withOpacity(0.7)]
+                    : <Color>[cs.primary, cs.primary.withOpacity(0.8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: cs.shadow.withOpacity(0.1),
                     blurRadius: 8,
@@ -53,7 +53,7 @@ class AppPreferencesScreen extends ConsumerWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Icon(
                     Icons.tune,
                     size: 40,
@@ -87,7 +87,7 @@ class AppPreferencesScreen extends ConsumerWidget {
               title: 'Appearance',
               description: 'Choose how the app looks',
               child: Column(
-                children: [
+                children: <Widget>[
                   const SizedBox(height: 16),
                   _buildThemeOption(
                     context,
@@ -131,7 +131,7 @@ class AppPreferencesScreen extends ConsumerWidget {
               title: 'Notifications',
               description: 'Manage your notification preferences',
               child: Column(
-                children: [
+                children: <Widget>[
                   const SizedBox(height: 16),
                   _buildSwitchTile(
                     context,
@@ -139,7 +139,7 @@ class AppPreferencesScreen extends ConsumerWidget {
                     'Get reminded about your scheduled workouts',
                     Icons.fitness_center,
                     true, // Default enabled
-                    (value) {
+                    (bool value) {
                       // TODO: Implement notification preferences
                     },
                   ),
@@ -150,7 +150,7 @@ class AppPreferencesScreen extends ConsumerWidget {
                     'Reminders to log your meals',
                     Icons.restaurant,
                     true,
-                    (value) {
+                    (bool value) {
                       // TODO: Implement notification preferences
                     },
                   ),
@@ -161,7 +161,7 @@ class AppPreferencesScreen extends ConsumerWidget {
                     'Bedtime and wake-up reminders',
                     Icons.bedtime,
                     false,
-                    (value) {
+                    (bool value) {
                       // TODO: Implement notification preferences
                     },
                   ),
@@ -178,7 +178,7 @@ class AppPreferencesScreen extends ConsumerWidget {
               title: 'Data Management',
               description: 'Control your app data',
               child: Column(
-                children: [
+                children: <Widget>[
                   const SizedBox(height: 16),
                   _buildActionTile(
                     context,
@@ -227,7 +227,7 @@ class AppPreferencesScreen extends ConsumerWidget {
                 border: Border.all(color: cs.outline.withOpacity(0.2)),
               ),
               child: Column(
-                children: [
+                children: <Widget>[
                   Icon(
                     Icons.eco,
                     color: cs.primary,
@@ -283,7 +283,7 @@ class AppPreferencesScreen extends ConsumerWidget {
         color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(color: cs.outline.withOpacity(0.1)),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withOpacity(0.05),
             blurRadius: 8,
@@ -293,9 +293,9 @@ class AppPreferencesScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
@@ -312,7 +312,7 @@ class AppPreferencesScreen extends ConsumerWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -364,7 +364,7 @@ class AppPreferencesScreen extends ConsumerWidget {
           ),
         ),
         child: Row(
-          children: [
+          children: <Widget>[
             Container(
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
@@ -381,7 +381,7 @@ class AppPreferencesScreen extends ConsumerWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -429,7 +429,7 @@ class AppPreferencesScreen extends ConsumerWidget {
         border: Border.all(color: cs.outline.withOpacity(0.2)),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Container(
             padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
@@ -446,7 +446,7 @@ class AppPreferencesScreen extends ConsumerWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -495,7 +495,7 @@ class AppPreferencesScreen extends ConsumerWidget {
           border: Border.all(color: cs.outline.withOpacity(0.2)),
         ),
         child: Row(
-          children: [
+          children: <Widget>[
             Container(
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
@@ -514,7 +514,7 @@ class AppPreferencesScreen extends ConsumerWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -548,7 +548,7 @@ class AppPreferencesScreen extends ConsumerWidget {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         backgroundColor: cs.surface,
         icon: Icon(Icons.info_outline, color: cs.primary, size: 32),
         title: Text(
@@ -559,7 +559,7 @@ class AppPreferencesScreen extends ConsumerWidget {
           'This feature will be available in a future update.',
           style: TextStyle(color: cs.onSurfaceVariant),
         ),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text('OK', style: TextStyle(color: cs.primary)),
@@ -574,7 +574,7 @@ class AppPreferencesScreen extends ConsumerWidget {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         backgroundColor: cs.surface,
         icon: Icon(Icons.cleaning_services, color: cs.primary, size: 32),
         title: Text(
@@ -585,7 +585,7 @@ class AppPreferencesScreen extends ConsumerWidget {
           'This will clear temporary files and free up storage space. Your personal data will not be affected.',
           style: TextStyle(color: cs.onSurfaceVariant),
         ),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text('Cancel', style: TextStyle(color: cs.onSurfaceVariant)),
@@ -613,7 +613,7 @@ class AppPreferencesScreen extends ConsumerWidget {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         backgroundColor: cs.surface,
         icon: Icon(Icons.warning, color: cs.error, size: 32),
         title: Text(
@@ -624,7 +624,7 @@ class AppPreferencesScreen extends ConsumerWidget {
           'This will permanently delete all your data including workouts, meals, sleep records, and preferences. This action cannot be undone.',
           style: TextStyle(color: cs.onSurfaceVariant),
         ),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text('Cancel', style: TextStyle(color: cs.onSurfaceVariant)),

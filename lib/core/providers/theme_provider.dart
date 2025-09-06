@@ -12,14 +12,14 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   static const String _themeKey = 'app_theme_mode';
   
   Future<void> _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final themeModeString = prefs.getString(_themeKey) ?? 'system';
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String themeModeString = prefs.getString(_themeKey) ?? 'system';
     state = _stringToThemeMode(themeModeString);
   }
   
   Future<void> setTheme(AppThemeMode themeMode) async {
-    final prefs = await SharedPreferences.getInstance();
-    final themeModeString = _appThemeModeToString(themeMode);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String themeModeString = _appThemeModeToString(themeMode);
     await prefs.setString(_themeKey, themeModeString);
     state = _appThemeModeToThemeMode(themeMode);
   }
@@ -74,6 +74,6 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   }
 }
 
-final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((ref) {
+final StateNotifierProvider<ThemeNotifier, ThemeMode> themeProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((StateNotifierProviderRef<ThemeNotifier, ThemeMode> ref) {
   return ThemeNotifier();
 });

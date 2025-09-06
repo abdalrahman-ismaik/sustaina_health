@@ -35,7 +35,7 @@ class FirestoreExerciseService {
     
     final DocumentSnapshot doc = await exerciseDoc.get();
     if (!doc.exists) {
-      await exerciseDoc.set({
+      await exerciseDoc.set(<String, Object>{
         'module': 'exercise',
         'createdAt': FieldValue.serverTimestamp(),
         'lastUpdated': FieldValue.serverTimestamp(),

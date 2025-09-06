@@ -13,7 +13,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
   
   bool _isSyncing = false;
   String _syncStatus = '';
-  List<String> _progressLogs = [];
+  List<String> _progressLogs = <String>[];
   Map<String, dynamic>? _syncStats;
   SyncResult? _lastSyncResult;
 
@@ -25,7 +25,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
 
   Future<void> _loadSyncStats() async {
     try {
-      final stats = await _syncService.getSyncStatistics();
+      final Map<String, dynamic> stats = await _syncService.getSyncStatistics();
       setState(() {
         _syncStats = stats;
       });
@@ -47,9 +47,9 @@ class _DataSyncPageState extends State<DataSyncPage> {
     });
 
     try {
-      final result = await _syncService.syncAllDataToCloud(
+      final SyncResult result = await _syncService.syncAllDataToCloud(
         forceSync: forceSync,
-        onProgress: (message) {
+        onProgress: (String message) {
           setState(() {
             _syncStatus = message;
             _progressLogs.add('${DateTime.now().toString().substring(11, 19)}: $message');
@@ -100,7 +100,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
     
     return Scaffold(
       appBar: AppBar(
@@ -113,16 +113,16 @@ class _DataSyncPageState extends State<DataSyncPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               // Sync Status Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Row(
-                        children: [
+                        children: <Widget>[
                           Icon(
                             _isSyncing ? Icons.sync : Icons.cloud_sync,
                             color: theme.colorScheme.primary,
@@ -144,7 +144,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
                         _syncStatus.isEmpty ? 'Ready to sync' : _syncStatus,
                         style: theme.textTheme.bodyMedium,
                       ),
-                      if (_lastSyncResult != null && _lastSyncResult!.errors.isNotEmpty) ...[
+                      if (_lastSyncResult != null && _lastSyncResult!.errors.isNotEmpty) ...<Widget>[
                         const SizedBox(height: 12),
                         Text(
                           'Errors (${_lastSyncResult!.errors.length}):',
@@ -153,7 +153,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        ...(_lastSyncResult!.errors.map((error) => Padding(
+                        ...(_lastSyncResult!.errors.map((String error) => Padding(
                           padding: const EdgeInsets.only(left: 8.0, top: 4.0),
                           child: Text(
                             '• $error',
@@ -176,9 +176,9 @@ class _DataSyncPageState extends State<DataSyncPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Row(
-                          children: [
+                          children: <Widget>[
                             Icon(
                               Icons.analytics,
                               color: theme.colorScheme.secondary,
@@ -203,7 +203,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: [
+                              children: <Widget>[
                                 Icon(Icons.check_circle, size: 16, color: Colors.green),
                                 const SizedBox(width: 4),
                                 Text(
@@ -223,7 +223,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: [
+                              children: <Widget>[
                                 Icon(Icons.warning, size: 16, color: Colors.orange),
                                 const SizedBox(width: 4),
                                 Text(
@@ -240,17 +240,17 @@ class _DataSyncPageState extends State<DataSyncPage> {
                             style: theme.textTheme.bodySmall,
                           ),
                         const SizedBox(height: 8),
-                        if (_syncStats!['localDataCounts'] != null) ...[
+                        if (_syncStats!['localDataCounts'] != null) ...<Widget>[
                           Text(
                             'Local Data Counts:',
                             style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
                           ...(_syncStats!['localDataCounts'] as Map<String, dynamic>).entries.map(
-                            (entry) => Padding(
+                            (MapEntry<String, dynamic> entry) => Padding(
                               padding: const EdgeInsets.only(left: 8.0, top: 2.0),
                               child: Row(
-                                children: [
+                                children: <Widget>[
                                   Text('• ${entry.key}: ', style: theme.textTheme.bodySmall),
                                   Text(
                                     '${entry.value}',
@@ -272,7 +272,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
 
               // Action Buttons
               Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _isSyncing ? null : () => _performSync(forceSync: false),
@@ -320,9 +320,9 @@ class _DataSyncPageState extends State<DataSyncPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: <Widget>[
                         Row(
-                          children: [
+                          children: <Widget>[
                             Icon(
                               Icons.list,
                               color: theme.colorScheme.tertiary,
@@ -340,7 +340,7 @@ class _DataSyncPageState extends State<DataSyncPage> {
                         Container(
                           height: 200,
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: theme.colorScheme.outline.withOpacity(0.3),
@@ -349,8 +349,8 @@ class _DataSyncPageState extends State<DataSyncPage> {
                           child: ListView.builder(
                             padding: const EdgeInsets.all(8),
                             itemCount: _progressLogs.length,
-                            itemBuilder: (context, index) {
-                              final log = _progressLogs[index];
+                            itemBuilder: (BuildContext context, int index) {
+                              final String log = _progressLogs[index];
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 1.0),
                                 child: Text(
@@ -375,9 +375,9 @@ class _DataSyncPageState extends State<DataSyncPage> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Row(
-                        children: [
+                        children: <Widget>[
                           Icon(
                             Icons.help_outline,
                             color: theme.colorScheme.primary,

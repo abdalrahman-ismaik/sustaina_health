@@ -87,9 +87,9 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
 
   @override
   Widget build(BuildContext context) {
-    final workoutPlansAsync = ref.watch(workoutPlansStreamProvider);
-    final syncStatus = ref.watch(syncStatusProvider);
-    final isSyncing = ref.watch(isSyncingProvider);
+    final AsyncValue<List<SavedWorkoutPlan>> workoutPlansAsync = ref.watch(workoutPlansStreamProvider);
+    final AsyncValue<Map<String, int>> syncStatus = ref.watch(syncStatusProvider);
+    final bool isSyncing = ref.watch(isSyncingProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -105,7 +105,7 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
             }
           },
         ),
-        actions: [
+        actions: <Widget>[
           IconButton(
             icon: Icon(
               isSyncing ? Icons.sync : Icons.refresh,
@@ -145,7 +145,7 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
         ? const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              children: <Widget>[
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
                 Text('Loading demo...'),
@@ -156,7 +156,7 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Firestore Debug Panel - First for easy access
             const FirestoreDebugPanel(),
             
@@ -168,7 +168,7 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Migration Status',
                       style: Theme.of(context).textTheme.titleLarge,
@@ -177,7 +177,7 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
                     Text(_migrationStatus),
                     const SizedBox(height: 16),
                     Row(
-                      children: [
+                      children: <Widget>[
                         ElevatedButton(
                           onPressed: _isMigrating ? null : _performMigration,
                           child: _isMigrating
@@ -213,20 +213,20 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Sync Status',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     syncStatus.when(
-                      data: (status) {
+                      data: (Map<String, int> status) {
                         if (status.isEmpty) {
                           return const Text('No sync data available');
                         }
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             Text('Total: ${status['total'] ?? 0}'),
                             Text('Synced: ${status['synced'] ?? 0}'),
                             Text('Pending: ${status['pending'] ?? 0}'),
@@ -234,7 +234,7 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
                         );
                       },
                       loading: () => const Row(
-                        children: [
+                        children: <Widget>[
                           SizedBox(
                             width: 16,
                             height: 16,
@@ -244,12 +244,12 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
                           Text('Loading sync status...'),
                         ],
                       ),
-                      error: (error, _) => Text(
+                      error: (Object error, _) => Text(
                         'Error loading sync status: $error',
                         style: TextStyle(color: Colors.red[700]),
                       ),
                     ),
-                    if (isSyncing) ...[
+                    if (isSyncing) ...<Widget>[
                       const SizedBox(height: 8),
                       const LinearProgressIndicator(),
                       const Text('Syncing...'),
@@ -270,12 +270,12 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
 
             Expanded(
               child: workoutPlansAsync.when(
-                data: (workouts) {
+                data: (List<SavedWorkoutPlan> workouts) {
                   if (workouts.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                        children: <Widget>[
                           Icon(
                             Icons.fitness_center,
                             size: 64,
@@ -302,19 +302,19 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
                   
                   return ListView.builder(
                     itemCount: workouts.length,
-                    itemBuilder: (context, index) {
-                      final workout = workouts[index];
+                    itemBuilder: (BuildContext context, int index) {
+                      final SavedWorkoutPlan workout = workouts[index];
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
                           title: Text(workout.name),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                            children: <Widget>[
                               Text('Created: ${workout.createdAt.toString().split('.')[0]}'),
                               Text('Last Updated: ${workout.lastUpdated.toString().split('.')[0]}'),
                               Row(
-                                children: [
+                                children: <Widget>[
                                   Icon(
                                     workout.isSynced ? Icons.cloud_done : Icons.cloud_off,
                                     size: 16,
@@ -333,7 +333,7 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: [
+                            children: <Widget>[
                               IconButton(
                                 icon: Icon(
                                   workout.isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -362,17 +362,17 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
                 loading: () => const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: <Widget>[
                       CircularProgressIndicator(),
                       SizedBox(height: 16),
                       Text('Loading workouts...'),
                     ],
                   ),
                 ),
-                error: (error, stack) => Center(
+                error: (Object error, StackTrace stack) => Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: <Widget>[
                       Icon(
                         Icons.error_outline,
                         size: 64,
@@ -426,10 +426,10 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
   void _showDeleteConfirmation(BuildContext context, SavedWorkoutPlan workout) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         title: const Text('Delete Workout'),
         content: Text('Are you sure you want to delete "${workout.name}"?'),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
@@ -448,7 +448,7 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
 
   void _createSampleWorkout() async {
     try {
-      final workoutPlan = WorkoutPlan(
+      final WorkoutPlan workoutPlan = WorkoutPlan(
         warmup: const WorkoutComponent(
           description: 'Light cardio and dynamic stretching',
           duration: 10,
@@ -458,9 +458,9 @@ class _HybridWorkoutExampleState extends ConsumerState<HybridWorkoutExample> {
           duration: 15,
         ),
         sessionsPerWeek: 3,
-        workoutSessions: [
+        workoutSessions: <WorkoutSession>[
           WorkoutSession(
-            exercises: [
+            exercises: <Exercise>[
               const Exercise(name: 'Push-ups', sets: 3, reps: '10-15', rest: 60),
               const Exercise(name: 'Pull-ups', sets: 3, reps: '5-10', rest: 90),
               const Exercise(name: 'Squats', sets: 3, reps: '15-20', rest: 60),

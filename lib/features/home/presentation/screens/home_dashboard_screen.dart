@@ -10,6 +10,7 @@ import 'package:ghiraas/features/exercise/data/models/workout_models.dart';
 import 'package:ghiraas/features/nutrition/presentation/providers/nutrition_providers.dart';
 import 'package:ghiraas/features/sleep/presentation/providers/sleep_providers.dart';
 import 'package:ghiraas/features/nutrition/data/models/nutrition_models.dart';
+import '../widgets/mcp_command_chat.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
   const HomeDashboardScreen({Key? key}) : super(key: key);
@@ -324,6 +325,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           ),
         ],
       ),
+      // AI Assistant Floating Action Button
+      floatingActionButton: _buildAIAssistantFAB(context, cs, isDark),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -1373,6 +1377,85 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     } else {
       return 'evening';
     }
+  }
+
+  Widget _buildAIAssistantFAB(BuildContext context, ColorScheme cs, bool isDark) {
+    return AnimatedBuilder(
+      animation: _floatingAnimationController,
+      builder: (BuildContext context, Widget? child) {
+        final double floatOffset = math.sin(_floatingAnimation.value * 2 * math.pi) * 2;
+        
+        return Transform.translate(
+          offset: Offset(0, floatOffset),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  cs.primary,
+                  cs.primary.withValues(alpha: 0.8),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: cs.primary.withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _showMCPCommandChat(context),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Main AI icon
+                      Icon(
+                        Icons.smart_toy_outlined,
+                        size: 28,
+                        color: cs.onPrimary,
+                      ),
+                      // Simple active indicator
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4CAF50),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showMCPCommandChat(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      builder: (BuildContext context) => const MCPCommandChat(),
+    );
   }
 
   // Calculate numeric streak (days) from completed workouts list

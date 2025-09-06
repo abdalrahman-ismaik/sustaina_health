@@ -5,7 +5,7 @@ class ProfileAchievementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     final List<_AchievementCategory> categories = <_AchievementCategory>[
       _AchievementCategory(
@@ -109,18 +109,18 @@ class ProfileAchievementsScreen extends StatelessWidget {
                       SnackBar(
                         content:
                             Text('Badge ${i + 1}: Achievement details (mock)'),
-                        backgroundColor: colorScheme.surfaceVariant,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
                       ),
                     );
                   },
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: colorScheme.surfaceVariant.withOpacity(0.3),
+                      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
                       border: Border.all(
                         color: colorScheme.outline.withOpacity(0.15),
                       ),
-                      boxShadow: [
+                      boxShadow: <BoxShadow>[
                         BoxShadow(
                           color: colorScheme.shadow.withOpacity(0.08),
                           blurRadius: 12,
@@ -160,16 +160,16 @@ class _AchievementCategory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: colorScheme.outline.withOpacity(0.15),
         ),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: colorScheme.shadow.withOpacity(0.08),
             blurRadius: 12,

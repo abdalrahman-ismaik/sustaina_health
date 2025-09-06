@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ghiraas/features/exercise/data/models/workout_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
@@ -34,20 +35,20 @@ class DataSyncService {
 
   /// Check if initial data sync has been completed
   Future<bool> hasCompletedInitialSync() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_syncStatusKey) ?? false;
   }
 
   /// Get last sync timestamp
   Future<DateTime?> getLastSyncTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final timestamp = prefs.getInt(_lastSyncKey);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int? timestamp = prefs.getInt(_lastSyncKey);
     return timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
   }
 
   /// Mark initial sync as completed
   Future<void> _markSyncCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_syncStatusKey, true);
     await prefs.setInt(_lastSyncKey, DateTime.now().millisecondsSinceEpoch);
   }
@@ -61,7 +62,7 @@ class DataSyncService {
       return SyncResult(
         success: false,
         message: 'User not signed in',
-        details: {},
+        details: <String, dynamic>{},
       );
     }
 
@@ -70,7 +71,7 @@ class DataSyncService {
       return SyncResult(
         success: false,
         message: 'Sync already in progress',
-        details: {},
+        details: <String, dynamic>{},
       );
     }
 
@@ -79,14 +80,14 @@ class DataSyncService {
       return SyncResult(
         success: true,
         message: 'Data already synced',
-        details: {},
+        details: <String, dynamic>{},
       );
     }
 
     _isSyncInProgress = true; // Set sync lock
     
-    final syncDetails = <String, dynamic>{};
-    final errors = <String>[];
+    final Map<String, dynamic> syncDetails = <String, dynamic>{};
+    final List<String> errors = <String>[];
 
     try {
       onProgress?.call('Starting comprehensive data sync...');
@@ -94,11 +95,11 @@ class DataSyncService {
       // 1. Sync Exercise/Workout Data
       onProgress?.call('📋 Syncing workout data...');
       try {
-        final workoutResult = await _syncWorkoutData();
+        final Map<String, dynamic> workoutResult = await _syncWorkoutData();
         syncDetails['workouts'] = workoutResult;
         onProgress?.call('✅ Workout data synced: ${workoutResult['count']} items');
       } catch (e) {
-        final error = 'Failed to sync workout data: $e';
+        final String error = 'Failed to sync workout data: $e';
         errors.add(error);
         onProgress?.call('❌ $error');
       }
@@ -106,11 +107,11 @@ class DataSyncService {
       // 2. Sync Nutrition Data
       onProgress?.call('🥗 Syncing nutrition data...');
       try {
-        final nutritionResult = await _syncNutritionData();
+        final Map<String, dynamic> nutritionResult = await _syncNutritionData();
         syncDetails['nutrition'] = nutritionResult;
         onProgress?.call('✅ Nutrition data synced: ${nutritionResult['totalItems']} items');
       } catch (e) {
-        final error = 'Failed to sync nutrition data: $e';
+        final String error = 'Failed to sync nutrition data: $e';
         errors.add(error);
         onProgress?.call('❌ $error');
       }
@@ -118,11 +119,11 @@ class DataSyncService {
       // 3. Sync Sleep Data
       onProgress?.call('😴 Syncing sleep data...');
       try {
-        final sleepResult = await _syncSleepData();
+        final Map<String, dynamic> sleepResult = await _syncSleepData();
         syncDetails['sleep'] = sleepResult;
         onProgress?.call('✅ Sleep data synced: ${sleepResult['totalItems']} items');
       } catch (e) {
-        final error = 'Failed to sync sleep data: $e';
+        final String error = 'Failed to sync sleep data: $e';
         errors.add(error);
         onProgress?.call('❌ $error');
       }
@@ -130,11 +131,11 @@ class DataSyncService {
       // 4. Sync Profile Data
       onProgress?.call('👤 Syncing profile data...');
       try {
-        final profileResult = await _syncProfileData();
+        final Map<String, dynamic> profileResult = await _syncProfileData();
         syncDetails['profile'] = profileResult;
         onProgress?.call('✅ Profile data synced');
       } catch (e) {
-        final error = 'Failed to sync profile data: $e';
+        final String error = 'Failed to sync profile data: $e';
         errors.add(error);
         onProgress?.call('❌ $error');
       }
@@ -162,7 +163,7 @@ class DataSyncService {
         success: false,
         message: 'Sync failed: $e',
         details: syncDetails,
-        errors: [...errors, e.toString()],
+        errors: <String>[...errors, e.toString()],
       );
     } finally {
       _isSyncInProgress = false; // Release sync lock
@@ -174,26 +175,26 @@ class DataSyncService {
     // Force sync all pending workout data
     await _workoutRepo.forceSyncAll();
     
-    final workouts = await _workoutRepo.getSavedWorkoutPlans();
-    return {
+    final List<SavedWorkoutPlan> workouts = await _workoutRepo.getSavedWorkoutPlans();
+    return <String, dynamic>{
       'count': workouts.length,
-      'synced': workouts.where((w) => w.isSynced).length,
-      'pending': workouts.where((w) => !w.isSynced).length,
+      'synced': workouts.where((SavedWorkoutPlan w) => w.isSynced).length,
+      'pending': workouts.where((SavedWorkoutPlan w) => !w.isSynced).length,
     };
   }
 
   /// Sync nutrition data to Nutrition module
   Future<Map<String, dynamic>> _syncNutritionData() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     int totalSynced = 0;
 
     // Sync food log entries (cloud only - don't re-save to local)
-    final foodLogJson = prefs.getStringList('food_log_entries') ?? [];
+    final List<String> foodLogJson = prefs.getStringList('food_log_entries') ?? <String>[];
     int foodLogSynced = 0;
-    for (final entryJson in foodLogJson) {
+    for (final String entryJson in foodLogJson) {
       try {
         final entryData = jsonDecode(entryJson);
-        final entry = FoodLogEntry.fromJson(entryData);
+        final FoodLogEntry entry = FoodLogEntry.fromJson(entryData);
         
         // Only sync to cloud, don't re-save to local storage
         await _nutritionRepo.syncFoodLogEntryToCloudOnly(entry);
@@ -204,12 +205,12 @@ class DataSyncService {
     }
 
     // Sync saved meal plans (cloud only - don't re-save to local)
-    final mealPlansJson = prefs.getStringList('saved_meal_plans') ?? [];
+    final List<String> mealPlansJson = prefs.getStringList('saved_meal_plans') ?? <String>[];
     int mealPlansSynced = 0;
-    for (final planJson in mealPlansJson) {
+    for (final String planJson in mealPlansJson) {
       try {
         final planData = jsonDecode(planJson);
-        final plan = SavedMealPlan.fromJson(planData);
+        final SavedMealPlan plan = SavedMealPlan.fromJson(planData);
         
         // Only sync to cloud, don't re-save to local storage
         await _nutritionRepo.syncMealPlanToCloudOnly(plan.mealPlan, plan.name);
@@ -221,7 +222,7 @@ class DataSyncService {
 
     totalSynced = foodLogSynced + mealPlansSynced;
 
-    return {
+    return <String, dynamic>{
       'totalItems': totalSynced,
       'foodLogEntries': foodLogSynced,
       'mealPlans': mealPlansSynced,
@@ -233,17 +234,17 @@ class DataSyncService {
     // The sleep service should automatically sync when we call these methods
     await _sleepService.syncToCloud();
 
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     
     // Count items from local storage
-    final sessions = prefs.getStringList('sleep_sessions') ?? [];
-    final goals = prefs.getStringList('sleep_goals') ?? [];
-    final reminders = prefs.getStringList('sleep_reminders') ?? [];
-    final insights = prefs.getStringList('sleep_insights') ?? [];
+    final List<String> sessions = prefs.getStringList('sleep_sessions') ?? <String>[];
+    final List<String> goals = prefs.getStringList('sleep_goals') ?? <String>[];
+    final List<String> reminders = prefs.getStringList('sleep_reminders') ?? <String>[];
+    final List<String> insights = prefs.getStringList('sleep_insights') ?? <String>[];
 
-    final totalItems = sessions.length + goals.length + reminders.length + insights.length;
+    final int totalItems = sessions.length + goals.length + reminders.length + insights.length;
 
-    return {
+    return <String, dynamic>{
       'totalItems': totalItems,
       'sessions': sessions.length,
       'goals': goals.length,
@@ -257,7 +258,7 @@ class DataSyncService {
     // Sync to cloud using the hybrid profile service
     await _profileService.syncToCloud();
 
-    return {
+    return <String, dynamic>{
       'profileSynced': true,
       'timestamp': DateTime.now().toIso8601String(),
     };
@@ -271,24 +272,24 @@ class DataSyncService {
   /// Get sync statistics
   Future<Map<String, dynamic>> getSyncStatistics() async {
     if (!_isUserSignedIn) {
-      return {'error': 'User not signed in'};
+      return <String, dynamic>{'error': 'User not signed in'};
     }
 
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     
     // Get local data counts
-    final foodLogEntries = prefs.getStringList('food_log_entries') ?? [];
-    final mealPlans = prefs.getStringList('saved_meal_plans') ?? [];
-    final sleepSessions = prefs.getStringList('sleep_sessions') ?? [];
-    final workouts = await _workoutRepo.getSavedWorkoutPlans();
+    final List<String> foodLogEntries = prefs.getStringList('food_log_entries') ?? <String>[];
+    final List<String> mealPlans = prefs.getStringList('saved_meal_plans') ?? <String>[];
+    final List<String> sleepSessions = prefs.getStringList('sleep_sessions') ?? <String>[];
+    final List<SavedWorkoutPlan> workouts = await _workoutRepo.getSavedWorkoutPlans();
     
-    final lastSync = await getLastSyncTime();
-    final hasCompleted = await hasCompletedInitialSync();
+    final DateTime? lastSync = await getLastSyncTime();
+    final bool hasCompleted = await hasCompletedInitialSync();
 
-    return {
+    return <String, dynamic>{
       'hasCompletedInitialSync': hasCompleted,
       'lastSyncTime': lastSync?.toIso8601String(),
-      'localDataCounts': {
+      'localDataCounts': <String, int>{
         'workouts': workouts.length,
         'foodLogEntries': foodLogEntries.length,
         'mealPlans': mealPlans.length,
@@ -310,7 +311,7 @@ class SyncResult {
     required this.success,
     required this.message,
     required this.details,
-    this.errors = const [],
+    this.errors = const <String>[],
   });
 
   @override

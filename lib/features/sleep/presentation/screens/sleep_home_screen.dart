@@ -168,7 +168,7 @@ class SleepHomeScreen extends ConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
@@ -375,7 +375,7 @@ class SleepHomeScreen extends ConsumerWidget {
                 return Container(
                   height: 200,
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceVariant,
+                    color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -493,7 +493,7 @@ class SleepHomeScreen extends ConsumerWidget {
             loading: () => Container(
               height: 200,
               decoration: BoxDecoration(
-                color: colorScheme.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -505,7 +505,7 @@ class SleepHomeScreen extends ConsumerWidget {
             error: (Object error, StackTrace stack) => Container(
               height: 200,
               decoration: BoxDecoration(
-                color: colorScheme.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -606,7 +606,7 @@ class SleepHomeScreen extends ConsumerWidget {
                 return Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceVariant,
+                    color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
                   ),
@@ -643,7 +643,7 @@ class SleepHomeScreen extends ConsumerWidget {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceVariant,
+                  color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
                 ),
@@ -706,7 +706,7 @@ class SleepHomeScreen extends ConsumerWidget {
             loading: () => Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -718,7 +718,7 @@ class SleepHomeScreen extends ConsumerWidget {
             error: (Object error, StackTrace stack) => Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -847,7 +847,7 @@ class SleepHomeScreen extends ConsumerWidget {
             loading: () => Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -859,7 +859,7 @@ class SleepHomeScreen extends ConsumerWidget {
             error: (Object error, StackTrace stack) => Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -890,7 +890,7 @@ class SleepHomeScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: color.withOpacity(0.3),

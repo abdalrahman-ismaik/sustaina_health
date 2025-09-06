@@ -25,9 +25,9 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDark
-              ? [cs.surface, cs.surfaceContainerHighest]
-              : [cs.primary.withOpacity(0.05), cs.secondary.withOpacity(0.05)],
-            stops: const [0.0, 1.0],
+              ? <Color>[cs.surface, cs.surfaceContainerHighest]
+              : <Color>[cs.primary.withOpacity(0.05), cs.secondary.withOpacity(0.05)],
+            stops: const <double>[0.0, 1.0],
           ),
         ),
         child: SafeArea(
@@ -49,13 +49,13 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [
+                            colors: <Color>[
                               cs.primaryContainer.withOpacity(0.8),
                               cs.secondaryContainer.withOpacity(0.8),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
+                          boxShadow: <BoxShadow>[
                             BoxShadow(
                               color: cs.shadow.withOpacity(0.1),
                               blurRadius: 20,
@@ -64,7 +64,7 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                           ],
                         ),
                         child: Stack(
-                          children: [
+                          children: <Widget>[
                             // Lottie background animation
                             Positioned.fill(
                               child: Lottie.asset(
@@ -83,9 +83,9 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                                     tween: Tween<double>(begin: 0.0, end: 1.0),
                                     duration: const Duration(milliseconds: 1500),
                                     curve: Curves.elasticOut,
-                                    builder: (context, double value, child) {
+                                    builder: (BuildContext context, double value, Widget? child) {
                                       // Clamp value to ensure it's within valid range
-                                      final clampedValue = value.clamp(0.0, 1.0);
+                                      final double clampedValue = value.clamp(0.0, 1.0);
                                       return Transform.scale(
                                         scale: clampedValue,
                                         child: Opacity(
@@ -95,7 +95,7 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                                             decoration: BoxDecoration(
                                               color: cs.surface.withOpacity(0.9),
                                               borderRadius: BorderRadius.circular(20),
-                                              boxShadow: [
+                                              boxShadow: <BoxShadow>[
                                                 BoxShadow(
                                                   color: cs.shadow.withOpacity(0.2),
                                                   blurRadius: 15,
@@ -123,10 +123,10 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                                       border: Border.all(color: cs.primary.withOpacity(0.2)),
                                     ),
                                     child: Column(
-                                      children: [
+                                      children: <Widget>[
                                         ShaderMask(
-                                          shaderCallback: (bounds) => LinearGradient(
-                                            colors: [cs.primary, cs.secondary],
+                                          shaderCallback: (Rect bounds) => LinearGradient(
+                                            colors: <Color>[cs.primary, cs.secondary],
                                           ).createShader(bounds),
                                           child: Text(
                                             'Ghiraas',
@@ -198,16 +198,16 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
-                  children: [
+                  children: <Widget>[
                     Container(
                       width: double.infinity,
                       height: 56,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [cs.primary, cs.secondary],
+                          colors: <Color>[cs.primary, cs.secondary],
                         ),
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
+                        boxShadow: <BoxShadow>[
                           BoxShadow(
                             color: cs.primary.withOpacity(0.3),
                             blurRadius: 12,
@@ -226,7 +226,7 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.rocket_launch, color: cs.onPrimary),
                             const SizedBox(width: 12),
                             Text(
@@ -258,20 +258,20 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
   }
   
   Widget _buildFeatureHighlights(BuildContext context, ColorScheme cs) {
-    final features = [
-      {
+    final List<Map<String, Object>> features = <Map<String, Object>>[
+      <String, Object>{
         'icon': Icons.psychology,
         'title': 'AI-Powered',
         'subtitle': 'Smart recommendations',
         'color': cs.primary,
       },
-      {
+      <String, Object>{
         'icon': Icons.eco,
         'title': 'Sustainable',
         'subtitle': 'Eco-friendly choices',
         'color': cs.secondary,
       },
-      {
+      <String, Object>{
         'icon': Icons.trending_up,
         'title': 'Personalized',
         'subtitle': 'Tailored for you',
@@ -280,16 +280,16 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
     ];
 
     return Row(
-      children: features.map((feature) {
-        int index = features.indexOf(feature);
+      children: features.map((Map<String, Object> feature) {
+        final int index = features.indexOf(feature);
         return Expanded(
           child: TweenAnimationBuilder(
             tween: Tween<double>(begin: 0.0, end: 1.0),
             duration: Duration(milliseconds: 800 + (index * 200)),
             curve: Curves.elasticOut,
-            builder: (context, double value, child) {
+            builder: (BuildContext context, double value, Widget? child) {
               // Clamp value to ensure it's within valid range
-              final clampedValue = value.clamp(0.0, 1.0);
+              final double clampedValue = value.clamp(0.0, 1.0);
               return Transform.scale(
                 scale: clampedValue,
                 child: Opacity(
@@ -301,7 +301,7 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                       color: cs.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: (feature['color'] as Color).withOpacity(0.2)),
-                      boxShadow: [
+                      boxShadow: <BoxShadow>[
                         BoxShadow(
                           color: (feature['color'] as Color).withOpacity(0.1),
                           blurRadius: 8,
@@ -310,7 +310,7 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                       ],
                     ),
                     child: Column(
-                      children: [
+                      children: <Widget>[
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(

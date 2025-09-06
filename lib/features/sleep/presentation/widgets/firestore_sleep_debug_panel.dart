@@ -25,13 +25,13 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+          children: <Widget>[
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Sleep Session Tests',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -63,7 +63,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Sleep Goal Tests',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -87,7 +87,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Sleep Reminder Tests',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -111,7 +111,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Sleep Insight Tests',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -135,7 +135,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Analytics Tests',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -159,7 +159,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Cleanup Tests',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -176,14 +176,14 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
             ),
             const SizedBox(height: 24),
             if (_isLoading) const CircularProgressIndicator(),
-            if (_result.isNotEmpty) ...[
+            if (_result.isNotEmpty) ...<Widget>[
               const SizedBox(height: 16),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Text(
                         'Result:',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -238,7 +238,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
     try {
       await _sleepService.ensureUserDocumentExists();
 
-      final testSession = SleepSession(
+      final SleepSession testSession = SleepSession(
         id: 'test_session_${DateTime.now().millisecondsSinceEpoch}',
         startTime: DateTime.now().subtract(const Duration(hours: 8)),
         endTime: DateTime.now(),
@@ -281,8 +281,8 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
   Future<void> _getAllSleepSessions() async {
     _setLoading();
     try {
-      final sessions = await _sleepService.getSleepSessions(limit: 10);
-      _updateResult('Found ${sessions.length} sleep sessions:\n\n${sessions.map((s) => 'ID: ${s.id}\nDate: ${s.startTime}\nQuality: ${s.sleepQuality}/10\nMood: ${s.mood}\nDuration: ${s.totalDuration.inHours}h ${s.totalDuration.inMinutes % 60}m\n').join('\n')}');
+      final List<SleepSession> sessions = await _sleepService.getSleepSessions(limit: 10);
+      _updateResult('Found ${sessions.length} sleep sessions:\n\n${sessions.map((SleepSession s) => 'ID: ${s.id}\nDate: ${s.startTime}\nQuality: ${s.sleepQuality}/10\nMood: ${s.mood}\nDuration: ${s.totalDuration.inHours}h ${s.totalDuration.inMinutes % 60}m\n').join('\n')}');
     } catch (e) {
       _updateResult('Error getting sleep sessions: $e');
     }
@@ -291,10 +291,10 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
   Future<void> _getRecentSleepSessions() async {
     _setLoading();
     try {
-      final endDate = DateTime.now();
-      final startDate = endDate.subtract(const Duration(days: 7));
-      final sessions = await _sleepService.getSleepSessionsForDateRange(startDate, endDate);
-      _updateResult('Found ${sessions.length} sleep sessions in the last 7 days:\n\n${sessions.map((s) => 'Date: ${s.startTime.toString().split(' ')[0]}\nQuality: ${s.sleepQuality}/10\nDuration: ${s.totalDuration.inHours}h ${s.totalDuration.inMinutes % 60}m\n').join('\n')}');
+      final DateTime endDate = DateTime.now();
+      final DateTime startDate = endDate.subtract(const Duration(days: 7));
+      final List<SleepSession> sessions = await _sleepService.getSleepSessionsForDateRange(startDate, endDate);
+      _updateResult('Found ${sessions.length} sleep sessions in the last 7 days:\n\n${sessions.map((SleepSession s) => 'Date: ${s.startTime.toString().split(' ')[0]}\nQuality: ${s.sleepQuality}/10\nDuration: ${s.totalDuration.inHours}h ${s.totalDuration.inMinutes % 60}m\n').join('\n')}');
     } catch (e) {
       _updateResult('Error getting recent sleep sessions: $e');
     }
@@ -303,9 +303,9 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
   Future<void> _watchSleepSessions() async {
     _setLoading();
     try {
-      final stream = _sleepService.watchSleepSessions();
-      final sessions = await stream.first;
-      _updateResult('Real-time stream connected! Found ${sessions.length} sleep sessions:\n\n${sessions.map((s) => 'ID: ${s.id}\nDate: ${s.startTime}\nQuality: ${s.sleepQuality}/10\n').join('\n')}');
+      final Stream<List<SleepSession>> stream = _sleepService.watchSleepSessions();
+      final List<SleepSession> sessions = await stream.first;
+      _updateResult('Real-time stream connected! Found ${sessions.length} sleep sessions:\n\n${sessions.map((SleepSession s) => 'ID: ${s.id}\nDate: ${s.startTime}\nQuality: ${s.sleepQuality}/10\n').join('\n')}');
     } catch (e) {
       _updateResult('Error watching sleep sessions: $e');
     }
@@ -317,7 +317,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
     try {
       await _sleepService.ensureUserDocumentExists();
 
-      final testGoal = SleepGoal(
+      final SleepGoal testGoal = SleepGoal(
         id: 'test_goal_${DateTime.now().millisecondsSinceEpoch}',
         targetBedtime: const TimeOfDay(hour: 22, minute: 30),
         targetWakeTime: const TimeOfDay(hour: 6, minute: 30),
@@ -337,8 +337,8 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
   Future<void> _getAllSleepGoals() async {
     _setLoading();
     try {
-      final goals = await _sleepService.getSleepGoals();
-      _updateResult('Found ${goals.length} sleep goals:\n\n${goals.map((g) => 'ID: ${g.id}\nBedtime: ${g.targetBedtime.format(context)}\nWake time: ${g.targetWakeTime.format(context)}\nTarget duration: ${g.targetDuration.inHours}h\nTarget quality: ${g.targetQuality}\nReminder enabled: ${g.reminderEnabled}\n').join('\n')}');
+      final List<SleepGoal> goals = await _sleepService.getSleepGoals();
+      _updateResult('Found ${goals.length} sleep goals:\n\n${goals.map((SleepGoal g) => 'ID: ${g.id}\nBedtime: ${g.targetBedtime.format(context)}\nWake time: ${g.targetWakeTime.format(context)}\nTarget duration: ${g.targetDuration.inHours}h\nTarget quality: ${g.targetQuality}\nReminder enabled: ${g.reminderEnabled}\n').join('\n')}');
     } catch (e) {
       _updateResult('Error getting sleep goals: $e');
     }
@@ -350,12 +350,12 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
     try {
       await _sleepService.ensureUserDocumentExists();
 
-      final testReminder = SleepReminder(
+      final SleepReminder testReminder = SleepReminder(
         id: 'test_reminder_${DateTime.now().millisecondsSinceEpoch}',
         message: 'Time to start winding down for bed!',
         time: const TimeOfDay(hour: 21, minute: 30),
         enabled: true,
-        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        days: <String>['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
         createdAt: DateTime.now(),
       );
 
@@ -369,8 +369,8 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
   Future<void> _getAllSleepReminders() async {
     _setLoading();
     try {
-      final reminders = await _sleepService.getSleepReminders();
-      _updateResult('Found ${reminders.length} sleep reminders:\n\n${reminders.map((r) => 'ID: ${r.id}\nMessage: ${r.message}\nTime: ${r.time.format(context)}\nEnabled: ${r.enabled}\nDays: ${r.days.join(', ')}\n').join('\n')}');
+      final List<SleepReminder> reminders = await _sleepService.getSleepReminders();
+      _updateResult('Found ${reminders.length} sleep reminders:\n\n${reminders.map((SleepReminder r) => 'ID: ${r.id}\nMessage: ${r.message}\nTime: ${r.time.format(context)}\nEnabled: ${r.enabled}\nDays: ${r.days.join(', ')}\n').join('\n')}');
     } catch (e) {
       _updateResult('Error getting sleep reminders: $e');
     }
@@ -382,13 +382,13 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
     try {
       await _sleepService.ensureUserDocumentExists();
 
-      final testInsight = SleepInsight(
+      final SleepInsight testInsight = SleepInsight(
         id: 'test_insight_${DateTime.now().millisecondsSinceEpoch}',
         type: SleepInsightType.quality,
         title: 'Sleep Quality Insight',
         description: 'Your sleep quality improves when you maintain consistent bedtimes.',
         impact: 0.75,
-        recommendations: [
+        recommendations: <String>[
           'Try to go to bed at the same time each night for better sleep quality.',
           'Maintain a cool room temperature for better deep sleep.',
           'Limit screen time before bed to improve sleep onset.',
@@ -406,8 +406,8 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
   Future<void> _getAllSleepInsights() async {
     _setLoading();
     try {
-      final insights = await _sleepService.getSleepInsights();
-      _updateResult('Found ${insights.length} sleep insights:\n\n${insights.map((i) => 'ID: ${i.id}\nType: ${i.type.name}\nTitle: ${i.title}\nImpact: ${i.impact}\nRecommendations: ${i.recommendations.length}\nCreated: ${i.createdAt.toString().split(' ')[0]}\n').join('\n')}');
+      final List<SleepInsight> insights = await _sleepService.getSleepInsights();
+      _updateResult('Found ${insights.length} sleep insights:\n\n${insights.map((SleepInsight i) => 'ID: ${i.id}\nType: ${i.type.name}\nTitle: ${i.title}\nImpact: ${i.impact}\nRecommendations: ${i.recommendations.length}\nCreated: ${i.createdAt.toString().split(' ')[0]}\n').join('\n')}');
     } catch (e) {
       _updateResult('Error getting sleep insights: $e');
     }
@@ -417,14 +417,14 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
   Future<void> _getSleepAnalytics() async {
     _setLoading();
     try {
-      final endDate = DateTime.now();
-      final startDate = endDate.subtract(const Duration(days: 30));
-      final analytics = await _sleepService.getSleepAnalytics(
+      final DateTime endDate = DateTime.now();
+      final DateTime startDate = endDate.subtract(const Duration(days: 30));
+      final Map<String, dynamic> analytics = await _sleepService.getSleepAnalytics(
         startDate: startDate,
         endDate: endDate,
       );
 
-      final result = StringBuffer();
+      final StringBuffer result = StringBuffer();
       result.writeln('Sleep Analytics (Last 30 Days):');
       result.writeln('Total Sessions: ${analytics['totalSessions']}');
       result.writeln('Average Duration: ${analytics['averageDuration'].toStringAsFixed(1)} hours');
@@ -433,8 +433,8 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
       result.writeln('Consistency Score: ${(analytics['consistencyScore'] * 100).toStringAsFixed(1)}%');
       result.writeln('Sustainability Score: ${(analytics['sustainabilityScore'] * 100).toStringAsFixed(1)}%');
       result.writeln('\nMood Breakdown:');
-      final moodBreakdown = analytics['moodBreakdown'] as Map<String, int>;
-      for (final entry in moodBreakdown.entries) {
+      final Map<String, int> moodBreakdown = analytics['moodBreakdown'] as Map<String, int>;
+      for (final MapEntry<String, int> entry in moodBreakdown.entries) {
         result.writeln('  ${entry.key}: ${entry.value} sessions');
       }
 
@@ -447,11 +447,11 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
   Future<void> _searchSleepSessions() async {
     _setLoading();
     try {
-      final sessions = await _sleepService.searchSleepSessions(
+      final List<SleepSession> sessions = await _sleepService.searchSleepSessions(
         searchTerm: 'refreshed',
         limit: 5,
       );
-      _updateResult('Found ${sessions.length} sleep sessions containing "refreshed":\n\n${sessions.map((s) => 'Date: ${s.startTime.toString().split(' ')[0]}\nMood: ${s.mood}\nQuality: ${s.sleepQuality}/10\n').join('\n')}');
+      _updateResult('Found ${sessions.length} sleep sessions containing "refreshed":\n\n${sessions.map((SleepSession s) => 'Date: ${s.startTime.toString().split(' ')[0]}\nMood: ${s.mood}\nQuality: ${s.sleepQuality}/10\n').join('\n')}');
     } catch (e) {
       _updateResult('Error searching sleep sessions: $e');
     }
@@ -462,15 +462,15 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
     _setLoading();
     try {
       // Get all test data
-      final sessions = await _sleepService.getSleepSessions();
-      final goals = await _sleepService.getSleepGoals();
-      final reminders = await _sleepService.getSleepReminders();
-      final insights = await _sleepService.getSleepInsights();
+      final List<SleepSession> sessions = await _sleepService.getSleepSessions();
+      final List<SleepGoal> goals = await _sleepService.getSleepGoals();
+      final List<SleepReminder> reminders = await _sleepService.getSleepReminders();
+      final List<SleepInsight> insights = await _sleepService.getSleepInsights();
 
       int deletedCount = 0;
 
       // Delete test sleep sessions
-      for (final session in sessions) {
+      for (final SleepSession session in sessions) {
         if (session.id.startsWith('test_session_')) {
           await _sleepService.deleteSleepSession(session.id);
           deletedCount++;
@@ -478,7 +478,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
       }
 
       // Delete test sleep goals
-      for (final goal in goals) {
+      for (final SleepGoal goal in goals) {
         if (goal.id.startsWith('test_goal_')) {
           await _sleepService.deleteSleepGoal(goal.id);
           deletedCount++;
@@ -486,7 +486,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
       }
 
       // Delete test sleep reminders
-      for (final reminder in reminders) {
+      for (final SleepReminder reminder in reminders) {
         if (reminder.id.startsWith('test_reminder_')) {
           await _sleepService.deleteSleepReminder(reminder.id);
           deletedCount++;
@@ -494,7 +494,7 @@ class _FirestoreSleepDebugPanelState extends State<FirestoreSleepDebugPanel> {
       }
 
       // Delete test sleep insights
-      for (final insight in insights) {
+      for (final SleepInsight insight in insights) {
         if (insight.id.startsWith('test_insight_')) {
           await _sleepService.deleteSleepInsight(insight.id);
           deletedCount++;

@@ -37,7 +37,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => const NutritionInsightsScreen(),
+                builder: (BuildContext context) => const NutritionInsightsScreen(),
               ),
             );
           },

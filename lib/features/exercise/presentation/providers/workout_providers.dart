@@ -210,9 +210,9 @@ class SavedWorkoutPlansNotifier
 
 // Saved Workouts Provider (Updated - using hybrid storage)
 // Use the new hybrid repository providers instead
-final workoutPlansProvider = workoutPlansStreamProvider;
-final createWorkoutActionProvider = createWorkoutProvider; 
-final workoutOperationsProvider = workoutActionsProvider;
+final StreamProvider<List<SavedWorkoutPlan>> workoutPlansProvider = workoutPlansStreamProvider;
+final Provider<Future<String> Function(String p1, WorkoutPlan p2)> createWorkoutActionProvider = createWorkoutProvider; 
+final Provider<WorkoutActions> workoutOperationsProvider = workoutActionsProvider;
 
 // Active Workout Session Provider
 final StateNotifierProvider<ActiveWorkoutSessionNotifier, ActiveWorkoutSession?> activeWorkoutSessionProvider =

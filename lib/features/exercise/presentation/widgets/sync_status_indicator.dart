@@ -14,9 +14,9 @@ class SyncStatusIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final syncStatus = ref.watch(syncStatusProvider);
-    final isSyncing = ref.watch(isSyncingProvider);
-    final colorScheme = Theme.of(context).colorScheme;
+    final AsyncValue<Map<String, int>> syncStatus = ref.watch(syncStatusProvider);
+    final bool isSyncing = ref.watch(isSyncingProvider);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: onTap,
@@ -34,7 +34,7 @@ class SyncStatusIndicator extends ConsumerWidget {
           ),
         ),
         child: syncStatus.when(
-          data: (status) {
+          data: (Map<String, int> status) {
             final int pending = status['pending'] ?? 0;
             final int total = status['total'] ?? 0;
             final int synced = status['synced'] ?? 0;
@@ -64,10 +64,10 @@ class SyncStatusIndicator extends ConsumerWidget {
             if (showDetails) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
-                children: [
+                children: <Widget>[
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
+                    children: <Widget>[
                       Icon(
                         statusIcon,
                         size: 16,
@@ -87,7 +87,7 @@ class SyncStatusIndicator extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
+                    children: <Widget>[
                       Text(
                         '$synced/$total synced',
                         style: TextStyle(
@@ -95,7 +95,7 @@ class SyncStatusIndicator extends ConsumerWidget {
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      if (pending > 0) ...[
+                      if (pending > 0) ...<Widget>[
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -120,7 +120,7 @@ class SyncStatusIndicator extends ConsumerWidget {
             } else {
               return Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
+                children: <Widget>[
                   if (isSyncing)
                     SizedBox(
                       width: 12,
@@ -136,7 +136,7 @@ class SyncStatusIndicator extends ConsumerWidget {
                       size: 14,
                       color: statusColor,
                     ),
-                  if (showDetails || pending > 0) ...[
+                  if (showDetails || pending > 0) ...<Widget>[
                     const SizedBox(width: 4),
                     Text(
                       statusText,
@@ -153,7 +153,7 @@ class SyncStatusIndicator extends ConsumerWidget {
           },
           loading: () => Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               SizedBox(
                 width: 12,
                 height: 12,
@@ -162,7 +162,7 @@ class SyncStatusIndicator extends ConsumerWidget {
                   color: colorScheme.primary,
                 ),
               ),
-              if (showDetails) ...[
+              if (showDetails) ...<Widget>[
                 const SizedBox(width: 6),
                 Text(
                   'Loading...',
@@ -174,15 +174,15 @@ class SyncStatusIndicator extends ConsumerWidget {
               ],
             ],
           ),
-          error: (error, _) => Row(
+          error: (Object error, _) => Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               Icon(
                 Icons.error_outline,
                 size: 14,
                 color: colorScheme.error,
               ),
-              if (showDetails) ...[
+              if (showDetails) ...<Widget>[
                 const SizedBox(width: 4),
                 Text(
                   'Error',
@@ -205,8 +205,8 @@ class SyncActionButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSyncing = ref.watch(isSyncingProvider);
-    final colorScheme = Theme.of(context).colorScheme;
+    final bool isSyncing = ref.watch(isSyncingProvider);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return IconButton(
       icon: isSyncing

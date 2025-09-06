@@ -22,7 +22,7 @@ class AppInitializationService {
       if (migrationNeeded) {
         print('Workout migration needed. Starting migration...');
         
-        final result = await _migrationService.performFullMigration();
+        final MigrationResult result = await _migrationService.performFullMigration();
         
         if (result.success) {
           print('Migration completed successfully: ${result.message}');
@@ -64,18 +64,18 @@ class AppInitializationService {
 }
 
 // Provider for app initialization service
-final appInitializationServiceProvider = Provider<AppInitializationService>((ref) {
+final Provider<AppInitializationService> appInitializationServiceProvider = Provider<AppInitializationService>((ProviderRef<AppInitializationService> ref) {
   return AppInitializationService();
 });
 
 // Provider to track initialization state
-final appInitializationProvider = FutureProvider<void>((ref) async {
-  final service = ref.read(appInitializationServiceProvider);
+final FutureProvider<void> appInitializationProvider = FutureProvider<void>((FutureProviderRef<void> ref) async {
+  final AppInitializationService service = ref.read(appInitializationServiceProvider);
   await service.initialize();
 });
 
 // Provider for migration status (refreshable)
-final migrationStatusProvider = FutureProvider<MigrationStatus>((ref) async {
-  final service = ref.read(appInitializationServiceProvider);
+final FutureProvider<MigrationStatus> migrationStatusProvider = FutureProvider<MigrationStatus>((FutureProviderRef<MigrationStatus> ref) async {
+  final AppInitializationService service = ref.read(appInitializationServiceProvider);
   return await service.getMigrationStatus();
 });

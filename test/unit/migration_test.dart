@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ghiraas/features/exercise/data/services/workout_storage_migration_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../lib/core/services/app_initialization_service.dart';
 
@@ -12,7 +13,7 @@ void main() {
 
     test('should complete initialization without errors', () async {
       // Arrange
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues(<String, Object>{});
       
       // Act & Assert - should not throw
       await service.initialize();
@@ -21,11 +22,11 @@ void main() {
 
     test('should handle initialization state correctly', () async {
       // Arrange
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues(<String, Object>{});
       
       // Act
       await service.initialize();
-      final isInitialized = service.isInitialized;
+      final bool isInitialized = service.isInitialized;
       
       // Assert
       expect(isInitialized, isTrue);
@@ -33,10 +34,10 @@ void main() {
 
     test('should provide migration status', () async {
       // Arrange
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues(<String, Object>{});
       
       // Act
-      final status = await service.getMigrationStatus();
+      final MigrationStatus status = await service.getMigrationStatus();
       
       // Assert
       expect(status, isNotNull);

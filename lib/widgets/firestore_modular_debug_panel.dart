@@ -88,7 +88,7 @@ class _FirestoreModularDebugPanelState extends State<FirestoreModularDebugPanel>
     _setLoading('Testing all modules...');
     try {
       // Initialize all modules
-      await Future.wait([
+      await Future.wait(<Future<void>>[
         _exerciseService.ensureExerciseModuleExists(),
         _nutritionService.ensureNutritionModuleExists(),
         _sleepService.ensureSleepModuleExists(),
@@ -131,13 +131,13 @@ class _FirestoreModularDebugPanelState extends State<FirestoreModularDebugPanel>
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+          children: <Widget>[
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     const Text(
                       'New Modular Architecture',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -157,7 +157,7 @@ class _FirestoreModularDebugPanelState extends State<FirestoreModularDebugPanel>
             ),
             const SizedBox(height: 16),
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _testExerciseModule,
@@ -185,7 +185,7 @@ class _FirestoreModularDebugPanelState extends State<FirestoreModularDebugPanel>
             ),
             const SizedBox(height: 8),
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _testSleepModule,
@@ -229,14 +229,14 @@ class _FirestoreModularDebugPanelState extends State<FirestoreModularDebugPanel>
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: <Widget>[
                       Row(
-                        children: [
+                        children: <Widget>[
                           const Text(
                             'Status',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                          if (_isLoading) ...[
+                          if (_isLoading) ...<Widget>[
                             const SizedBox(width: 8),
                             const SizedBox(
                               width: 16,

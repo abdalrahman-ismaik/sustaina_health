@@ -32,7 +32,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           IconButton(
             icon: Icon(Icons.info_outline, color: cs.primary),
             onPressed: () => _showInsightsHelp(context),
@@ -40,13 +40,13 @@ class NutritionInsightsScreen extends ConsumerWidget {
         ],
       ),
       body: foodLogState.when(
-        data: (entries) => dailySummaryState.when(
-          data: (summary) => _buildInsightsContent(context, entries, summary, cs, isDark),
+        data: (List<FoodLogEntry> entries) => dailySummaryState.when(
+          data: (DailyNutritionSummary summary) => _buildInsightsContent(context, entries, summary, cs, isDark),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => _buildErrorState(context, 'Failed to load daily summary', cs),
+          error: (Object error, StackTrace stack) => _buildErrorState(context, 'Failed to load daily summary', cs),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => _buildErrorState(context, 'Failed to load food log data', cs),
+        error: (Object error, StackTrace stack) => _buildErrorState(context, 'Failed to load food log data', cs),
       ),
     );
   }
@@ -62,7 +62,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           // Today's Summary Card
           _buildTodaySummaryCard(summary, cs, isDark),
           const SizedBox(height: 20),
@@ -101,7 +101,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Icon(
               Icons.analytics_outlined,
               size: 80,
@@ -152,7 +152,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Icon(
               Icons.error_outline,
               size: 80,
@@ -191,16 +191,16 @@ class NutritionInsightsScreen extends ConsumerWidget {
     );
   }
           style: TextStyle(
-            color: Color(0xFF121714),
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            letterSpacing: -0.015,
+            color = Color(0xFF121714),
+            fontWeight = FontWeight.bold,
+            fontSize = 20,
+            letterSpacing = -0.015,
           ),
         ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        child: Padding(
+        child = Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

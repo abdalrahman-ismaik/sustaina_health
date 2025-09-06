@@ -37,7 +37,7 @@ class _FirestoreNutritionDebugPanelState
 
     try {
       // Check authentication
-      final user = FirebaseAuth.instance.currentUser;
+      final User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         if (mounted) {
           setState(() {
@@ -59,7 +59,7 @@ class _FirestoreNutritionDebugPanelState
       await FirebaseFirestore.instance
           .collection('nutrition_data')
           .doc('connection_test')
-          .set({'timestamp': DateTime.now().toIso8601String()});
+          .set(<String, dynamic>{'timestamp': DateTime.now().toIso8601String()});
 
       if (mounted) {
         setState(() {
@@ -86,7 +86,7 @@ class _FirestoreNutritionDebugPanelState
     }
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         if (mounted) {
           setState(() {
@@ -101,7 +101,7 @@ class _FirestoreNutritionDebugPanelState
       final DateTime now = DateTime.now();
 
       // Create a test food log entry
-      final testFoodLogEntry = FoodLogEntry(
+      final FoodLogEntry testFoodLogEntry = FoodLogEntry(
         id: 'test_${now.millisecondsSinceEpoch}',
         userId: user.uid,
         foodName: 'Test Food Item',
@@ -156,20 +156,20 @@ class _FirestoreNutritionDebugPanelState
       }
 
       // Create a test meal plan
-      final testMealPlan = MealPlanResponse(
+      final MealPlanResponse testMealPlan = MealPlanResponse(
         dailyCaloriesRange: const DailyCaloriesRange(min: 1800, max: 2200),
         macronutrientsRange: const MacronutrientsRange(
           protein: MacronutrientRange(min: 120, max: 150),
           carbohydrates: MacronutrientRange(min: 200, max: 250),
           fat: MacronutrientRange(min: 60, max: 80),
         ),
-        dailyMealPlans: [
+        dailyMealPlans: <DailyMealPlan>[
           DailyMealPlan(
             day: 1,
             date: '2024-01-01',
             breakfast: const MealOption(
               description: 'Test Breakfast',
-              ingredients: [
+              ingredients: <Ingredient>[
                 Ingredient(ingredient: 'Oats', quantity: '1 cup', calories: 150),
                 Ingredient(ingredient: 'Banana', quantity: '1 medium', calories: 100),
               ],
@@ -178,7 +178,7 @@ class _FirestoreNutritionDebugPanelState
             ),
             lunch: const MealOption(
               description: 'Test Lunch',
-              ingredients: [
+              ingredients: <Ingredient>[
                 Ingredient(ingredient: 'Chicken breast', quantity: '150g', calories: 200),
                 Ingredient(ingredient: 'Rice', quantity: '1 cup', calories: 150),
               ],
@@ -187,14 +187,14 @@ class _FirestoreNutritionDebugPanelState
             ),
             dinner: const MealOption(
               description: 'Test Dinner',
-              ingredients: [
+              ingredients: <Ingredient>[
                 Ingredient(ingredient: 'Salmon', quantity: '120g', calories: 250),
                 Ingredient(ingredient: 'Vegetables', quantity: '1 cup', calories: 50),
               ],
               totalCalories: 300,
               recipe: 'Bake salmon with steamed vegetables',
             ),
-            snacks: const [],
+            snacks: const <MealOption>[],
             totalDailyCalories: 900,
             dailyMacros: const DailyMacros(
               protein: 60,
@@ -207,7 +207,7 @@ class _FirestoreNutritionDebugPanelState
       );
 
       // Save meal plan
-      final planId = 'test_plan_${now.millisecondsSinceEpoch}';
+      final String planId = 'test_plan_${now.millisecondsSinceEpoch}';
       await service.saveMealPlan(planId, testMealPlan);
 
       if (mounted) {
@@ -217,7 +217,7 @@ class _FirestoreNutritionDebugPanelState
       }
 
       // Retrieve meal plan
-      final retrievedPlan = await service.getMealPlan(planId);
+      final MealPlanResponse? retrievedPlan = await service.getMealPlan(planId);
       
       if (retrievedPlan == null) {
         if (mounted) {
@@ -236,7 +236,7 @@ class _FirestoreNutritionDebugPanelState
       }
 
       // Create daily nutrition summary
-      final testSummary = DailyNutritionSummary(
+      final DailyNutritionSummary testSummary = DailyNutritionSummary(
         date: DateTime.now(),
         totalNutrition: const NutritionInfo(
           calories: 1800,
@@ -248,7 +248,7 @@ class _FirestoreNutritionDebugPanelState
           sodium: 2000,
         ),
         targetCalories: 2000,
-        meals: [testFoodLogEntry],
+        meals: <FoodLogEntry>[testFoodLogEntry],
         sustainabilityScore: 85.0,
       );
 
@@ -304,7 +304,7 @@ class _FirestoreNutritionDebugPanelState
     }
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         if (mounted) {
           setState(() {
@@ -319,7 +319,7 @@ class _FirestoreNutritionDebugPanelState
       final DateTime now = DateTime.now();
 
       // Create multiple food log entries for different meals
-      final List<FoodLogEntry> testEntries = [
+      final List<FoodLogEntry> testEntries = <FoodLogEntry>[
         FoodLogEntry(
           id: 'breakfast_${now.millisecondsSinceEpoch}',
           userId: user.uid,
@@ -387,7 +387,7 @@ class _FirestoreNutritionDebugPanelState
           _testResult = '''✅ Test nutrition data created successfully!
 
 📱 Created ${testEntries.length} food log entries:
-${testEntries.map((entry) => '• ${entry.foodName} (${entry.mealType})').join('\n')}
+${testEntries.map((FoodLogEntry entry) => '• ${entry.foodName} (${entry.mealType})').join('\n')}
 
 💾 All data saved to Firestore nutrition_data collection!
 
@@ -411,7 +411,7 @@ ${testEntries.map((entry) => '• ${entry.foodName} (${entry.mealType})').join('
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
     
     return Card(
       margin: const EdgeInsets.all(16),
@@ -419,9 +419,9 @@ ${testEntries.map((entry) => '• ${entry.foodName} (${entry.mealType})').join('
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 Icon(
                   Icons.dining,
                   color: theme.colorScheme.primary,
@@ -442,12 +442,12 @@ ${testEntries.map((entry) => '• ${entry.foodName} (${entry.mealType})').join('
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     'Connection Status:',
                     style: theme.textTheme.titleSmall?.copyWith(
@@ -467,7 +467,7 @@ ${testEntries.map((entry) => '• ${entry.foodName} (${entry.mealType})').join('
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: [
+              children: <Widget>[
                 ElevatedButton.icon(
                   onPressed: _isChecking ? null : _checkFirestoreConnection,
                   icon: _isChecking
@@ -492,7 +492,7 @@ ${testEntries.map((entry) => '• ${entry.foodName} (${entry.mealType})').join('
               ],
             ),
             
-            if (_testResult.isNotEmpty) ...[
+            if (_testResult.isNotEmpty) ...<Widget>[
               const SizedBox(height: 16),
               Container(
                 width: double.infinity,

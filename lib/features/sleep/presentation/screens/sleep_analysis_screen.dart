@@ -5,7 +5,7 @@ class SleepAnalysisScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -46,12 +46,12 @@ class SleepAnalysisScreen extends StatelessWidget {
                 height: 160,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceVariant.withOpacity(0.3),
+                  color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: colorScheme.outline.withOpacity(0.15),
                   ),
-                  boxShadow: [
+                  boxShadow: <BoxShadow>[
                     BoxShadow(
                       color: colorScheme.shadow.withOpacity(0.08),
                       blurRadius: 12,
@@ -88,12 +88,12 @@ class SleepAnalysisScreen extends StatelessWidget {
                 height: 140,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceVariant.withOpacity(0.3),
+                  color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: colorScheme.outline.withOpacity(0.15),
                   ),
-                  boxShadow: [
+                  boxShadow: <BoxShadow>[
                     BoxShadow(
                       color: colorScheme.shadow.withOpacity(0.08),
                       blurRadius: 12,
@@ -127,7 +127,7 @@ class SleepAnalysisScreen extends StatelessWidget {
                   border: Border.all(
                     color: colorScheme.outline.withOpacity(0.15),
                   ),
-                  boxShadow: [
+                  boxShadow: <BoxShadow>[
                     BoxShadow(
                       color: colorScheme.shadow.withOpacity(0.08),
                       blurRadius: 12,
@@ -159,7 +159,7 @@ class SleepAnalysisScreen extends StatelessWidget {
                   border: Border.all(
                     color: colorScheme.outline.withOpacity(0.15),
                   ),
-                  boxShadow: [
+                  boxShadow: <BoxShadow>[
                     BoxShadow(
                       color: colorScheme.shadow.withOpacity(0.08),
                       blurRadius: 12,
@@ -189,7 +189,7 @@ class _SummaryStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Column(
       children: <Widget>[
@@ -230,7 +230,7 @@ class _SleepStageRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),

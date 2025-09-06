@@ -630,7 +630,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                   completedWorkout.workoutName,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                if (completedWorkout.endTime != null) ...[
+                if (completedWorkout.endTime != null) ...<Widget>[
                   const SizedBox(height: 4),
                   Text(
                     'Completed on ${completedWorkout.endTime!.day}/${completedWorkout.endTime!.month}/${completedWorkout.endTime!.year}',
@@ -668,7 +668,7 @@ class CompletedWorkoutDetailScreen extends ConsumerWidget {
                 Navigator.of(context).pop(); // Go back to previous screen
                 
                 // Delete the workout using the provider
-                final notifier = ref.read(completedWorkoutsProvider.notifier);
+                final CompletedWorkoutsNotifier notifier = ref.read(completedWorkoutsProvider.notifier);
                 await notifier.deleteWorkout(completedWorkout.id);
                 
                 // Show success message

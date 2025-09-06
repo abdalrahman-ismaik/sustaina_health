@@ -25,9 +25,9 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDark
-              ? [cs.surface, cs.surfaceContainerHighest]
-              : [cs.primary.withOpacity(0.05), cs.secondary.withOpacity(0.08)],
-            stops: const [0.0, 1.0],
+              ? <Color>[cs.surface, cs.surfaceContainerHighest]
+              : <Color>[cs.primary.withOpacity(0.05), cs.secondary.withOpacity(0.08)],
+            stops: const <double>[0.0, 1.0],
           ),
         ),
         child: SafeArea(
@@ -49,13 +49,13 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [
+                            colors: <Color>[
                               cs.primaryContainer.withOpacity(0.8),
                               cs.secondaryContainer.withOpacity(0.6),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
+                          boxShadow: <BoxShadow>[
                             BoxShadow(
                               color: cs.shadow.withOpacity(0.1),
                               blurRadius: 20,
@@ -64,7 +64,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                           ],
                         ),
                         child: Stack(
-                          children: [
+                          children: <Widget>[
                             // Animated background elements
                             Positioned.fill(
                               child: ClipRRect(
@@ -73,11 +73,11 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                                   decoration: BoxDecoration(
                                     gradient: RadialGradient(
                                       center: Alignment.center,
-                                      colors: [
+                                      colors: <Color>[
                                         cs.primary.withOpacity(0.1),
                                         Colors.transparent,
                                       ],
-                                      stops: const [0.0, 1.0],
+                                      stops: const <double>[0.0, 1.0],
                                     ),
                                   ),
                                 ),
@@ -92,7 +92,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                                   TweenAnimationBuilder(
                                     tween: Tween<double>(begin: 0, end: 2 * 3.14159),
                                     duration: const Duration(seconds: 8),
-                                    builder: (context, double angle, child) {
+                                    builder: (BuildContext context, double angle, Widget? child) {
                                       return Transform.rotate(
                                         angle: angle / 8,
                                         child: Container(
@@ -100,12 +100,12 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                                           height: 100,
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
-                                              colors: [cs.primary, cs.secondary],
+                                              colors: <Color>[cs.primary, cs.secondary],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
                                             borderRadius: BorderRadius.circular(50),
-                                            boxShadow: [
+                                            boxShadow: <BoxShadow>[
                                               BoxShadow(
                                                 color: cs.primary.withOpacity(0.4),
                                                 blurRadius: 20,
@@ -126,7 +126,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                                   // Sustainability badges
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
+                                    children: <Widget>[
                                       _buildSustainabilityBadge(context, cs, '🌱', 'Eco-Friendly'),
                                       const SizedBox(width: 12),
                                       _buildSustainabilityBadge(context, cs, '🌍', 'Planet Care'),
@@ -225,7 +225,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [
+                            colors: <Color>[
                               cs.primaryContainer.withOpacity(0.3),
                               cs.secondaryContainer.withOpacity(0.3),
                             ],
@@ -234,7 +234,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                           border: Border.all(color: cs.primary.withOpacity(0.2)),
                         ),
                         child: Column(
-                          children: [
+                          children: <Widget>[
                             Icon(
                               Icons.trending_up,
                               size: 40,
@@ -251,7 +251,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                             const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
+                              children: <Widget>[
                                 _buildImpactStat(context, cs, '2.5kg', 'CO₂ Saved\nper month'),
                                 _buildImpactStat(context, cs, '150L', 'Water Saved\nper week'),
                                 _buildImpactStat(context, cs, '30%', 'Waste\nReduction'),
@@ -270,16 +270,16 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
-                  children: [
+                  children: <Widget>[
                     Container(
                       width: double.infinity,
                       height: 56,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [cs.primary, cs.secondary],
+                          colors: <Color>[cs.primary, cs.secondary],
                         ),
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
+                        boxShadow: <BoxShadow>[
                           BoxShadow(
                             color: cs.primary.withOpacity(0.3),
                             blurRadius: 12,
@@ -303,7 +303,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.eco, color: cs.onPrimary),
                             const SizedBox(width: 12),
                             Text(
@@ -344,7 +344,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Text(emoji, style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 2),
           Text(
@@ -373,7 +373,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
       tween: Tween<double>(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 800 + animationDelay),
       curve: Curves.elasticOut,
-      builder: (context, double value, child) {
+      builder: (BuildContext context, double value, Widget? child) {
         return Transform.translate(
           offset: Offset(0, 30 * (1 - value.clamp(0.0, 1.0))),
           child: Opacity(
@@ -384,7 +384,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                 color: cs.surfaceContainerLowest,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: accentColor.withOpacity(0.2)),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: accentColor.withOpacity(0.1),
                     blurRadius: 12,
@@ -400,7 +400,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                     height: 64,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [accentColor.withOpacity(0.2), accentColor.withOpacity(0.1)],
+                        colors: <Color>[accentColor.withOpacity(0.2), accentColor.withOpacity(0.1)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -419,7 +419,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Row(
-                          children: [
+                          children: <Widget>[
                             Expanded(
                               child: Text(
                                 title,
@@ -467,7 +467,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
   
   Widget _buildImpactStat(BuildContext context, ColorScheme cs, String value, String label) {
     return Column(
-      children: [
+      children: <Widget>[
         Text(
           value,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(

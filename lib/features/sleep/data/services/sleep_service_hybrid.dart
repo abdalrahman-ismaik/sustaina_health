@@ -46,7 +46,7 @@ class SleepService {
     try {
       if (_isUserSignedIn) {
         try {
-          final cloudSessions = await _firestoreService.getSleepSessions();
+          final List<SleepSession> cloudSessions = await _firestoreService.getSleepSessions();
           if (cloudSessions.isNotEmpty) {
             // Sync cloud data to local storage
             await _syncSessionsToLocal(cloudSessions);
@@ -131,7 +131,7 @@ class SleepService {
     try {
       if (_isUserSignedIn) {
         try {
-          final cloudGoals = await _firestoreService.getSleepGoals();
+          final List<SleepGoal> cloudGoals = await _firestoreService.getSleepGoals();
           if (cloudGoals.isNotEmpty) {
             await _syncGoalsToLocal(cloudGoals);
             return cloudGoals;
@@ -172,7 +172,7 @@ class SleepService {
     try {
       if (_isUserSignedIn) {
         try {
-          final cloudReminders = await _firestoreService.getSleepReminders();
+          final List<SleepReminder> cloudReminders = await _firestoreService.getSleepReminders();
           if (cloudReminders.isNotEmpty) {
             await _syncRemindersToLocal(cloudReminders);
             return cloudReminders;
@@ -213,7 +213,7 @@ class SleepService {
     try {
       if (_isUserSignedIn) {
         try {
-          final cloudInsights = await _firestoreService.getSleepInsights();
+          final List<SleepInsight> cloudInsights = await _firestoreService.getSleepInsights();
           if (cloudInsights.isNotEmpty) {
             await _syncInsightsToLocal(cloudInsights);
             return cloudInsights;
@@ -312,7 +312,7 @@ class SleepService {
             description: 'Begin your sleep journey by tracking your first sleep session.',
             type: SleepInsightType.quality,
             impact: 0.8,
-            recommendations: ['Track your first sleep session to get personalized insights.'],
+            recommendations: <String>['Track your first sleep session to get personalized insights.'],
             createdAt: DateTime.now(),
           ),
         ];
@@ -326,7 +326,7 @@ class SleepService {
           description: 'Your average sleep quality is below optimal levels.',
           type: SleepInsightType.quality,
           impact: 0.9,
-          recommendations: [
+          recommendations: <String>[
             'Maintain a consistent sleep schedule',
             'Create a relaxing bedtime routine'
           ],
@@ -342,7 +342,7 @@ class SleepService {
           description: 'You\'re getting less than the recommended 7-9 hours of sleep.',
           type: SleepInsightType.duration,
           impact: 0.85,
-          recommendations: [
+          recommendations: <String>[
             'Try going to bed 30 minutes earlier each night',
             'Aim for 7-8 hours of sleep'
           ],
@@ -358,7 +358,7 @@ class SleepService {
           description: 'Your sleep schedule varies significantly.',
           type: SleepInsightType.consistency,
           impact: 0.7,
-          recommendations: [
+          recommendations: <String>[
             'Go to bed and wake up at the same time every day',
             'Maintain schedule even on weekends'
           ],
@@ -374,7 +374,7 @@ class SleepService {
           description: 'You can make your sleep routine more eco-friendly.',
           type: SleepInsightType.sustainability,
           impact: 0.6,
-          recommendations: [
+          recommendations: <String>[
             'Use natural ventilation',
             'Choose eco-friendly bedding',
             'Use energy-efficient devices'
@@ -384,7 +384,7 @@ class SleepService {
       }
       
       // Save generated insights
-      for (final insight in insights) {
+      for (final SleepInsight insight in insights) {
         await saveSleepInsight(insight);
       }
       
@@ -402,26 +402,26 @@ class SleepService {
       await _firestoreService.ensureSleepModuleExists();
       
       // Sync sessions
-      final localSessions = await _getSessionsLocally();
-      for (final session in localSessions) {
+      final List<SleepSession> localSessions = await _getSessionsLocally();
+      for (final SleepSession session in localSessions) {
         await _firestoreService.saveSleepSession(session);
       }
       
       // Sync goals
-      final localGoals = await _getGoalsLocally();
-      for (final goal in localGoals) {
+      final List<SleepGoal> localGoals = await _getGoalsLocally();
+      for (final SleepGoal goal in localGoals) {
         await _firestoreService.saveSleepGoal(goal);
       }
       
       // Sync reminders
-      final localReminders = await _getRemindersLocally();
-      for (final reminder in localReminders) {
+      final List<SleepReminder> localReminders = await _getRemindersLocally();
+      for (final SleepReminder reminder in localReminders) {
         await _firestoreService.saveSleepReminder(reminder);
       }
       
       // Sync insights
-      final localInsights = await _getInsightsLocally();
-      for (final insight in localInsights) {
+      final List<SleepInsight> localInsights = await _getInsightsLocally();
+      for (final SleepInsight insight in localInsights) {
         await _firestoreService.saveSleepInsight(insight);
       }
     } catch (e) {
@@ -445,10 +445,10 @@ class SleepService {
     final List<SleepSession> sessions = await _getSessionsLocally();
     
     // Remove existing session if it exists
-    sessions.removeWhere((s) => s.id == session.id);
+    sessions.removeWhere((SleepSession s) => s.id == session.id);
     sessions.add(session);
     
-    final List<Map<String, dynamic>> sessionsJson = sessions.map((s) => s.toJson()).toList();
+    final List<Map<String, dynamic>> sessionsJson = sessions.map((SleepSession s) => s.toJson()).toList();
     await prefs.setString(_sleepSessionsKey, jsonEncode(sessionsJson));
   }
 
@@ -468,15 +468,15 @@ class SleepService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<SleepSession> sessions = await _getSessionsLocally();
     
-    sessions.removeWhere((session) => session.id == sessionId);
+    sessions.removeWhere((SleepSession session) => session.id == sessionId);
     
-    final List<Map<String, dynamic>> sessionsJson = sessions.map((s) => s.toJson()).toList();
+    final List<Map<String, dynamic>> sessionsJson = sessions.map((SleepSession s) => s.toJson()).toList();
     await prefs.setString(_sleepSessionsKey, jsonEncode(sessionsJson));
   }
 
   Future<void> _syncSessionsToLocal(List<SleepSession> cloudSessions) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<Map<String, dynamic>> sessionsJson = cloudSessions.map((s) => s.toJson()).toList();
+    final List<Map<String, dynamic>> sessionsJson = cloudSessions.map((SleepSession s) => s.toJson()).toList();
     await prefs.setString(_sleepSessionsKey, jsonEncode(sessionsJson));
   }
 
@@ -485,10 +485,10 @@ class SleepService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<SleepGoal> goals = await _getGoalsLocally();
     
-    goals.removeWhere((g) => g.id == goal.id);
+    goals.removeWhere((SleepGoal g) => g.id == goal.id);
     goals.add(goal);
     
-    final List<Map<String, dynamic>> goalsJson = goals.map((g) => g.toJson()).toList();
+    final List<Map<String, dynamic>> goalsJson = goals.map((SleepGoal g) => g.toJson()).toList();
     await prefs.setString(_sleepGoalsKey, jsonEncode(goalsJson));
   }
 
@@ -506,7 +506,7 @@ class SleepService {
 
   Future<void> _syncGoalsToLocal(List<SleepGoal> cloudGoals) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<Map<String, dynamic>> goalsJson = cloudGoals.map((g) => g.toJson()).toList();
+    final List<Map<String, dynamic>> goalsJson = cloudGoals.map((SleepGoal g) => g.toJson()).toList();
     await prefs.setString(_sleepGoalsKey, jsonEncode(goalsJson));
   }
 
@@ -514,10 +514,10 @@ class SleepService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<SleepReminder> reminders = await _getRemindersLocally();
     
-    reminders.removeWhere((r) => r.id == reminder.id);
+    reminders.removeWhere((SleepReminder r) => r.id == reminder.id);
     reminders.add(reminder);
     
-    final List<Map<String, dynamic>> remindersJson = reminders.map((r) => r.toJson()).toList();
+    final List<Map<String, dynamic>> remindersJson = reminders.map((SleepReminder r) => r.toJson()).toList();
     await prefs.setString(_sleepRemindersKey, jsonEncode(remindersJson));
   }
 
@@ -535,7 +535,7 @@ class SleepService {
 
   Future<void> _syncRemindersToLocal(List<SleepReminder> cloudReminders) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<Map<String, dynamic>> remindersJson = cloudReminders.map((r) => r.toJson()).toList();
+    final List<Map<String, dynamic>> remindersJson = cloudReminders.map((SleepReminder r) => r.toJson()).toList();
     await prefs.setString(_sleepRemindersKey, jsonEncode(remindersJson));
   }
 
@@ -543,10 +543,10 @@ class SleepService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<SleepInsight> insights = await _getInsightsLocally();
     
-    insights.removeWhere((i) => i.id == insight.id);
+    insights.removeWhere((SleepInsight i) => i.id == insight.id);
     insights.add(insight);
     
-    final List<Map<String, dynamic>> insightsJson = insights.map((i) => i.toJson()).toList();
+    final List<Map<String, dynamic>> insightsJson = insights.map((SleepInsight i) => i.toJson()).toList();
     await prefs.setString(_sleepInsightsKey, jsonEncode(insightsJson));
   }
 
@@ -564,7 +564,7 @@ class SleepService {
 
   Future<void> _syncInsightsToLocal(List<SleepInsight> cloudInsights) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<Map<String, dynamic>> insightsJson = cloudInsights.map((i) => i.toJson()).toList();
+    final List<Map<String, dynamic>> insightsJson = cloudInsights.map((SleepInsight i) => i.toJson()).toList();
     await prefs.setString(_sleepInsightsKey, jsonEncode(insightsJson));
   }
 
@@ -572,9 +572,9 @@ class SleepService {
   double _calculateConsistencyScore(List<SleepSession> sessions) {
     if (sessions.length < 2) return 1.0;
     
-    final List<int> durations = sessions.map((s) => s.totalDuration.inMinutes).toList();
-    final double mean = durations.reduce((a, b) => a + b) / durations.length;
-    final double variance = durations.map((d) => (d - mean) * (d - mean)).reduce((a, b) => a + b) / durations.length;
+    final List<int> durations = sessions.map((SleepSession s) => s.totalDuration.inMinutes).toList();
+    final double mean = durations.reduce((int a, int b) => a + b) / durations.length;
+    final double variance = durations.map((int d) => (d - mean) * (d - mean)).reduce((double a, double b) => a + b) / durations.length;
     final double standardDeviation = variance > 0 ? math.sqrt(variance) : 0.0;
     
     return mean > 0 ? (1.0 - (standardDeviation / mean)).clamp(0.0, 1.0) : 0.0;
@@ -584,7 +584,7 @@ class SleepService {
     if (sessions.isEmpty) return 0.0;
     
     double totalScore = 0.0;
-    for (final session in sessions) {
+    for (final SleepSession session in sessions) {
       double sessionScore = 0.0;
       
       // Environment factors
@@ -605,24 +605,24 @@ class SleepService {
   }
 
   Map<String, double> _calculateWeeklyTrends(List<SleepSession> sessions) {
-    final Map<String, double> trends = {};
+    final Map<String, double> trends = <String, double>{};
     
     // Group sessions by week
-    final Map<int, List<SleepSession>> weeklyData = {};
-    for (final session in sessions) {
-      final weekNumber = _getWeekNumber(session.startTime);
-      weeklyData.putIfAbsent(weekNumber, () => []).add(session);
+    final Map<int, List<SleepSession>> weeklyData = <int, List<SleepSession>>{};
+    for (final SleepSession session in sessions) {
+      final int weekNumber = _getWeekNumber(session.startTime);
+      weeklyData.putIfAbsent(weekNumber, () => <SleepSession>[]).add(session);
     }
     
     // Calculate weekly averages
-    for (final entry in weeklyData.entries) {
-      final weekSessions = entry.value;
-      final avgDuration = weekSessions
-          .map((s) => s.totalDuration.inHours)
-          .reduce((a, b) => a + b) / weekSessions.length;
-      final avgQuality = weekSessions
-          .map((s) => s.sleepQuality)
-          .reduce((a, b) => a + b) / weekSessions.length;
+    for (final MapEntry<int, List<SleepSession>> entry in weeklyData.entries) {
+      final List<SleepSession> weekSessions = entry.value;
+      final double avgDuration = weekSessions
+          .map((SleepSession s) => s.totalDuration.inHours)
+          .reduce((int a, int b) => a + b) / weekSessions.length;
+      final double avgQuality = weekSessions
+          .map((SleepSession s) => s.sleepQuality)
+          .reduce((double a, double b) => a + b) / weekSessions.length;
       
       trends['week_${entry.key}_duration'] = avgDuration;
       trends['week_${entry.key}_quality'] = avgQuality;
@@ -632,8 +632,8 @@ class SleepService {
   }
 
   int _getWeekNumber(DateTime date) {
-    final firstDayOfYear = DateTime(date.year, 1, 1);
-    final dayOfYear = date.difference(firstDayOfYear).inDays;
+    final DateTime firstDayOfYear = DateTime(date.year, 1, 1);
+    final int dayOfYear = date.difference(firstDayOfYear).inDays;
     return (dayOfYear / 7).ceil();
   }
 
@@ -648,8 +648,8 @@ class SleepService {
       await _firestoreService.ensureSleepModuleExists();
 
       // Sync all sleep sessions
-      final localSessions = await _getSessionsLocally();
-      for (final session in localSessions) {
+      final List<SleepSession> localSessions = await _getSessionsLocally();
+      for (final SleepSession session in localSessions) {
         try {
           await _firestoreService.saveSleepSession(session);
         } catch (e) {
@@ -658,8 +658,8 @@ class SleepService {
       }
 
       // Sync all sleep goals
-      final localGoals = await _getGoalsLocally();
-      for (final goal in localGoals) {
+      final List<SleepGoal> localGoals = await _getGoalsLocally();
+      for (final SleepGoal goal in localGoals) {
         try {
           await _firestoreService.saveSleepGoal(goal);
         } catch (e) {
@@ -668,8 +668,8 @@ class SleepService {
       }
 
       // Sync all sleep reminders
-      final localReminders = await _getRemindersLocally();
-      for (final reminder in localReminders) {
+      final List<SleepReminder> localReminders = await _getRemindersLocally();
+      for (final SleepReminder reminder in localReminders) {
         try {
           await _firestoreService.saveSleepReminder(reminder);
         } catch (e) {
@@ -678,8 +678,8 @@ class SleepService {
       }
 
       // Sync all sleep insights
-      final localInsights = await _getInsightsLocally();
-      for (final insight in localInsights) {
+      final List<SleepInsight> localInsights = await _getInsightsLocally();
+      for (final SleepInsight insight in localInsights) {
         try {
           await _firestoreService.saveSleepInsight(insight);
         } catch (e) {
@@ -695,15 +695,15 @@ class SleepService {
 
   /// Get sync status for sleep data
   Future<Map<String, int>> getSyncStatus() async {
-    final localSessions = await _getSessionsLocally();
-    final localGoals = await _getGoalsLocally();
-    final localReminders = await _getRemindersLocally();
-    final localInsights = await _getInsightsLocally();
+    final List<SleepSession> localSessions = await _getSessionsLocally();
+    final List<SleepGoal> localGoals = await _getGoalsLocally();
+    final List<SleepReminder> localReminders = await _getRemindersLocally();
+    final List<SleepInsight> localInsights = await _getInsightsLocally();
 
-    final totalItems = localSessions.length + localGoals.length + 
+    final int totalItems = localSessions.length + localGoals.length + 
                       localReminders.length + localInsights.length;
 
-    return {
+    return <String, int>{
       'totalItems': totalItems,
       'sessions': localSessions.length,
       'goals': localGoals.length,

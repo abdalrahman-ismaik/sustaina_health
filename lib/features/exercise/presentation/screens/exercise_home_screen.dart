@@ -1931,7 +1931,7 @@ Future<void> _showDeleteWorkoutDialog(BuildContext context, ActiveWorkoutSession
                 workout.workoutName,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              if (workout.endTime != null) ...[
+              if (workout.endTime != null) ...<Widget>[
                 const SizedBox(height: 4),
                 Text(
                   'Completed on ${workout.endTime!.day}/${workout.endTime!.month}/${workout.endTime!.year}',
@@ -1967,7 +1967,7 @@ Future<void> _showDeleteWorkoutDialog(BuildContext context, ActiveWorkoutSession
             onPressed: () async {
               Navigator.of(context).pop();
               // Delete the workout using the provider
-              final notifier = ref.read(completedWorkoutsProvider.notifier);
+              final CompletedWorkoutsNotifier notifier = ref.read(completedWorkoutsProvider.notifier);
               await notifier.deleteWorkout(workout.id);
               
               // Show success message

@@ -214,7 +214,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Sex',
                   ),
-                  items: ['Male', 'Female', 'Other']
+                  items: <String>['Male', 'Female', 'Other']
                       .map((String value) => DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -326,13 +326,13 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
+                  colors: <Color>[
                     cs.primaryContainer,
                     cs.primaryContainer.withOpacity(0.8),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: cs.shadow.withOpacity(0.1),
                     blurRadius: 10,
@@ -350,7 +350,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                         color: cs.primary.withOpacity(0.3),
                         width: 3,
                       ),
-                      boxShadow: [
+                      boxShadow: <BoxShadow>[
                         BoxShadow(
                           color: cs.shadow.withOpacity(0.2),
                           blurRadius: 8,
@@ -809,9 +809,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     return Column(
-      children: [
+      children: <Widget>[
         Row(
-          children: [
+          children: <Widget>[
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -828,7 +828,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     label,
                     style: TextStyle(
@@ -851,7 +851,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             ),
           ],
         ),
-        if (!isLast) ...[
+        if (!isLast) ...<Widget>[
           const SizedBox(height: 16),
           Divider(
             color: cs.outline.withOpacity(0.2),
@@ -875,7 +875,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
           color: _notificationsAllowed ? cs.primary.withOpacity(0.3) : cs.outline.withOpacity(0.3),
           width: 1,
         ),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withOpacity(0.05),
             blurRadius: 8,
@@ -906,7 +906,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'Notifications',
                       style: TextStyle(
@@ -1218,7 +1218,7 @@ class _EnhancedStatCard extends StatelessWidget {
             color: cs.outline.withOpacity(0.2),
             width: 1,
           ),
-          boxShadow: [
+          boxShadow: <BoxShadow>[
             BoxShadow(
               color: cs.shadow.withOpacity(0.05),
               blurRadius: 8,
@@ -1228,10 +1228,10 @@ class _EnhancedStatCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: <Widget>[
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(

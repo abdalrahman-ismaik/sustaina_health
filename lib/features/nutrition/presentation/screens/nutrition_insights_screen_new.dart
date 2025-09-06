@@ -32,7 +32,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
           ),
         ),
         centerTitle: true,
-        actions: [
+        actions: <Widget>[
           IconButton(
             icon: Icon(Icons.info_outline, color: cs.primary),
             onPressed: () => _showInsightsHelp(context),
@@ -40,13 +40,13 @@ class NutritionInsightsScreen extends ConsumerWidget {
         ],
       ),
       body: foodLogState.when(
-        data: (entries) => dailySummaryState.when(
-          data: (summary) => _buildInsightsContent(context, entries, summary, cs, isDark),
+        data: (List<FoodLogEntry> entries) => dailySummaryState.when(
+          data: (DailyNutritionSummary summary) => _buildInsightsContent(context, entries, summary, cs, isDark),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => _buildErrorState(context, 'Failed to load daily summary', cs),
+          error: (Object error, StackTrace stack) => _buildErrorState(context, 'Failed to load daily summary', cs),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => _buildErrorState(context, 'Failed to load food log data', cs),
+        error: (Object error, StackTrace stack) => _buildErrorState(context, 'Failed to load food log data', cs),
       ),
     );
   }
@@ -62,7 +62,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           // Today's Summary Card
           _buildTodaySummaryCard(summary, cs, isDark),
           const SizedBox(height: 20),
@@ -101,7 +101,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Icon(
               Icons.analytics_outlined,
               size: 80,
@@ -152,7 +152,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             Icon(
               Icons.error_outline,
               size: 80,
@@ -198,7 +198,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [cs.primary.withOpacity(0.1), cs.secondary.withOpacity(0.05)],
+          colors: <Color>[cs.primary.withOpacity(0.1), cs.secondary.withOpacity(0.05)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -207,10 +207,10 @@ class NutritionInsightsScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: <Widget>[
               Text(
                 "Today's Nutrition",
                 style: TextStyle(
@@ -230,14 +230,14 @@ class NutritionInsightsScreen extends ConsumerWidget {
           
           // Calorie Progress
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                      children: <Widget>[
                         Text(
                           'Calories',
                           style: TextStyle(
@@ -278,7 +278,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
           
           // Macros Row
           Row(
-            children: [
+            children: <Widget>[
               Expanded(
                 child: _buildMacroCard('Protein', '${summary.totalNutrition.protein}g', Colors.blue, cs),
               ),
@@ -306,7 +306,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           Text(
             value,
             style: TextStyle(
@@ -335,7 +335,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: isDark ? cs.surfaceContainer : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withOpacity(0.1),
             blurRadius: 10,
@@ -345,9 +345,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(Icons.pie_chart, color: cs.primary, size: 24),
               const SizedBox(width: 8),
               Text(
@@ -371,7 +371,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
           
           // Sustainability Score
           Row(
-            children: [
+            children: <Widget>[
               Icon(Icons.eco, color: Colors.green, size: 20),
               const SizedBox(width: 8),
               Text(
@@ -408,7 +408,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        children: [
+        children: <Widget>[
           Icon(icon, color: color, size: 20),
           const SizedBox(width: 12),
           Expanded(
@@ -435,9 +435,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
   }
 
   Widget _buildMealDistribution(List<FoodLogEntry> entries, ColorScheme cs, bool isDark) {
-    final Map<String, List<FoodLogEntry>> mealGroups = {};
-    for (final entry in entries) {
-      mealGroups.putIfAbsent(entry.mealType, () => []).add(entry);
+    final Map<String, List<FoodLogEntry>> mealGroups = <String, List<FoodLogEntry>>{};
+    for (final FoodLogEntry entry in entries) {
+      mealGroups.putIfAbsent(entry.mealType, () => <FoodLogEntry>[]).add(entry);
     }
 
     return Container(
@@ -445,7 +445,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: isDark ? cs.surfaceContainer : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withOpacity(0.1),
             blurRadius: 10,
@@ -455,9 +455,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(Icons.restaurant_menu, color: cs.primary, size: 24),
               const SizedBox(width: 8),
               Text(
@@ -472,15 +472,15 @@ class NutritionInsightsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           
-          ...mealGroups.entries.map((entry) {
-            final mealType = entry.key;
-            final mealEntries = entry.value;
-            final totalCalories = mealEntries.fold<int>(0, (sum, e) => sum + e.nutritionInfo.calories);
+          ...mealGroups.entries.map((MapEntry<String, List<FoodLogEntry>> entry) {
+            final String mealType = entry.key;
+            final List<FoodLogEntry> mealEntries = entry.value;
+            final int totalCalories = mealEntries.fold<int>(0, (int sum, FoodLogEntry e) => sum + e.nutritionInfo.calories);
             
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
-                children: [
+                children: <Widget>[
                   Container(
                     width: 12,
                     height: 12,
@@ -534,7 +534,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: isDark ? cs.surfaceContainer : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withOpacity(0.1),
             blurRadius: 10,
@@ -544,9 +544,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(Icons.trending_up, color: cs.primary, size: 24),
               const SizedBox(width: 8),
               Text(
@@ -570,7 +570,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
               border: Border.all(color: cs.primary.withOpacity(0.2)),
             ),
             child: Column(
-              children: [
+              children: <Widget>[
                 Icon(Icons.calendar_today, color: cs.primary, size: 32),
                 const SizedBox(height: 8),
                 Text(
@@ -607,17 +607,17 @@ class NutritionInsightsScreen extends ConsumerWidget {
   }
 
   Widget _buildSustainabilityInsights(List<FoodLogEntry> entries, ColorScheme cs, bool isDark) {
-    final sustainableEntries = entries.where((e) => e.sustainabilityScore != null).toList();
-    final highSustainabilityCount = sustainableEntries.where((e) => 
+    final List<FoodLogEntry> sustainableEntries = entries.where((FoodLogEntry e) => e.sustainabilityScore != null).toList();
+    final int highSustainabilityCount = sustainableEntries.where((FoodLogEntry e) => 
         e.sustainabilityScore?.toLowerCase() == 'high').length;
-    final totalWithScores = sustainableEntries.length;
+    final int totalWithScores = sustainableEntries.length;
     
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? cs.surfaceContainer : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withOpacity(0.1),
             blurRadius: 10,
@@ -627,9 +627,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(Icons.eco, color: Colors.green, size: 24),
               const SizedBox(width: 8),
               Text(
@@ -644,9 +644,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           
-          if (totalWithScores > 0) ...[
+          if (totalWithScores > 0) ...<Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 Expanded(
                   child: _buildSustainabilityMetric(
                     'High Sustainability', 
@@ -674,7 +674,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
-                children: [
+                children: <Widget>[
                   Icon(Icons.lightbulb, color: Colors.green, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
@@ -689,7 +689,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          ] else ...[
+          ] else ...<Widget>[
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -697,7 +697,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
-                children: [
+                children: <Widget>[
                   Icon(Icons.eco_outlined, color: cs.outline, size: 32),
                   const SizedBox(height: 8),
                   Text(
@@ -735,7 +735,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           Text(
             value,
             style: TextStyle(
@@ -760,13 +760,13 @@ class NutritionInsightsScreen extends ConsumerWidget {
   }
 
   Widget _buildAITips(List<FoodLogEntry> entries, DailyNutritionSummary summary, ColorScheme cs, bool isDark) {
-    final tips = _generateAITips(entries, summary);
+    final List<Map<String, dynamic>> tips = _generateAITips(entries, summary);
     
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [cs.secondary.withOpacity(0.1), cs.tertiary.withOpacity(0.05)],
+          colors: <Color>[cs.secondary.withOpacity(0.1), cs.tertiary.withOpacity(0.05)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -775,9 +775,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(Icons.psychology, color: cs.secondary, size: 24),
               const SizedBox(width: 8),
               Text(
@@ -792,9 +792,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           
-          ...tips.asMap().entries.map((entry) {
-            final index = entry.key;
-            final tip = entry.value;
+          ...tips.asMap().entries.map((MapEntry<int, Map<String, dynamic>> entry) {
+            final int index = entry.key;
+            final Map<String, dynamic> tip = entry.value;
             return Padding(
               padding: EdgeInsets.only(bottom: index < tips.length - 1 ? 12 : 0),
               child: Container(
@@ -806,7 +806,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Container(
                       width: 24,
                       height: 24,
@@ -824,7 +824,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: <Widget>[
                           Text(
                             tip['title'],
                             style: TextStyle(
@@ -856,14 +856,14 @@ class NutritionInsightsScreen extends ConsumerWidget {
   }
 
   Widget _buildGoalsProgress(DailyNutritionSummary summary, ColorScheme cs, bool isDark) {
-    final calorieProgress = (summary.totalNutrition.calories / summary.targetCalories).clamp(0.0, 1.0);
+    final double calorieProgress = (summary.totalNutrition.calories / summary.targetCalories).clamp(0.0, 1.0);
     
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? cs.surfaceContainer : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withOpacity(0.1),
             blurRadius: 10,
@@ -873,9 +873,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Row(
-            children: [
+            children: <Widget>[
               Icon(Icons.track_changes, color: cs.primary, size: 24),
               const SizedBox(width: 8),
               Text(
@@ -930,14 +930,14 @@ class NutritionInsightsScreen extends ConsumerWidget {
   }
 
   Widget _buildGoalProgressItem(String label, int current, int target, String unit, Color color, ColorScheme cs) {
-    final progress = (current / target.clamp(1, double.infinity)).clamp(0.0, 1.0);
+    final double progress = (current / target.clamp(1, double.infinity)).clamp(0.0, 1.0);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+          children: <Widget>[
             Text(
               label,
               style: TextStyle(
@@ -975,7 +975,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (BuildContext context) => Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -984,7 +984,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
               'Nutrition Insights Help',
               style: TextStyle(
@@ -1064,7 +1064,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
   }
 
   String _getSustainabilityTip(int highCount, int total) {
-    final percentage = (highCount / total * 100).round();
+    final int percentage = (highCount / total * 100).round();
     if (percentage >= 80) {
       return 'Excellent! You\'re making very sustainable food choices.';
     } else if (percentage >= 50) {
@@ -1075,18 +1075,18 @@ class NutritionInsightsScreen extends ConsumerWidget {
   }
 
   List<Map<String, dynamic>> _generateAITips(List<FoodLogEntry> entries, DailyNutritionSummary summary) {
-    List<Map<String, dynamic>> tips = [];
+    final List<Map<String, dynamic>> tips = <Map<String, dynamic>>[];
     
     // Calorie tip
     if (summary.totalNutrition.calories < summary.targetCalories * 0.8) {
-      tips.add({
+      tips.add(<String, dynamic>{
         'icon': Icons.add_circle,
         'color': Colors.orange,
         'title': 'Increase Calorie Intake',
         'description': 'You\'re below your daily calorie target. Consider adding a healthy snack or increasing portion sizes.',
       });
     } else if (summary.totalNutrition.calories > summary.targetCalories * 1.2) {
-      tips.add({
+      tips.add(<String, dynamic>{
         'icon': Icons.remove_circle,
         'color': Colors.red,
         'title': 'Monitor Calorie Intake',
@@ -1096,7 +1096,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
     
     // Protein tip
     if (summary.totalNutrition.protein < (summary.targetCalories * 0.15 / 4)) {
-      tips.add({
+      tips.add(<String, dynamic>{
         'icon': Icons.fitness_center,
         'color': Colors.blue,
         'title': 'Boost Protein Intake',
@@ -1106,7 +1106,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
     
     // Fiber tip
     if (summary.totalNutrition.fiber < 20) {
-      tips.add({
+      tips.add(<String, dynamic>{
         'icon': Icons.grass,
         'color': Colors.green,
         'title': 'Increase Fiber',
@@ -1115,10 +1115,10 @@ class NutritionInsightsScreen extends ConsumerWidget {
     }
     
     // Sustainability tip
-    final sustainableItems = entries.where((e) => 
+    final int sustainableItems = entries.where((FoodLogEntry e) => 
         e.sustainabilityScore?.toLowerCase() == 'high').length;
     if (sustainableItems < entries.length * 0.5) {
-      tips.add({
+      tips.add(<String, dynamic>{
         'icon': Icons.eco,
         'color': Colors.green,
         'title': 'Choose Sustainable Options',
@@ -1127,9 +1127,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
     }
     
     // Meal frequency tip
-    final mealsToday = entries.length;
+    final int mealsToday = entries.length;
     if (mealsToday < 3) {
-      tips.add({
+      tips.add(<String, dynamic>{
         'icon': Icons.schedule,
         'color': Colors.purple,
         'title': 'Regular Meal Schedule',
@@ -1139,7 +1139,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
     
     // Default tip if no specific recommendations
     if (tips.isEmpty) {
-      tips.add({
+      tips.add(<String, dynamic>{
         'icon': Icons.thumb_up,
         'color': Colors.green,
         'title': 'Great Job!',
@@ -1169,7 +1169,7 @@ class _HelpItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Icon(
             icon,
             color: Theme.of(context).colorScheme.primary,
@@ -1179,7 +1179,7 @@ class _HelpItem extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   title,
                   style: TextStyle(

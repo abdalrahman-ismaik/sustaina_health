@@ -24,9 +24,9 @@ class OnboardingAIScreen extends ConsumerWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: isDark
-              ? [cs.surface, cs.surfaceContainerHighest]
-              : [cs.secondary.withOpacity(0.05), cs.primary.withOpacity(0.05)],
-            stops: const [0.0, 1.0],
+              ? <Color>[cs.surface, cs.surfaceContainerHighest]
+              : <Color>[cs.secondary.withOpacity(0.05), cs.primary.withOpacity(0.05)],
+            stops: const <double>[0.0, 1.0],
           ),
         ),
         child: SafeArea(
@@ -48,13 +48,13 @@ class OnboardingAIScreen extends ConsumerWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [
+                            colors: <Color>[
                               cs.secondaryContainer.withOpacity(0.8),
                               cs.tertiaryContainer.withOpacity(0.8),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
+                          boxShadow: <BoxShadow>[
                             BoxShadow(
                               color: cs.shadow.withOpacity(0.1),
                               blurRadius: 20,
@@ -63,7 +63,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                           ],
                         ),
                         child: Stack(
-                          children: [
+                          children: <Widget>[
                             // Background decoration
                             Positioned.fill(
                               child: ClipRRect(
@@ -73,7 +73,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
-                                      colors: [
+                                      colors: <Color>[
                                         cs.secondary.withOpacity(0.1),
                                         cs.primary.withOpacity(0.1),
                                       ],
@@ -92,7 +92,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                                     tween: Tween<double>(begin: 0.8, end: 1.2),
                                     duration: const Duration(seconds: 2),
                                     curve: Curves.easeInOut,
-                                    builder: (context, double value, child) {
+                                    builder: (BuildContext context, double value, Widget? child) {
                                       return Transform.scale(
                                         scale: value,
                                         child: Container(
@@ -100,7 +100,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                                           decoration: BoxDecoration(
                                             color: cs.surface.withOpacity(0.9),
                                             borderRadius: BorderRadius.circular(20),
-                                            boxShadow: [
+                                            boxShadow: <BoxShadow>[
                                               BoxShadow(
                                                 color: cs.secondary.withOpacity(0.3),
                                                 blurRadius: 20,
@@ -128,7 +128,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: [
+                                      children: <Widget>[
                                         Text(
                                           '🤖',
                                           style: const TextStyle(fontSize: 20),
@@ -224,16 +224,16 @@ class OnboardingAIScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
-                  children: [
+                  children: <Widget>[
                     Container(
                       width: double.infinity,
                       height: 56,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [cs.secondary, cs.tertiary],
+                          colors: <Color>[cs.secondary, cs.tertiary],
                         ),
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
+                        boxShadow: <BoxShadow>[
                           BoxShadow(
                             color: cs.secondary.withOpacity(0.3),
                             blurRadius: 12,
@@ -252,7 +252,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: <Widget>[
                             Icon(Icons.auto_awesome, color: cs.onSecondary),
                             const SizedBox(width: 12),
                             Text(
@@ -297,7 +297,7 @@ class OnboardingAIScreen extends ConsumerWidget {
       tween: Tween<double>(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 800 + animationDelay),
       curve: Curves.elasticOut,
-      builder: (context, double value, child) {
+      builder: (BuildContext context, double value, Widget? child) {
         return Transform.translate(
           offset: Offset(0, 30 * (1 - value.clamp(0.0, 1.0))),
           child: Opacity(
@@ -308,7 +308,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                 color: cs.surfaceContainerLowest,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: accentColor.withOpacity(0.2)),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: accentColor.withOpacity(0.1),
                     blurRadius: 12,
@@ -325,7 +325,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                     height: 64,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [accentColor.withOpacity(0.2), accentColor.withOpacity(0.1)],
+                        colors: <Color>[accentColor.withOpacity(0.2), accentColor.withOpacity(0.1)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -345,7 +345,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Row(
-                          children: [
+                          children: <Widget>[
                             Expanded(
                               child: Text(
                                 title,
@@ -383,7 +383,7 @@ class OnboardingAIScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         // Feature highlights
                         Row(
-                          children: [
+                          children: <Widget>[
                             Icon(
                               Icons.check_circle_outline,
                               size: 16,

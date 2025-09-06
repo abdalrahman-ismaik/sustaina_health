@@ -25,7 +25,7 @@ class PrivacySecurityScreen extends StatelessWidget {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Header Section
             Container(
               width: double.infinity,
@@ -33,13 +33,13 @@ class PrivacySecurityScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: isDark 
-                    ? [cs.primaryContainer, cs.primary.withOpacity(0.7)]
-                    : [cs.primary, cs.primary.withOpacity(0.8)],
+                    ? <Color>[cs.primaryContainer, cs.primary.withOpacity(0.7)]
+                    : <Color>[cs.primary, cs.primary.withOpacity(0.8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: cs.shadow.withOpacity(0.1),
                     blurRadius: 8,
@@ -49,7 +49,7 @@ class PrivacySecurityScreen extends StatelessWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Icon(
                     Icons.security,
                     size: 40,
@@ -82,7 +82,7 @@ class PrivacySecurityScreen extends StatelessWidget {
               icon: Icons.storage,
               title: 'Local Data Storage',
               description: 'All your personal health data, workout records, meal plans, and preferences are stored locally on your device.',
-              details: [
+              details: <String>[
                 'Data stays on your device',
                 'No cloud synchronization',
                 'Full control over your information',
@@ -98,7 +98,7 @@ class PrivacySecurityScreen extends StatelessWidget {
               icon: Icons.visibility_off,
               title: 'No Data Collection',
               description: 'We do not collect, share, or transmit your personal health information to external servers.',
-              details: [
+              details: <String>[
                 'No personal data sent to servers',
                 'No third-party analytics',
                 'No advertising tracking',
@@ -114,7 +114,7 @@ class PrivacySecurityScreen extends StatelessWidget {
               icon: Icons.admin_panel_settings,
               title: 'Your Control',
               description: 'You have complete control over your data and can manage it directly through the app.',
-              details: [
+              details: <String>[
                 'Clear app data anytime',
                 'Export your information',
                 'Uninstall removes all data',
@@ -130,7 +130,7 @@ class PrivacySecurityScreen extends StatelessWidget {
               icon: Icons.lock,
               title: 'Security Features',
               description: 'Your data is protected with industry-standard security measures.',
-              details: [
+              details: <String>[
                 'Encrypted local storage',
                 'Secure authentication',
                 'Regular security updates',
@@ -150,7 +150,7 @@ class PrivacySecurityScreen extends StatelessWidget {
                 border: Border.all(color: cs.outline.withOpacity(0.2)),
               ),
               child: Column(
-                children: [
+                children: <Widget>[
                   Icon(
                     Icons.info_outline,
                     color: cs.primary,
@@ -199,7 +199,7 @@ class PrivacySecurityScreen extends StatelessWidget {
         color: cs.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(color: cs.outline.withOpacity(0.1)),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withOpacity(0.05),
             blurRadius: 8,
@@ -209,10 +209,10 @@ class PrivacySecurityScreen extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           // Section Header
           Row(
-            children: [
+            children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
@@ -229,7 +229,7 @@ class PrivacySecurityScreen extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -253,11 +253,11 @@ class PrivacySecurityScreen extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Details List
-          ...details.map((detail) => Padding(
+          ...details.map((String detail) => Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Icon(
                   Icons.check_circle_outline,
                   color: cs.primary,

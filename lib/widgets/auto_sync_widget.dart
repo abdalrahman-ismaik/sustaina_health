@@ -37,7 +37,7 @@ class _AutoSyncWidgetState extends State<AutoSyncWidget> {
   }
 
   Future<void> _checkAndPerformSync() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final User? user = FirebaseAuth.instance.currentUser;
     if (user == null || _isSyncing || _hasTriggeredSync) {
       print('🔄 AutoSync: Skipping sync - user: ${user?.uid}, syncing: $_isSyncing, triggered: $_hasTriggeredSync');
       return;
@@ -46,7 +46,7 @@ class _AutoSyncWidgetState extends State<AutoSyncWidget> {
     try {
       print('🔄 AutoSync: Checking if initial sync needed...');
       // Check if initial sync has been completed
-      final hasCompleted = await _syncService.hasCompletedInitialSync();
+      final bool hasCompleted = await _syncService.hasCompletedInitialSync();
       
       if (!hasCompleted) {
         print('🔄 AutoSync: Starting initial data sync...');
@@ -59,7 +59,7 @@ class _AutoSyncWidgetState extends State<AutoSyncWidget> {
 
         // Perform background sync
         await _syncService.syncAllDataToCloud(
-          onProgress: (message) {
+          onProgress: (String message) {
             print('🔄 AutoSync Progress: $message');
             if (mounted) {
               setState(() {
@@ -89,7 +89,7 @@ class _AutoSyncWidgetState extends State<AutoSyncWidget> {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: [
+      children: <Widget>[
         widget.child,
         
         // Show progress indicator if syncing and enabled
@@ -103,7 +103,7 @@ class _AutoSyncWidgetState extends State<AutoSyncWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: SafeArea(
                 child: Row(
-                  children: [
+                  children: <Widget>[
                     SizedBox(
                       width: 16,
                       height: 16,

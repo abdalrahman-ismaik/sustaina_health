@@ -2,6 +2,9 @@
     <!-- Camera and Storage Permissions for AI Food Recognition -->
     <uses-permission android:name="android.permission.CAMERA" />
     
+    <!-- Microphone permission for Speech-to-Text -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    
     <!-- Legacy storage permissions for older Android versions -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

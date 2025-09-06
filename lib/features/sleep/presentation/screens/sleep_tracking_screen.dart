@@ -33,7 +33,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -64,7 +64,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
                 border: Border.all(
                   color: colorScheme.outline.withOpacity(0.15),
                 ),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: colorScheme.shadow.withOpacity(0.08),
                     blurRadius: 12,
@@ -125,16 +125,16 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildDateSelectionSection() {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: colorScheme.shadow.withOpacity(0.08),
             blurRadius: 12,
@@ -238,16 +238,16 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildTimeSelectionSection() {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: colorScheme.shadow.withOpacity(0.08),
             blurRadius: 12,
@@ -294,7 +294,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildTimePicker(String label, TimeOfDay? time, IconData icon, Function(TimeOfDay) onTimeSelected) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return InkWell(
       onTap: () async {
@@ -352,16 +352,16 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildSleepQualitySection() {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: colorScheme.shadow.withOpacity(0.08),
             blurRadius: 12,
@@ -424,16 +424,16 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildMoodSection() {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: colorScheme.shadow.withOpacity(0.08),
             blurRadius: 12,
@@ -484,16 +484,16 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
   }
 
   Widget _buildNotesSection() {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: colorScheme.shadow.withOpacity(0.08),
             blurRadius: 12,
@@ -543,7 +543,7 @@ class _SleepTrackingScreenState extends ConsumerState<SleepTrackingScreen> {
 
   Widget _buildSaveButton() {
     final bool isValid = bedtime != null && wakeTime != null;
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return SizedBox(
       width: double.infinity,

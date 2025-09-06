@@ -6,7 +6,7 @@ class ProfileSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -69,7 +69,7 @@ class ProfileSettingsScreen extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const DataSyncPage(),
+                    builder: (BuildContext context) => const DataSyncPage(),
                   ),
                 );
               },
@@ -132,7 +132,7 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
@@ -159,14 +159,14 @@ class _SettingsTile extends StatelessWidget {
       required this.icon,
       required this.title,
       required this.subtitle,
-      this.trailing,
       this.onTap,
+      this.trailing,
       Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return InkWell(
       onTap: onTap,
@@ -175,12 +175,12 @@ class _SettingsTile extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceVariant.withOpacity(0.3),
+          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: colorScheme.outline.withOpacity(0.15),
           ),
-          boxShadow: [
+          boxShadow: <BoxShadow>[
             BoxShadow(
               color: colorScheme.shadow.withOpacity(0.08),
               blurRadius: 12,

@@ -27,7 +27,7 @@ class _FirestoreNutritionDebugPanelState extends State<FirestoreNutritionDebugPa
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
               'Nutrition Firestore Debug Panel',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -60,7 +60,7 @@ class _FirestoreNutritionDebugPanelState extends State<FirestoreNutritionDebugPa
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: [
+              children: <Widget>[
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _testCreateFoodLogEntry,
                   icon: const Icon(Icons.add),
@@ -164,13 +164,13 @@ class _FirestoreNutritionDebugPanelState extends State<FirestoreNutritionDebugPa
           carbohydrates: MacronutrientRange(min: 200, max: 300),
           fat: MacronutrientRange(min: 60, max: 90),
         ),
-        dailyMealPlans: [
+        dailyMealPlans: <DailyMealPlan>[
           DailyMealPlan(
             day: 1,
             date: DateTime.now().toString().split(' ')[0],
             breakfast: const MealOption(
               description: 'Oatmeal with Banana',
-              ingredients: [
+              ingredients: <Ingredient>[
                 Ingredient(ingredient: 'Oats', quantity: '1 cup', calories: 150),
                 Ingredient(ingredient: 'Banana', quantity: '1 medium', calories: 105),
                 Ingredient(ingredient: 'Almond milk', quantity: '1 cup', calories: 95),
@@ -180,7 +180,7 @@ class _FirestoreNutritionDebugPanelState extends State<FirestoreNutritionDebugPa
             ),
             lunch: const MealOption(
               description: 'Grilled Chicken Salad',
-              ingredients: [
+              ingredients: <Ingredient>[
                 Ingredient(ingredient: 'Chicken breast', quantity: '150g', calories: 231),
                 Ingredient(ingredient: 'Mixed greens', quantity: '2 cups', calories: 20),
                 Ingredient(ingredient: 'Olive oil', quantity: '1 tbsp', calories: 119),
@@ -190,7 +190,7 @@ class _FirestoreNutritionDebugPanelState extends State<FirestoreNutritionDebugPa
             ),
             dinner: const MealOption(
               description: 'Quinoa Bowl',
-              ingredients: [
+              ingredients: <Ingredient>[
                 Ingredient(ingredient: 'Quinoa', quantity: '1 cup cooked', calories: 222),
                 Ingredient(ingredient: 'Black beans', quantity: '1/2 cup', calories: 114),
                 Ingredient(ingredient: 'Avocado', quantity: '1/2 medium', calories: 160),
@@ -198,7 +198,7 @@ class _FirestoreNutritionDebugPanelState extends State<FirestoreNutritionDebugPa
               totalCalories: 496,
               recipe: 'Combine cooked quinoa, black beans, and sliced avocado',
             ),
-            snacks: const [],
+            snacks: const <MealOption>[],
             totalDailyCalories: 1216,
             dailyMacros: const DailyMacros(
               protein: 85,
@@ -246,7 +246,7 @@ class _FirestoreNutritionDebugPanelState extends State<FirestoreNutritionDebugPa
         } else {
           _status += 'Entries found:\n';
           for (int i = 0; i < entries.length && i < 5; i++) {
-            final entry = entries[i];
+            final FoodLogEntry entry = entries[i];
             _status += '${i + 1}. ${entry.foodName} (${entry.mealType}) - ${entry.nutritionInfo.calories} cal\n';
           }
           if (entries.length > 5) {
@@ -289,7 +289,7 @@ class _FirestoreNutritionDebugPanelState extends State<FirestoreNutritionDebugPa
                  'Meal Distribution:\n';
         
         final Map<String, dynamic> mealTypes = analytics['mealTypeDistribution'] as Map<String, dynamic>;
-        mealTypes.forEach((type, count) {
+        mealTypes.forEach((String type, count) {
           _status += '$type: $count entries\n';
         });
         

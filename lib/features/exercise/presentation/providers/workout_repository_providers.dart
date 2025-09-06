@@ -5,16 +5,16 @@ import '../../data/services/firestore_workout_service.dart';
 import '../../data/models/workout_models.dart';
 
 // Providers for services
-final localWorkoutStorageProvider = Provider<LocalWorkoutStorageService>((ref) {
+final Provider<LocalWorkoutStorageService> localWorkoutStorageProvider = Provider<LocalWorkoutStorageService>((ProviderRef<LocalWorkoutStorageService> ref) {
   return LocalWorkoutStorageService();
 });
 
-final firestoreWorkoutServiceProvider = Provider<FirestoreWorkoutService>((ref) {
+final Provider<FirestoreWorkoutService> firestoreWorkoutServiceProvider = Provider<FirestoreWorkoutService>((ProviderRef<FirestoreWorkoutService> ref) {
   return FirestoreWorkoutService();
 });
 
 // Main hybrid repository provider
-final hybridWorkoutRepositoryProvider = Provider<HybridWorkoutRepository>((ref) {
+final Provider<HybridWorkoutRepository> hybridWorkoutRepositoryProvider = Provider<HybridWorkoutRepository>((ProviderRef<HybridWorkoutRepository> ref) {
   return HybridWorkoutRepository(
     localService: ref.read(localWorkoutStorageProvider),
     firestoreService: ref.read(firestoreWorkoutServiceProvider),
@@ -22,24 +22,24 @@ final hybridWorkoutRepositoryProvider = Provider<HybridWorkoutRepository>((ref) 
 });
 
 // Stream provider for workout plans
-final workoutPlansStreamProvider = StreamProvider<List<SavedWorkoutPlan>>((ref) {
-  final repository = ref.read(hybridWorkoutRepositoryProvider);
+final StreamProvider<List<SavedWorkoutPlan>> workoutPlansStreamProvider = StreamProvider<List<SavedWorkoutPlan>>((StreamProviderRef<List<SavedWorkoutPlan>> ref) {
+  final HybridWorkoutRepository repository = ref.read(hybridWorkoutRepositoryProvider);
   return repository.watchWorkoutPlans();
 });
 
 // Future provider for sync status
-final syncStatusProvider = FutureProvider<Map<String, int>>((ref) {
-  final repository = ref.read(hybridWorkoutRepositoryProvider);
+final FutureProvider<Map<String, int>> syncStatusProvider = FutureProvider<Map<String, int>>((FutureProviderRef<Map<String, int>> ref) {
+  final HybridWorkoutRepository repository = ref.read(hybridWorkoutRepositoryProvider);
   return repository.getSyncStatus();
 });
 
 // State provider for sync state
-final isSyncingProvider = StateProvider<bool>((ref) => false);
+final StateProvider<bool> isSyncingProvider = StateProvider<bool>((StateProviderRef<bool> ref) => false);
 
 // Provider for manual sync action
-final syncActionProvider = Provider<Future<void> Function()>((ref) {
+final Provider<Future<void> Function()> syncActionProvider = Provider<Future<void> Function()>((ProviderRef<Future<void> Function()> ref) {
   return () async {
-    final repository = ref.read(hybridWorkoutRepositoryProvider);
+    final HybridWorkoutRepository repository = ref.read(hybridWorkoutRepositoryProvider);
     ref.read(isSyncingProvider.notifier).state = true;
     
     try {
@@ -55,9 +55,9 @@ final syncActionProvider = Provider<Future<void> Function()>((ref) {
 });
 
 // Provider for creating a new workout
-final createWorkoutProvider = Provider<Future<String> Function(String, WorkoutPlan)>((ref) {
+final Provider<Future<String> Function(String p1, WorkoutPlan p2)> createWorkoutProvider = Provider<Future<String> Function(String, WorkoutPlan)>((ProviderRef<Future<String> Function(String p1, WorkoutPlan p2)> ref) {
   return (String name, WorkoutPlan workoutPlan) async {
-    final repository = ref.read(hybridWorkoutRepositoryProvider);
+    final HybridWorkoutRepository repository = ref.read(hybridWorkoutRepositoryProvider);
     return await repository.saveWorkoutPlan(
       name: name,
       workoutPlan: workoutPlan,
@@ -66,8 +66,8 @@ final createWorkoutProvider = Provider<Future<String> Function(String, WorkoutPl
 });
 
 // Provider for workout actions
-final workoutActionsProvider = Provider<WorkoutActions>((ref) {
-  final repository = ref.read(hybridWorkoutRepositoryProvider);
+final Provider<WorkoutActions> workoutActionsProvider = Provider<WorkoutActions>((ProviderRef<WorkoutActions> ref) {
+  final HybridWorkoutRepository repository = ref.read(hybridWorkoutRepositoryProvider);
   return WorkoutActions(repository);
 });
 

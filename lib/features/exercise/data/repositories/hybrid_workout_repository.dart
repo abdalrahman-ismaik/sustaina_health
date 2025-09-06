@@ -74,7 +74,7 @@ class HybridWorkoutRepository {
     for (final SavedWorkoutPlan firestoreWorkout in firestoreWorkouts) {
       // Find corresponding local workout
       final SavedWorkoutPlan? localWorkout = localWorkouts
-          .where((w) => w.firestoreId == firestoreWorkout.firestoreId || w.id == firestoreWorkout.id)
+          .where((SavedWorkoutPlan w) => w.firestoreId == firestoreWorkout.firestoreId || w.id == firestoreWorkout.id)
           .firstOrNull;
       
       if (localWorkout == null) {
@@ -248,7 +248,7 @@ class HybridWorkoutRepository {
     
     try {
       final List<SavedWorkoutPlan> workouts = await _localService.getSavedWorkoutPlans();
-      final List<SavedWorkoutPlan> unsyncedWorkouts = workouts.where((w) => !w.isSynced).toList();
+      final List<SavedWorkoutPlan> unsyncedWorkouts = workouts.where((SavedWorkoutPlan w) => !w.isSynced).toList();
       
       for (final SavedWorkoutPlan workout in unsyncedWorkouts) {
         await _syncWorkoutToFirestore(workout);
@@ -286,10 +286,10 @@ class HybridWorkoutRepository {
   Future<Map<String, int>> getSyncStatus() async {
     final List<SavedWorkoutPlan> workouts = await _localService.getSavedWorkoutPlans();
     final int total = workouts.length;
-    final int synced = workouts.where((w) => w.isSynced).length;
+    final int synced = workouts.where((SavedWorkoutPlan w) => w.isSynced).length;
     final int pending = total - synced;
     
-    return {
+    return <String, int>{
       'total': total,
       'synced': synced,
       'pending': pending,

@@ -38,7 +38,7 @@ class FirestoreProfileService {
     
     final DocumentSnapshot doc = await profileDoc.get();
     if (!doc.exists) {
-      await profileDoc.set({
+      await profileDoc.set(<String, Object>{
         'module': 'profile',
         'createdAt': FieldValue.serverTimestamp(),
         'lastUpdated': FieldValue.serverTimestamp(),
@@ -81,7 +81,7 @@ class FirestoreProfileService {
     try {
       await ensureProfileModuleExists();
       
-      final Map<String, dynamic> data = {
+      final Map<String, dynamic> data = <String, dynamic>{
         ...goal,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -101,7 +101,7 @@ class FirestoreProfileService {
           .get();
 
       return snapshot.docs
-          .map((doc) => {
+          .map((QueryDocumentSnapshot<Object?> doc) => <String, dynamic>{
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
               })
@@ -113,7 +113,7 @@ class FirestoreProfileService {
 
   Future<void> updateHealthGoal(String goalId, Map<String, dynamic> updates) async {
     try {
-      final Map<String, dynamic> data = {
+      final Map<String, dynamic> data = <String, dynamic>{
         ...updates,
         'updatedAt': FieldValue.serverTimestamp(),
       };
@@ -137,7 +137,7 @@ class FirestoreProfileService {
     try {
       await ensureProfileModuleExists();
       
-      final Map<String, dynamic> data = {
+      final Map<String, dynamic> data = <String, dynamic>{
         ...preferences,
         'updatedAt': FieldValue.serverTimestamp(),
       };
@@ -168,7 +168,7 @@ class FirestoreProfileService {
     try {
       await ensureProfileModuleExists();
       
-      final Map<String, dynamic> data = {
+      final Map<String, dynamic> data = <String, dynamic>{
         ...achievement,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -188,7 +188,7 @@ class FirestoreProfileService {
           .get();
 
       return snapshot.docs
-          .map((doc) => {
+          .map((QueryDocumentSnapshot<Object?> doc) => <String, dynamic>{
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
               })
@@ -200,7 +200,7 @@ class FirestoreProfileService {
 
   // Real-time streams
   Stream<UserProfile?> watchPersonalInfo() {
-    return _personalInfoCollection.doc('current').snapshots().map((doc) {
+    return _personalInfoCollection.doc('current').snapshots().map((DocumentSnapshot<Object?> doc) {
       if (!doc.exists) return null;
       return UserProfile.fromJson(doc.data() as Map<String, dynamic>);
     });
@@ -210,8 +210,8 @@ class FirestoreProfileService {
     return _healthGoalsCollection
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => {
+        .map((QuerySnapshot<Object?> snapshot) => snapshot.docs
+            .map((QueryDocumentSnapshot<Object?> doc) => <String, dynamic>{
                   ...doc.data() as Map<String, dynamic>,
                   'id': doc.id,
                 })
@@ -222,8 +222,8 @@ class FirestoreProfileService {
     return _achievementsCollection
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => {
+        .map((QuerySnapshot<Object?> snapshot) => snapshot.docs
+            .map((QueryDocumentSnapshot<Object?> doc) => <String, dynamic>{
                   ...doc.data() as Map<String, dynamic>,
                   'id': doc.id,
                 })
@@ -235,20 +235,20 @@ class FirestoreProfileService {
     try {
       await ensureProfileModuleExists();
       
-      final futures = await Future.wait([
+      final List<QuerySnapshot<Object?>> futures = await Future.wait(<Future<QuerySnapshot<Object?>>>[
         _healthGoalsCollection.get(),
         _achievementsCollection.get(),
       ]);
 
-      return {
+      return <String, int>{
         'totalHealthGoals': futures[0].size,
         'totalAchievements': futures[1].size,
-        'activeGoals': futures[0].docs.where((doc) {
-          final data = doc.data() as Map<String, dynamic>;
+        'activeGoals': futures[0].docs.where((QueryDocumentSnapshot<Object?> doc) {
+          final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
           return data['status'] == 'active' || data['isActive'] == true;
         }).length,
-        'completedAchievements': futures[1].docs.where((doc) {
-          final data = doc.data() as Map<String, dynamic>;
+        'completedAchievements': futures[1].docs.where((QueryDocumentSnapshot<Object?> doc) {
+          final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
           return data['completed'] == true || data['status'] == 'completed';
         }).length,
       };

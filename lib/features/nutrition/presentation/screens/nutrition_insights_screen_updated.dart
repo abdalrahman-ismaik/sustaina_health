@@ -43,7 +43,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
               dailySummaryState.when(
                 data: (DailyNutritionSummary summary) => _buildDailySummary(summary, cs),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => _buildErrorCard(error.toString(), cs),
+                error: (Object error, StackTrace stack) => _buildErrorCard(error.toString(), cs),
               ),
               
               const SizedBox(height: 24),
@@ -52,7 +52,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
               foodLogState.when(
                 data: (List<FoodLogEntry> entries) => _buildWeeklyTrends(entries, cs),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => _buildErrorCard(error.toString(), cs),
+                error: (Object error, StackTrace stack) => _buildErrorCard(error.toString(), cs),
               ),
               
               const SizedBox(height: 24),
@@ -61,7 +61,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
               foodLogState.when(
                 data: (List<FoodLogEntry> entries) => _buildFoodLogInsights(entries, cs),
                 loading: () => const SizedBox.shrink(),
-                error: (error, stack) => const SizedBox.shrink(),
+                error: (Object error, StackTrace stack) => const SizedBox.shrink(),
               ),
               
               const SizedBox(height: 80), // For bottom nav spacing
@@ -80,7 +80,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
               'Today\'s Summary',
               style: TextStyle(
@@ -92,7 +92,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
+              children: <Widget>[
                 _buildSummaryItem(
                   'Calories',
                   '${summary.totalNutrition.calories}/${summary.targetCalories}',
@@ -129,7 +129,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
 
   Widget _buildSummaryItem(String title, String value, double progress, Color color) {
     return Column(
-      children: [
+      children: <Widget>[
         CircularProgressIndicator(
           value: progress.clamp(0.0, 1.0),
           backgroundColor: color.withOpacity(0.2),
@@ -163,7 +163,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            children: [
+            children: <Widget>[
               Icon(
                 Icons.trending_up,
                 size: 48,
@@ -193,18 +193,18 @@ class NutritionInsightsScreen extends ConsumerWidget {
     }
 
     // Calculate weekly trends
-    final totalCalories = entries.fold(0, (sum, entry) => sum + entry.nutritionInfo.calories);
-    final avgCaloriesPerMeal = entries.isNotEmpty ? totalCalories / entries.length : 0;
-    final totalProtein = entries.fold(0.0, (sum, entry) => sum + entry.nutritionInfo.protein);
-    final avgSustainabilityScore = entries.isNotEmpty 
-        ? entries.where((e) => e.sustainabilityScore != null)
-            .map((e) => double.tryParse(e.sustainabilityScore!) ?? 0.0)
-            .fold(0.0, (a, b) => a + b) / entries.length
+    final int totalCalories = entries.fold(0, (int sum, FoodLogEntry entry) => sum + entry.nutritionInfo.calories);
+    final num avgCaloriesPerMeal = entries.isNotEmpty ? totalCalories / entries.length : 0;
+    final double totalProtein = entries.fold(0.0, (double sum, FoodLogEntry entry) => sum + entry.nutritionInfo.protein);
+    final double avgSustainabilityScore = entries.isNotEmpty 
+        ? entries.where((FoodLogEntry e) => e.sustainabilityScore != null)
+            .map((FoodLogEntry e) => double.tryParse(e.sustainabilityScore!) ?? 0.0)
+            .fold(0.0, (double a, double b) => a + b) / entries.length
         : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Text(
           'Weekly Trends',
           style: TextStyle(
@@ -235,11 +235,11 @@ class NutritionInsightsScreen extends ConsumerWidget {
         border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Row(
-        children: [
+        children: <Widget>[
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Text(
                   title,
                   style: TextStyle(
@@ -289,18 +289,18 @@ class NutritionInsightsScreen extends ConsumerWidget {
     if (entries.isEmpty) return const SizedBox.shrink();
 
     // Analyze meal types
-    final mealTypeCount = <String, int>{};
-    for (final entry in entries) {
+    final Map<String, int> mealTypeCount = <String, int>{};
+    for (final FoodLogEntry entry in entries) {
       mealTypeCount[entry.mealType] = (mealTypeCount[entry.mealType] ?? 0) + 1;
     }
 
-    final mostLoggedMeal = mealTypeCount.entries
-        .reduce((a, b) => a.value > b.value ? a : b)
+    final String mostLoggedMeal = mealTypeCount.entries
+        .reduce((MapEntry<String, int> a, MapEntry<String, int> b) => a.value > b.value ? a : b)
         .key;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      children: <Widget>[
         Text(
           'Food Log Insights',
           style: TextStyle(
@@ -317,9 +317,9 @@ class NutritionInsightsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Row(
-                  children: [
+                  children: <Widget>[
                     Icon(Icons.insights, color: cs.primary),
                     const SizedBox(width: 8),
                     Text(
@@ -362,7 +362,7 @@ class NutritionInsightsScreen extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          children: [
+          children: <Widget>[
             Icon(
               Icons.error_outline,
               size: 48,

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import '../../../profile/data/services/hybrid_profile_service.dart';
 import '../../../profile/data/models/user_profile_model.dart';
 import '../../presentation/providers/auth_providers.dart';
@@ -56,7 +57,7 @@ class ProfileSetupService {
       if (profile == null) return 0.0;
       
       int completedFields = 0;
-      int totalRequiredFields = 7; // weight, height, age, sex, fitnessGoal, workoutsPerWeek, activityLevel
+      final int totalRequiredFields = 7; // weight, height, age, sex, fitnessGoal, workoutsPerWeek, activityLevel
       
       if (profile.weight != null) completedFields++;
       if (profile.height != null) completedFields++;
@@ -75,26 +76,26 @@ class ProfileSetupService {
 }
 
 // Provider for the ProfileSetupService
-final profileSetupServiceProvider = Provider<ProfileSetupService>((ref) {
+final Provider<ProfileSetupService> profileSetupServiceProvider = Provider<ProfileSetupService>((ProviderRef<ProfileSetupService> ref) {
   return ProfileSetupService();
 });
 
 // Provider to check if profile setup is completed
-final profileSetupCompletedProvider = FutureProvider<bool>((ref) async {
+final FutureProvider<bool> profileSetupCompletedProvider = FutureProvider<bool>((FutureProviderRef<bool> ref) async {
   // Watch the auth state to refresh when user changes
-  final authState = ref.watch(authStateProvider);
+  final AsyncValue<UserEntity?> authState = ref.watch(authStateProvider);
   
   // Only check profile if user is authenticated
   if (!authState.hasValue || authState.value == null) {
     return false;
   }
   
-  final service = ref.read(profileSetupServiceProvider);
+  final ProfileSetupService service = ref.read(profileSetupServiceProvider);
   return await service.hasCompletedProfileSetup();
 });
 
 // Provider for profile completion percentage
-final profileCompletionPercentageProvider = FutureProvider<double>((ref) async {
-  final service = ref.read(profileSetupServiceProvider);
+final FutureProvider<double> profileCompletionPercentageProvider = FutureProvider<double>((FutureProviderRef<double> ref) async {
+  final ProfileSetupService service = ref.read(profileSetupServiceProvider);
   return await service.getProfileCompletionPercentage();
 });

@@ -38,7 +38,7 @@ class FirestoreNutritionService {
     
     final DocumentSnapshot doc = await nutritionDoc.get();
     if (!doc.exists) {
-      await nutritionDoc.set({
+      await nutritionDoc.set(<String, Object>{
         'module': 'nutrition',
         'createdAt': FieldValue.serverTimestamp(),
         'lastUpdated': FieldValue.serverTimestamp(),
@@ -94,7 +94,7 @@ class FirestoreNutritionService {
           .get();
 
       return snapshot.docs
-          .map((doc) => FoodLogEntry.fromJson({
+          .map((QueryDocumentSnapshot<Object?> doc) => FoodLogEntry.fromJson(<String, dynamic>{
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
               }))
@@ -111,7 +111,7 @@ class FirestoreNutritionService {
           .get();
 
       return snapshot.docs
-          .map((doc) => FoodLogEntry.fromJson({
+          .map((QueryDocumentSnapshot<Object?> doc) => FoodLogEntry.fromJson(<String, dynamic>{
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
               }))
@@ -127,7 +127,7 @@ class FirestoreNutritionService {
       // Ensure nutrition module exists
       await ensureNutritionModuleExists();
       
-      final Map<String, dynamic> data = {
+      final Map<String, dynamic> data = <String, dynamic>{
         'id': planId,
         'mealPlan': mealPlan.toJson(),
         'createdAt': FieldValue.serverTimestamp(),
@@ -159,7 +159,7 @@ class FirestoreNutritionService {
   Future<List<String>> getAllMealPlanIds() async {
     try {
       final QuerySnapshot snapshot = await _mealPlansCollection.get();
-      return snapshot.docs.map((doc) => doc.id).toList();
+      return snapshot.docs.map((QueryDocumentSnapshot<Object?> doc) => doc.id).toList();
     } catch (e) {
       throw Exception('Failed to get meal plan IDs: $e');
     }
@@ -183,8 +183,8 @@ class FirestoreNutritionService {
         .where('loggedAt', isLessThan: endOfDay.toIso8601String())
         .orderBy('loggedAt')
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => FoodLogEntry.fromJson({
+        .map((QuerySnapshot<Object?> snapshot) => snapshot.docs
+            .map((QueryDocumentSnapshot<Object?> doc) => FoodLogEntry.fromJson(<String, dynamic>{
                   ...doc.data() as Map<String, dynamic>,
                   'id': doc.id,
                 }))
@@ -192,8 +192,8 @@ class FirestoreNutritionService {
   }
 
   Stream<List<String>> streamMealPlanIds() {
-    return _mealPlansCollection.snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => doc.id).toList());
+    return _mealPlansCollection.snapshots().map((QuerySnapshot<Object?> snapshot) =>
+        snapshot.docs.map((QueryDocumentSnapshot<Object?> doc) => doc.id).toList());
   }
 
   // Batch operations
@@ -235,7 +235,7 @@ class FirestoreNutritionService {
 
       final QuerySnapshot snapshot = await query.get();
       final List<FoodLogEntry> entries = snapshot.docs
-          .map((doc) => FoodLogEntry.fromJson({
+          .map((QueryDocumentSnapshot<Object?> doc) => FoodLogEntry.fromJson(<String, dynamic>{
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
               }))
@@ -246,7 +246,7 @@ class FirestoreNutritionService {
       int totalProtein = 0;
       int totalCarbs = 0;
       int totalFat = 0;
-      Map<String, int> mealTypeCount = {};
+      final Map<String, int> mealTypeCount = <String, int>{};
 
       for (final FoodLogEntry entry in entries) {
         totalCalories += entry.nutritionInfo.calories;
@@ -257,7 +257,7 @@ class FirestoreNutritionService {
         mealTypeCount[entry.mealType] = (mealTypeCount[entry.mealType] ?? 0) + 1;
       }
 
-      return {
+      return <String, dynamic>{
         'totalEntries': entries.length,
         'totalCalories': totalCalories,
         'totalProtein': totalProtein,
@@ -267,7 +267,7 @@ class FirestoreNutritionService {
             ? totalCalories / entries.length 
             : 0,
         'mealTypeDistribution': mealTypeCount,
-        'dateRange': {
+        'dateRange': <String, String?>{
           'start': startDate?.toIso8601String(),
           'end': endDate?.toIso8601String(),
         },
@@ -285,14 +285,14 @@ class FirestoreNutritionService {
           .get();
 
       final List<FoodLogEntry> allEntries = snapshot.docs
-          .map((doc) => FoodLogEntry.fromJson({
+          .map((QueryDocumentSnapshot<Object?> doc) => FoodLogEntry.fromJson(<String, dynamic>{
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
               }))
           .toList();
 
       // Filter by search term (case-insensitive)
-      return allEntries.where((entry) =>
+      return allEntries.where((FoodLogEntry entry) =>
           entry.foodName.toLowerCase().contains(searchTerm.toLowerCase()) ||
           entry.mealType.toLowerCase().contains(searchTerm.toLowerCase())).toList();
     } catch (e) {

@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
     Timer(const Duration(seconds: 3), () async {
       if (mounted) {
         // Check if user has seen onboarding before
-        final hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
+        final bool hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
         
         if (!hasSeenOnboarding) {
           // First time user - show onboarding
@@ -82,9 +82,9 @@ class _SplashScreenState extends State<SplashScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: isDark 
-              ? [cs.surface, cs.surfaceContainerHighest]
-              : [cs.primary.withOpacity(0.1), cs.secondary.withOpacity(0.1)],
-            stops: const [0.0, 1.0],
+              ? <Color>[cs.surface, cs.surfaceContainerHighest]
+              : <Color>[cs.primary.withOpacity(0.1), cs.secondary.withOpacity(0.1)],
+            stops: const <double>[0.0, 1.0],
           ),
         ),
         child: SafeArea(
@@ -98,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen>
                   // Animated logo container
                   AnimatedBuilder(
                     animation: _animationController,
-                    builder: (context, child) {
+                    builder: (BuildContext context, Widget? child) {
                       return Transform.scale(
                         scale: 0.8 + (_loadingAnimation.value * 0.2),
                         child: Container(
@@ -106,12 +106,12 @@ class _SplashScreenState extends State<SplashScreen>
                           height: 120,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [cs.primary, cs.secondary],
+                              colors: <Color>[cs.primary, cs.secondary],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
+                            boxShadow: <BoxShadow>[
                               BoxShadow(
                                 color: cs.primary.withOpacity(0.3),
                                 blurRadius: 20,
@@ -132,11 +132,11 @@ class _SplashScreenState extends State<SplashScreen>
                   // App name with fade animation
                   AnimatedBuilder(
                     animation: _animationController,
-                    builder: (context, child) {
+                    builder: (BuildContext context, Widget? child) {
                       return Opacity(
                         opacity: _loadingAnimation.value,
                         child: Column(
-                          children: [
+                          children: <Widget>[
                             Text(
                               'SustainaHealth',
                               textAlign: TextAlign.center,
@@ -223,8 +223,8 @@ class _SplashScreenState extends State<SplashScreen>
                         // Loading status text
                         AnimatedBuilder(
                           animation: _animationController,
-                          builder: (context, child) {
-                            List<String> loadingSteps = [
+                          builder: (BuildContext context, Widget? child) {
+                            final List<String> loadingSteps = <String>[
                               'Loading resources...',
                               'Preparing AI models...',
                               'Setting up environment...',
@@ -254,7 +254,7 @@ class _SplashScreenState extends State<SplashScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
+                      children: <Widget>[
                         _buildFeatureIcon(context, Icons.fitness_center, 'Exercise'),
                         _buildFeatureIcon(context, Icons.restaurant_menu, 'Nutrition'),
                         _buildFeatureIcon(context, Icons.bedtime, 'Sleep'),
@@ -284,12 +284,12 @@ class _SplashScreenState extends State<SplashScreen>
     
     return AnimatedBuilder(
       animation: _animationController,
-      builder: (context, child) {
+      builder: (BuildContext context, Widget? child) {
         return Opacity(
           opacity: _loadingProgress * 0.6 + 0.4,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(

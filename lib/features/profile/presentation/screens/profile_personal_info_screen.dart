@@ -30,7 +30,7 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -181,7 +181,7 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
   }
 
   InputDecoration _inputDecoration(String label) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return InputDecoration(
       labelText: label,
       filled: true,
@@ -212,11 +212,11 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
   }
 
   Widget _unitToggle(String left, String right, String groupValue, ValueChanged<String> onChanged) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: colorScheme.outline.withOpacity(0.3),
@@ -233,7 +233,7 @@ class _ProfilePersonalInfoScreenState extends State<ProfilePersonalInfoScreen> {
   }
 
   Widget _toggleButton(String text, bool selected, VoidCallback onTap) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(

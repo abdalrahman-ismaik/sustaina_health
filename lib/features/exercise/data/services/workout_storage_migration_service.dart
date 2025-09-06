@@ -76,7 +76,7 @@ class WorkoutStorageMigrationService {
       print('Starting Firestore migration...');
       
       final List<SavedWorkoutPlan> localWorkouts = await _localService.getSavedWorkoutPlans();
-      final List<SavedWorkoutPlan> unsyncedWorkouts = localWorkouts.where((w) => !w.isSynced).toList();
+      final List<SavedWorkoutPlan> unsyncedWorkouts = localWorkouts.where((SavedWorkoutPlan w) => !w.isSynced).toList();
       
       int migratedCount = 0;
       int failedCount = 0;
@@ -183,11 +183,11 @@ class WorkoutStorageMigrationService {
     try {
       final List<SavedWorkoutPlan> workouts = await _localService.getSavedWorkoutPlans();
       
-      int totalCount = workouts.length;
-      int syncedCount = workouts.where((w) => w.isSynced).length;
-      int unsyncedCount = totalCount - syncedCount;
+      final int totalCount = workouts.length;
+      final int syncedCount = workouts.where((SavedWorkoutPlan w) => w.isSynced).length;
+      final int unsyncedCount = totalCount - syncedCount;
       // Legacy workouts are those that are unsynced and don't have a firestoreId
-      int legacyCount = workouts.where((w) => !w.isSynced && w.firestoreId == null).length;
+      final int legacyCount = workouts.where((SavedWorkoutPlan w) => !w.isSynced && w.firestoreId == null).length;
       
       return MigrationStatus(
         totalWorkouts: totalCount,

@@ -42,7 +42,7 @@ class FirestoreSleepService {
     
     final DocumentSnapshot doc = await sleepDoc.get();
     if (!doc.exists) {
-      await sleepDoc.set({
+      await sleepDoc.set(<String, Object>{
         'module': 'sleep',
         'createdAt': FieldValue.serverTimestamp(),
         'lastUpdated': FieldValue.serverTimestamp(),
@@ -65,10 +65,10 @@ class FirestoreSleepService {
   }
 
   Future<SleepSession?> getSleepSession(String sessionId) async {
-    final doc = await _sleepSessionsCollection.doc(sessionId).get();
+    final DocumentSnapshot<Object?> doc = await _sleepSessionsCollection.doc(sessionId).get();
     if (!doc.exists) return null;
     
-    final data = doc.data() as Map<String, dynamic>;
+    final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return SleepSession.fromJson(data);
   }
 
@@ -92,9 +92,9 @@ class FirestoreSleepService {
       query = query.limit(limit);
     }
 
-    final snapshot = await query.get();
+    final QuerySnapshot<Object?> snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
+        .map((QueryDocumentSnapshot<Object?> doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
         .toList();
   }
 
@@ -120,10 +120,10 @@ class FirestoreSleepService {
   }
 
   Future<SleepGoal?> getSleepGoal(String goalId) async {
-    final doc = await _sleepGoalsCollection.doc(goalId).get();
+    final DocumentSnapshot<Object?> doc = await _sleepGoalsCollection.doc(goalId).get();
     if (!doc.exists) return null;
     
-    final data = doc.data() as Map<String, dynamic>;
+    final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return SleepGoal.fromJson(data);
   }
 
@@ -134,9 +134,9 @@ class FirestoreSleepService {
       query = query.limit(limit);
     }
 
-    final snapshot = await query.get();
+    final QuerySnapshot<Object?> snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => SleepGoal.fromJson(doc.data() as Map<String, dynamic>))
+        .map((QueryDocumentSnapshot<Object?> doc) => SleepGoal.fromJson(doc.data() as Map<String, dynamic>))
         .toList();
   }
 
@@ -155,10 +155,10 @@ class FirestoreSleepService {
   }
 
   Future<SleepReminder?> getSleepReminder(String reminderId) async {
-    final doc = await _sleepRemindersCollection.doc(reminderId).get();
+    final DocumentSnapshot<Object?> doc = await _sleepRemindersCollection.doc(reminderId).get();
     if (!doc.exists) return null;
     
-    final data = doc.data() as Map<String, dynamic>;
+    final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return SleepReminder.fromJson(data);
   }
 
@@ -169,9 +169,9 @@ class FirestoreSleepService {
       query = query.limit(limit);
     }
 
-    final snapshot = await query.get();
+    final QuerySnapshot<Object?> snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => SleepReminder.fromJson(doc.data() as Map<String, dynamic>))
+        .map((QueryDocumentSnapshot<Object?> doc) => SleepReminder.fromJson(doc.data() as Map<String, dynamic>))
         .toList();
   }
 
@@ -190,10 +190,10 @@ class FirestoreSleepService {
   }
 
   Future<SleepInsight?> getSleepInsight(String insightId) async {
-    final doc = await _sleepInsightsCollection.doc(insightId).get();
+    final DocumentSnapshot<Object?> doc = await _sleepInsightsCollection.doc(insightId).get();
     if (!doc.exists) return null;
     
-    final data = doc.data() as Map<String, dynamic>;
+    final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return SleepInsight.fromJson(data);
   }
 
@@ -213,15 +213,15 @@ class FirestoreSleepService {
       query = query.limit(limit);
     }
 
-    final snapshot = await query.get();
+    final QuerySnapshot<Object?> snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => SleepInsight.fromJson(doc.data() as Map<String, dynamic>))
+        .map((QueryDocumentSnapshot<Object?> doc) => SleepInsight.fromJson(doc.data() as Map<String, dynamic>))
         .toList();
   }
 
   // Sleep Stats methods
   Future<void> saveSleepStats(String statsId, SleepStats stats) async {
-    final statsData = {
+    final Map<String, Object> statsData = <String, Object>{
       'id': statsId,
       'userId': _userId,
       'stats': stats.toJson(),
@@ -232,10 +232,10 @@ class FirestoreSleepService {
   }
 
   Future<SleepStats?> getSleepStats(String statsId) async {
-    final doc = await _sleepStatsCollection.doc(statsId).get();
+    final DocumentSnapshot<Object?> doc = await _sleepStatsCollection.doc(statsId).get();
     if (!doc.exists) return null;
     
-    final data = doc.data() as Map<String, dynamic>;
+    final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return SleepStats.fromJson(data['stats'] as Map<String, dynamic>);
   }
 
@@ -246,9 +246,9 @@ class FirestoreSleepService {
       query = query.limit(limit);
     }
 
-    final snapshot = await query.get();
+    final QuerySnapshot<Object?> snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
+        .map((QueryDocumentSnapshot<Object?> doc) => doc.data() as Map<String, dynamic>)
         .toList();
   }
 
@@ -261,17 +261,17 @@ class FirestoreSleepService {
     Query query = _sleepSessionsCollection.orderBy('startTime', descending: true);
 
     if (date != null) {
-      final startOfDay = DateTime(date.year, date.month, date.day);
-      final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+      final DateTime startOfDay = DateTime(date.year, date.month, date.day);
+      final DateTime endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
       
       query = query
           .where('startTime', isGreaterThanOrEqualTo: startOfDay.toIso8601String())
           .where('startTime', isLessThanOrEqualTo: endOfDay.toIso8601String());
     }
 
-    return query.snapshots().map((snapshot) =>
+    return query.snapshots().map((QuerySnapshot<Object?> snapshot) =>
         snapshot.docs
-            .map((doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
+            .map((QueryDocumentSnapshot<Object?> doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
             .toList());
   }
 
@@ -279,9 +279,9 @@ class FirestoreSleepService {
     return _sleepGoalsCollection
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) =>
+        .map((QuerySnapshot<Object?> snapshot) =>
             snapshot.docs
-                .map((doc) => SleepGoal.fromJson(doc.data() as Map<String, dynamic>))
+                .map((QueryDocumentSnapshot<Object?> doc) => SleepGoal.fromJson(doc.data() as Map<String, dynamic>))
                 .toList());
   }
 
@@ -289,9 +289,9 @@ class FirestoreSleepService {
     return _sleepRemindersCollection
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) =>
+        .map((QuerySnapshot<Object?> snapshot) =>
             snapshot.docs
-                .map((doc) => SleepReminder.fromJson(doc.data() as Map<String, dynamic>))
+                .map((QueryDocumentSnapshot<Object?> doc) => SleepReminder.fromJson(doc.data() as Map<String, dynamic>))
                 .toList());
   }
 
@@ -302,18 +302,18 @@ class FirestoreSleepService {
       query = query.where('type', isEqualTo: type.name);
     }
 
-    return query.snapshots().map((snapshot) =>
+    return query.snapshots().map((QuerySnapshot<Object?> snapshot) =>
         snapshot.docs
-            .map((doc) => SleepInsight.fromJson(doc.data() as Map<String, dynamic>))
+            .map((QueryDocumentSnapshot<Object?> doc) => SleepInsight.fromJson(doc.data() as Map<String, dynamic>))
             .toList());
   }
 
   // Batch operations
   Future<void> batchSaveSleepSessions(List<SleepSession> sessions) async {
-    final batch = _firestore.batch();
+    final WriteBatch batch = _firestore.batch();
 
-    for (final session in sessions) {
-      final docRef = _sleepSessionsCollection.doc(session.id);
+    for (final SleepSession session in sessions) {
+      final DocumentReference<Object?> docRef = _sleepSessionsCollection.doc(session.id);
       batch.set(docRef, session.toJson());
     }
 
@@ -321,10 +321,10 @@ class FirestoreSleepService {
   }
 
   Future<void> batchDeleteSleepSessions(List<String> sessionIds) async {
-    final batch = _firestore.batch();
+    final WriteBatch batch = _firestore.batch();
 
-    for (final sessionId in sessionIds) {
-      final docRef = _sleepSessionsCollection.doc(sessionId);
+    for (final String sessionId in sessionIds) {
+      final DocumentReference<Object?> docRef = _sleepSessionsCollection.doc(sessionId);
       batch.delete(docRef);
     }
 
@@ -351,14 +351,14 @@ class FirestoreSleepService {
       query = query.limit(limit);
     }
 
-    final snapshot = await query.get();
-    final allSessions = snapshot.docs
-        .map((doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
+    final QuerySnapshot<Object?> snapshot = await query.get();
+    final List<SleepSession> allSessions = snapshot.docs
+        .map((QueryDocumentSnapshot<Object?> doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
         .toList();
 
     // Filter by search term (case-insensitive)
-    final searchTermLower = searchTerm.toLowerCase();
-    return allSessions.where((session) =>
+    final String searchTermLower = searchTerm.toLowerCase();
+    return allSessions.where((SleepSession session) =>
         session.mood.toLowerCase().contains(searchTermLower) ||
         (session.notes?.toLowerCase().contains(searchTermLower) ?? false)).toList();
   }
@@ -368,13 +368,13 @@ class FirestoreSleepService {
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    final sessions = await getSleepSessions(
+    final List<SleepSession> sessions = await getSleepSessions(
       startDate: startDate,
       endDate: endDate,
     );
 
     if (sessions.isEmpty) {
-      return {
+      return <String, dynamic>{
         'totalSessions': 0,
         'averageDuration': 0.0,
         'averageQuality': 0.0,
@@ -385,21 +385,21 @@ class FirestoreSleepService {
       };
     }
 
-    final totalSessions = sessions.length;
-    final averageDuration = sessions.fold<double>(0, (sum, session) => sum + session.totalDuration.inHours) / totalSessions;
-    final averageQuality = sessions.fold<double>(0, (sum, session) => sum + session.sleepQuality) / totalSessions;
-    final totalSleepTime = sessions.fold<double>(0, (sum, session) => sum + session.totalDuration.inHours);
+    final int totalSessions = sessions.length;
+    final double averageDuration = sessions.fold<double>(0, (double sum, SleepSession session) => sum + session.totalDuration.inHours) / totalSessions;
+    final double averageQuality = sessions.fold<double>(0, (double sum, SleepSession session) => sum + session.sleepQuality) / totalSessions;
+    final double totalSleepTime = sessions.fold<double>(0, (double sum, SleepSession session) => sum + session.totalDuration.inHours);
 
     // Calculate consistency score
-    final durations = sessions.map((s) => s.totalDuration.inMinutes).toList();
-    final mean = durations.reduce((a, b) => a + b) / durations.length;
-    final variance = durations.map((d) => (d - mean) * (d - mean)).reduce((a, b) => a + b) / durations.length;
-    final standardDeviation = variance > 0 ? math.sqrt(variance) : 0.0;
-    final consistencyScore = mean > 0 ? (1.0 - (standardDeviation / mean)).clamp(0.0, 1.0) : 0.0;
+    final List<int> durations = sessions.map((SleepSession s) => s.totalDuration.inMinutes).toList();
+    final double mean = durations.reduce((int a, int b) => a + b) / durations.length;
+    final double variance = durations.map((int d) => (d - mean) * (d - mean)).reduce((double a, double b) => a + b) / durations.length;
+    final double standardDeviation = variance > 0 ? math.sqrt(variance) : 0.0;
+    final double consistencyScore = mean > 0 ? (1.0 - (standardDeviation / mean)).clamp(0.0, 1.0) : 0.0;
 
     // Calculate sustainability score
     double totalSustainabilityScore = 0.0;
-    for (final session in sessions) {
+    for (final SleepSession session in sessions) {
       double sessionScore = 0.0;
       
       // Environment factors
@@ -415,15 +415,15 @@ class FirestoreSleepService {
       
       totalSustainabilityScore += sessionScore;
     }
-    final sustainabilityScore = totalSustainabilityScore / totalSessions;
+    final double sustainabilityScore = totalSustainabilityScore / totalSessions;
 
     // Mood breakdown
-    final moodBreakdown = <String, int>{};
-    for (final session in sessions) {
+    final Map<String, int> moodBreakdown = <String, int>{};
+    for (final SleepSession session in sessions) {
       moodBreakdown[session.mood] = (moodBreakdown[session.mood] ?? 0) + 1;
     }
 
-    return {
+    return <String, dynamic>{
       'totalSessions': totalSessions,
       'averageDuration': averageDuration,
       'averageQuality': averageQuality,
@@ -441,11 +441,11 @@ class FirestoreSleepService {
 
   // Utility method to ensure user document exists
   Future<void> ensureUserDocumentExists() async {
-    final userDoc = _usersCollection.doc(_userId);
-    final docSnapshot = await userDoc.get();
+    final DocumentReference<Object?> userDoc = _usersCollection.doc(_userId);
+    final DocumentSnapshot<Object?> docSnapshot = await userDoc.get();
     
     if (!docSnapshot.exists) {
-      await userDoc.set({
+      await userDoc.set(<String, String>{
         'userId': _userId,
         'createdAt': DateTime.now().toIso8601String(),
       }, SetOptions(merge: true));

@@ -40,7 +40,7 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
       if (user != null) {
         info.writeln('✅ User authenticated: ${user.uid}');
         info.writeln('📧 Email: ${user.email ?? 'No email'}');
-        info.writeln('📱 Provider: ${user.providerData.map((p) => p.providerId).join(', ')}');
+        info.writeln('📱 Provider: ${user.providerData.map((UserInfo p) => p.providerId).join(', ')}');
       } else {
         info.writeln('❌ No user authenticated');
         info.writeln('⚠️  You need to sign in to save to Firestore');
@@ -63,7 +63,7 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
         
         // Test write access by creating a test document
         final DocumentReference testDoc = userCollection.doc('connection_test');
-        await testDoc.set({
+        await testDoc.set(<String, Object>{
           'test': true,
           'timestamp': FieldValue.serverTimestamp(),
         });
@@ -110,7 +110,7 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
       final DateTime now = DateTime.now();
       
       // Create a test workout plan
-      final testWorkout = SavedWorkoutPlan(
+      final SavedWorkoutPlan testWorkout = SavedWorkoutPlan(
         id: 'test_${now.millisecondsSinceEpoch}',
         userId: user.uid,
         name: 'Firestore Test Workout ${now.hour}:${now.minute}',
@@ -124,9 +124,9 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
             duration: 10,
           ),
           sessionsPerWeek: 3,
-          workoutSessions: const [
+          workoutSessions: const <WorkoutSession>[
             WorkoutSession(
-              exercises: [
+              exercises: <Exercise>[
                 Exercise(name: 'Test Exercise', sets: 3, reps: '10', rest: 60),
               ],
             ),
@@ -169,9 +169,9 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
-              children: [
+              children: <Widget>[
                 const Icon(Icons.bug_report, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
@@ -206,7 +206,7 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: [
+              children: <Widget>[
                 ElevatedButton.icon(
                   onPressed: _isChecking ? null : _checkFirestoreConnection,
                   icon: _isChecking 
@@ -231,7 +231,7 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const FirestoreModularDebugPanel(),
+                      builder: (BuildContext context) => const FirestoreModularDebugPanel(),
                     ),
                   ),
                   icon: const Icon(Icons.architecture),
@@ -245,7 +245,7 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const FirestoreNutritionDebugPanel(),
+                      builder: (BuildContext context) => const FirestoreNutritionDebugPanel(),
                     ),
                   ),
                   icon: const Icon(Icons.restaurant),
@@ -259,7 +259,7 @@ class _FirestoreDebugPanelState extends ConsumerState<FirestoreDebugPanel> {
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const FirestoreSleepDebugPanel(),
+                      builder: (BuildContext context) => const FirestoreSleepDebugPanel(),
                     ),
                   ),
                   icon: const Icon(Icons.bedtime),

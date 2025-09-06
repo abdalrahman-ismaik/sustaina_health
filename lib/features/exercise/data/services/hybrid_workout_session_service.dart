@@ -86,9 +86,9 @@ class HybridWorkoutSessionService {
       final List<ActiveWorkoutSession> cloudWorkouts = await _cloudService.getAllCompletedWorkouts();
       
       // Find workouts that exist locally but not in cloud
-      final Set<String> cloudWorkoutIds = cloudWorkouts.map((w) => w.id).toSet();
+      final Set<String> cloudWorkoutIds = cloudWorkouts.map((ActiveWorkoutSession w) => w.id).toSet();
       final List<ActiveWorkoutSession> workoutsToSync = localWorkouts
-          .where((workout) => !cloudWorkoutIds.contains(workout.id))
+          .where((ActiveWorkoutSession workout) => !cloudWorkoutIds.contains(workout.id))
           .toList();
       
       if (workoutsToSync.isNotEmpty) {
@@ -163,7 +163,7 @@ class HybridWorkoutSessionService {
         }
       }
       
-      return {
+      return <String, dynamic>{
         'isAuthenticated': isAuthenticated,
         'hasInternet': hasInternet,
         'localWorkoutCount': localWorkouts.length,
@@ -172,7 +172,7 @@ class HybridWorkoutSessionService {
         'lastChecked': DateTime.now().toIso8601String(),
       };
     } catch (e) {
-      return {
+      return <String, dynamic>{
         'isAuthenticated': false,
         'hasInternet': false,
         'localWorkoutCount': 0,

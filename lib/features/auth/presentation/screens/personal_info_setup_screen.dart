@@ -32,10 +32,10 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
   String? _selectedFitnessGoal;
   int? _selectedWorkoutsPerWeek;
   String? _selectedActivityLevel;
-  List<String> _selectedEquipment = [];
+  List<String> _selectedEquipment = <String>[];
   
   // Health goals
-  List<HealthGoal> _healthGoals = [];
+  List<HealthGoal> _healthGoals = <HealthGoal>[];
   
   int _currentPage = 0;
   bool _isLoading = false;
@@ -43,8 +43,8 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
   final HybridProfileService _profileService = HybridProfileService();
 
   // Predefined options
-  final List<String> _sexOptions = ['Male', 'Female', 'Other'];
-  final List<String> _fitnessGoals = [
+  final List<String> _sexOptions = <String>['Male', 'Female', 'Other'];
+  final List<String> _fitnessGoals = <String>[
     'Weight Loss',
     'Muscle Gain',
     'Maintain Weight',
@@ -53,15 +53,15 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
     'Strength Building',
     'Flexibility',
   ];
-  final List<int> _workoutFrequencies = [1, 2, 3, 4, 5, 6, 7];
-  final List<String> _activityLevels = [
+  final List<int> _workoutFrequencies = <int>[1, 2, 3, 4, 5, 6, 7];
+  final List<String> _activityLevels = <String>[
     'Sedentary',
     'Lightly Active',
     'Moderately Active',
     'Very Active',
     'Extremely Active',
   ];
-  final List<String> _equipmentOptions = [
+  final List<String> _equipmentOptions = <String>[
     'Dumbbells',
     'Barbells',
     'Resistance Bands',
@@ -113,7 +113,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
       body: Form(
         key: _formKey,
         child: Column(
-          children: [
+          children: <Widget>[
             // Progress indicator
             Container(
               padding: const EdgeInsets.all(16),
@@ -128,8 +128,8 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             Expanded(
               child: PageView(
                 controller: _pageController,
-                onPageChanged: (page) => setState(() => _currentPage = page),
-                children: [
+                onPageChanged: (int page) => setState(() => _currentPage = page),
+                children: <Widget>[
                   _buildBasicInfoPage(cs),
                   _buildFitnessPreferencesPage(cs),
                   _buildEquipmentPage(cs),
@@ -142,7 +142,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             Container(
               padding: const EdgeInsets.all(16),
               child: Row(
-                children: [
+                children: <Widget>[
                   if (_currentPage > 0)
                     Expanded(
                       child: OutlinedButton(
@@ -180,7 +180,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Basic Information',
             style: TextStyle(
@@ -210,9 +210,9 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            validator: (value) {
+            validator: (String? value) {
               if (value == null || value.isEmpty) return 'Please enter your age';
-              final age = int.tryParse(value);
+              final int? age = int.tryParse(value);
               if (age == null || age < 13 || age > 120) return 'Please enter a valid age';
               return null;
             },
@@ -228,12 +228,12 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            items: _sexOptions.map((sex) => DropdownMenuItem(
+            items: _sexOptions.map((String sex) => DropdownMenuItem(
               value: sex,
               child: Text(sex),
             )).toList(),
-            onChanged: (value) => setState(() => _selectedSex = value),
-            validator: (value) => value == null ? 'Please select your sex' : null,
+            onChanged: (String? value) => setState(() => _selectedSex = value),
+            validator: (String? value) => value == null ? 'Please select your sex' : null,
           ),
           const SizedBox(height: 16),
           
@@ -248,9 +248,9 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            validator: (value) {
+            validator: (String? value) {
               if (value == null || value.isEmpty) return 'Please enter your weight';
-              final weight = double.tryParse(value);
+              final double? weight = double.tryParse(value);
               if (weight == null || weight < 20 || weight > 300) return 'Please enter a valid weight';
               return null;
             },
@@ -268,9 +268,9 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            validator: (value) {
+            validator: (String? value) {
               if (value == null || value.isEmpty) return 'Please enter your height';
-              final height = int.tryParse(value);
+              final int? height = int.tryParse(value);
               if (height == null || height < 100 || height > 250) return 'Please enter a valid height';
               return null;
             },
@@ -285,7 +285,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Fitness Preferences',
             style: TextStyle(
@@ -317,10 +317,10 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _fitnessGoals.map((goal) => FilterChip(
+            children: _fitnessGoals.map((String goal) => FilterChip(
               label: Text(goal),
               selected: _selectedFitnessGoal == goal,
-              onSelected: (selected) => setState(() => _selectedFitnessGoal = goal),
+              onSelected: (bool selected) => setState(() => _selectedFitnessGoal = goal),
             )).toList(),
           ),
           const SizedBox(height: 24),
@@ -335,11 +335,11 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             ),
           ),
           const SizedBox(height: 8),
-          ..._activityLevels.map((level) => RadioListTile<String>(
+          ..._activityLevels.map((String level) => RadioListTile<String>(
             title: Text(level),
             value: level,
             groupValue: _selectedActivityLevel,
-            onChanged: (value) => setState(() => _selectedActivityLevel = value),
+            onChanged: (String? value) => setState(() => _selectedActivityLevel = value),
           )),
           const SizedBox(height: 24),
           
@@ -355,10 +355,10 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
-            children: _workoutFrequencies.map((freq) => FilterChip(
+            children: _workoutFrequencies.map((int freq) => FilterChip(
               label: Text('$freq${freq == 1 ? ' day' : ' days'}'),
               selected: _selectedWorkoutsPerWeek == freq,
-              onSelected: (selected) => setState(() => _selectedWorkoutsPerWeek = freq),
+              onSelected: (bool selected) => setState(() => _selectedWorkoutsPerWeek = freq),
             )).toList(),
           ),
         ],
@@ -371,7 +371,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Available Equipment',
             style: TextStyle(
@@ -393,10 +393,10 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _equipmentOptions.map((equipment) => FilterChip(
+            children: _equipmentOptions.map((String equipment) => FilterChip(
               label: Text(equipment),
               selected: _selectedEquipment.contains(equipment),
-              onSelected: (selected) {
+              onSelected: (bool selected) {
                 setState(() {
                   if (selected) {
                     _selectedEquipment.add(equipment);
@@ -417,7 +417,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
             'Health Goals',
             style: TextStyle(
@@ -437,19 +437,19 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
           const SizedBox(height: 32),
           
           // Health goals list
-          ..._healthGoals.asMap().entries.map((entry) {
-            final index = entry.key;
-            final goal = entry.value;
+          ..._healthGoals.asMap().entries.map((MapEntry<int, HealthGoal> entry) {
+            final int index = entry.key;
+            final HealthGoal goal = entry.value;
             return Card(
               margin: const EdgeInsets.only(bottom: 16),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                      children: <Widget>[
                         Text(
                           goal.type,
                           style: const TextStyle(
@@ -483,17 +483,17 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
   }
 
   void _showAddGoalDialog() {
-    final typeController = TextEditingController();
-    final targetController = TextEditingController();
-    final currentController = TextEditingController();
+    final TextEditingController typeController = TextEditingController();
+    final TextEditingController targetController = TextEditingController();
+    final TextEditingController currentController = TextEditingController();
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (BuildContext context) => AlertDialog(
         title: const Text('Add Health Goal'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: <Widget>[
             TextField(
               controller: typeController,
               decoration: const InputDecoration(
@@ -516,7 +516,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             ),
           ],
         ),
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
@@ -526,7 +526,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
               if (typeController.text.isNotEmpty &&
                   targetController.text.isNotEmpty &&
                   currentController.text.isNotEmpty) {
-                final goal = HealthGoal(
+                final HealthGoal goal = HealthGoal(
                   type: typeController.text,
                   target: double.parse(targetController.text),
                   current: double.parse(currentController.text),
@@ -590,7 +590,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
     
     try {
       // Create UserProfile object
-      final profile = UserProfile(
+      final UserProfile profile = UserProfile(
         weight: double.parse(_weightController.text),
         height: int.parse(_heightController.text),
         age: int.parse(_ageController.text),
@@ -605,7 +605,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
       await _profileService.saveUserProfile(profile);
       
       // Save health goals to cloud storage
-      for (final goal in _healthGoals) {
+      for (final HealthGoal goal in _healthGoals) {
         try {
           await _profileService.saveHealthGoal(goal.toJson());
         } catch (e) {
@@ -669,7 +669,7 @@ class HealthGoal {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'type': type,
       'target': target,
       'current': current,
