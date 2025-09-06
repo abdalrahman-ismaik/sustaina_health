@@ -1,0 +1,29 @@
+# MCP Chat Sequence Diagram
+# Copy this code to mermaid.live for export
+
+sequenceDiagram
+    participant User as 👤 User
+    participant UI as 📱 Flutter UI
+    participant Chat as 💬 MCP Chat Widget
+    participant Speech as 🎤 Speech-to-Text
+    participant MCP as 🧠 MCP Server
+    participant AI as 🤖 AI Models
+    participant Data as 📊 User Data
+    
+    User->>UI: Opens Home Dashboard
+    UI->>Chat: Display MCP Chat FAB
+    User->>Chat: Press & Hold Microphone
+    Chat->>Speech: Start Recording
+    Speech-->>Chat: Live Text Transcription
+    User->>Chat: Release or Press Send
+    Chat->>MCP: Send Command + Context
+    MCP->>Data: Fetch User Health Data
+    MCP->>AI: Process with AI Models
+    AI-->>MCP: Generated Response
+    MCP-->>Chat: Health Advice/Action
+    Chat-->>UI: Update UI with Response
+    UI-->>User: Display Results
+    
+    Note over User,Data: Complete MCP Chat Interaction Flow
+    Note over Speech,Chat: Real-time speech transcription
+    Note over MCP,AI: AI-powered health recommendations

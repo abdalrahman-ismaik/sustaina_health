@@ -1,0 +1,54 @@
+graph TB
+    %% Feature-Based Architecture - Simple View
+    
+    USER[👤 User]
+    
+    subgraph "📱 Sustaina Health App"
+        HOME[🏠 Home Dashboard]
+        
+        subgraph "Health Features"
+            AUTH[🔐 Authentication]
+            EXERCISE[💪 Exercise]
+            NUTRITION[🍎 Nutrition]
+            SLEEP[😴 Sleep]
+            PROFILE[👤 Profile]
+            CHAT[💬 MCP Chat]
+        end
+        
+        CORE[⚙️ Core Services]
+    end
+    
+    subgraph "🌐 Backend Services"
+        FIREBASE[🔥 Firebase]
+        APIS[🤖 AI APIs]
+    end
+    
+    %% Connections
+    USER --> HOME
+    HOME --> AUTH
+    HOME --> EXERCISE
+    HOME --> NUTRITION
+    HOME --> SLEEP
+    HOME --> PROFILE
+    HOME --> CHAT
+    
+    AUTH --> CORE
+    EXERCISE --> CORE
+    NUTRITION --> CORE
+    SLEEP --> CORE
+    PROFILE --> CORE
+    CHAT --> CORE
+    
+    CORE --> FIREBASE
+    CORE --> APIS
+    
+    %% Styling
+    classDef user fill:#FFCDD2,stroke:#D32F2F,stroke-width:3px
+    classDef app fill:#E8F5E8,stroke:#4CAF50,stroke-width:2px
+    classDef features fill:#E3F2FD,stroke:#2196F3,stroke-width:2px
+    classDef backend fill:#FFF3E0,stroke:#FF9800,stroke-width:2px
+    
+    class USER user
+    class HOME,CORE app
+    class AUTH,EXERCISE,NUTRITION,SLEEP,PROFILE,CHAT features
+    class FIREBASE,APIS backend

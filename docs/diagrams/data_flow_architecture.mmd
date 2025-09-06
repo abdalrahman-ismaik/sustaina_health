@@ -1,0 +1,41 @@
+graph LR
+    subgraph "📱 Mobile App Layer"
+        UI[🎨 UI Components]
+        PROVIDERS[🔧 Riverpod Providers]
+        REPOS[📚 Repositories]
+    end
+    
+    subgraph "🔄 Service Layer"
+        LOCAL[💾 Local Storage]
+        SYNC[🔄 Sync Service]
+        API[🌐 API Services]
+    end
+    
+    subgraph "☁️ Cloud Infrastructure"
+        subgraph "🤖 AI Backend"
+            FASTAPI[⚡ FastAPI]
+            MCP[🧠 MCP Server]
+            AI_MODELS[🤖 AI Models]
+        end
+        
+        subgraph "📊 Firebase Platform"
+            FIREBASE_AUTH[🔐 Auth]
+            FIRESTORE[📄 Firestore]
+            STORAGE[📁 Storage]
+        end
+    end
+    
+    UI --> PROVIDERS
+    PROVIDERS --> REPOS
+    REPOS --> LOCAL
+    REPOS --> API
+    API --> FASTAPI
+    API --> FIREBASE_AUTH
+    
+    FASTAPI --> MCP
+    MCP --> AI_MODELS
+    
+    SYNC --> FIRESTORE
+    SYNC --> STORAGE
+    
+    LOCAL -.->|Background Sync| SYNC

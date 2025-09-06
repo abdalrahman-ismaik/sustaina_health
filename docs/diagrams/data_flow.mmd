@@ -1,0 +1,55 @@
+# Data Flow Architecture Diagram
+# Copy this code to mermaid.live for export
+
+graph LR
+    subgraph "📱 Mobile App Layer"
+        UI[🎨 UI Components]
+        PROVIDERS[🔧 Riverpod Providers]
+        REPOS[📚 Repositories]
+    end
+    
+    subgraph "🔄 Service Layer"
+        LOCAL[💾 Local Storage]
+        SYNC[🔄 Sync Service]
+        API[🌐 API Services]
+    end
+    
+    subgraph "☁️ Cloud Infrastructure"
+        subgraph "🤖 AI Backend"
+            FASTAPI[⚡ FastAPI]
+            MCP[🧠 MCP Server]
+            AI_MODELS[🤖 AI Models]
+        end
+        
+        subgraph "📊 Firebase Platform"
+            FIREBASE_AUTH[🔐 Auth]
+            FIRESTORE[📄 Firestore]
+            STORAGE[📁 Storage]
+        end
+    end
+    
+    UI --> PROVIDERS
+    PROVIDERS --> REPOS
+    REPOS --> LOCAL
+    REPOS --> API
+    API --> FASTAPI
+    API --> FIREBASE_AUTH
+    
+    FASTAPI --> MCP
+    MCP --> AI_MODELS
+    
+    SYNC --> FIRESTORE
+    SYNC --> STORAGE
+    
+    LOCAL -.->|Background Sync| SYNC
+    
+    %% Styling
+    classDef appClass fill:#D5E8D4,stroke:#82B366,stroke-width:2px
+    classDef serviceClass fill:#FFF2CC,stroke:#D6B656,stroke-width:2px
+    classDef aiClass fill:#E1D5E7,stroke:#9673A6,stroke-width:2px
+    classDef firebaseClass fill:#FFE6CC,stroke:#D79B00,stroke-width:2px
+    
+    class UI,PROVIDERS,REPOS appClass
+    class LOCAL,SYNC,API serviceClass
+    class FASTAPI,MCP,AI_MODELS aiClass
+    class FIREBASE_AUTH,FIRESTORE,STORAGE firebaseClass

@@ -1,0 +1,37 @@
+graph TB
+    subgraph "🎨 Frontend Technologies"
+        FLUTTER[📱 Flutter Framework]
+        DART[🎯 Dart Language]
+        RIVERPOD[🔧 Riverpod State Management]
+        GOROUTER[🧭 GoRouter Navigation]
+    end
+    
+    subgraph "🤖 Backend Technologies"
+        FASTAPI_TECH[⚡ FastAPI Python]
+        MCP_TECH[🧠 Model Context Protocol]
+        AI_TECH[🤖 AI/ML Models]
+        PYDANTIC[📋 Pydantic Validation]
+    end
+    
+    subgraph "☁️ Cloud Services"
+        FIREBASE_SUITE[🔥 Firebase Suite]
+        FIRESTORE_DB[📄 Firestore NoSQL]
+        FIREBASE_AUTH_SVC[🔐 Firebase Auth]
+        FIREBASE_STORAGE_SVC[📁 Firebase Storage]
+    end
+    
+    subgraph "💾 Storage Solutions"
+        LOCAL_STORAGE[📱 Local Storage]
+        SHARED_PREFS[🔧 SharedPreferences]
+        HIVE_DB[📦 Hive Database]
+        SQLITE_DB[🗃️ SQLite Database]
+    end
+    
+    FLUTTER --> RIVERPOD
+    FLUTTER --> GOROUTER
+    FASTAPI_TECH --> MCP_TECH
+    MCP_TECH --> AI_TECH
+    
+    FLUTTER -.->|API Calls| FASTAPI_TECH
+    FLUTTER -.->|Auth & Data| FIREBASE_SUITE
+    FLUTTER -.->|Local Cache| LOCAL_STORAGE

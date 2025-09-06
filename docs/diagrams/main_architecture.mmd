@@ -1,0 +1,74 @@
+# Main Architecture Diagram
+# Copy this code to mermaid.live for export
+
+graph TB
+    subgraph "👤 User Layer"
+        USER[👤 User]
+    end
+    
+    subgraph "📱 Sustaina Health Flutter App"
+        subgraph "🏠 Core Features"
+            HOME[🏠 Home Dashboard]
+            MCP_CHAT[💬 MCP Command Chat]
+        end
+        
+        subgraph "🎯 Health Features"
+            AUTH[🔐 Authentication]
+            EXERCISE[💪 Exercise & Workouts]
+            NUTRITION[🍎 Nutrition Tracking]
+            SLEEP[😴 Sleep Monitoring]
+            PROFILE[👤 User Profile]
+        end
+        
+        subgraph "⚙️ App Infrastructure"
+            STATE[🔧 Riverpod State Management]
+            ROUTER[🧭 GoRouter Navigation]
+            STORAGE[💾 Hybrid Storage]
+        end
+    end
+    
+    subgraph "☁️ Backend Services"
+        subgraph "🤖 AI Services"
+            FASTAPI[⚡ FastAPI Backend]
+            MCP_SERVER[🧠 MCP Server]
+            AI_WORKOUT[💪 Workout AI]
+            AI_NUTRITION[🍎 Nutrition AI]
+        end
+        
+        subgraph "📊 Data & Storage"
+            FIREBASE_AUTH[🔐 Firebase Auth]
+            FIRESTORE[📄 Cloud Firestore]
+            FIREBASE_STORAGE[📁 Firebase Storage]
+        end
+    end
+    
+    USER --> HOME
+    HOME --> MCP_CHAT
+    HOME --> EXERCISE
+    HOME --> NUTRITION
+    HOME --> SLEEP
+    
+    MCP_CHAT --> MCP_SERVER
+    EXERCISE --> AI_WORKOUT
+    NUTRITION --> AI_NUTRITION
+    
+    AUTH --> FIREBASE_AUTH
+    STORAGE --> FIRESTORE
+    PROFILE --> FIREBASE_STORAGE
+    
+    %% Styling
+    classDef userClass fill:#FFE6CC,stroke:#D79B00,stroke-width:2px
+    classDef appClass fill:#D5E8D4,stroke:#82B366,stroke-width:2px
+    classDef coreClass fill:#E1D5E7,stroke:#9673A6,stroke-width:2px
+    classDef healthClass fill:#FFF2CC,stroke:#D6B656,stroke-width:2px
+    classDef infraClass fill:#F8CECC,stroke:#B85450,stroke-width:2px
+    classDef backendClass fill:#DAE8FC,stroke:#6C8EBF,stroke-width:2px
+    classDef aiClass fill:#E1D5E7,stroke:#9673A6,stroke-width:2px
+    classDef dataClass fill:#FFF2CC,stroke:#D6B656,stroke-width:2px
+    
+    class USER userClass
+    class HOME,MCP_CHAT coreClass
+    class AUTH,EXERCISE,NUTRITION,SLEEP,PROFILE healthClass
+    class STATE,ROUTER,STORAGE infraClass
+    class FASTAPI,MCP_SERVER,AI_WORKOUT,AI_NUTRITION aiClass
+    class FIREBASE_AUTH,FIRESTORE,FIREBASE_STORAGE dataClass

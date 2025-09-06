@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghiraas - SMAC 2025 Poster</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+        }
+        
+        .poster {
+            max-width: 1200px;
+            background: white;
+            margin: 0 auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .poster::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #40916C, #2196F3, #FFB300);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .app-name {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #40916C, #2196F3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.5rem;
+            color: #40916C;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .contest-info {
+            background: linear-gradient(135deg, #40916C, #2196F3);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 40px 0;
+        }
+        
+        .app-preview {
+            background: linear-gradient(135deg, #40916C, #2196F3);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .phone-mockup {
+            width: 200px;
+            height: 400px;
+            background: #1a1a1a;
+            border-radius: 30px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 0.8rem;
+        }
+        
+        .ai-integration {
+            background: rgba(33, 150, 243, 0.1);
+            border: 2px solid #2196F3;
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .ai-integration h3 {
+            color: #2196F3;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ai-features {
+            list-style: none;
+        }
+        
+        .ai-features li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .ai-features li::before {
+            content: '🧠';
+            position: absolute;
+            left: 0;
+        }
+        
+        .problem-solution {
+            margin: 40px 0;
+            text-align: center;
+        }
+        
+        .problem {
+            background: rgba(255, 179, 0, 0.1);
+            border: 2px solid #FFB300;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .problem h3 {
+            color: #FFB300;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .solution {
+            background: rgba(64, 145, 108, 0.1);
+            border: 2px solid #40916C;
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .solution h3 {
+            color: #40916C;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .feature-list {
+            list-style: none;
+            text-align: left;
+        }
+        
+        .feature-list li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #666;
+        }
+        
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #40916C;
+            font-weight: bold;
+        }
+        
+        .impact-section {
+            margin: 40px 0;
+        }
+        
+        .impact-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #40916C;
+            margin-bottom: 30px;
+        }
+        
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        
+        .impact-card {
+            background: linear-gradient(135deg, rgba(64, 145, 108, 0.1), rgba(33, 150, 243, 0.1));
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .impact-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #40916C;
+        }
+        
+        .impact-list {
+            list-style: none;
+            text-align: left;
+        }
+        
+        .impact-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #333;
+        }
+        
+        .impact-list li::before {
+            content: '🌟';
+            position: absolute;
+            left: 0;
+        }
+        
+        .footer-quote {
+            background: linear-gradient(135deg, #40916C, #2196F3);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 40px 0;
+            font-style: italic;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .team-info {
+            background: rgba(0,0,0,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+            
+            .poster {
+                box-shadow: none;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="poster">
+        <div class="header">
+            <h1 class="app-name">GHIRAAS</h1>
+            <p class="tagline">🌱 AI Adventures in Sustainability 🌱</p>
+            <div class="contest-info">Smart Mobile Application Contest 2025</div>
+        </div>
+        
+        <div class="main-content">
+            <div class="app-preview">
+                <h3>📱 Your Personal Sustainability Coach</h3>
+                <div class="phone-mockup">
+                    <div class="screen">
+                        <div style="font-weight: bold; margin-bottom: 10px;">🏠 Home</div>
+                        <div style="font-size: 0.7rem; margin: 5px 0;">🏋️ AI Workout</div>
+                        <div style="font-size: 0.7rem; margin: 5px 0;">🍽️ Meal Planner</div>
+                        <div style="font-size: 0.7rem; margin: 5px 0;">📷 Food Analyzer</div>
+                        <div style="font-size: 0.7rem; margin: 5px 0;">😴 Sleep Tracker</div>
+                        <div style="font-size: 0.7rem; margin: 5px 0;">🌱 Sustainability</div>
+                    </div>
+                </div>
+                <p>Flutter • Cross-Platform • AI-Powered</p>
+            </div>
+            
+            <div class="ai-integration">
+                <h3>🧠 AI INTEGRATION</h3>
+                <ul class="ai-features">
+                    <li><strong>Gemini AI + Smart Search</strong></li>
+                    <li><strong>Real-time Adaptation</strong></li>
+                    <li><strong>Local UAE Context</strong></li>
+                    <li><strong>Dynamic Knowledge Base</strong></li>
+                    <li><strong>Computer Vision Analysis</strong></li>
+                    <li><strong>Personalized Recommendations</strong></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="problem-solution">
+            <div class="problem">
+                <h3>🎯 PROBLEM STATEMENT</h3>
+                <p>"Millions struggle with health misinformation while environmental impact grows. Existing apps ignore the sustainability-health connection, leaving users confused and the planet suffering."</p>
+            </div>
+            
+            <div class="solution">
+                <h3>💡 OUR SOLUTION</h3>
+                <p>"AI-powered lifestyle coach that combines personal health with environmental impact, providing evidence-based guidance for a sustainable future."</p>
+            </div>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🏋️</span>
+                <h4 class="feature-title">AI WORKOUT PLANNER</h4>
+                <ul class="feature-list">
+                    <li>Personalized gym/home routines</li>
+                    <li>Energy-efficient options</li>
+                    <li>Equipment-based planning</li>
+                    <li>Progress adaptation</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🍽️</span>
+                <h4 class="feature-title">AI MEAL PLANNER</h4>
+                <ul class="feature-list">
+                    <li>Balanced & sustainable plans</li>
+                    <li>Nutrition & eco scoring</li>
+                    <li>Local UAE foods</li>
+                    <li>Dietary restrictions support</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🌱</span>
+                <h4 class="feature-title">SUSTAINABILITY TRACKING</h4>
+                <ul class="feature-list">
+                    <li>Local UAE brand recommendations</li>
+                    <li>Carbon footprint reduction</li>
+                    <li>Eco-score for every choice</li>
+                    <li>Sustainable habits tracking</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">📷</span>
+                <h4 class="feature-title">MEAL ANALYZER</h4>
+                <ul class="feature-list">
+                    <li>Photo → nutrition analysis</li>
+                    <li>Real-time AI processing</li>
+                    <li>Sustainability scoring</li>
+                    <li>Smart recommendations</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">😴</span>
+                <h4 class="feature-title">SLEEP TRACKING</h4>
+                <ul class="feature-list">
+                    <li>Pattern monitoring</li>
+                    <li>Quality assessment</li>
+                    <li>Smart recommendations</li>
+                    <li>Health correlations</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🏆</span>
+                <h4 class="feature-title">UAE VISION ALIGNMENT</h4>
+                <ul class="feature-list">
+                    <li>Supports local businesses</li>
+                    <li>Reduces imports</li>
+                    <li>Promotes green initiatives</li>
+                    <li>Economic impact</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="impact-section">
+            <h2 class="impact-title">🌟 MEASURABLE IMPACT</h2>
+            <div class="impact-grid">
+                <div class="impact-card">
+                    <h4>PERSONAL HEALTH</h4>
+                    <ul class="impact-list">
+                        <li>Simplified wellness guidance</li>
+                        <li>Evidence-based recommendations</li>
+                        <li>Long-term health goals</li>
+                        <li>Reduced misinformation</li>
+                        <li>Holistic lifestyle approach</li>
+                    </ul>
+                </div>
+                
+                <div class="impact-card">
+                    <h4>ENVIRONMENTAL BENEFITS</h4>
+                    <ul class="impact-list">
+                        <li>Reduced carbon footprint</li>
+                        <li>Eco-conscious consumption</li>
+                        <li>Local food promotion</li>
+                        <li>Sustainable habit formation</li>
+                        <li>Climate action awareness</li>
+                    </ul>
+                </div>
+                
+                <div class="impact-card">
+                    <h4>ECONOMIC BENEFITS</h4>
+                    <ul class="impact-list">
+                        <li>Supports UAE brands</li>
+                        <li>Local economy boost</li>
+                        <li>Sustainable business growth</li>
+                        <li>Green job creation</li>
+                        <li>Innovation ecosystem</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-quote">
+            "More than a health app - it's a personal sustainability coach empowering users to improve their well-being while actively contributing to the UAE's vision for a greener, healthier future."
+        </div>
+        
+        <div class="footer">
+            <div class="team-info">
+                <strong>Team:</strong> [Your Team Name] | <strong>Contest:</strong> SMAC 2025 | <strong>University:</strong> Khalifa University<br>
+                <em>Empowering the next generation with AI-driven sustainability solutions</em>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
