@@ -7,6 +7,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 import 'voice_waveform.dart';
+import '../../../../core/services/ai_agent_service.dart';
 
 /// Persistent chat storage for MCP Command Chat
 class MCPChatStorage {
@@ -33,13 +34,15 @@ class MCPCommandChat extends ConsumerStatefulWidget {
 class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     with TickerProviderStateMixin {
   
+  // AI Agent Service
+  final AIAgentService _aiAgentService = AIAgentService();
+  
   // Speech Recognition
   late stt.SpeechToText _speech;
   bool _isListening = false;
   bool _isInitialized = false;
   String _recognizedText = '';
   String _currentWords = '';
-  double _confidence = 0.0;
   
   // UI Controllers
   late TextEditingController _textController;
@@ -47,7 +50,6 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
   late AnimationController _pulseController;
   late AnimationController _waveController;
   late Animation<double> _pulseAnimation;
-  late Animation<double> _waveAnimation;
   
   // Chat State
   bool _isSending = false;
@@ -88,14 +90,6 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     ).animate(CurvedAnimation(
       parent: _pulseController,
       curve: Curves.easeInOut,
-    ));
-    
-    _waveAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _waveController,
-      curve: Curves.linear,
     ));
     
     _initializeSpeech();
@@ -181,7 +175,6 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         onResult: (SpeechRecognitionResult result) {
           setState(() {
             _currentWords = result.recognizedWords;
-            _confidence = result.confidence;
             _lastSpeechActivity = DateTime.now(); // Track speech activity
             
             if (result.finalResult && _currentWords.isNotEmpty) {
@@ -326,7 +319,6 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
           onResult: (SpeechRecognitionResult result) {
             setState(() {
               _currentWords = result.recognizedWords;
-              _confidence = result.confidence;
               _lastSpeechActivity = DateTime.now(); // Track speech activity
               
               if (result.finalResult && _currentWords.isNotEmpty) {
@@ -407,32 +399,43 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
   }
   
   Future<void> _simulateMCPResponse(String userMessage) async {
-    // Simulate processing delay
-    await Future.delayed(const Duration(milliseconds: 800));
-    
-    // Generate a sample response based on the message
-    final String response = _generateSampleResponse(userMessage);
-    
-    _addMessage(ChatMessage(
-      text: response,
-      isUser: false,
-      timestamp: DateTime.now(),
-    ));
-  }
-  
-  String _generateSampleResponse(String message) {
-    final String lowerMessage = message.toLowerCase();
-    
-    if (lowerMessage.contains('workout') || lowerMessage.contains('exercise')) {
-      return 'I can help you with personalized workout plans! Based on your fitness level, I recommend starting with 20 minutes of cardio and strength training. Would you like me to create a custom workout for you?';
-    } else if (lowerMessage.contains('nutrition') || lowerMessage.contains('food') || lowerMessage.contains('diet')) {
-      return 'Great question about nutrition! A balanced diet with whole foods, lean proteins, and plenty of vegetables is key. I can analyze your current eating habits and suggest improvements. What did you eat today?';
-    } else if (lowerMessage.contains('sleep')) {
-      return 'Sleep is crucial for health! I recommend 7-9 hours per night with a consistent schedule. Creating a bedtime routine and avoiding screens before sleep can improve your sleep quality significantly.';
-    } else if (lowerMessage.contains('sustainability') || lowerMessage.contains('environment')) {
-      return 'Sustainability and health go hand in hand! Small changes like walking instead of driving, eating locally sourced foods, and reducing waste can make a big impact. What sustainable practices interest you most?';
-    } else {
-      return 'Thank you for your question! I\'m here to help with health, fitness, nutrition, and sustainability advice. Could you be more specific about what you\'d like to know?';
+    try {
+      // Show typing indicator
+      setState(() {
+        _isSending = true;
+      });
+
+      // Call AI agent service
+      final AIAgentResponse response = await _aiAgentService.sendMessage(userMessage);
+      
+      // Process response and save any generated plans
+      final String finalResponse = await _aiAgentService.processAIResponse(response);
+      
+      _addMessage(ChatMessage(
+        text: finalResponse,
+        isUser: false,
+        timestamp: DateTime.now(),
+        hasSaveOption: _aiAgentService.hasLastPlan,
+        isWorkoutPlan: _aiAgentService.isLastResponseWorkout,
+        isMealPlan: _aiAgentService.isLastResponseMeal,
+      ));
+    } catch (e) {
+      // Handle errors gracefully
+      String errorMessage = 'I apologize, but I\'m having trouble processing your request right now. ';
+      
+      if (e is AIAgentException) {
+        errorMessage += 'Please try again in a moment.';
+      } else {
+        errorMessage += 'Please check your connection and try again.';
+      }
+      
+      _addMessage(ChatMessage(
+        text: errorMessage,
+        isUser: false,
+        timestamp: DateTime.now(),
+      ));
+      
+      print('AI Agent error: $e');
     }
   }
   
@@ -459,6 +462,204 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         SnackBar(
           content: Text(message),
           backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+  
+  Future<void> _savePlan(ChatMessage message) async {
+    try {
+      setState(() {
+        _isSending = true;
+      });
+      
+      if (message.isWorkoutPlan) {
+        await _aiAgentService.saveLastWorkoutPlan();
+        _showSuccessMessage('Workout plan saved to your library!');
+      } else if (message.isMealPlan) {
+        await _aiAgentService.saveLastMealPlan();
+        _showSuccessMessage('Meal plan saved to your library!');
+      }
+    } catch (e) {
+      _showError('Failed to save plan: ${e.toString()}');
+    } finally {
+      setState(() {
+        _isSending = false;
+      });
+    }
+  }
+  
+  void _viewPlanDetails(ChatMessage message) {
+    if (!_aiAgentService.hasLastPlan || _aiAgentService.lastResponseData == null) {
+      _showError('No plan data available to view');
+      return;
+    }
+    
+    String title = message.isWorkoutPlan ? 'Workout Plan Details' : 'Meal Plan Details';
+    Widget content;
+    
+    if (message.isWorkoutPlan) {
+      content = _buildWorkoutPlanView(_aiAgentService.lastResponseData!);
+    } else {
+      content = _buildMealPlanView(_aiAgentService.lastResponseData!);
+    }
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: SingleChildScrollView(
+            child: content,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+          if (message.hasSaveOption)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _savePlan(message);
+              },
+              child: Text(message.isWorkoutPlan ? 'Save Workout' : 'Save Meal Plan'),
+            ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildWorkoutPlanView(Map<String, dynamic> data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Sessions per week: ${data['sessions_per_week']}', 
+             style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        
+        // Warmup
+        if (data['warmup'] != null) ...[
+          const Text('Warmup:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text('${data['warmup']['description']} (${data['warmup']['duration']} min)'),
+          const SizedBox(height: 12),
+        ],
+        
+        // Workout Sessions
+        const Text('Workout Sessions:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        
+        ...((data['workout_sessions'] as List).asMap().entries.map((entry) {
+          int sessionIndex = entry.key;
+          Map<String, dynamic> session = entry.value;
+          return Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Session ${sessionIndex + 1}', 
+                       style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  ...((session['exercises'] as List).map<Widget>((exercise) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text('• ${exercise['name']}: ${exercise['sets']} sets × ${exercise['reps']} (${exercise['rest']}s rest)'),
+                    );
+                  }).toList()),
+                ],
+              ),
+            ),
+          );
+        }).toList()),
+        
+        // Cardio
+        if (data['cardio'] != null) ...[
+          const SizedBox(height: 12),
+          const Text('Cardio:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text('${data['cardio']['description']} (${data['cardio']['duration']} min)'),
+        ],
+        
+        // Cooldown
+        if (data['cooldown'] != null) ...[
+          const SizedBox(height: 12),
+          const Text('Cooldown:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text('${data['cooldown']['description']} (${data['cooldown']['duration']} min)'),
+        ],
+      ],
+    );
+  }
+  
+  Widget _buildMealPlanView(Map<String, dynamic> data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (data['daily_calories_range'] != null) ...[
+          Text('Daily Calories: ${data['daily_calories_range']['min']}-${data['daily_calories_range']['max']}',
+               style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+        ],
+        
+        const Text('Meal Plans:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        
+        ...((data['daily_meal_plans'] as List).map<Widget>((dayPlan) {
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Day ${dayPlan['day']}', 
+                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  
+                  if (dayPlan['breakfast'] != null) ...[
+                    Text('Breakfast: ${dayPlan['breakfast']['description']}',
+                         style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text('${dayPlan['breakfast']['total_calories']} calories'),
+                    const SizedBox(height: 4),
+                  ],
+                  
+                  if (dayPlan['lunch'] != null) ...[
+                    Text('Lunch: ${dayPlan['lunch']['description']}',
+                         style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text('${dayPlan['lunch']['total_calories']} calories'),
+                    const SizedBox(height: 4),
+                  ],
+                  
+                  if (dayPlan['dinner'] != null) ...[
+                    Text('Dinner: ${dayPlan['dinner']['description']}',
+                         style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text('${dayPlan['dinner']['total_calories']} calories'),
+                  ],
+                  
+                  if (dayPlan['total_daily_calories'] != null) ...[
+                    const SizedBox(height: 8),
+                    Text('Total: ${dayPlan['total_daily_calories']} calories',
+                         style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }).toList()),
+      ],
+    );
+  }
+  
+  void _showSuccessMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -706,6 +907,44 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                       height: 1.4,
                     ),
                   ),
+                  
+                  // Show save buttons for AI responses with plans
+                  if (!message.isUser && message.hasSaveOption) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () => _savePlan(message),
+                          icon: Icon(
+                            message.isWorkoutPlan ? Icons.fitness_center : Icons.restaurant,
+                            size: 16,
+                          ),
+                          label: Text(
+                            message.isWorkoutPlan ? 'Save Workout' : 'Save Meal Plan',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: cs.primary,
+                            foregroundColor: cs.onPrimary,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            minimumSize: Size.zero,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton.icon(
+                          onPressed: () => _viewPlanDetails(message),
+                          icon: const Icon(Icons.visibility, size: 16),
+                          label: const Text('View Details', style: TextStyle(fontSize: 12)),
+                          style: TextButton.styleFrom(
+                            foregroundColor: cs.primary,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            minimumSize: Size.zero,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  
                   const SizedBox(height: 4),
                   Text(
                     _formatTime(message.timestamp),
@@ -1093,10 +1332,16 @@ class ChatMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
+  final bool hasSaveOption;
+  final bool isWorkoutPlan;
+  final bool isMealPlan;
   
   ChatMessage({
     required this.text,
     required this.isUser,
     required this.timestamp,
+    this.hasSaveOption = false,
+    this.isWorkoutPlan = false,
+    this.isMealPlan = false,
   });
 }
