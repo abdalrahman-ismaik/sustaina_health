@@ -42,6 +42,7 @@ class FirebaseWorkoutService {
         name: name,
         workoutPlan: workoutPlan,
         createdAt: DateTime.now(),
+        lastUpdated: DateTime.now(),
         isFavorite: false,
       );
 
@@ -69,7 +70,8 @@ class FirebaseWorkoutService {
       print('Found ${querySnapshot.docs.length} workout plans');
 
       return querySnapshot.docs
-          .map((QueryDocumentSnapshot<Object?> doc) => SavedWorkoutPlan.fromJson(<String, dynamic>{
+          .map((QueryDocumentSnapshot<Object?> doc) =>
+              SavedWorkoutPlan.fromJson(<String, dynamic>{
                 ...doc.data() as Map<String, dynamic>,
                 'id': doc.id,
               }))
@@ -83,7 +85,8 @@ class FirebaseWorkoutService {
   /// Get a specific saved workout plan by ID
   Future<SavedWorkoutPlan?> getSavedWorkoutPlan(String id) async {
     try {
-      final DocumentSnapshot<Object?> doc = await _workoutPlansCollection.doc(id).get();
+      final DocumentSnapshot<Object?> doc =
+          await _workoutPlansCollection.doc(id).get();
 
       if (!doc.exists) {
         return null;
@@ -130,7 +133,8 @@ class FirebaseWorkoutService {
   /// Delete a saved workout plan
   Future<void> deleteWorkoutPlan(String id) async {
     try {
-      final DocumentSnapshot<Object?> doc = await _workoutPlansCollection.doc(id).get();
+      final DocumentSnapshot<Object?> doc =
+          await _workoutPlansCollection.doc(id).get();
 
       if (!doc.exists) {
         throw Exception('Workout plan not found');
@@ -156,7 +160,8 @@ class FirebaseWorkoutService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((QuerySnapshot<Object?> snapshot) => snapshot.docs
-            .map((QueryDocumentSnapshot<Object?> doc) => SavedWorkoutPlan.fromJson(<String, dynamic>{
+            .map((QueryDocumentSnapshot<Object?> doc) =>
+                SavedWorkoutPlan.fromJson(<String, dynamic>{
                   ...doc.data() as Map<String, dynamic>,
                   'id': doc.id,
                 }))
