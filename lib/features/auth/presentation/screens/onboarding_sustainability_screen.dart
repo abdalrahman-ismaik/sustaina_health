@@ -144,7 +144,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                                       border: Border.all(color: cs.primary.withOpacity(0.2)),
                                     ),
                                     child: Text(
-                                      'Join 50,000+ eco-conscious users',
+                                      'Start your eco-conscious journey',
                                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                         color: cs.primary,
                                         fontWeight: FontWeight.bold,
@@ -289,7 +289,7 @@ class OnboardingSustainabilityScreen extends ConsumerWidget {
                       ),
                       child: ElevatedButton(
                         onPressed: () async {
-                          // Mark onboarding as completed
+                          // Mark onboarding as seen (but not completed until they sign up)
                           await OnboardingService.markOnboardingCompleted();
                           // Navigate to login
                           context.go('/login');

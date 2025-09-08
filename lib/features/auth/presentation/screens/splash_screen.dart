@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/services/onboarding_service.dart';
+import '../providers/auth_providers.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _loadingAnimation;
@@ -47,18 +49,29 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController.forward();
 
     // Let the router handle navigation based on auth state
-    // Remove automatic navigation - router redirect will handle this
     Timer(const Duration(seconds: 3), () async {
       if (mounted) {
-        // Check if user has seen onboarding before
-        final bool hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
+        // Check authentication status first
+        final AsyncValue<UserEntity?> authState = ref.read(authStateProvider);
+        final bool isLoggedIn = authState.hasValue && authState.value != null;
         
-        if (!hasSeenOnboarding) {
-          // First time user - show onboarding
-          context.go('/onboarding/welcome');
+        if (isLoggedIn) {
+          // User is authenticated - go to home (router will handle profile setup check)
+          context.go('/home');
         } else {
-          // Returning user - let router decide based on auth state
-          context.go('/login');
+          // User is not authenticated - always show onboarding for fresh start
+          // This ensures new users or users who haven't completed signup see onboarding
+          final bool hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
+          
+          if (!hasSeenOnboarding) {
+            // First time user - show onboarding
+            context.go('/onboarding/welcome');
+          } else {
+            // Reset onboarding for non-authenticated users to ensure they see it again
+            // This handles the case where user saw onboarding but didn't complete signup
+            await OnboardingService.resetOnboarding();
+            context.go('/onboarding/welcome');
+          }
         }
       }
     });
@@ -138,7 +151,7 @@ class _SplashScreenState extends State<SplashScreen>
                         child: Column(
                           children: <Widget>[
                             Text(
-                              'SustainaHealth',
+                              'Ghiraas',
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.displaySmall?.copyWith(
                                 fontWeight: FontWeight.bold,

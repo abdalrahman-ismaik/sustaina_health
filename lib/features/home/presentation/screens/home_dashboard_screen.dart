@@ -1392,13 +1392,13 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
+                colors: <Color>[
                   cs.primary,
                   cs.primary.withValues(alpha: 0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
+              boxShadow: <BoxShadow>[
                 BoxShadow(
                   color: cs.primary.withValues(alpha: 0.3),
                   blurRadius: 12,
@@ -1417,7 +1417,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                   height: 56,
                   child: Stack(
                     alignment: Alignment.center,
-                    children: [
+                    children: <Widget>[
                       // Main AI icon
                       Icon(
                         Icons.smart_toy_outlined,

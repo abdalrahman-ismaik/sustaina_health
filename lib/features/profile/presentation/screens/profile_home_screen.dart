@@ -1329,7 +1329,6 @@ class _QuickSettingTile extends StatelessWidget {
       {required this.icon,
       required this.label,
       required this.trailing,
-      this.onTap,
       Key? key})
       : super(key: key);
 

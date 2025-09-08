@@ -242,7 +242,7 @@ class OnboardingWelcomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Join 50,000+ users on their wellness journey',
+                      'Start your sustainable wellness journey today',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),

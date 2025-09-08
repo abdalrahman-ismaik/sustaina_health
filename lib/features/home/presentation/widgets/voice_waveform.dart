@@ -30,13 +30,13 @@ class _VoiceWaveformState extends State<VoiceWaveform>
     super.initState();
     _controllers = List.generate(
       widget.barCount,
-      (index) => AnimationController(
+      (int index) => AnimationController(
         duration: Duration(milliseconds: 300 + (index * 80)), // Faster, more visible animations
         vsync: this,
       ),
     );
 
-    _animations = _controllers.map((controller) {
+    _animations = _controllers.map((AnimationController controller) {
       return Tween<double>(begin: 0.2, end: 1.0).animate(
         CurvedAnimation(parent: controller, curve: Curves.easeInOut),
       );
@@ -67,7 +67,7 @@ class _VoiceWaveformState extends State<VoiceWaveform>
     print('VoiceWaveform: Starting animations for ${_controllers.length} controllers');
     for (int i = 0; i < _controllers.length; i++) {
       // Add slight randomization to make it look more natural
-      final delay = (i * 50) + (math.Random().nextInt(100));
+      final int delay = (i * 50) + (math.Random().nextInt(100));
       Future.delayed(Duration(milliseconds: delay), () {
         if (mounted && widget.isActive) {
           print('VoiceWaveform: Starting controller $i animation');
@@ -78,7 +78,7 @@ class _VoiceWaveformState extends State<VoiceWaveform>
   }
 
   void _stopAnimations() {
-    for (final controller in _controllers) {
+    for (final AnimationController controller in _controllers) {
       controller.stop();
       controller.reset();
     }
@@ -86,7 +86,7 @@ class _VoiceWaveformState extends State<VoiceWaveform>
 
   @override
   void dispose() {
-    for (final controller in _controllers) {
+    for (final AnimationController controller in _controllers) {
       controller.dispose();
     }
     super.dispose();
@@ -99,10 +99,10 @@ class _VoiceWaveformState extends State<VoiceWaveform>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
-        children: List.generate(widget.barCount, (index) {
+        children: List.generate(widget.barCount, (int index) {
           return AnimatedBuilder(
             animation: _animations[index],
-            builder: (context, child) {
+            builder: (BuildContext context, Widget? child) {
               return Container(
                 width: 4, // Slightly wider for better visibility
                 height: widget.isActive 

@@ -62,6 +62,12 @@ final Provider<GoRouter> appRouterProvider =
       
       final bool isOnProfileSetupPage = state.uri.path == RouteNames.personalInfoSetup;
 
+      // Allow splash screen to handle initial navigation logic
+      // Don't redirect from splash screen - let it determine the flow
+      if (state.uri.path == RouteNames.splash) {
+        return null;
+      }
+
       // If not logged in and not on auth pages, redirect to login
       if (!isLoggedIn && !isOnAuthPage && !isOnProfileSetupPage) {
         return RouteNames.login;

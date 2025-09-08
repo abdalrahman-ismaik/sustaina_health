@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
@@ -8,7 +10,7 @@ import 'voice_waveform.dart';
 
 /// Persistent chat storage for MCP Command Chat
 class MCPChatStorage {
-  static final List<ChatMessage> _messages = [];
+  static final List<ChatMessage> _messages = <ChatMessage>[];
   static List<ChatMessage> get messages => _messages;
   
   static void addMessage(ChatMessage message) {
@@ -128,14 +130,14 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       
       if (status.isGranted) {
         _isInitialized = await _speech.initialize(
-          onError: (errorNotification) {
+          onError: (SpeechRecognitionError errorNotification) {
             print('Speech error: ${errorNotification.errorMsg}');
             // On error, restart speech recognition if we're supposed to be listening
             if (_isListening) {
               _restartSpeechRecognition();
             }
           },
-          onStatus: (status) {
+          onStatus: (String status) {
             print('Speech status: $status');
             // Monitor for unresponsive states
             if (status == 'notListening' || status == 'done') {
@@ -176,7 +178,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     
     try {
       await _speech.listen(
-        onResult: (result) {
+        onResult: (SpeechRecognitionResult result) {
           setState(() {
             _currentWords = result.recognizedWords;
             _confidence = result.confidence;
@@ -204,7 +206,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             }
           });
         },
-        onSoundLevelChange: (level) {
+        onSoundLevelChange: (double level) {
           // Optional: Handle sound level changes for visual feedback
         },
         partialResults: true,
@@ -286,16 +288,16 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
   
   void _startSpeechMonitoring() {
     _speechMonitorTimer?.cancel();
-    _speechMonitorTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _speechMonitorTimer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       if (!_isListening || !mounted) {
         timer.cancel();
         return;
       }
       
       // Check if speech recognition is still active
-      final now = DateTime.now();
+      final DateTime now = DateTime.now();
       if (_lastSpeechActivity != null) {
-        final timeSinceLastActivity = now.difference(_lastSpeechActivity!);
+        final Duration timeSinceLastActivity = now.difference(_lastSpeechActivity!);
         
         // If no speech activity for 15 seconds and no current words, restart
         if (timeSinceLastActivity.inSeconds > 15 && _currentWords.isEmpty) {
@@ -321,7 +323,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       // Restart if still supposed to be listening
       if (_isListening && mounted) {
         await _speech.listen(
-          onResult: (result) {
+          onResult: (SpeechRecognitionResult result) {
             setState(() {
               _currentWords = result.recognizedWords;
               _confidence = result.confidence;
@@ -349,7 +351,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               }
             });
           },
-          onSoundLevelChange: (level) {
+          onSoundLevelChange: (double level) {
             // Optional: Handle sound level changes for visual feedback
           },
           partialResults: true,
@@ -409,7 +411,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     await Future.delayed(const Duration(milliseconds: 800));
     
     // Generate a sample response based on the message
-    String response = _generateSampleResponse(userMessage);
+    final String response = _generateSampleResponse(userMessage);
     
     _addMessage(ChatMessage(
       text: response,
@@ -475,7 +477,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withValues(alpha: 0.1),
             blurRadius: 20,
@@ -484,7 +486,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         ],
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           // Header
           _buildHeader(cs, isDark),
           
@@ -507,7 +509,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
+          colors: <Color>[
             cs.primaryContainer,
             cs.primary.withValues(alpha: 0.1),
           ],
@@ -515,7 +517,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           // Drag handle
           Container(
             width: 40,
@@ -529,12 +531,12 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
           
           // Title and status
           Row(
-            children: [
+            children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [cs.primary, cs.primary.withValues(alpha: 0.8)],
+                    colors: <Color>[cs.primary, cs.primary.withValues(alpha: 0.8)],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -548,7 +550,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     Text(
                       'AI Health Assistant',
                       style: TextStyle(
@@ -582,7 +584,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
+                    children: <Widget>[
                       Container(
                         width: 8,
                         height: 8,
@@ -615,7 +617,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       controller: _scrollController,
       padding: const EdgeInsets.all(16),
       itemCount: MCPChatStorage.messages.length + (_isSending ? 1 : 0) + (_isListening ? 1 : 0),
-      itemBuilder: (context, index) {
+      itemBuilder: (BuildContext context, int index) {
         // Show recording indicator with waveform when listening
         if (_isListening && index == MCPChatStorage.messages.length) {
           return _buildRecordingIndicator(cs);
@@ -628,7 +630,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         
         // Show regular message
         if (index < MCPChatStorage.messages.length) {
-          final message = MCPChatStorage.messages[index];
+          final ChatMessage message = MCPChatStorage.messages[index];
           return _buildMessageBubble(message, cs, isDark);
         }
         
@@ -646,8 +648,8 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
           ? MainAxisAlignment.end 
           : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!message.isUser) ...[
+        children: <Widget>[
+          if (!message.isUser) ...<Widget>[
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -669,10 +671,10 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               decoration: BoxDecoration(
                 gradient: message.isUser
                   ? LinearGradient(
-                      colors: [cs.primary, cs.primary.withValues(alpha: 0.8)],
+                      colors: <Color>[cs.primary, cs.primary.withValues(alpha: 0.8)],
                     )
                   : LinearGradient(
-                      colors: [
+                      colors: <Color>[
                         cs.surfaceContainerHigh,
                         cs.surfaceContainer,
                       ],
@@ -685,7 +687,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                     ? const Radius.circular(4) 
                     : const Radius.circular(20),
                 ),
-                boxShadow: [
+                boxShadow: <BoxShadow>[
                   BoxShadow(
                     color: cs.shadow.withValues(alpha: 0.1),
                     blurRadius: 8,
@@ -695,7 +697,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
                     message.text,
                     style: TextStyle(
@@ -719,7 +721,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             ),
           ),
           
-          if (message.isUser) ...[
+          if (message.isUser) ...<Widget>[
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.all(8),
@@ -743,7 +745,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Row(
-        children: [
+        children: <Widget>[
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -767,7 +769,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [
+              children: <Widget>[
                 _buildDot(cs, 0),
                 const SizedBox(width: 4),
                 _buildDot(cs, 1),
@@ -785,7 +787,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 600 + (index * 200)),
-      builder: (context, value, child) {
+      builder: (BuildContext context, double value, Widget? child) {
         return Container(
           width: 8,
           height: 8,
@@ -804,13 +806,13 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Flexible(
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [cs.error.withValues(alpha: 0.1), cs.error.withValues(alpha: 0.05)],
+                  colors: <Color>[cs.error.withValues(alpha: 0.1), cs.error.withValues(alpha: 0.05)],
                 ),
                 borderRadius: BorderRadius.circular(20).copyWith(
                   bottomRight: const Radius.circular(4),
@@ -822,10 +824,10 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
+                    children: <Widget>[
                       Container(
                         width: 8,
                         height: 8,
@@ -854,7 +856,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                     height: 40,
                     barCount: 8,
                   ),
-                  if (_currentWords.isNotEmpty) ...[
+                  if (_currentWords.isNotEmpty) ...<Widget>[
                     const SizedBox(height: 8),
                     Text(
                       _currentWords,
@@ -892,7 +894,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: cs.surface,
-        boxShadow: [
+        boxShadow: <BoxShadow>[
           BoxShadow(
             color: cs.shadow.withValues(alpha: 0.1),
             blurRadius: 10,
@@ -901,7 +903,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         ],
       ),
       child: Column(
-        children: [
+        children: <Widget>[
           // Live speech text display - show only current words being spoken
           if (_isListening && _currentWords.isNotEmpty)
             Container(
@@ -927,7 +929,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             
           // Input row
           Row(
-            children: [
+            children: <Widget>[
               // Text input
               Expanded(
                 child: Container(
@@ -971,10 +973,10 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               // Microphone button with compact pulse effect
               AnimatedBuilder(
                 animation: _pulseAnimation,
-                builder: (context, child) {
+                builder: (BuildContext context, Widget? child) {
                   return Stack(
                     alignment: Alignment.center,
-                    children: [
+                    children: <Widget>[
                       // Compact pulse ring that stays within 48x48
                       if (_isListening)
                         Container(
@@ -999,7 +1001,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                           decoration: BoxDecoration(
                             color: _isListening ? cs.error : cs.primary,
                             shape: BoxShape.circle,
-                            boxShadow: [
+                            boxShadow: <BoxShadow>[
                               BoxShadow(
                                 color: (_isListening ? cs.error : cs.primary)
                                     .withValues(alpha: 0.3),
@@ -1031,10 +1033,10 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                   decoration: BoxDecoration(
                     color: _textController.text.trim().isNotEmpty
                       ? cs.primary
-                      : cs.surfaceVariant,
+                      : cs.surfaceContainerHighest,
                     shape: BoxShape.circle,
                     boxShadow: _textController.text.trim().isNotEmpty
-                      ? [
+                      ? <BoxShadow>[
                           BoxShadow(
                             color: cs.primary.withValues(alpha: 0.3),
                             blurRadius: 6,
@@ -1071,8 +1073,8 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
   }
   
   String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final difference = now.difference(time);
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(time);
     
     if (difference.inMinutes < 1) {
       return 'Just now';

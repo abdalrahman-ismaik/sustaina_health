@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:ghiraas/features/exercise/data/models/workout_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,9 +10,7 @@ import '../features/nutrition/data/models/nutrition_models.dart';
 import '../features/nutrition/domain/repositories/nutrition_repository.dart';
 import '../features/nutrition/data/services/nutrition_api_service.dart';
 import '../features/sleep/data/services/sleep_service_hybrid.dart';
-import '../features/sleep/data/models/sleep_models.dart';
 import '../features/profile/data/services/hybrid_profile_service.dart';
-import '../features/profile/data/models/user_profile_model.dart';
 
 /// Comprehensive data synchronization service to migrate all local data to cloud
 class DataSyncService {
