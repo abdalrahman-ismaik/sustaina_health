@@ -1,0 +1,530 @@
+{
+  "@@locale": "en",
+  "appName": "Ghiraas",
+  "@appName": {
+    "description": "The application name"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile page title"
+  },
+  "welcomeUser": "Welcome User",
+  "@welcomeUser": {
+    "description": "Default welcome message"
+  },
+  "sustainabilityChampion": "Sustainability Champion",
+  "@sustainabilityChampion": {
+    "description": "User title badge"
+  },
+  "noEmailProvided": "No email provided",
+  "@noEmailProvided": {
+    "description": "Default message when user has no email"
+  },
+  "yourImpact": "Your Impact",
+  "@yourImpact": {
+    "description": "Statistics section title"
+  },
+  "carbonSaved": "Carbon Saved",
+  "@carbonSaved": {
+    "description": "Carbon footprint reduction metric"
+  },
+  "currentStreak": "Current Streak",
+  "@currentStreak": {
+    "description": "Current activity streak"
+  },
+  "workouts": "Workouts",
+  "@workouts": {
+    "description": "Workout count"
+  },
+  "achievements": "Achievements",
+  "@achievements": {
+    "description": "Achievement count"
+  },
+  "personalDetails": "Personal Details",
+  "@personalDetails": {
+    "description": "Personal information section title"
+  },
+  "sync": "Sync",
+  "@sync": {
+    "description": "Sync button text"
+  },
+  "syncing": "Syncing...",
+  "@syncing": {
+    "description": "Syncing in progress text"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit button text"
+  },
+  "weight": "Weight",
+  "@weight": {
+    "description": "Weight field label"
+  },
+  "height": "Height",
+  "@height": {
+    "description": "Height field label"
+  },
+  "age": "Age",
+  "@age": {
+    "description": "Age field label"
+  },
+  "gender": "Gender",
+  "@gender": {
+    "description": "Gender field label"
+  },
+  "notSet": "Not set",
+  "@notSet": {
+    "description": "Default value when field is empty"
+  },
+  "quickActions": "Quick Actions",
+  "@quickActions": {
+    "description": "Quick actions section title"
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Notifications section title"
+  },
+  "stayUpdatedWithPersonalizedTips": "Stay updated with personalized tips",
+  "@stayUpdatedWithPersonalizedTips": {
+    "description": "Notifications enabled description"
+  },
+  "enableForPersonalizedReminders": "Enable for personalized reminders",
+  "@enableForPersonalizedReminders": {
+    "description": "Notifications disabled description"
+  },
+  "enable": "Enable",
+  "@enable": {
+    "description": "Enable button text"
+  },
+  "notificationSettings": "Notification Settings",
+  "@notificationSettings": {
+    "description": "Notification settings page title"
+  },
+  "manageYourAlertsAndReminders": "Manage your alerts and reminders",
+  "@manageYourAlertsAndReminders": {
+    "description": "Notification settings description"
+  },
+  "privacySecurity": "Privacy & Security",
+  "@privacySecurity": {
+    "description": "Privacy settings title"
+  },
+  "controlYourDataAndPrivacy": "Control your data and privacy",
+  "@controlYourDataAndPrivacy": {
+    "description": "Privacy settings description"
+  },
+  "completeProfileSetup": "Complete Profile Setup",
+  "@completeProfileSetup": {
+    "description": "Profile setup title"
+  },
+  "updateYourPersonalInformation": "Update your personal information and preferences",
+  "@updateYourPersonalInformation": {
+    "description": "Profile setup description"
+  },
+  "appPreferences": "App Preferences",
+  "@appPreferences": {
+    "description": "App preferences title"
+  },
+  "customizeYourAppExperience": "Customize your app experience",
+  "@customizeYourAppExperience": {
+    "description": "App preferences description"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language setting title"
+  },
+  "selectYourPreferredLanguage": "Select your preferred language",
+  "@selectYourPreferredLanguage": {
+    "description": "Language setting description"
+  },
+  "signOut": "Sign Out",
+  "@signOut": {
+    "description": "Sign out button text"
+  },
+  "logoutFromYourAccount": "Logout from your account",
+  "@logoutFromYourAccount": {
+    "description": "Sign out description"
+  },
+  "signOutConfirmTitle": "Sign Out",
+  "@signOutConfirmTitle": {
+    "description": "Sign out confirmation dialog title"
+  },
+  "signOutConfirmMessage": "Are you sure you want to sign out of your account?",
+  "@signOutConfirmMessage": {
+    "description": "Sign out confirmation dialog message"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "editPersonalInfo": "Edit Personal Info",
+  "@editPersonalInfo": {
+    "description": "Edit personal info dialog title"
+  },
+  "enterYourAge": "Enter your age",
+  "@enterYourAge": {
+    "description": "Age field hint"
+  },
+  "enterYourHeight": "Enter your height",
+  "@enterYourHeight": {
+    "description": "Height field hint"
+  },
+  "enterYourWeight": "Enter your weight",
+  "@enterYourWeight": {
+    "description": "Weight field hint"
+  },
+  "sex": "Sex",
+  "@sex": {
+    "description": "Sex field label"
+  },
+  "male": "Male",
+  "@male": {
+    "description": "Male gender option"
+  },
+  "female": "Female",
+  "@female": {
+    "description": "Female gender option"
+  },
+  "other": "Other",
+  "@other": {
+    "description": "Other gender option"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "personalInformationUpdated": "Personal information updated successfully!",
+  "@personalInformationUpdated": {
+    "description": "Success message for profile update"
+  },
+  "errorSavingInformation": "Error saving information: {error}",
+  "@errorSavingInformation": {
+    "description": "Error message for profile save failure",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "dataSyncedToCloud": "Data synced to cloud storage!",
+  "@dataSyncedToCloud": {
+    "description": "Success message for data sync"
+  },
+  "syncFailed": "Sync failed: {error}",
+  "@syncFailed": {
+    "description": "Error message for sync failure",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "failedToLogout": "Failed to logout: {error}",
+  "@failedToLogout": {
+    "description": "Error message for logout failure",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "kgCO2": "kg CO₂",
+  "@kgCO2": {
+    "description": "Carbon dioxide unit"
+  },
+  "days": "days",
+  "@days": {
+    "description": "Days unit"
+  },
+  "total": "total",
+  "@total": {
+    "description": "Total count unit"
+  },
+  "unlocked": "unlocked",
+  "@unlocked": {
+    "description": "Unlocked achievements unit"
+  },
+  "kg": "kg",
+  "@kg": {
+    "description": "Kilogram unit"
+  },
+  "cm": "cm",
+  "@cm": {
+    "description": "Centimeter unit"
+  },
+  "years": "years",
+  "@years": {
+    "description": "Years unit"
+  },
+  "age": "Age",
+  "@age": {
+    "description": "Age field label"
+  },
+  "sex": "Sex",
+  "@sex": {
+    "description": "Sex/Gender field label"
+  },
+  "male": "Male",
+  "@male": {
+    "description": "Male gender option"
+  },
+  "female": "Female",
+  "@female": {
+    "description": "Female gender option"
+  },
+  "other": "Other",
+  "@other": {
+    "description": "Other gender option"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "days": "days",
+  "@days": {
+    "description": "Days unit label"
+  },
+  "workouts": "Workouts",
+  "@workouts": {
+    "description": "Workouts section title"
+  },
+  "dashboard": "Dashboard",
+  "@dashboard": {
+    "description": "Main dashboard title"
+  },
+  "home": "Home",
+  "@home": {
+    "description": "Home tab label"
+  },
+  "exercise": "Exercise",
+  "@exercise": {
+    "description": "Exercise tab label"
+  },
+  "nutrition": "Nutrition",
+  "@nutrition": {
+    "description": "Nutrition tab label"
+  },
+  "sleep": "Sleep",
+  "@sleep": {
+    "description": "Sleep tab label"
+  },
+  "todaysGoals": "Today's Goals",
+  "@todaysGoals": {
+    "description": "Today's goals section title"
+  },
+  "todaysFocus": "Today's Focus",
+  "@todaysFocus": {
+    "description": "Today's focus section title"
+  },
+  "workoutStreak": "Workout Streak",
+  "@workoutStreak": {
+    "description": "Workout streak counter"
+  },
+  "sleepQuality": "Sleep Quality",
+  "@sleepQuality": {
+    "description": "Sleep quality metric"
+  },
+  "sustainabilityScore": "Sustainability Score",
+  "@sustainabilityScore": {
+    "description": "Sustainability score metric"
+  },
+  "quickActions": "Quick Actions",
+  "@quickActions": {
+    "description": "Quick actions section title"
+  },
+  "logMeal": "Log Meal",
+  "@logMeal": {
+    "description": "Log meal button text"
+  },
+  "startWorkout": "Start Workout",
+  "@startWorkout": {
+    "description": "Start workout button text"
+  },
+  "trackSleep": "Track Sleep",
+  "@trackSleep": {
+    "description": "Track sleep button text"
+  },
+  "viewProgress": "View Progress",
+  "@viewProgress": {
+    "description": "View progress button text"
+  },
+  "greeting": "Good {timeOfDay}",
+  "@greeting": {
+    "description": "Greeting message with time of day",
+    "placeholders": {
+      "timeOfDay": {
+        "type": "String"
+      }
+    }
+  },
+  "morning": "Morning",
+  "@morning": {
+    "description": "Morning time period"
+  },
+  "afternoon": "Afternoon",
+  "@afternoon": {
+    "description": "Afternoon time period"
+  },
+  "evening": "Evening",
+  "@evening": {
+    "description": "Evening time period"
+  },
+  "goodMorning": "Good Morning",
+  "@goodMorning": {
+    "description": "Morning greeting"
+  },
+  "goodAfternoon": "Good Afternoon",
+  "@goodAfternoon": {
+    "description": "Afternoon greeting"
+  },
+  "goodEvening": "Good Evening",
+  "@goodEvening": {
+    "description": "Evening greeting"
+  },
+  "sustainabilityTip": "Did you know? Walking or cycling for just 30 minutes instead of driving can save up to 2.6 kg of CO₂ emissions! 🚴‍♀️",
+  "@sustainabilityTip": {
+    "description": "Daily sustainability tip"
+  },
+  "nutritionHub": "Your Nutrition Hub",
+  "@nutritionHub": {
+    "description": "Nutrition screen title"
+  },
+  "aiPoweredNutrition": "Smart food analysis powered by AI for healthier, sustainable choices",
+  "@aiPoweredNutrition": {
+    "description": "Nutrition screen subtitle"
+  },
+  "recentActivity": "Recent Activity",
+  "@recentActivity": {
+    "description": "Recent activity section title"
+  },
+  "myWorkouts": "My Workouts",
+  "@myWorkouts": {
+    "description": "My workouts screen title"
+  },
+  "workoutHistory": "Workout History",
+  "@workoutHistory": {
+    "description": "Workout history screen title"
+  },
+  "aiWorkoutGenerator": "AI Workout Generator",
+  "@aiWorkoutGenerator": {
+    "description": "AI workout generator title"
+  },
+  "foodLogging": "Food Logging",
+  "@foodLogging": {
+    "description": "Food logging screen title"
+  },
+  "mealPlans": "Meal Plans",
+  "@mealPlans": {
+    "description": "Meal plans screen title"
+  },
+  "nutritionInsights": "Nutrition Insights",
+  "@nutritionInsights": {
+    "description": "Nutrition insights screen title"
+  },
+  "sleepTracking": "Sleep Tracking",
+  "@sleepTracking": {
+    "description": "Sleep tracking screen title"
+  },
+  "sleepAnalysis": "Sleep Analysis",
+  "@sleepAnalysis": {
+    "description": "Sleep analysis screen title"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings screen title"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit button text"
+  },
+  "back": "Back",
+  "@back": {
+    "description": "Back button text"
+  },
+  "next": "Next",
+  "@next": {
+    "description": "Next button text"
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Done button text"
+  },
+  "welcomeBack": "Welcome back!",
+  "@welcomeBack": {
+    "description": "Welcome back greeting"
+  },
+  "ecoWarrior": "Eco Warrior",
+  "@ecoWarrior": {
+    "description": "Default user title for eco-conscious users"
+  },
+  "dailyProgress": "Daily Progress",
+  "@dailyProgress": {
+    "description": "Daily progress label"
+  },
+  "complete": "Complete",
+  "@complete": {
+    "description": "Progress completion label"
+  },
+  "dayStreak": "Day Streak",
+  "@dayStreak": {
+    "description": "Current day streak label"
+  },
+  "calories": "Calories",
+  "@calories": {
+    "description": "Calories label"
+  },
+  "dayStreak": "Day Streak",
+  "@dayStreak": {
+    "description": "Day streak counter label"
+  },
+  "quoteOfTheDay": "Quote of the Day",
+  "@quoteOfTheDay": {
+    "description": "Daily quote section title"
+  },
+  "aiWorkouts": "AI Workouts",
+  "@aiWorkouts": {
+    "description": "AI workout subtitle"
+  },
+  "mealTracking": "Meal Tracking",
+  "@mealTracking": {
+    "description": "Meal tracking subtitle"
+  },
+  "yourProgress": "Your Progress",
+  "@yourProgress": {
+    "description": "Progress subtitle"
+  },
+  "sustainabilityMission": "Sustainability Mission",
+  "@sustainabilityMission": {
+    "description": "Sustainability mission title"
+  },
+  "dailyEcoTip": "Daily Eco Tip",
+  "@dailyEcoTip": {
+    "description": "Daily eco tip section title"
+  },
+  "sampleNotificationsCreated": "Sample notifications created! (Demo functionality)",
+  "@sampleNotificationsCreated": {
+    "description": "Demo notification message"
+  },
+  "readyToContinueWellnessJourney": "Ready to continue your wellness journey?",
+  "@readyToContinueWellnessJourney": {
+    "description": "Wellness journey continuation message"
+  },
+  "healthQuote": "\"The groundwork for all happiness is good health.\"",
+  "@healthQuote": {
+    "description": "Daily health quote"
+  },
+  "sustainabilityMissionDescription": "Every small action creates a ripple effect. Start your sustainable journey today and watch your positive impact grow with each healthy choice you make.",
+  "@sustainabilityMissionDescription": {
+    "description": "Sustainability mission description text"
+  }
+}

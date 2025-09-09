@@ -2,12 +2,223 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/providers/theme_provider.dart';
+import '../../../../core/services/notification_preferences_service.dart';
+import '../../../../core/services/data_management_service.dart';
 
-class AppPreferencesScreen extends ConsumerWidget {
+class AppPreferencesScreen extends ConsumerStatefulWidget {
   const AppPreferencesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppPreferencesScreen> createState() => _AppPreferencesScreenState();
+}
+
+class _AppPreferencesScreenState extends ConsumerState<AppPreferencesScreen> {
+  // Notification preferences state
+  bool _workoutReminders = true;
+  bool _mealLogging = true;
+  bool _sleepTracking = false;
+  bool _achievementNotifications = true;
+  bool _sustainabilityTips = true;
+  
+  // Loading states
+  bool _isLoadingNotifications = true;
+  bool _isExporting = false;
+  bool _isClearingCache = false;
+  bool _isResetting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPreferences();
+  }
+
+  Future<void> _loadNotificationPreferences() async {
+    try {
+      final workoutReminders = await NotificationPreferences.getWorkoutReminders();
+      final mealLogging = await NotificationPreferences.getMealLogging();
+      final sleepTracking = await NotificationPreferences.getSleepTracking();
+      final achievements = await NotificationPreferences.getAchievementNotifications();
+      final tips = await NotificationPreferences.getSustainabilityTips();
+      
+      if (mounted) {
+        setState(() {
+          _workoutReminders = workoutReminders;
+          _mealLogging = mealLogging;
+          _sleepTracking = sleepTracking;
+          _achievementNotifications = achievements;
+          _sustainabilityTips = tips;
+          _isLoadingNotifications = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingNotifications = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _updateWorkoutReminders(bool value) async {
+    await NotificationPreferences.setWorkoutReminders(value);
+    setState(() {
+      _workoutReminders = value;
+    });
+  }
+
+  Future<void> _updateMealLogging(bool value) async {
+    await NotificationPreferences.setMealLogging(value);
+    setState(() {
+      _mealLogging = value;
+    });
+  }
+
+  Future<void> _updateSleepTracking(bool value) async {
+    await NotificationPreferences.setSleepTracking(value);
+    setState(() {
+      _sleepTracking = value;
+    });
+  }
+
+  Future<void> _updateAchievementNotifications(bool value) async {
+    await NotificationPreferences.setAchievementNotifications(value);
+    setState(() {
+      _achievementNotifications = value;
+    });
+  }
+
+  Future<void> _updateSustainabilityTips(bool value) async {
+    await NotificationPreferences.setSustainabilityTips(value);
+    setState(() {
+      _sustainabilityTips = value;
+    });
+  }
+
+  Future<void> _exportData() async {
+    setState(() {
+      _isExporting = true;
+    });
+
+    try {
+      final success = await DataManagementService.exportUserData();
+      if (mounted) {
+        final ColorScheme cs = Theme.of(context).colorScheme;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              success 
+                ? 'Data exported successfully to Downloads folder'
+                : 'Failed to export data. Please check permissions.',
+            ),
+            backgroundColor: success ? cs.primary : cs.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        final ColorScheme cs = Theme.of(context).colorScheme;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting data: $e'),
+            backgroundColor: cs.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isExporting = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _clearCache() async {
+    setState(() {
+      _isClearingCache = true;
+    });
+
+    try {
+      final success = await DataManagementService.clearCache();
+      if (mounted) {
+        final ColorScheme cs = Theme.of(context).colorScheme;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              success 
+                ? 'Cache cleared successfully'
+                : 'Failed to clear cache',
+            ),
+            backgroundColor: success ? cs.primary : cs.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        final ColorScheme cs = Theme.of(context).colorScheme;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error clearing cache: $e'),
+            backgroundColor: cs.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isClearingCache = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _resetApp() async {
+    setState(() {
+      _isResetting = true;
+    });
+
+    try {
+      final success = await DataManagementService.resetAppData();
+      if (mounted) {
+        final ColorScheme cs = Theme.of(context).colorScheme;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              success 
+                ? 'App reset successfully. Please restart the app.'
+                : 'Failed to reset app data',
+            ),
+            backgroundColor: success ? cs.primary : cs.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        
+        if (success) {
+          // Reload notification preferences since they were reset
+          _loadNotificationPreferences();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        final ColorScheme cs = Theme.of(context).colorScheme;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error resetting app: $e'),
+            backgroundColor: cs.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isResetting = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final ThemeMode themeMode = ref.watch(themeProvider);
@@ -133,38 +344,59 @@ class AppPreferencesScreen extends ConsumerWidget {
               child: Column(
                 children: <Widget>[
                   const SizedBox(height: 16),
-                  _buildSwitchTile(
-                    context,
-                    'Workout Reminders',
-                    'Get reminded about your scheduled workouts',
-                    Icons.fitness_center,
-                    true, // Default enabled
-                    (bool value) {
-                      // TODO: Implement notification preferences
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSwitchTile(
-                    context,
-                    'Meal Logging',
-                    'Reminders to log your meals',
-                    Icons.restaurant,
-                    true,
-                    (bool value) {
-                      // TODO: Implement notification preferences
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSwitchTile(
-                    context,
-                    'Sleep Tracking',
-                    'Bedtime and wake-up reminders',
-                    Icons.bedtime,
-                    false,
-                    (bool value) {
-                      // TODO: Implement notification preferences
-                    },
-                  ),
+                  if (_isLoadingNotifications)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else ...[
+                    _buildSwitchTile(
+                      context,
+                      'Workout Reminders',
+                      'Get reminded about your scheduled workouts',
+                      Icons.fitness_center,
+                      _workoutReminders,
+                      _updateWorkoutReminders,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSwitchTile(
+                      context,
+                      'Meal Logging',
+                      'Reminders to log your meals',
+                      Icons.restaurant,
+                      _mealLogging,
+                      _updateMealLogging,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSwitchTile(
+                      context,
+                      'Sleep Tracking',
+                      'Bedtime and wake-up reminders',
+                      Icons.bedtime,
+                      _sleepTracking,
+                      _updateSleepTracking,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSwitchTile(
+                      context,
+                      'Achievement Notifications',
+                      'Celebrate your milestones and progress',
+                      Icons.emoji_events,
+                      _achievementNotifications,
+                      _updateAchievementNotifications,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSwitchTile(
+                      context,
+                      'Sustainability Tips',
+                      'Daily tips for eco-friendly living',
+                      Icons.eco,
+                      _sustainabilityTips,
+                      _updateSustainabilityTips,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -185,10 +417,8 @@ class AppPreferencesScreen extends ConsumerWidget {
                     'Export Data',
                     'Save your health data to device storage',
                     Icons.download,
-                    () {
-                      // TODO: Implement data export
-                      _showFeatureComingSoon(context);
-                    },
+                    _isExporting ? () {} : () => _exportData(),
+                    isLoading: _isExporting,
                   ),
                   const SizedBox(height: 12),
                   _buildActionTile(
@@ -196,9 +426,8 @@ class AppPreferencesScreen extends ConsumerWidget {
                     'Clear Cache',
                     'Free up storage space',
                     Icons.cleaning_services,
-                    () {
-                      _showClearCacheDialog(context);
-                    },
+                    _isClearingCache ? () {} : () => _showClearCacheDialog(context),
+                    isLoading: _isClearingCache,
                   ),
                   const SizedBox(height: 12),
                   _buildActionTile(
@@ -206,10 +435,9 @@ class AppPreferencesScreen extends ConsumerWidget {
                     'Reset App',
                     'Clear all data and start fresh',
                     Icons.restore,
-                    () {
-                      _showResetAppDialog(context);
-                    },
+                    _isResetting ? () {} : () => _showResetAppDialog(context),
                     isDestructive: true,
+                    isLoading: _isResetting,
                   ),
                 ],
               ),
@@ -481,11 +709,12 @@ class AppPreferencesScreen extends ConsumerWidget {
     IconData icon,
     VoidCallback onTap, {
     bool isDestructive = false,
+    bool isLoading = false,
   }) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     
     return InkWell(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       borderRadius: BorderRadius.circular(12.0),
       child: Container(
         padding: const EdgeInsets.all(16.0),
@@ -504,11 +733,22 @@ class AppPreferencesScreen extends ConsumerWidget {
                   : cs.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              child: Icon(
-                icon,
-                color: isDestructive ? cs.error : cs.onSurfaceVariant,
-                size: 20,
-              ),
+              child: isLoading
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        isDestructive ? cs.error : cs.primary,
+                      ),
+                    ),
+                  )
+                : Icon(
+                    icon,
+                    color: isDestructive ? cs.error : cs.onSurfaceVariant,
+                    size: 20,
+                  ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -532,39 +772,14 @@ class AppPreferencesScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: cs.onSurfaceVariant,
-              size: 20,
-            ),
+            if (!isLoading)
+              Icon(
+                Icons.chevron_right,
+                color: cs.onSurfaceVariant,
+                size: 20,
+              ),
           ],
         ),
-      ),
-    );
-  }
-  
-  void _showFeatureComingSoon(BuildContext context) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        backgroundColor: cs.surface,
-        icon: Icon(Icons.info_outline, color: cs.primary, size: 32),
-        title: Text(
-          'Coming Soon',
-          style: TextStyle(color: cs.onSurface),
-        ),
-        content: Text(
-          'This feature will be available in a future update.',
-          style: TextStyle(color: cs.onSurfaceVariant),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK', style: TextStyle(color: cs.primary)),
-          ),
-        ],
       ),
     );
   }
@@ -593,13 +808,7 @@ class AppPreferencesScreen extends ConsumerWidget {
           FilledButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Implement cache clearing
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Cache cleared successfully'),
-                  backgroundColor: cs.primary,
-                ),
-              );
+              _clearCache();
             },
             child: const Text('Clear'),
           ),
@@ -632,13 +841,7 @@ class AppPreferencesScreen extends ConsumerWidget {
           FilledButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Implement app reset
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('App reset functionality coming soon'),
-                  backgroundColor: cs.error,
-                ),
-              );
+              _resetApp();
             },
             style: FilledButton.styleFrom(backgroundColor: cs.error),
             child: const Text('Reset'),

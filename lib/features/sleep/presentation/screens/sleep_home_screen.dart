@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../providers/sleep_providers.dart';
 import '../../data/models/sleep_models.dart';
 
@@ -98,16 +99,17 @@ class SleepHomeScreen extends ConsumerWidget {
   }
 
   Widget _buildWelcomeCard(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
     final DateTime now = DateTime.now();
     final int hour = now.hour;
     String greeting;
 
     if (hour < 12) {
-      greeting = 'Good Morning';
+      greeting = l10n.goodMorning;
     } else if (hour < 17) {
-      greeting = 'Good Afternoon';
+      greeting = l10n.goodAfternoon;
     } else {
-      greeting = 'Good Evening';
+      greeting = l10n.goodEvening;
     }
 
     return Container(

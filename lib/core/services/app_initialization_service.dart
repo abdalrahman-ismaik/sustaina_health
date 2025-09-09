@@ -1,13 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/exercise/data/services/workout_storage_migration_service.dart';
+import '../../../features/notifications/data/services/notification_service.dart';
 
 class AppInitializationService {
   final WorkoutStorageMigrationService _migrationService;
+  final NotificationService _notificationService;
   bool _isInitialized = false;
   
   AppInitializationService({
     WorkoutStorageMigrationService? migrationService,
-  }) : _migrationService = migrationService ?? WorkoutStorageMigrationService();
+    NotificationService? notificationService,
+  }) : _migrationService = migrationService ?? WorkoutStorageMigrationService(),
+       _notificationService = notificationService ?? NotificationService();
 
   /// Initialize the app and run necessary migrations
   Future<void> initialize() async {
@@ -35,7 +39,7 @@ class AppInitializationService {
       }
       
       // Add other initialization tasks here as needed
-      // await _initializeNotifications();
+      await _initializeNotifications();
       // await _initializeAnalytics();
       // await _checkForAppUpdates();
       
@@ -51,6 +55,16 @@ class AppInitializationService {
 
   /// Get initialization status
   bool get isInitialized => _isInitialized;
+
+  /// Initialize notifications
+  Future<void> _initializeNotifications() async {
+    try {
+      await _notificationService.initialize();
+      print('Notifications initialized successfully.');
+    } catch (e) {
+      print('Failed to initialize notifications: $e');
+    }
+  }
 
   /// Get migration status
   Future<MigrationStatus> getMigrationStatus() async {

@@ -13,8 +13,7 @@ class RouteNames {
   static const String personalInfoSetup = '/personal-info-setup';
   static const String personalInfo = '/profile-setup/personal-info';
   static const String healthGoals = '/profile-setup/health-goals';
-  static const String sustainabilityPrefs =
-      '/profile-setup/sustainability-prefs';
+  static const String sustainabilityPrefs = '/profile-setup/sustainability-prefs';
 
   // Main App Routes
   static const String home = '/home';
@@ -46,6 +45,7 @@ class RouteNames {
   static const String settings = '/profile/settings';
   static const String achievements = '/profile/achievements';
   static const String sustainabilityDashboard = '/profile/sustainability';
+  static const String languageSelection = '/profile/settings/language';
 
   // Supporting Routes
   static const String notifications = '/notifications';

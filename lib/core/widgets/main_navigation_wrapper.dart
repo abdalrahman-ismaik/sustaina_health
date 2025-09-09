@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/router/route_names.dart';
+import '../../l10n/app_localizations.dart';
 
 class MainNavigationWrapper extends StatelessWidget {
   final Widget child;
@@ -12,6 +13,7 @@ class MainNavigationWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
     final double bottomInset = MediaQuery.of(context).viewPadding.bottom;
     final double screenHeight = MediaQuery.of(context).size.height;
     final bool compact = screenHeight < 700 || bottomInset > 20;
@@ -78,27 +80,27 @@ class MainNavigationWrapper extends StatelessWidget {
                     case 0:
                       iconData = Icons.home_outlined;
                       selectedIconData = Icons.home;
-                      label = 'Home';
+                      label = l10n.home;
                       break;
                     case 1:
                       iconData = Icons.fitness_center_outlined;
                       selectedIconData = Icons.fitness_center;
-                      label = 'Exercise';
+                      label = l10n.exercise;
                       break;
                     case 2:
                       iconData = Icons.restaurant_outlined;
                       selectedIconData = Icons.restaurant;
-                      label = 'Nutrition';
+                      label = l10n.nutrition;
                       break;
                     case 3:
                       iconData = Icons.bedtime_outlined;
                       selectedIconData = Icons.bedtime;
-                      label = 'Sleep';
+                      label = l10n.sleep;
                       break;
                     default:
                       iconData = Icons.person_outline;
                       selectedIconData = Icons.person;
-                      label = 'Profile';
+                      label = l10n.profile;
                   }
 
                   return Expanded(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'package:ghiraas/features/auth/domain/entities/user_entity.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import 'dart:math' as math;
 import '../../../auth/presentation/providers/auth_providers.dart';
 import 'package:ghiraas/features/exercise/presentation/providers/workout_providers.dart';
@@ -29,7 +29,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   late Animation<double> _heroOpacityAnimation;
   late Animation<Offset> _cardSlideAnimation;
   late Animation<double> _floatingAnimation;
-  late Animation<double> _pulseAnimation;
   
   // Dynamic GIF and Avatar cycle system
   bool _showGreeting = true;
@@ -107,14 +106,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     ).animate(CurvedAnimation(
       parent: _floatingAnimationController,
       curve: Curves.easeInOutSine, // More natural floating curve
-    ));
-
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.03, // More subtle pulse effect
-    ).animate(CurvedAnimation(
-      parent: _floatingAnimationController,
-      curve: Curves.easeInOutSine, // Smoother pulse
     ));
 
     // Initialize GIF cycle system
@@ -239,7 +230,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     return Scaffold(
       backgroundColor: cs.surface,
       // Modern App Bar
-      appBar: _buildModernAppBar(context, cs, isDark, user),
+      appBar: _buildModernAppBar(context, cs, isDark, user, 0), // Simplified: no dynamic count for now
       body: Stack(
         children: <Widget>[
           // Enhanced 3D Background Animation
@@ -264,10 +255,6 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                             ],
                           ),
                         ),
-                        child: Lottie.asset(
-                          'assets/lottie/particles_green.json',
-                          fit: BoxFit.cover,
-                        ),
                       ),
                     ),
                   );
@@ -291,23 +278,18 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                         children: <Widget>[
                           const SizedBox(height: 16),
                           
-                          // 3D Daily Goal Section (New!)
-                          _build3DDailyGoalSection(context, cs, isDark, streak, caloriesEaten, avgSleepStr),
-                          const SizedBox(height: 24),
-                          
-                          // Enhanced Hero Welcome Section
-                          _buildEnhancedHeroSection(
-                            context, cs, isDark, user, streak, caloriesEaten, avgSleepStr),
+                          // Unified Professional Welcome Card
+                          _buildUnifiedWelcomeCard(context, cs, isDark, user, streak, caloriesEaten, avgSleepStr),
                           const SizedBox(height: 28),
 
                           // Quick Actions with improved layout
-                          _buildSectionHeader(context, cs, 'Quick Actions', Icons.dashboard_outlined),
+                          _buildSectionHeader(context, cs, AppLocalizations.of(context)!.quickActions, Icons.dashboard_outlined),
                           const SizedBox(height: 20),
                           _buildEnhanced3DQuickActionsGrid(context, cs, isDark),
                           const SizedBox(height: 32),
 
                           // Today's Focus with Modern Design
-                          _buildSectionHeader(context, cs, 'Today\'s Focus', Icons.eco_outlined),
+                          _buildSectionHeader(context, cs, AppLocalizations.of(context)!.todaysFocus, Icons.eco_outlined),
                           const SizedBox(height: 20),
                           _buildModernFocusCard(context, cs, isDark),
                           const SizedBox(height: 28),
@@ -332,7 +314,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   }
 
   PreferredSizeWidget _buildModernAppBar(
-      BuildContext context, ColorScheme cs, bool isDark, UserEntity? user) {
+      BuildContext context, ColorScheme cs, bool isDark, UserEntity? user, int unreadCount) {
     return AppBar(
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -385,7 +367,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
-                  'Ghiraas',
+                  AppLocalizations.of(context)!.appName,
                   style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 18,
@@ -393,7 +375,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                   ),
                 ),
                 Text(
-                  '${_getGreeting()}, ${user?.displayName?.split(' ').first ?? 'Eco Warrior'}!',
+                  '${_getGreeting()}, ${user?.displayName?.split(' ').first ?? AppLocalizations.of(context)!.sustainabilityChampion}!',
                   style: TextStyle(
                     color: cs.onSurfaceVariant,
                     fontSize: 12,
@@ -408,33 +390,47 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
       actions: <Widget>[
         Container(
           margin: const EdgeInsets.only(right: 16),
-          child: IconButton(
-            onPressed: () {
-              // Add notification functionality
-            },
-            icon: Stack(
-              children: <Widget>[
-                Icon(
-                  Icons.notifications_outlined,
-                  color: cs.onSurface,
-                  size: 24,
-                ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: cs.error,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 12,
-                      minHeight: 12,
-                    ),
+          child: GestureDetector(
+            onLongPress: _createSampleNotifications, // Long press to create sample notifications
+            child: IconButton(
+              onPressed: () {
+                context.go('/notifications');
+              },
+              icon: Stack(
+                children: <Widget>[
+                  Icon(
+                    Icons.notifications_outlined,
+                    color: cs.onSurface,
+                    size: 24,
                   ),
-                ),
-              ],
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: cs.error,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 12,
+                          minHeight: 12,
+                        ),
+                        child: Center(
+                          child: Text(
+                            unreadCount > 99 ? '99+' : unreadCount.toString(),
+                            style: TextStyle(
+                              color: cs.onError,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -442,537 +438,378 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
   }
 
-  Widget _build3DDailyGoalSection(
-      BuildContext context, ColorScheme cs, bool isDark, 
+  // Unified Professional Welcome Card - Clean Professional Design
+  Widget _buildUnifiedWelcomeCard(
+      BuildContext context, ColorScheme cs, bool isDark, UserEntity? user,
       int streak, int caloriesEaten, String avgSleepStr) {
     
-    // Calculate overall daily goal progress (example: combine different metrics)
-    final double dailyProgress = (streak > 0 ? 0.3 : 0.0) + 
-                               (caloriesEaten > 0 ? 0.4 : 0.0) + 
-                               (avgSleepStr != '--' ? 0.3 : 0.0);
-    final int progressPercentage = (dailyProgress.clamp(0.0, 1.0) * 100).round();
+    // Professional gradient colors
+    final Color primaryColor = cs.primary;
+    final Color secondaryColor = cs.secondary;
 
     return AnimatedBuilder(
       animation: _dailyGoalAnimationController,
       builder: (BuildContext context, Widget? child) {
         return Container(
-          height: 320, // Increased height for larger elements
-          padding: const EdgeInsets.all(24),
+          margin: EdgeInsets.zero, // Remove horizontal margin to match other widgets
           decoration: BoxDecoration(
+            // Gradient border effect using container decoration
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: isDark ? <Color>[
-                const Color(0xFF1A1A2E),
-                const Color(0xFF16213E),
-              ] : <Color>[
-                const Color(0xFFF8F9FA),
-                const Color(0xFFE3F2FD),
+              colors: [
+                primaryColor.withOpacity(0.6),
+                secondaryColor.withOpacity(0.6),
               ],
             ),
-            borderRadius: BorderRadius.circular(32),
-            boxShadow: <BoxShadow>[
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
               BoxShadow(
-                color: cs.primary.withValues(alpha: isDark ? 0.3 : 0.1),
-                blurRadius: 24,
-                offset: const Offset(0, 12),
-                spreadRadius: 0,
-              ),
-              if (isDark) BoxShadow(
-                color: Colors.blue.withValues(alpha: 0.1),
-                blurRadius: 40,
-                offset: const Offset(0, 0),
-                spreadRadius: 8,
+                color: cs.shadow.withOpacity(0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+                spreadRadius: 2,
               ),
             ],
           ),
-          child: Row(
-            children: <Widget>[
-              // Left side - Stats and Title
-              Expanded(
-                flex: 2,
-                child: Column(
+          child: Container(
+            margin: const EdgeInsets.all(3), // Creates the gradient border
+            padding: const EdgeInsets.all(20), // Reduced from 24
+            decoration: BoxDecoration(
+              color: cs.surfaceContainer,
+              borderRadius: BorderRadius.circular(21),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  cs.surfaceContainer,
+                  cs.surfaceContainerHigh,
+                ],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with greeting (no duplicate logo - removed icon)
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
+                  children: [
                     Text(
-                      'DAILY GOAL',
+                      _getGreeting(),
                       style: TextStyle(
-                        color: cs.onSurfaceVariant,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.2,
+                        fontSize: 16,
+                        color: cs.onSurface.withOpacity(0.7),
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: <Widget>[
-                        TweenAnimationBuilder<double>(
-                          tween: Tween<double>(
-                            begin: 0,
-                            end: progressPercentage.toDouble(),
+                    const SizedBox(height: 4),
+                    ShaderMask(
+                      shaderCallback: (bounds) => LinearGradient(
+                        colors: [primaryColor, secondaryColor],
+                      ).createShader(bounds),
+                      child: Text(
+                        user?.displayName ?? 'Welcome Back!',
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6), // Reduced from 8
+                    Text(
+                      AppLocalizations.of(context)!.readyToContinueWellnessJourney,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: cs.onSurface.withOpacity(0.8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 24), // Reduced from 32
+                
+                // Enhanced 3D Character Display with larger static frame and gradient border
+                Container(
+                  height: 180, // Reduced from 220
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    // Gradient border effect for 3D frame
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        primaryColor.withOpacity(0.8),
+                        secondaryColor.withOpacity(0.8),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Container(
+                    margin: const EdgeInsets.all(2), // Reduced from 3 to reduce border thickness
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          cs.surfaceContainerHighest,
+                          cs.surfaceContainerHigh,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(18), // Adjusted to match reduced margin
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Subtle background pattern
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18), // Adjusted to match
+                              gradient: RadialGradient(
+                                center: Alignment.center,
+                                radius: 1.5,
+                                colors: [
+                                  primaryColor.withOpacity(0.05),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
                           ),
-                          duration: const Duration(milliseconds: 1500),
-                          curve: Curves.easeOutCubic,
-                          builder: (BuildContext context, double value, Widget? child) {
-                            return Text(
-                              value.round().toString(),
-                              style: TextStyle(
-                                color: cs.primary,
-                                fontSize: 48,
-                                fontWeight: FontWeight.w900,
-                                height: 1.0,
+                        ),
+                        
+                        // Floating 3D content inside the frame (reduced range) with minimal padding
+                        AnimatedBuilder(
+                          animation: _floatingAnimation,
+                          builder: (context, child) {
+                            final double floatOffset = math.sin(_floatingAnimation.value * 2 * math.pi) * 3; // Reduced range for lower floating
+                            
+                            return Transform.translate(
+                              offset: Offset(0, floatOffset),
+                              child: Container(
+                                padding: const EdgeInsets.all(8), // Minimal padding for more realistic feel
+                                child: _showGreeting
+                                    ? Image.asset(
+                                        'assets/gif/home/greeting.gif',
+                                        height: 160, // Increased to fill more space
+                                        fit: BoxFit.contain,
+                                      )
+                                    : _showAvatar && _currentAvatar != null
+                                        ? Image.asset(
+                                            _currentAvatar!,
+                                            height: 160, // Increased to fill more space
+                                            fit: BoxFit.contain,
+                                          )
+                                        : _showRandomGif && _currentGif != null
+                                            ? Image.asset(
+                                                _currentGif!,
+                                                height: 160, // Increased to fill more space
+                                                fit: BoxFit.contain,
+                                              )
+                                            : Container(),
                               ),
                             );
                           },
                         ),
-                        Text(
-                          '%',
-                          style: TextStyle(
-                            color: cs.primary,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    // Mini stats
-                    _build3DMiniStat(cs, Icons.local_fire_department, '$streak', 'streak', 
-                        const Color(0xFFFF6B6B)),
-                    const SizedBox(height: 8),
-                    _build3DMiniStat(cs, Icons.restaurant_outlined, '$caloriesEaten', 'calories', 
-                        const Color(0xFF4ECDC4)),
-                    const SizedBox(height: 8),
-                    _build3DMiniStat(cs, Icons.bedtime_outlined, avgSleepStr, 'sleep', 
-                        const Color(0xFF45B7D1)),
-                  ],
+                  ),
                 ),
-              ),
-              
-              // Right side - 3D Character with floating platform
-              Expanded(
-                flex: 3,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    // Floating platform with rainbow effect
-                    Positioned(
-                      bottom: 15,
-                      child: AnimatedBuilder(
-                        animation: _floatingAnimationController,
-                        builder: (BuildContext context, Widget? child) {
-                          // Smoother floating motion with sine and cosine combination
-                          final double floatOffset = (math.sin(_floatingAnimation.value * 2 * math.pi) * 3) +
-                                                   (math.cos(_floatingAnimation.value * 3 * math.pi) * 1);
-                          return Transform.translate(
-                            offset: Offset(0, floatOffset),
-                            child: Container(
-                              width: 160, // Increased platform size
-                              height: 15,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(75),
-                                gradient: LinearGradient(
-                                  colors: <Color>[
-                                    const Color(0xFF4ECDC4).withValues(alpha: 0.7),
-                                    const Color(0xFF44A08D).withValues(alpha: 0.8),
-                                    const Color(0xFF093637).withValues(alpha: 0.7),
-                                    const Color(0xFF44A08D).withValues(alpha: 0.8),
-                                    const Color(0xFF4ECDC4).withValues(alpha: 0.7),
-                                  ],
-                                  stops: const <double>[0.0, 0.25, 0.5, 0.75, 1.0],
-                                ),
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                    color: const Color(0xFF4ECDC4).withValues(alpha: 0.4),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                
+                const SizedBox(height: 24), // Reduced from 32
+                
+                // Stats row with proper alignment
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildEnhancedStatCard(
+                        cs, isDark, '$streak', AppLocalizations.of(context)!.dayStreak, Icons.local_fire_department_outlined, 
+                        const Color(0xFFFF6B35)
                       ),
                     ),
-                    
-                    // 3D Character - Dynamic GIF and Avatar cycle
-                    AnimatedBuilder(
-                      animation: _floatingAnimationController,
-                      builder: (BuildContext context, Widget? child) {
-                        Widget currentContent;
-                        
-                        if (_showGreeting) {
-                          // Show greeting GIF
-                          currentContent = Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: cs.primary.withValues(alpha: 0.3),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 12),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: Image.asset(
-                                'assets/gif/home/greeting.gif',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          );
-                        } else if (_showAvatar && _currentAvatar != null) {
-                          // Show random avatar
-                          currentContent = Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: const Color(0xFF667EEA).withValues(alpha: 0.5),
-                                  blurRadius: 25,
-                                  offset: const Offset(0, 12),
-                                ),
-                                BoxShadow(
-                                  color: const Color(0xFF764BA2).withValues(alpha: 0.3),
-                                  blurRadius: 40,
-                                  offset: const Offset(0, 20),
-                                ),
-                              ],
-                              image: DecorationImage(
-                                image: AssetImage(_currentAvatar!),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          );
-                        } else if (_showRandomGif && _currentGif != null) {
-                          // Show random GIF from home folder
-                          currentContent = Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: cs.secondary.withValues(alpha: 0.4),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 12),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: Image.asset(
-                                _currentGif!,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          );
-                        } else {
-                          // Fallback - show first avatar
-                          currentContent = Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: const Color(0xFF667EEA).withValues(alpha: 0.5),
-                                  blurRadius: 25,
-                                  offset: const Offset(0, 12),
-                                ),
-                              ],
-                              image: const DecorationImage(
-                                image: AssetImage('assets/images/avatars/avatar1.png'),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          );
-                        }
-                        
-                        // Apply floating animation to whatever content is showing
-                        final double floatOffset = (math.sin(_floatingAnimation.value * 2 * math.pi) * 4) +
-                                                 (math.cos(_floatingAnimation.value * 1.5 * math.pi) * 2);
-                        return Transform.translate(
-                          offset: Offset(0, floatOffset),
-                          child: Transform.scale(
-                            scale: _pulseAnimation.value,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: <Widget>[
-                                // Dynamic content (GIF or Avatar)
-                                currentContent,
-                                
-                                // Achievement badge (show if progress > 50%)
-                                if (progressPercentage > 50)
-                                  Positioned(
-                                    top: 10,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: <Color>[
-                                            Color(0xFFFFD700),
-                                            Color(0xFFFFA000),
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: <BoxShadow>[
-                                          BoxShadow(
-                                            color: const Color(0xFFFFD700).withValues(alpha: 0.4),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Icon(
-                                        Icons.star,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildEnhancedStatCard(
+                        cs, isDark, '${caloriesEaten}cal', AppLocalizations.of(context)!.calories, Icons.restaurant_outlined,
+                        const Color(0xFF4CAF50)
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildEnhancedStatCard(
+                        cs, isDark, avgSleepStr, AppLocalizations.of(context)!.sleep, Icons.bedtime_outlined,
+                        const Color(0xFF9C27B0)
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                
+                const SizedBox(height: 24), // Reduced from 32
+                
+                // Enhanced Quote of the Day Section
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20), // Reduced from 24
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        primaryColor.withOpacity(0.08),
+                        secondaryColor.withOpacity(0.08),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: primaryColor.withOpacity(0.3),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [primaryColor, secondaryColor],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.format_quote_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [primaryColor, secondaryColor],
+                            ).createShader(bounds),
+                            child: Text(
+                              AppLocalizations.of(context)!.quoteOfTheDay,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14), // Reduced from 16
+                      Text(
+                        AppLocalizations.of(context)!.healthQuote,
+                        style: TextStyle(
+                          fontSize: 17, // Reduced from 18
+                          fontStyle: FontStyle.italic,
+                          color: cs.onSurface.withOpacity(0.9),
+                          height: 1.4, // Reduced from 1.5
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 6), // Reduced from 8
+                      Text(
+                        '— Leigh Hunt',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: cs.onSurface.withOpacity(0.7),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _build3DMiniStat(ColorScheme cs, IconData icon, String value, String label, Color accentColor) {
-    return Row(
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: accentColor.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: accentColor,
-            size: 16,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            value,
-            style: TextStyle(
-              color: cs.onSurface,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Flexible(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: cs.onSurfaceVariant,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEnhancedHeroSection(
-      BuildContext context, ColorScheme cs, bool isDark, UserEntity? user, 
-      int streak, int caloriesEaten, String avgSleepStr) {
-    return ScaleTransition(
-      scale: _heroScaleAnimation,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark ? <Color>[
-              cs.primaryContainer.withValues(alpha: 0.8),
-              cs.surfaceContainerHigh,
-            ] : <Color>[
-              cs.primaryContainer,
-              cs.primary.withValues(alpha: 0.1),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: cs.primary.withValues(alpha: isDark ? 0.2 : 0.15),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-              spreadRadius: 0,
-            ),
-          ],
-          border: Border.all(
-            color: cs.primary.withValues(alpha: 0.2),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: <Color>[
-                        cs.primary,
-                        cs.primary.withValues(alpha: 0.8),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: cs.primary.withValues(alpha: 0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.eco,
-                    size: 32,
-                    color: cs.onPrimary,
-                  ),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        'Welcome back!',
-                        style: TextStyle(
-                          color: cs.onPrimaryContainer,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        user?.displayName?.split(' ').first ?? 'Eco Warrior',
-                        style: TextStyle(
-                          color: cs.onPrimaryContainer,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Ready for another sustainable day? 🌱',
-                        style: TextStyle(
-                          color: cs.onPrimaryContainer.withValues(alpha: 0.8),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Enhanced Stats Row with 3D Cards
-            Row(
-              children: <Widget>[
-                Expanded(child: _build3DStatCard(cs, isDark, streak.toString(), 'Day Streak', Icons.local_fire_department, cs.error)),
-                const SizedBox(width: 12),
-                Expanded(child: _build3DStatCard(cs, isDark, '$caloriesEaten', 'Calories', Icons.restaurant_outlined, cs.tertiary)),
-                const SizedBox(width: 12),
-                Expanded(child: _build3DStatCard(cs, isDark, avgSleepStr, 'Sleep', Icons.bedtime_outlined, cs.secondary)),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _build3DStatCard(ColorScheme cs, bool isDark, String value, String label, IconData icon, Color accentColor) {
+  Widget _buildEnhancedStatCard(ColorScheme cs, bool isDark, String value, String label, IconData icon, Color accentColor) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14), // Reduced from 16
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: <Color>[
+          colors: [
+            cs.surfaceContainerHighest,
             cs.surfaceContainerHigh,
-            cs.surfaceContainer,
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: accentColor.withValues(alpha: 0.3),
-          width: 1,
+          color: accentColor.withOpacity(0.3),
+          width: 2,
         ),
-        boxShadow: <BoxShadow>[
+        boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-          if (isDark) BoxShadow(
-            color: accentColor.withValues(alpha: 0.2),
+            color: cs.shadow.withOpacity(0.1),
             blurRadius: 12,
-            offset: const Offset(0, 0),
-            spreadRadius: 1,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        children: <Widget>[
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8), // Reduced from 10
             decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.15),
+              gradient: LinearGradient(
+                colors: [
+                  accentColor.withOpacity(0.8),
+                  accentColor,
+                ],
+              ),
               borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: accentColor.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Icon(
               icon,
-              color: accentColor,
-              size: 18,
+              color: Colors.white,
+              size: 18, // Reduced from 20
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10), // Reduced from 12
           Text(
             value,
             style: TextStyle(
               color: cs.onSurface,
-              fontSize: 16,
+              fontSize: 15, // Reduced from 16
               fontWeight: FontWeight.bold,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 3), // Reduced from 4
           Text(
             label,
             style: TextStyle(
-              color: cs.onSurfaceVariant,
-              fontSize: 11,
+              color: cs.onSurface.withOpacity(0.7),
+              fontSize: 11, // Reduced from 12
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
@@ -1013,31 +850,32 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   }
 
   Widget _buildEnhanced3DQuickActionsGrid(BuildContext context, ColorScheme cs, bool isDark) {
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
     final List<Map<String, Object>> quickActions = <Map<String, Object>>[
       <String, Object>{
-        'title': 'Exercise',
-        'subtitle': 'AI Workouts',
+        'title': l10n.exercise,
+        'subtitle': l10n.aiWorkouts,
         'icon': Icons.fitness_center_outlined,
         'route': '/exercise',
         'color': const Color(0xFF2196F3),
       },
       <String, Object>{
-        'title': 'Nutrition',
-        'subtitle': 'Meal Tracking',
+        'title': l10n.nutrition,
+        'subtitle': l10n.mealTracking,
         'icon': Icons.restaurant_outlined,
         'route': '/nutrition',
         'color': const Color(0xFF4CAF50),
       },
       <String, Object>{
-        'title': 'Sleep',
-        'subtitle': 'Sleep Tracking',
+        'title': l10n.sleep,
+        'subtitle': l10n.sleepTracking,
         'icon': Icons.bedtime_outlined,
         'route': '/sleep',
         'color': const Color(0xFF9C27B0),
       },
       <String, Object>{
-        'title': 'Profile',
-        'subtitle': 'Your Progress',
+        'title': l10n.profile,
+        'subtitle': l10n.yourProgress,
         'icon': Icons.person_outline,
         'route': '/profile',
         'color': const Color(0xFFFF9800),
@@ -1203,7 +1041,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Sustainability Mission',
+                AppLocalizations.of(context)!.sustainabilityMission,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -1214,7 +1052,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            'Every small action creates a ripple effect. Start your sustainable journey today and watch your positive impact grow with each healthy choice you make.',
+            AppLocalizations.of(context)!.sustainabilityMissionDescription,
             style: TextStyle(
               fontSize: 15,
               height: 1.5,
@@ -1229,7 +1067,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 child: ElevatedButton.icon(
                   onPressed: () => context.go('/exercise'),
                   icon: const Icon(Icons.fitness_center, size: 18),
-                  label: const Text('Start Workout'),
+                  label: Text(AppLocalizations.of(context)!.startWorkout),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.tertiary,
                     foregroundColor: cs.onTertiary,
@@ -1246,7 +1084,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 child: OutlinedButton.icon(
                   onPressed: () => context.go('/nutrition'),
                   icon: const Icon(Icons.restaurant, size: 18),
-                  label: const Text('Log Meal'),
+                  label: Text(AppLocalizations.of(context)!.logMeal),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: cs.tertiary,
                     side: BorderSide(color: cs.tertiary, width: 1.5),
@@ -1313,7 +1151,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Daily Eco Tip',
+                AppLocalizations.of(context)!.dailyEcoTip,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -1357,7 +1195,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    'Did you know? Walking or cycling for just 30 minutes instead of driving can save up to 2.6 kg of CO₂ emissions! 🚴‍♀️',
+                    AppLocalizations.of(context)!.sustainabilityTip,
                     style: TextStyle(
                       fontSize: 14,
                       color: cs.onSurface,
@@ -1377,11 +1215,11 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   String _getGreeting() {
     final int hour = DateTime.now().hour;
     if (hour < 12) {
-      return 'morning';
+      return AppLocalizations.of(context)!.goodMorning;
     } else if (hour < 17) {
-      return 'afternoon';
+      return AppLocalizations.of(context)!.goodAfternoon;
     } else {
-      return 'evening';
+      return AppLocalizations.of(context)!.goodEvening;
     }
   }
 
@@ -1461,6 +1299,17 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       builder: (BuildContext context) => const MCPCommandChat(),
+    );
+  }
+
+  // Demo function to create sample notifications
+  void _createSampleNotifications() {
+    // For now, just show a snackbar message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.sampleNotificationsCreated),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 

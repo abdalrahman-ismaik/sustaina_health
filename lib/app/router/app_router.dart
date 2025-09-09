@@ -35,6 +35,8 @@ import '../../features/profile/presentation/screens/profile_achievements_screen.
 import '../../features/profile/presentation/screens/profile_sustainability_dashboard_screen.dart';
 import '../../features/profile/presentation/screens/privacy_security_screen.dart';
 import '../../features/profile/presentation/screens/app_preferences_screen.dart';
+import '../../features/profile/presentation/screens/language_selection_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import 'route_names.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/data/services/profile_setup_service.dart';
@@ -392,6 +394,11 @@ final Provider<GoRouter> appRouterProvider =
                     builder: (BuildContext context, GoRouterState state) =>
                         const AppPreferencesScreen(),
                   ),
+                  GoRoute(
+                    path: 'language',
+                    builder: (BuildContext context, GoRouterState state) =>
+                        const LanguageSelectionScreen(),
+                  ),
                 ],
               ),
               GoRoute(
@@ -407,6 +414,13 @@ final Provider<GoRouter> appRouterProvider =
             ],
           ),
         ],
+      ),
+      
+      // Notifications
+      GoRoute(
+        path: RouteNames.notifications,
+        builder: (BuildContext context, GoRouterState state) =>
+            const NotificationsScreen(),
       ),
       
       // Global routes

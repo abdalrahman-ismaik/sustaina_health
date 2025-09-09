@@ -8,6 +8,9 @@ import '../../../../services/notification_service.dart';
 import '../../../notifications/presentation/screens/notification_settings_screen.dart';
 import '../../data/services/hybrid_profile_service.dart';
 import '../../data/models/user_profile_model.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../achievements/presentation/screens/sustainability_achievements_screen.dart';
+import '../../../achievements/presentation/screens/achievement_test_screen.dart';
 
 class ProfileHomeScreen extends ConsumerStatefulWidget {
   const ProfileHomeScreen({Key? key}) : super(key: key);
@@ -25,6 +28,28 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   String _selectedSex = 'Male';
+
+  // Helper method to convert between internal and display values
+  String _getLocalizedGender(String internalValue, AppLocalizations localizations) {
+    switch (internalValue) {
+      case 'Male':
+        return localizations.male;
+      case 'Female':
+        return localizations.female;
+      case 'Other':
+        return localizations.other;
+      default:
+        return localizations.male;
+    }
+  }
+
+  // Helper method to convert from localized to internal value
+  String _getInternalGender(String localizedValue, AppLocalizations localizations) {
+    if (localizedValue == localizations.male) return 'Male';
+    if (localizedValue == localizations.female) return 'Female';
+    if (localizedValue == localizations.other) return 'Other';
+    return 'Male';
+  }
 
   bool _sustainabilityTipsEnabled = false;
   bool _healthRemindersEnabled = false;
@@ -171,6 +196,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
 
   Future<void> _showEditPersonalInfoDialog() async {
     String tempSelectedSex = _selectedSex;
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
+    String tempSelectedLocalizedSex = _getLocalizedGender(_selectedSex, localizations);
     
     showDialog<void>(
       context: context,
@@ -184,8 +211,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               children: <Widget>[
                 TextField(
                   controller: _ageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Age',
+                  decoration: InputDecoration(
+                    labelText: localizations.age,
                     hintText: 'Enter your age',
                   ),
                   keyboardType: TextInputType.number,
@@ -210,11 +237,11 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: tempSelectedSex,
-                  decoration: const InputDecoration(
-                    labelText: 'Sex',
+                  value: tempSelectedLocalizedSex,
+                  decoration: InputDecoration(
+                    labelText: localizations.sex,
                   ),
-                  items: <String>['Male', 'Female', 'Other']
+                  items: [localizations.male, localizations.female, localizations.other]
                       .map((String value) => DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -222,7 +249,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       .toList(),
                   onChanged: (String? newValue) {
                     setDialogState(() {
-                      tempSelectedSex = newValue ?? 'Male';
+                      tempSelectedLocalizedSex = newValue ?? localizations.male;
+                      tempSelectedSex = _getInternalGender(tempSelectedLocalizedSex, localizations);
                     });
                   },
                 ),
@@ -236,7 +264,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   Navigator.of(dialogContext).pop();
                 }
               },
-              child: const Text('Cancel'),
+              child: Text(localizations.cancel),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -273,7 +301,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   }
                 }
               },
-              child: const Text('Save'),
+              child: Text(localizations.save),
             ),
           ],
         ),
@@ -286,6 +314,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     final AsyncValue<UserEntity?> userAsyncValue =
         ref.watch(currentUserProvider);
     final UserEntity? user = userAsyncValue.value;
+    final AppLocalizations localizations = AppLocalizations.of(context)!;
     print(
         'DEBUG ProfileScreen: Building with user: ${user?.displayName ?? 'null'} (${user?.email ?? 'no email'})');
     final ThemeData theme = Theme.of(context);
@@ -298,7 +327,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         elevation: 0,
         automaticallyImplyLeading: false, // This removes the back arrow
         title: Text(
-          'Profile',
+          localizations.profile,
           style: TextStyle(
             color: cs.onSurface,
             fontWeight: FontWeight.bold,
@@ -495,7 +524,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                         icon: Icons.local_fire_department,
                         title: 'Current Streak',
                         value: _getCurrentStreak(),
-                        unit: 'days',
+                        unit: localizations.days,
                         color: Colors.orange,
                       ),
                     ],
@@ -506,7 +535,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     children: <Widget>[
                       _EnhancedStatCard(
                         icon: Icons.fitness_center,
-                        title: 'Workouts',
+                        title: localizations.workouts,
                         value: _getWorkoutCount(),
                         unit: 'total',
                         color: Colors.blue,
@@ -547,7 +576,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(
-                          'Personal Details',
+                          localizations.personalDetails,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -664,7 +693,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Quick Actions',
+                localizations.quickActions,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -707,6 +736,32 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               label: 'App Preferences',
               description: 'Customize your app experience',
               onTap: () => context.go('/profile/settings/app'),
+            ),
+            _buildEnhancedQuickSettingTile(
+              icon: Icons.language,
+              label: 'Language / اللغة',
+              description: 'Change app language / تغيير لغة التطبيق',
+              onTap: () => context.go('/profile/settings/language'),
+            ),
+            _buildEnhancedQuickSettingTile(
+              icon: Icons.emoji_events,
+              label: 'Achievements & Rewards',
+              description: 'Track your sustainability progress and earn rewards',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (BuildContext context) => const SustainabilityAchievementsScreen(),
+                ),
+              ),
+            ),
+            _buildEnhancedQuickSettingTile(
+              icon: Icons.science,
+              label: 'Test Achievements',
+              description: 'Test the achievement system functionality',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (BuildContext context) => const AchievementTestScreen(),
+                ),
+              ),
             ),
             _buildEnhancedQuickSettingTile(
               icon: Icons.logout,

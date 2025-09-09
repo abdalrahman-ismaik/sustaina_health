@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghiraas/features/nutrition/data/models/nutrition_models.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 
 import '../widgets/day_plan_card.dart';
 import '../providers/nutrition_providers.dart';
@@ -1089,20 +1088,6 @@ class _MealPlanDetailScreenState extends State<_MealPlanDetailScreen> {
               height: MediaQuery.of(context).size.height * 0.6,
               child: Stack(
                 children: <Widget>[
-                  // Lottie background (subtle, non-interactive)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      ignoring: true,
-                      child: Opacity(
-                        opacity: 0.12,
-                        child: Lottie.asset(
-                          'assets/lottie/particles_green.json',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-
                   // Swipeable PageView of day cards with transform
                   _TransformedPageView(
                     itemCount: mealPlan.mealPlan.dailyMealPlans.length,
