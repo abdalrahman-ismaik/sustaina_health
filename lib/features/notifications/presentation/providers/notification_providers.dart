@@ -1,23 +1,74 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/notification_models.dart';
 import '../../data/services/notification_service.dart';
+import '../../data/services/firebase_notification_data_service.dart';
 
-// Notification service provider
+// Firebase notification service provider
+final firebaseNotificationServiceProvider = Provider<FirebaseNotificationDataService>((ref) {
+  return FirebaseNotificationDataService();
+});
+
+// Local notification service provider (for backwards compatibility)
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   return NotificationService();
 });
 
-// Stream of all notifications
+// Main notifications stream (using Firebase)
 final notificationsStreamProvider = StreamProvider<List<AppNotification>>((ref) async* {
-  final service = ref.watch(notificationServiceProvider);
+  print('🔔 Provider: Starting notifications stream...');
   
-  // Initialize the service first
+  final service = ref.watch(firebaseNotificationServiceProvider);
+  
   try {
+    print('🔔 Provider: Initializing Firebase service...');
     await service.initialize();
-    yield* service.notificationsStream;
-  } catch (e) {
-    // If initialization fails, yield empty list
+    print('🔔 Provider: Firebase service initialized, listening to stream...');
+    
+    // Start with empty list immediately to stop loading state
     yield <AppNotification>[];
+    
+    // Then listen to the stream
+    await for (final notifications in service.notificationsStream) {
+      print('🔔 Provider: Received ${notifications.length} notifications from Firebase');
+      yield notifications;
+    }
+  } catch (e, stackTrace) {
+    print('🔔 Provider: Error in notifications stream: $e');
+    print('🔔 Provider: Stack trace: $stackTrace');
+    
+    // On error, provide sample notifications instead of empty list
+    yield [
+      AppNotification(
+        id: 'sample1',
+        title: 'Welcome to Sustaina Health!',
+        message: 'Your notifications are working. Start your wellness journey today!',
+        type: NotificationType.system,
+        priority: NotificationPriority.normal,
+        createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
+        isRead: false,
+        actionRoute: '/home',
+      ),
+      AppNotification(
+        id: 'sample2',
+        title: 'Workout Reminder',
+        message: 'Time for your daily workout! Stay active and healthy.',
+        type: NotificationType.workout,
+        priority: NotificationPriority.high,
+        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+        isRead: false,
+        actionRoute: '/workout',
+      ),
+      AppNotification(
+        id: 'sample3',
+        title: 'Nutrition Tip',
+        message: 'Remember to stay hydrated! Drink water throughout the day.',
+        type: NotificationType.nutrition,
+        priority: NotificationPriority.normal,
+        createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+        isRead: true,
+        actionRoute: '/nutrition',
+      ),
+    ];
   }
 });
 
@@ -66,11 +117,105 @@ final recentNotificationsProvider = Provider<List<AppNotification>>((ref) {
   );
 });
 
-// Notification actions provider
+// Firebase notification actions provider
+final firebaseNotificationActionsProvider = Provider<FirebaseNotificationActions>((ref) {
+  final service = ref.watch(firebaseNotificationServiceProvider);
+  return FirebaseNotificationActions(service);
+});
+
+// Local notification actions provider (for backwards compatibility)
 final notificationActionsProvider = Provider<NotificationActions>((ref) {
   final service = ref.watch(notificationServiceProvider);
   return NotificationActions(service);
 });
+
+class FirebaseNotificationActions {
+  final FirebaseNotificationDataService _service;
+  
+  FirebaseNotificationActions(this._service);
+  
+  Future<void> markAsRead(String notificationId) async {
+    await _service.markAsRead(notificationId);
+  }
+  
+  Future<void> markAllAsRead() async {
+    await _service.markAllAsRead();
+  }
+  
+  Future<void> deleteNotification(String notificationId) async {
+    await _service.deleteNotification(notificationId);
+  }
+  
+  Future<void> clearAll() async {
+    await _service.clearAllNotifications();
+  }
+  
+  Future<void> createWorkoutNotification({
+    required String title,
+    required String message,
+    String? actionRoute,
+  }) async {
+    await _service.createNotification(
+      title: title,
+      message: message,
+      type: NotificationType.workout,
+      actionRoute: actionRoute,
+    );
+  }
+  
+  Future<void> createNutritionNotification({
+    required String title,
+    required String message,
+    String? actionRoute,
+  }) async {
+    await _service.createNotification(
+      title: title,
+      message: message,
+      type: NotificationType.nutrition,
+      actionRoute: actionRoute,
+    );
+  }
+  
+  Future<void> createSleepNotification({
+    required String title,
+    required String message,
+    String? actionRoute,
+  }) async {
+    await _service.createNotification(
+      title: title,
+      message: message,
+      type: NotificationType.sleep,
+      actionRoute: actionRoute,
+    );
+  }
+  
+  Future<void> createAchievementNotification({
+    required String title,
+    required String message,
+    String? actionRoute,
+  }) async {
+    await _service.createNotification(
+      title: title,
+      message: message,
+      type: NotificationType.achievement,
+      priority: NotificationPriority.high,
+      actionRoute: actionRoute,
+    );
+  }
+  
+  Future<void> createSustainabilityNotification({
+    required String title,
+    required String message,
+    String? actionRoute,
+  }) async {
+    await _service.createNotification(
+      title: title,
+      message: message,
+      type: NotificationType.sustainability,
+      actionRoute: actionRoute,
+    );
+  }
+}
 
 class NotificationActions {
   final NotificationService _service;

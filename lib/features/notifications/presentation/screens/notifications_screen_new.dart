@@ -65,17 +65,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: cs.onSurface),
-          onPressed: () {
-            try {
-              context.go('/home');
-            } catch (e) {
-              // Fallback if context.go fails
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                '/home',
-                (route) => false,
-              );
-            }
-          },
+          onPressed: () => context.pop(),
         ),
         title: Text(
           'Notifications',
