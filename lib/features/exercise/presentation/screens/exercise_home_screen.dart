@@ -379,19 +379,23 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               Icon(
                                 Icons.smart_toy,
                                 color: cs.onPrimary,
-                                size: 20,
+                                size: 18,
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Start AI Workout',
-                                style: TextStyle(
-                                  color: cs.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'AI Workout',
+                                  style: TextStyle(
+                                    color: cs.onPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -427,19 +431,23 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               Icon(
                                 Icons.bookmark,
                                 color: cs.primary,
-                                size: 20,
+                                size: 18,
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'My Plans',
-                                style: TextStyle(
-                                  color: cs.primary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'My Plans',
+                                  style: TextStyle(
+                                    color: cs.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -706,14 +714,14 @@ class ExerciseHomeScreen extends ConsumerWidget {
               height: 180,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 itemCount: recentWorkouts.length + 1, // +1 for "View All" card
                 itemBuilder: (BuildContext context, int index) {
                   if (index == recentWorkouts.length) {
                     // "View All" card
                     return Container(
                       width: 140,
-                      margin: const EdgeInsets.only(left: 4, right: 4),
+                      margin: const EdgeInsets.only(left: 8, right: 8),
                       child: Card(
                         elevation: 4,
                         shadowColor: cs.primary.withValues(alpha: 0.3),
@@ -799,7 +807,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                   final SavedWorkoutPlan workout = recentWorkouts[index];
                   return Container(
                     width: 180,
-                    margin: const EdgeInsets.only(left: 4, right: 4),
+                    margin: const EdgeInsets.only(left: 8, right: 8),
                     child: Card(
                       elevation: 4,
                       shadowColor: cs.secondary.withValues(alpha: 0.3),
@@ -834,7 +842,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           },
                           borderRadius: BorderRadius.circular(16),
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(12),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[

@@ -52,8 +52,14 @@ class FirestoreSleepService {
 
   // Sleep Session methods
   Future<void> saveSleepSession(SleepSession session) async {
-    await ensureSleepModuleExists();
-    await _sleepSessionsCollection.doc(session.id).set(session.toJson());
+    try {
+      await ensureSleepModuleExists();
+      await _sleepSessionsCollection.doc(session.id).set(session.toJson());
+      print('✅ Sleep session saved to Firebase: users/$_userId/sleep/data/sleep_sessions/${session.id}');
+    } catch (e) {
+      print('❌ Error saving sleep session to Firebase: $e');
+      throw Exception('Failed to save sleep session: $e');
+    }
   }
 
   Future<void> updateSleepSession(SleepSession session) async {
@@ -77,25 +83,33 @@ class FirestoreSleepService {
     DateTime? endDate,
     int? limit,
   }) async {
-    Query query = _sleepSessionsCollection.orderBy('startTime', descending: true);
+    try {
+      Query query = _sleepSessionsCollection.orderBy('startTime', descending: true);
 
-    // Apply date filters
-    if (startDate != null) {
-      query = query.where('startTime', isGreaterThanOrEqualTo: startDate.toIso8601String());
-    }
-    if (endDate != null) {
-      query = query.where('startTime', isLessThanOrEqualTo: endDate.toIso8601String());
-    }
+      // Apply date filters
+      if (startDate != null) {
+        query = query.where('startTime', isGreaterThanOrEqualTo: startDate.toIso8601String());
+      }
+      if (endDate != null) {
+        query = query.where('startTime', isLessThanOrEqualTo: endDate.toIso8601String());
+      }
 
-    // Apply limit
-    if (limit != null) {
-      query = query.limit(limit);
-    }
+      // Apply limit
+      if (limit != null) {
+        query = query.limit(limit);
+      }
 
-    final QuerySnapshot<Object?> snapshot = await query.get();
-    return snapshot.docs
-        .map((QueryDocumentSnapshot<Object?> doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
-        .toList();
+      final QuerySnapshot<Object?> snapshot = await query.get();
+      final List<SleepSession> sessions = snapshot.docs
+          .map((QueryDocumentSnapshot<Object?> doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+      
+      print('📖 Retrieved ${sessions.length} sleep sessions from Firebase: users/$_userId/sleep/data/sleep_sessions');
+      return sessions;
+    } catch (e) {
+      print('❌ Error retrieving sleep sessions from Firebase: $e');
+      throw Exception('Failed to get sleep sessions: $e');
+    }
   }
 
   Future<List<SleepSession>> getSleepSessionsForDateRange(DateTime start, DateTime end) async {
@@ -269,10 +283,16 @@ class FirestoreSleepService {
           .where('startTime', isLessThanOrEqualTo: endOfDay.toIso8601String());
     }
 
-    return query.snapshots().map((QuerySnapshot<Object?> snapshot) =>
-        snapshot.docs
-            .map((QueryDocumentSnapshot<Object?> doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
-            .toList());
+    print('🔄 Starting real-time stream for sleep sessions from Firebase: users/$_userId/sleep/data/sleep_sessions');
+    
+    return query.snapshots().map((QuerySnapshot<Object?> snapshot) {
+      final List<SleepSession> sessions = snapshot.docs
+          .map((QueryDocumentSnapshot<Object?> doc) => SleepSession.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+      
+      print('📡 Real-time update: ${sessions.length} sleep sessions from Firebase stream');
+      return sessions;
+    });
   }
 
   Stream<List<SleepGoal>> watchSleepGoals() {
@@ -368,12 +388,17 @@ class FirestoreSleepService {
     required DateTime startDate,
     required DateTime endDate,
   }) async {
+    print('📈 Getting sleep analytics for ${startDate.toIso8601String().split('T')[0]} to ${endDate.toIso8601String().split('T')[0]}');
+    
     final List<SleepSession> sessions = await getSleepSessions(
       startDate: startDate,
       endDate: endDate,
     );
 
+    print('📊 Found ${sessions.length} sessions for analytics');
+
     if (sessions.isEmpty) {
+      print('⚠️ No sessions found, returning empty analytics');
       return <String, dynamic>{
         'totalSessions': 0,
         'averageDuration': 0.0,
@@ -386,9 +411,9 @@ class FirestoreSleepService {
     }
 
     final int totalSessions = sessions.length;
-    final double averageDuration = sessions.fold<double>(0, (double sum, SleepSession session) => sum + session.totalDuration.inHours) / totalSessions;
+    final double averageDurationHours = sessions.fold<double>(0, (double sum, SleepSession session) => sum + (session.totalDuration.inMinutes / 60.0)) / totalSessions;
     final double averageQuality = sessions.fold<double>(0, (double sum, SleepSession session) => sum + session.sleepQuality) / totalSessions;
-    final double totalSleepTime = sessions.fold<double>(0, (double sum, SleepSession session) => sum + session.totalDuration.inHours);
+    final double totalSleepTimeHours = sessions.fold<double>(0, (double sum, SleepSession session) => sum + (session.totalDuration.inMinutes / 60.0));
 
     // Calculate consistency score
     final List<int> durations = sessions.map((SleepSession s) => s.totalDuration.inMinutes).toList();
@@ -423,20 +448,18 @@ class FirestoreSleepService {
       moodBreakdown[session.mood] = (moodBreakdown[session.mood] ?? 0) + 1;
     }
 
-    return <String, dynamic>{
+    final Map<String, dynamic> analytics = <String, dynamic>{
       'totalSessions': totalSessions,
-      'averageDuration': averageDuration,
+      'averageDuration': averageDurationHours,
       'averageQuality': averageQuality,
-      'totalSleepTime': totalSleepTime,
+      'totalSleepTime': totalSleepTimeHours,
       'consistencyScore': consistencyScore,
       'sustainabilityScore': sustainabilityScore,
       'moodBreakdown': moodBreakdown,
     };
-  }
-
-  // Helper methods
-  String _formatDateKey(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    
+    print('📈 Analytics calculated: $analytics');
+    return analytics;
   }
 
   // Utility method to ensure user document exists

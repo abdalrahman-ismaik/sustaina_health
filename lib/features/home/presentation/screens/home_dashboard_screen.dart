@@ -771,21 +771,27 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           ),
         ),
         const SizedBox(width: 8),
-        Text(
-          value,
-          style: TextStyle(
-            color: cs.onSurface,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
+        Flexible(
+          child: Text(
+            value,
+            style: TextStyle(
+              color: cs.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: cs.onSurfaceVariant,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
+        Flexible(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: cs.onSurfaceVariant,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

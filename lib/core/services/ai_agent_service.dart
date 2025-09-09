@@ -87,26 +87,36 @@ class AIAgentService {
     _lastResponse = response;
     
     if (response.data != null) {
-      // Check if it's a workout plan or meal plan but don't save automatically
+      // Check if it's a workout plan
       if (_isWorkoutPlan(response.data!)) {
         return '${response.text}\n\n📋 I\'ve generated a workout plan for you! Would you like to save it to your library?';
-      } else if (_isMealPlan(response.data!)) {
+      } 
+      // Check if it's a meal plan generation
+      else if (_isMealPlan(response.data!)) {
         return '${response.text}\n\n🍽️ I\'ve created a meal plan for you! Would you like to save it to your library?';
+      }
+      // Check if it's food logging
+      else if (_isFoodLogging(response.data!)) {
+        await _saveFoodLogEntry(response.data!);
+        return '${response.text}\n\n✅ Food entry has been logged successfully!';
       }
     }
     
-    // No data to save, just return the text response
+    // No data to save, just return the text response (questions/general responses)
     return response.text;
   }
 
   /// Check if the last response contains a saveable plan
-  bool get hasLastPlan => _lastResponse?.data != null;
+  bool get hasLastPlan => _lastResponse?.data != null && (_isWorkoutPlan(_lastResponse!.data!) || _isMealPlan(_lastResponse!.data!));
   
   /// Check if the last response is a workout plan
   bool get isLastResponseWorkout => _lastResponse?.data != null && _isWorkoutPlan(_lastResponse!.data!);
   
   /// Check if the last response is a meal plan
   bool get isLastResponseMeal => _lastResponse?.data != null && _isMealPlan(_lastResponse!.data!);
+  
+  /// Check if the last response is food logging (already saved automatically)
+  bool get isLastResponseFoodLogging => _lastResponse?.data != null && _isFoodLogging(_lastResponse!.data!);
   
   /// Get the last response data for viewing
   Map<String, dynamic>? get lastResponseData => _lastResponse?.data;
@@ -226,6 +236,45 @@ class AIAgentService {
     }
   }
 
+  /// Save food log entry to Firebase (automatic for logging responses)
+  Future<void> _saveFoodLogEntry(Map<String, dynamic> data) async {
+    try {
+      print('AIAgentService: Attempting to save food log entry');
+      print('AIAgentService: Data: ${data.toString()}');
+      
+      // Create NutritionInfo from the macronutrients data
+      final Map<String, dynamic> macros = data['macronutrients'] as Map<String, dynamic>;
+      final NutritionInfo nutritionInfo = NutritionInfo(
+        calories: (data['calories'] as num).toInt(),
+        protein: (macros['protein'] as num).toInt(),
+        carbohydrates: (macros['carbohydrates'] as num).toInt(),
+        fat: (macros['fat'] as num).toInt(),
+        fiber: 0, // Default values for fields not provided by API
+        sugar: 0,
+        sodium: 0,
+      );
+      
+      // Create FoodLogEntry
+      final FoodLogEntry entry = FoodLogEntry(
+        id: '', // Will be set by Firestore
+        userId: _userId,
+        foodName: data['description'] as String,
+        mealType: data['meal_type'] as String,
+        servingSize: '1 serving', // Default serving size
+        nutritionInfo: nutritionInfo,
+        loggedAt: DateTime.now(),
+        notes: 'Logged via AI Assistant',
+      );
+      
+      final String entryId = await _nutritionService.saveFoodLogEntry(entry);
+      print('AIAgentService: Food log entry saved successfully with ID: $entryId');
+      print('AIAgentService: Entry saved to path: users/$_userId/nutrition/data/food_log_entries');
+    } catch (e) {
+      print('AIAgentService: Error saving food log entry: $e');
+      throw Exception('Failed to save food log entry: $e');
+    }
+  }
+
   /// Check if the data represents a workout plan
   bool _isWorkoutPlan(Map<String, dynamic> data) {
     // Look for workout plan specific fields in API response
@@ -238,12 +287,19 @@ class AIAgentService {
   /// Check if the data represents a meal plan
   bool _isMealPlan(Map<String, dynamic> data) {
     // Look for meal plan specific fields
-    return data.containsKey('daily_meal_plans') ||
-           data.containsKey('daily_calories_range') ||
-           data.containsKey('macronutrients_range') ||
-           data.containsKey('breakfast') ||
-           data.containsKey('lunch') ||
-           data.containsKey('dinner');
+    return data.containsKey('daily_meal_plans') &&
+           data.containsKey('total_days') &&
+           (data.containsKey('daily_calories_range') || data.containsKey('macronutrients_range'));
+  }
+
+  /// Check if the data represents food logging
+  bool _isFoodLogging(Map<String, dynamic> data) {
+    // Look for food logging specific fields
+    return data.containsKey('meal_type') &&
+           data.containsKey('description') &&
+           data.containsKey('calories') &&
+           data.containsKey('macronutrients') &&
+           !data.containsKey('daily_meal_plans'); // Ensure it's not a meal plan
   }
 
   /// Generate a mock response for testing when API is not available

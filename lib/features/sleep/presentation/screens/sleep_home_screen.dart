@@ -27,7 +27,7 @@ class SleepHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<SleepSession?> latestSessionAsync = ref.watch(latestSleepSessionProvider);
     final AsyncValue<SleepStats> sleepStatsAsync = ref.watch(sleepStatsProvider);
-    final AsyncValue<List<SleepSession>> sleepSessionsAsync = ref.watch(sleepSessionsProvider);
+    final AsyncValue<List<SleepSession>> sleepSessionsAsync = ref.watch(sleepSessionsStreamProvider);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -45,8 +45,9 @@ class SleepHomeScreen extends ConsumerWidget {
         ),
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(sleepSessionsProvider.notifier).loadSleepSessions();
-          ref.read(sleepStatsProvider.notifier).refreshStats();
+          // Refresh Firebase providers
+          ref.invalidate(sleepSessionsStreamProvider);
+          ref.invalidate(sleepStatsProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -836,7 +837,7 @@ class SleepHomeScreen extends ConsumerWidget {
                 Expanded(
                   child: _buildStatCard(
                     'Average Duration',
-                    '${stats.averageDuration.inHours}h ${stats.averageDuration.inMinutes % 60}m',
+                    '${(stats.averageDuration.inMinutes / 60.0).toStringAsFixed(1)}h',
                     Icons.access_time,
                     getSleepDurationColor(stats.averageDuration, colorScheme),
                     colorScheme,

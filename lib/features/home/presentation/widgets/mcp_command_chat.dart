@@ -638,6 +638,15 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                     Text('Dinner: ${dayPlan['dinner']['description']}',
                          style: const TextStyle(fontWeight: FontWeight.w600)),
                     Text('${dayPlan['dinner']['total_calories']} calories'),
+                    const SizedBox(height: 4),
+                  ],
+                  
+                  if (dayPlan['snacks'] != null) ...[
+                    const Text('Snacks:', style: TextStyle(fontWeight: FontWeight.w600)),
+                    ...((dayPlan['snacks'] as List).map<Widget>((snack) {
+                      return Text('• ${snack['description']}: ${snack['total_calories']} calories');
+                    }).toList()),
+                    const SizedBox(height: 4),
                   ],
                   
                   if (dayPlan['total_daily_calories'] != null) ...[

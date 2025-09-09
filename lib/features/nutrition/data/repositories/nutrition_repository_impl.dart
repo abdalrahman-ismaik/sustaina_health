@@ -92,20 +92,65 @@ class NutritionRepositoryImpl implements NutritionRepository {
 
   @override
   Future<List<FoodLogEntry>> getFoodLogEntriesForDate(DateTime date) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> entriesJson =
-        prefs.getStringList('food_log_entries') ?? <String>[];
+    try {
+      // First try to get entries from Firestore (primary source)
+      final List<FoodLogEntry> firestoreEntries = await _firestoreService.getFoodLogEntriesForDate(date);
+      
+      print('📖 Found ${firestoreEntries.length} entries from Firestore for ${date.toIso8601String().split('T')[0]}');
+      
+      // Also get local entries as fallback/backup
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<String> entriesJson =
+          prefs.getStringList('food_log_entries') ?? <String>[];
 
-    final List<FoodLogEntry> entries = entriesJson
-        .map((String json) =>
-            FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>))
-        .where((FoodLogEntry entry) => _isSameDate(entry.loggedAt, date))
-        .toList();
+      final List<FoodLogEntry> localEntries = entriesJson
+          .map((String json) =>
+              FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>))
+          .where((FoodLogEntry entry) => _isSameDate(entry.loggedAt, date))
+          .toList();
 
-    // Sort by logged time
-    entries.sort(
-        (FoodLogEntry a, FoodLogEntry b) => a.loggedAt.compareTo(b.loggedAt));
-    return entries;
+      print('📖 Found ${localEntries.length} entries from local storage for ${date.toIso8601String().split('T')[0]}');
+
+      // Merge entries, prioritizing Firestore but keeping local ones that might not be synced
+      final Map<String, FoodLogEntry> mergedEntries = <String, FoodLogEntry>{};
+      
+      // Add local entries first
+      for (final FoodLogEntry entry in localEntries) {
+        mergedEntries[entry.id] = entry;
+      }
+      
+      // Add/override with Firestore entries (they take priority)
+      for (final FoodLogEntry entry in firestoreEntries) {
+        mergedEntries[entry.id] = entry;
+      }
+
+      final List<FoodLogEntry> finalEntries = mergedEntries.values.toList();
+      
+      // Sort by logged time
+      finalEntries.sort(
+          (FoodLogEntry a, FoodLogEntry b) => a.loggedAt.compareTo(b.loggedAt));
+          
+      print('📖 Returning ${finalEntries.length} total merged entries for ${date.toIso8601String().split('T')[0]}');
+      return finalEntries;
+    } catch (e) {
+      print('❌ Error getting food log entries from Firestore, falling back to local: $e');
+      
+      // Fallback to local storage only
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final List<String> entriesJson =
+          prefs.getStringList('food_log_entries') ?? <String>[];
+
+      final List<FoodLogEntry> entries = entriesJson
+          .map((String json) =>
+              FoodLogEntry.fromJson(jsonDecode(json) as Map<String, dynamic>))
+          .where((FoodLogEntry entry) => _isSameDate(entry.loggedAt, date))
+          .toList();
+
+      // Sort by logged time
+      entries.sort(
+          (FoodLogEntry a, FoodLogEntry b) => a.loggedAt.compareTo(b.loggedAt));
+      return entries;
+    }
   }
 
   @override
