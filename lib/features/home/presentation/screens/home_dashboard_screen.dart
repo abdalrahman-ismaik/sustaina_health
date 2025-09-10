@@ -16,7 +16,8 @@ class HomeDashboardScreen extends ConsumerStatefulWidget {
   const HomeDashboardScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<HomeDashboardScreen> createState() => _HomeDashboardScreenState();
+  ConsumerState<HomeDashboardScreen> createState() =>
+      _HomeDashboardScreenState();
 }
 
 class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
@@ -29,20 +30,20 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   late Animation<double> _heroOpacityAnimation;
   late Animation<Offset> _cardSlideAnimation;
   late Animation<double> _floatingAnimation;
-  
+
   // Dynamic GIF and Avatar cycle system
   bool _showGreeting = true;
   bool _showAvatar = false;
   bool _showRandomGif = false;
   String? _currentAvatar;
   String? _currentGif;
-  
+
   final List<String> _avatars = <String>[
     'assets/images/avatars/avatar1.png',
     'assets/images/avatars/avatar2.png',
     'assets/images/avatars/avatar3.png',
   ];
-  
+
   final List<String> _homeGifs = <String>[
     'assets/gif/home/heart.gif',
     'assets/gif/home/greeting.gif',
@@ -54,13 +55,13 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animations
     _heroAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _cardAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -72,7 +73,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
 
     _floatingAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 4000), // Slower for more natural floating
+      duration: const Duration(
+          milliseconds: 4000), // Slower for more natural floating
       vsync: this,
     );
 
@@ -122,25 +124,25 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     // Start with greeting GIF
     _selectRandomAvatar();
     _selectRandomHomeGif();
-    
+
     // Start the cycle: greeting -> avatar -> random gif -> repeat 3 times
     _startGifCycleLoop();
   }
-  
+
   void _selectRandomAvatar() {
     final math.Random random = math.Random();
     _currentAvatar = _avatars[random.nextInt(_avatars.length)];
   }
-  
+
   void _selectRandomHomeGif() {
     final math.Random random = math.Random();
     _currentGif = _homeGifs[random.nextInt(_homeGifs.length)];
   }
-  
+
   void _startGifCycleLoop() {
     _startGifSequence(0); // Start with cycle 0
   }
-  
+
   void _startGifSequence(int cycleCount) {
     // Show greeting.gif for 6 seconds (slower)
     Future.delayed(const Duration(seconds: 6), () {
@@ -149,7 +151,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           _showGreeting = false;
           _showAvatar = true;
         });
-        
+
         // Show avatar for 5 seconds (increased duration)
         Future.delayed(const Duration(seconds: 5), () {
           if (mounted) {
@@ -157,18 +159,20 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
               _showAvatar = false;
               _showRandomGif = true;
             });
-            
+
             // Show random GIF for 6 seconds (slower)
             Future.delayed(const Duration(seconds: 6), () {
               if (mounted) {
                 // Check if we've completed 3 cycles
-                if (cycleCount < 2) { // 0, 1, 2 = 3 cycles
+                if (cycleCount < 2) {
+                  // 0, 1, 2 = 3 cycles
                   // Continue with same GIFs for next cycle
                   setState(() {
                     _showRandomGif = false;
                     _showGreeting = true;
                   });
-                  _startGifSequence(cycleCount + 1); // Next cycle with same GIFs
+                  _startGifSequence(
+                      cycleCount + 1); // Next cycle with same GIFs
                 } else {
                   // After 3 cycles, pick new GIFs and restart
                   setState(() {
@@ -208,7 +212,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         completedWorkoutsAsync.value;
     final int streak =
         completedWorkouts != null ? _calculateStreak(completedWorkouts) : 0;
-    
+
     // Nutrition & Sleep stats
     final AsyncValue<DailyNutritionSummary> dailySummaryAsync =
         ref.watch(dailyNutritionSummaryProvider);
@@ -230,7 +234,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     return Scaffold(
       backgroundColor: cs.surface,
       // Modern App Bar
-      appBar: _buildModernAppBar(context, cs, isDark, user, 0), // Simplified: no dynamic count for now
+      appBar: _buildModernAppBar(
+          context, cs, isDark, user, 0), // Simplified: no dynamic count for now
       body: Stack(
         children: <Widget>[
           // Enhanced 3D Background Animation
@@ -277,26 +282,36 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           const SizedBox(height: 16),
-                          
+
                           // Unified Professional Welcome Card
-                          _buildUnifiedWelcomeCard(context, cs, isDark, user, streak, caloriesEaten, avgSleepStr),
+                          _buildUnifiedWelcomeCard(context, cs, isDark, user,
+                              streak, caloriesEaten, avgSleepStr),
                           const SizedBox(height: 28),
 
                           // Quick Actions with improved layout
-                          _buildSectionHeader(context, cs, AppLocalizations.of(context)!.quickActions, Icons.dashboard_outlined),
+                          _buildSectionHeader(
+                              context,
+                              cs,
+                              AppLocalizations.of(context)!.quickActions,
+                              Icons.dashboard_outlined),
                           const SizedBox(height: 20),
                           _buildEnhanced3DQuickActionsGrid(context, cs, isDark),
                           const SizedBox(height: 32),
 
                           // Today's Focus with Modern Design
-                          _buildSectionHeader(context, cs, AppLocalizations.of(context)!.todaysFocus, Icons.eco_outlined),
+                          _buildSectionHeader(
+                              context,
+                              cs,
+                              AppLocalizations.of(context)!.todaysFocus,
+                              Icons.eco_outlined),
                           const SizedBox(height: 20),
                           _buildModernFocusCard(context, cs, isDark),
                           const SizedBox(height: 28),
 
                           // Enhanced Sustainability Tips
                           _buildModernSustainabilityTips(context, cs, isDark),
-                          const SizedBox(height: 100), // Space for bottom navigation
+                          const SizedBox(
+                              height: 100), // Space for bottom navigation
                         ],
                       ),
                     ),
@@ -313,8 +328,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
   }
 
-  PreferredSizeWidget _buildModernAppBar(
-      BuildContext context, ColorScheme cs, bool isDark, UserEntity? user, int unreadCount) {
+  PreferredSizeWidget _buildModernAppBar(BuildContext context, ColorScheme cs,
+      bool isDark, UserEntity? user, int unreadCount) {
     return AppBar(
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -391,7 +406,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         Container(
           margin: const EdgeInsets.only(right: 16),
           child: GestureDetector(
-            onLongPress: _createSampleNotifications, // Long press to create sample notifications
+            onLongPress:
+                _createSampleNotifications, // Long press to create sample notifications
             child: IconButton(
               onPressed: () {
                 context.go('/notifications');
@@ -440,9 +456,13 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
 
   // Unified Professional Welcome Card - Clean Professional Design
   Widget _buildUnifiedWelcomeCard(
-      BuildContext context, ColorScheme cs, bool isDark, UserEntity? user,
-      int streak, int caloriesEaten, String avgSleepStr) {
-    
+      BuildContext context,
+      ColorScheme cs,
+      bool isDark,
+      UserEntity? user,
+      int streak,
+      int caloriesEaten,
+      String avgSleepStr) {
     // Professional gradient colors
     final Color primaryColor = cs.primary;
     final Color secondaryColor = cs.secondary;
@@ -451,7 +471,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
       animation: _dailyGoalAnimationController,
       builder: (BuildContext context, Widget? child) {
         return Container(
-          margin: EdgeInsets.zero, // Remove horizontal margin to match other widgets
+          margin: EdgeInsets
+              .zero, // Remove horizontal margin to match other widgets
           decoration: BoxDecoration(
             // Gradient border effect using container decoration
             gradient: LinearGradient(
@@ -520,7 +541,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                     ),
                     const SizedBox(height: 6), // Reduced from 8
                     Text(
-                      AppLocalizations.of(context)!.readyToContinueWellnessJourney,
+                      AppLocalizations.of(context)!
+                          .readyToContinueWellnessJourney,
                       style: TextStyle(
                         fontSize: 15,
                         color: cs.onSurface.withOpacity(0.8),
@@ -529,9 +551,9 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 24), // Reduced from 32
-                
+
                 // Enhanced 3D Character Display with larger static frame and gradient border
                 Container(
                   height: 180, // Reduced from 220
@@ -549,7 +571,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Container(
-                    margin: const EdgeInsets.all(2), // Reduced from 3 to reduce border thickness
+                    margin: const EdgeInsets.all(
+                        2), // Reduced from 3 to reduce border thickness
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -559,7 +582,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                           cs.surfaceContainerHigh,
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(18), // Adjusted to match reduced margin
+                      borderRadius: BorderRadius.circular(
+                          18), // Adjusted to match reduced margin
                     ),
                     child: Stack(
                       alignment: Alignment.center,
@@ -568,7 +592,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                         Positioned.fill(
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(18), // Adjusted to match
+                              borderRadius: BorderRadius.circular(
+                                  18), // Adjusted to match
                               gradient: RadialGradient(
                                 center: Alignment.center,
                                 radius: 1.5,
@@ -580,33 +605,39 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                             ),
                           ),
                         ),
-                        
+
                         // Floating 3D content inside the frame (reduced range) with minimal padding
                         AnimatedBuilder(
                           animation: _floatingAnimation,
                           builder: (context, child) {
-                            final double floatOffset = math.sin(_floatingAnimation.value * 2 * math.pi) * 3; // Reduced range for lower floating
-                            
+                            final double floatOffset = math.sin(
+                                    _floatingAnimation.value * 2 * math.pi) *
+                                3; // Reduced range for lower floating
+
                             return Transform.translate(
                               offset: Offset(0, floatOffset),
                               child: Container(
-                                padding: const EdgeInsets.all(8), // Minimal padding for more realistic feel
+                                padding: const EdgeInsets.all(
+                                    8), // Minimal padding for more realistic feel
                                 child: _showGreeting
                                     ? Image.asset(
                                         'assets/gif/home/greeting.gif',
-                                        height: 160, // Increased to fill more space
+                                        height:
+                                            160, // Increased to fill more space
                                         fit: BoxFit.contain,
                                       )
                                     : _showAvatar && _currentAvatar != null
                                         ? Image.asset(
                                             _currentAvatar!,
-                                            height: 160, // Increased to fill more space
+                                            height:
+                                                160, // Increased to fill more space
                                             fit: BoxFit.contain,
                                           )
                                         : _showRandomGif && _currentGif != null
                                             ? Image.asset(
                                                 _currentGif!,
-                                                height: 160, // Increased to fill more space
+                                                height:
+                                                    160, // Increased to fill more space
                                                 fit: BoxFit.contain,
                                               )
                                             : Container(),
@@ -618,37 +649,46 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24), // Reduced from 32
-                
+
                 // Stats row with proper alignment
                 Row(
                   children: [
                     Expanded(
                       child: _buildEnhancedStatCard(
-                        cs, isDark, '$streak', AppLocalizations.of(context)!.dayStreak, Icons.local_fire_department_outlined, 
-                        const Color(0xFFFF6B35)
-                      ),
+                          cs,
+                          isDark,
+                          '$streak',
+                          AppLocalizations.of(context)!.dayStreak,
+                          Icons.local_fire_department_outlined,
+                          const Color(0xFFFF6B35)),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: _buildEnhancedStatCard(
-                        cs, isDark, '${caloriesEaten}cal', AppLocalizations.of(context)!.calories, Icons.restaurant_outlined,
-                        const Color(0xFF4CAF50)
-                      ),
+                          cs,
+                          isDark,
+                          '${caloriesEaten}cal',
+                          AppLocalizations.of(context)!.calories,
+                          Icons.restaurant_outlined,
+                          const Color(0xFF4CAF50)),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: _buildEnhancedStatCard(
-                        cs, isDark, avgSleepStr, AppLocalizations.of(context)!.sleep, Icons.bedtime_outlined,
-                        const Color(0xFF9C27B0)
-                      ),
+                          cs,
+                          isDark,
+                          avgSleepStr,
+                          AppLocalizations.of(context)!.sleep,
+                          Icons.bedtime_outlined,
+                          const Color(0xFF9C27B0)),
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 24), // Reduced from 32
-                
+
                 // Enhanced Quote of the Day Section
                 Container(
                   width: double.infinity,
@@ -742,7 +782,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
   }
 
-  Widget _buildEnhancedStatCard(ColorScheme cs, bool isDark, String value, String label, IconData icon, Color accentColor) {
+  Widget _buildEnhancedStatCard(ColorScheme cs, bool isDark, String value,
+      String label, IconData icon, Color accentColor) {
     return Container(
       padding: const EdgeInsets.all(14), // Reduced from 16
       decoration: BoxDecoration(
@@ -821,7 +862,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, ColorScheme cs, String title, IconData icon) {
+  Widget _buildSectionHeader(
+      BuildContext context, ColorScheme cs, String title, IconData icon) {
     return Row(
       children: <Widget>[
         Container(
@@ -849,7 +891,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
   }
 
-  Widget _buildEnhanced3DQuickActionsGrid(BuildContext context, ColorScheme cs, bool isDark) {
+  Widget _buildEnhanced3DQuickActionsGrid(
+      BuildContext context, ColorScheme cs, bool isDark) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final List<Map<String, Object>> quickActions = <Map<String, Object>>[
       <String, Object>{
@@ -894,13 +937,14 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
       itemCount: quickActions.length,
       itemBuilder: (BuildContext context, int index) {
         final Map<String, Object> action = quickActions[index];
-        return _buildEnhanced3DQuickActionCard(context, cs, isDark, action, index);
+        return _buildEnhanced3DQuickActionCard(
+            context, cs, isDark, action, index);
       },
     );
   }
 
-  Widget _buildEnhanced3DQuickActionCard(
-      BuildContext context, ColorScheme cs, bool isDark, Map<String, dynamic> action, int index) {
+  Widget _buildEnhanced3DQuickActionCard(BuildContext context, ColorScheme cs,
+      bool isDark, Map<String, dynamic> action, int index) {
     final Color actionColor = action['color'] as Color;
 
     return TweenAnimationBuilder<double>(
@@ -913,9 +957,7 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
           child: Container(
             height: 140, // Fixed height for equal sizing
             decoration: BoxDecoration(
-              color: isDark 
-                ? cs.surfaceContainer
-                : cs.surfaceContainerHighest,
+              color: isDark ? cs.surfaceContainer : cs.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: actionColor.withValues(alpha: 0.4),
@@ -982,20 +1024,23 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
   }
 
-  Widget _buildModernFocusCard(BuildContext context, ColorScheme cs, bool isDark) {
+  Widget _buildModernFocusCard(
+      BuildContext context, ColorScheme cs, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: isDark ? <Color>[
-            cs.tertiaryContainer.withValues(alpha: 0.5),
-            cs.surfaceContainerHigh,
-          ] : <Color>[
-            cs.tertiaryContainer,
-            cs.tertiary.withValues(alpha: 0.1),
-          ],
+          colors: isDark
+              ? <Color>[
+                  cs.tertiaryContainer.withValues(alpha: 0.5),
+                  cs.surfaceContainerHigh,
+                ]
+              : <Color>[
+                  cs.tertiaryContainer,
+                  cs.tertiary.withValues(alpha: 0.1),
+                ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
@@ -1102,7 +1147,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
   }
 
-  Widget _buildModernSustainabilityTips(BuildContext context, ColorScheme cs, bool isDark) {
+  Widget _buildModernSustainabilityTips(
+      BuildContext context, ColorScheme cs, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -1223,12 +1269,14 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     }
   }
 
-  Widget _buildAIAssistantFAB(BuildContext context, ColorScheme cs, bool isDark) {
+  Widget _buildAIAssistantFAB(
+      BuildContext context, ColorScheme cs, bool isDark) {
     return AnimatedBuilder(
       animation: _floatingAnimationController,
       builder: (BuildContext context, Widget? child) {
-        final double floatOffset = math.sin(_floatingAnimation.value * 2 * math.pi) * 2;
-        
+        final double floatOffset =
+            math.sin(_floatingAnimation.value * 2 * math.pi) * 2;
+
         return Transform.translate(
           offset: Offset(0, floatOffset),
           child: Container(

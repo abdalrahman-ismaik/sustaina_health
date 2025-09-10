@@ -13,11 +13,11 @@ import '../../../../core/services/ai_agent_service.dart';
 class MCPChatStorage {
   static final List<ChatMessage> _messages = <ChatMessage>[];
   static List<ChatMessage> get messages => _messages;
-  
+
   static void addMessage(ChatMessage message) {
     _messages.add(message);
   }
-  
+
   static void clearMessages() {
     _messages.clear();
   }
@@ -33,57 +33,56 @@ class MCPCommandChat extends ConsumerStatefulWidget {
 
 class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     with TickerProviderStateMixin {
-  
   // AI Agent Service
   final AIAgentService _aiAgentService = AIAgentService();
-  
+
   // Speech Recognition
   late stt.SpeechToText _speech;
   bool _isListening = false;
   bool _isInitialized = false;
   String _recognizedText = '';
   String _currentWords = '';
-  
+
   // UI Controllers
   late TextEditingController _textController;
   late FocusNode _textFocusNode;
   late AnimationController _pulseController;
   late AnimationController _waveController;
   late Animation<double> _pulseAnimation;
-  
+
   // Chat State
   bool _isSending = false;
   Timer? _speechTimer;
   Timer? _speechMonitorTimer;
   DateTime? _lastSpeechActivity;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize controllers
     _textController = TextEditingController();
     _textFocusNode = FocusNode();
     _speech = stt.SpeechToText();
-    
+
     // Listen to text changes to update send button state
     _textController.addListener(() {
       setState(() {
         // This will trigger rebuild for send button state
       });
     });
-    
+
     // Initialize animations
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _waveController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     _pulseAnimation = Tween<double>(
       begin: 1.0,
       end: 1.2,
@@ -91,19 +90,20 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       parent: _pulseController,
       curve: Curves.easeInOut,
     ));
-    
+
     _initializeSpeech();
-    
+
     // Add welcome message if chat is empty
     if (MCPChatStorage.messages.isEmpty) {
       MCPChatStorage.addMessage(ChatMessage(
-        text: 'Hello! I\'m your AI assistant. You can speak to me or type your questions about health, fitness, nutrition, and sustainability.',
+        text:
+            'Hello! I\'m your AI assistant. You can speak to me or type your questions about health, fitness, nutrition, and sustainability.',
         isUser: false,
         timestamp: DateTime.now(),
       ));
     }
   }
-  
+
   @override
   void dispose() {
     _textController.dispose();
@@ -116,12 +116,12 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     _speech.stop();
     super.dispose();
   }
-  
+
   Future<void> _initializeSpeech() async {
     try {
       // Request microphone permission
       final PermissionStatus status = await Permission.microphone.request();
-      
+
       if (status.isGranted) {
         _isInitialized = await _speech.initialize(
           onError: (SpeechRecognitionError errorNotification) {
@@ -142,44 +142,46 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             }
           },
         );
-        
+
         if (mounted) {
           setState(() {});
         }
       } else {
-        _showError('Microphone permission denied. Please enable it in settings.');
+        _showError(
+            'Microphone permission denied. Please enable it in settings.');
       }
     } catch (e) {
       _showError('Failed to initialize speech recognition: $e');
     }
   }
-  
+
   void _toggleListening() {
     if (!_isInitialized) {
       _showError('Speech recognition not initialized');
       return;
     }
-    
+
     if (_isListening) {
       _stopListening();
     } else {
       _startListening();
     }
   }
-  
+
   void _startListening() async {
     if (!_isInitialized) return;
-    
+
     try {
       await _speech.listen(
         onResult: (SpeechRecognitionResult result) {
           setState(() {
             _currentWords = result.recognizedWords;
             _lastSpeechActivity = DateTime.now(); // Track speech activity
-            
+
             if (result.finalResult && _currentWords.isNotEmpty) {
               // Final result: add to accumulated text and clear current words
-              if (_recognizedText.isNotEmpty && !_recognizedText.endsWith(' ')) {
+              if (_recognizedText.isNotEmpty &&
+                  !_recognizedText.endsWith(' ')) {
                 _recognizedText += ' ';
               }
               _recognizedText += _currentWords;
@@ -206,10 +208,11 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         localeId: 'en_US',
         cancelOnError: false,
         listenMode: stt.ListenMode.dictation, // Changed to dictation mode
-        pauseFor: const Duration(seconds: 30), // Very long pause before stopping
+        pauseFor:
+            const Duration(seconds: 30), // Very long pause before stopping
         listenFor: const Duration(hours: 1), // Very long listening duration
       );
-      
+
       setState(() {
         _isListening = true;
         _currentWords = '';
@@ -217,14 +220,14 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         _recognizedText = _textController.text;
         _lastSpeechActivity = DateTime.now();
       });
-      
+
       // Start animations
       _pulseController.repeat(reverse: true);
       _waveController.repeat();
-      
+
       // Start monitoring for unresponsive speech recognition
       _startSpeechMonitoring();
-      
+
       // Auto-scroll to show recording indicator
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
@@ -235,10 +238,9 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
           );
         }
       });
-      
+
       // Haptic feedback
       HapticFeedback.lightImpact();
-      
     } catch (e) {
       _showError('Failed to start listening: $e');
       _stopListening();
@@ -249,13 +251,13 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
     setState(() {
       _isListening = false;
     });
-    
+
     // Stop speech recognition
     _speech.stop();
-    
+
     // Stop monitoring
     _speechMonitorTimer?.cancel();
-    
+
     // Update UI state
     setState(() {
       // If there are current words being spoken, add them to accumulated text
@@ -269,29 +271,31 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       // Set final text in controller
       _textController.text = _recognizedText;
     });
-    
+
     // Stop animations
     _pulseController.stop();
     _waveController.stop();
     _speechTimer?.cancel();
-    
+
     // Haptic feedback
     HapticFeedback.selectionClick();
   }
-  
+
   void _startSpeechMonitoring() {
     _speechMonitorTimer?.cancel();
-    _speechMonitorTimer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+    _speechMonitorTimer =
+        Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       if (!_isListening || !mounted) {
         timer.cancel();
         return;
       }
-      
+
       // Check if speech recognition is still active
       final DateTime now = DateTime.now();
       if (_lastSpeechActivity != null) {
-        final Duration timeSinceLastActivity = now.difference(_lastSpeechActivity!);
-        
+        final Duration timeSinceLastActivity =
+            now.difference(_lastSpeechActivity!);
+
         // If no speech activity for 15 seconds and no current words, restart
         if (timeSinceLastActivity.inSeconds > 15 && _currentWords.isEmpty) {
           print('Speech recognition appears unresponsive, restarting...');
@@ -300,19 +304,19 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       }
     });
   }
-  
+
   void _restartSpeechRecognition() async {
     if (!_isListening || !_isInitialized || !mounted) return;
-    
+
     print('Restarting speech recognition...');
-    
+
     try {
       // Stop current recognition
       await _speech.stop();
-      
+
       // Wait a moment
       await Future.delayed(const Duration(milliseconds: 300));
-      
+
       // Restart if still supposed to be listening
       if (_isListening && mounted) {
         await _speech.listen(
@@ -320,10 +324,11 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             setState(() {
               _currentWords = result.recognizedWords;
               _lastSpeechActivity = DateTime.now(); // Track speech activity
-              
+
               if (result.finalResult && _currentWords.isNotEmpty) {
                 // Final result: add to accumulated text and clear current words
-                if (_recognizedText.isNotEmpty && !_recognizedText.endsWith(' ')) {
+                if (_recognizedText.isNotEmpty &&
+                    !_recognizedText.endsWith(' ')) {
                   _recognizedText += ' ';
                 }
                 _recognizedText += _currentWords;
@@ -353,7 +358,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
           pauseFor: const Duration(seconds: 30),
           listenFor: const Duration(hours: 1),
         );
-        
+
         // Update last activity time
         _lastSpeechActivity = DateTime.now();
       }
@@ -364,40 +369,40 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       }
     }
   }
-  
+
   void _sendMessage() async {
     final String text = _textController.text.trim();
     if (text.isEmpty) return;
-    
+
     // Stop recording if currently listening
     if (_isListening) {
       _stopListening();
     }
-    
+
     // Add user message
     _addMessage(ChatMessage(
       text: text,
       isUser: true,
       timestamp: DateTime.now(),
     ));
-    
+
     // Clear input
     _textController.clear();
     _recognizedText = '';
     _currentWords = '';
-    
+
     setState(() {
       _isSending = true;
     });
-    
+
     // Simulate MCP backend call (replace with actual implementation)
     await _simulateMCPResponse(text);
-    
+
     setState(() {
       _isSending = false;
     });
   }
-  
+
   Future<void> _simulateMCPResponse(String userMessage) async {
     try {
       // Show typing indicator
@@ -406,11 +411,13 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       });
 
       // Call AI agent service
-      final AIAgentResponse response = await _aiAgentService.sendMessage(userMessage);
-      
+      final AIAgentResponse response =
+          await _aiAgentService.sendMessage(userMessage);
+
       // Process response and save any generated plans
-      final String finalResponse = await _aiAgentService.processAIResponse(response);
-      
+      final String finalResponse =
+          await _aiAgentService.processAIResponse(response);
+
       _addMessage(ChatMessage(
         text: finalResponse,
         isUser: false,
@@ -421,29 +428,30 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       ));
     } catch (e) {
       // Handle errors gracefully
-      String errorMessage = 'I apologize, but I\'m having trouble processing your request right now. ';
-      
+      String errorMessage =
+          'I apologize, but I\'m having trouble processing your request right now. ';
+
       if (e is AIAgentException) {
         errorMessage += 'Please try again in a moment.';
       } else {
         errorMessage += 'Please check your connection and try again.';
       }
-      
+
       _addMessage(ChatMessage(
         text: errorMessage,
         isUser: false,
         timestamp: DateTime.now(),
       ));
-      
+
       print('AI Agent error: $e');
     }
   }
-  
+
   void _addMessage(ChatMessage message) {
     setState(() {
       MCPChatStorage.addMessage(message);
     });
-    
+
     // Auto-scroll to bottom
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -455,7 +463,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       }
     });
   }
-  
+
   void _showError(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -467,13 +475,13 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       );
     }
   }
-  
+
   Future<void> _savePlan(ChatMessage message) async {
     try {
       setState(() {
         _isSending = true;
       });
-      
+
       if (message.isWorkoutPlan) {
         await _aiAgentService.saveLastWorkoutPlan();
         _showSuccessMessage('Workout plan saved to your library!');
@@ -489,22 +497,24 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       });
     }
   }
-  
+
   void _viewPlanDetails(ChatMessage message) {
-    if (!_aiAgentService.hasLastPlan || _aiAgentService.lastResponseData == null) {
+    if (!_aiAgentService.hasLastPlan ||
+        _aiAgentService.lastResponseData == null) {
       _showError('No plan data available to view');
       return;
     }
-    
-    String title = message.isWorkoutPlan ? 'Workout Plan Details' : 'Meal Plan Details';
+
+    String title =
+        message.isWorkoutPlan ? 'Workout Plan Details' : 'Meal Plan Details';
     Widget content;
-    
+
     if (message.isWorkoutPlan) {
       content = _buildWorkoutPlanView(_aiAgentService.lastResponseData!);
     } else {
       content = _buildMealPlanView(_aiAgentService.lastResponseData!);
     }
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -527,32 +537,36 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                 Navigator.of(context).pop();
                 _savePlan(message);
               },
-              child: Text(message.isWorkoutPlan ? 'Save Workout' : 'Save Meal Plan'),
+              child: Text(
+                  message.isWorkoutPlan ? 'Save Workout' : 'Save Meal Plan'),
             ),
         ],
       ),
     );
   }
-  
+
   Widget _buildWorkoutPlanView(Map<String, dynamic> data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Sessions per week: ${data['sessions_per_week']}', 
-             style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text('Sessions per week: ${data['sessions_per_week']}',
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        
+
         // Warmup
         if (data['warmup'] != null) ...[
-          const Text('Warmup:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text('${data['warmup']['description']} (${data['warmup']['duration']} min)'),
+          const Text('Warmup:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+              '${data['warmup']['description']} (${data['warmup']['duration']} min)'),
           const SizedBox(height: 12),
         ],
-        
+
         // Workout Sessions
-        const Text('Workout Sessions:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text('Workout Sessions:',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 8),
-        
+
         ...((data['workout_sessions'] as List).asMap().entries.map((entry) {
           int sessionIndex = entry.key;
           Map<String, dynamic> session = entry.value;
@@ -563,13 +577,14 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Session ${sessionIndex + 1}', 
-                       style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Session ${sessionIndex + 1}',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   ...((session['exercises'] as List).map<Widget>((exercise) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 4),
-                      child: Text('• ${exercise['name']}: ${exercise['sets']} sets × ${exercise['reps']} (${exercise['rest']}s rest)'),
+                      child: Text(
+                          '• ${exercise['name']}: ${exercise['sets']} sets × ${exercise['reps']} (${exercise['rest']}s rest)'),
                     );
                   }).toList()),
                 ],
@@ -577,37 +592,41 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             ),
           );
         }).toList()),
-        
+
         // Cardio
         if (data['cardio'] != null) ...[
           const SizedBox(height: 12),
-          const Text('Cardio:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text('${data['cardio']['description']} (${data['cardio']['duration']} min)'),
+          const Text('Cardio:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+              '${data['cardio']['description']} (${data['cardio']['duration']} min)'),
         ],
-        
+
         // Cooldown
         if (data['cooldown'] != null) ...[
           const SizedBox(height: 12),
-          const Text('Cooldown:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text('${data['cooldown']['description']} (${data['cooldown']['duration']} min)'),
+          const Text('Cooldown:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+              '${data['cooldown']['description']} (${data['cooldown']['duration']} min)'),
         ],
       ],
     );
   }
-  
+
   Widget _buildMealPlanView(Map<String, dynamic> data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (data['daily_calories_range'] != null) ...[
-          Text('Daily Calories: ${data['daily_calories_range']['min']}-${data['daily_calories_range']['max']}',
-               style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+              'Daily Calories: ${data['daily_calories_range']['min']}-${data['daily_calories_range']['max']}',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
         ],
-        
-        const Text('Meal Plans:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text('Meal Plans:',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 8),
-        
         ...((data['daily_meal_plans'] as List).map<Widget>((dayPlan) {
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
@@ -616,43 +635,41 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Day ${dayPlan['day']}', 
-                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text('Day ${dayPlan['day']}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 8),
-                  
                   if (dayPlan['breakfast'] != null) ...[
                     Text('Breakfast: ${dayPlan['breakfast']['description']}',
-                         style: const TextStyle(fontWeight: FontWeight.w600)),
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     Text('${dayPlan['breakfast']['total_calories']} calories'),
                     const SizedBox(height: 4),
                   ],
-                  
                   if (dayPlan['lunch'] != null) ...[
                     Text('Lunch: ${dayPlan['lunch']['description']}',
-                         style: const TextStyle(fontWeight: FontWeight.w600)),
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     Text('${dayPlan['lunch']['total_calories']} calories'),
                     const SizedBox(height: 4),
                   ],
-                  
                   if (dayPlan['dinner'] != null) ...[
                     Text('Dinner: ${dayPlan['dinner']['description']}',
-                         style: const TextStyle(fontWeight: FontWeight.w600)),
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     Text('${dayPlan['dinner']['total_calories']} calories'),
                     const SizedBox(height: 4),
                   ],
-                  
                   if (dayPlan['snacks'] != null) ...[
-                    const Text('Snacks:', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text('Snacks:',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     ...((dayPlan['snacks'] as List).map<Widget>((snack) {
-                      return Text('• ${snack['description']}: ${snack['total_calories']} calories');
+                      return Text(
+                          '• ${snack['description']}: ${snack['total_calories']} calories');
                     }).toList()),
                     const SizedBox(height: 4),
                   ],
-                  
                   if (dayPlan['total_daily_calories'] != null) ...[
                     const SizedBox(height: 8),
                     Text('Total: ${dayPlan['total_daily_calories']} calories',
-                         style: const TextStyle(fontWeight: FontWeight.bold)),
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ],
               ),
@@ -662,7 +679,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       ],
     );
   }
-  
+
   void _showSuccessMessage(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -674,14 +691,14 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       );
     }
   }
-  
+
   final ScrollController _scrollController = ScrollController();
-  
+
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
@@ -699,19 +716,19 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
         children: <Widget>[
           // Header
           _buildHeader(cs, isDark),
-          
+
           // Messages
           Expanded(
             child: _buildMessagesList(cs, isDark),
           ),
-          
+
           // Input Area
           _buildInputArea(cs, isDark),
         ],
       ),
     );
   }
-  
+
   Widget _buildHeader(ColorScheme cs, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -738,7 +755,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Title and status
           Row(
             children: <Widget>[
@@ -746,7 +763,10 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: <Color>[cs.primary, cs.primary.withValues(alpha: 0.8)],
+                    colors: <Color>[
+                      cs.primary,
+                      cs.primary.withValues(alpha: 0.8)
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -770,11 +790,11 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                       ),
                     ),
                     Text(
-                      _isListening 
-                        ? 'Listening...' 
-                        : _isInitialized 
-                          ? 'Ready to help' 
-                          : 'Initializing...',
+                      _isListening
+                          ? 'Listening...'
+                          : _isInitialized
+                              ? 'Ready to help'
+                              : 'Initializing...',
                       style: TextStyle(
                         fontSize: 12,
                         color: cs.onPrimaryContainer.withValues(alpha: 0.7),
@@ -783,11 +803,12 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                   ],
                 ),
               ),
-              
+
               // Speech status indicator
               if (_isListening)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: cs.error.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -821,42 +842,44 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       ),
     );
   }
-  
+
   Widget _buildMessagesList(ColorScheme cs, bool isDark) {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(16),
-      itemCount: MCPChatStorage.messages.length + (_isSending ? 1 : 0) + (_isListening ? 1 : 0),
+      itemCount: MCPChatStorage.messages.length +
+          (_isSending ? 1 : 0) +
+          (_isListening ? 1 : 0),
       itemBuilder: (BuildContext context, int index) {
         // Show recording indicator with waveform when listening
         if (_isListening && index == MCPChatStorage.messages.length) {
           return _buildRecordingIndicator(cs);
         }
-        
+
         // Show typing indicator when sending
-        if (_isSending && index == MCPChatStorage.messages.length + (_isListening ? 1 : 0)) {
+        if (_isSending &&
+            index == MCPChatStorage.messages.length + (_isListening ? 1 : 0)) {
           return _buildTypingIndicator(cs);
         }
-        
+
         // Show regular message
         if (index < MCPChatStorage.messages.length) {
           final ChatMessage message = MCPChatStorage.messages[index];
           return _buildMessageBubble(message, cs, isDark);
         }
-        
+
         // Fallback for invalid index
         return const SizedBox.shrink();
       },
     );
   }
-  
+
   Widget _buildMessageBubble(ChatMessage message, ColorScheme cs, bool isDark) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Row(
-        mainAxisAlignment: message.isUser 
-          ? MainAxisAlignment.end 
-          : MainAxisAlignment.start,
+        mainAxisAlignment:
+            message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (!message.isUser) ...<Widget>[
@@ -874,28 +897,30 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
             ),
             const SizedBox(width: 8),
           ],
-          
           Flexible(
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: message.isUser
-                  ? LinearGradient(
-                      colors: <Color>[cs.primary, cs.primary.withValues(alpha: 0.8)],
-                    )
-                  : LinearGradient(
-                      colors: <Color>[
-                        cs.surfaceContainerHigh,
-                        cs.surfaceContainer,
-                      ],
-                    ),
+                    ? LinearGradient(
+                        colors: <Color>[
+                          cs.primary,
+                          cs.primary.withValues(alpha: 0.8)
+                        ],
+                      )
+                    : LinearGradient(
+                        colors: <Color>[
+                          cs.surfaceContainerHigh,
+                          cs.surfaceContainer,
+                        ],
+                      ),
                 borderRadius: BorderRadius.circular(20).copyWith(
-                  bottomLeft: message.isUser 
-                    ? const Radius.circular(20) 
-                    : const Radius.circular(4),
-                  bottomRight: message.isUser 
-                    ? const Radius.circular(4) 
-                    : const Radius.circular(20),
+                  bottomLeft: message.isUser
+                      ? const Radius.circular(20)
+                      : const Radius.circular(4),
+                  bottomRight: message.isUser
+                      ? const Radius.circular(4)
+                      : const Radius.circular(20),
                 ),
                 boxShadow: <BoxShadow>[
                   BoxShadow(
@@ -916,7 +941,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                       height: 1.4,
                     ),
                   ),
-                  
+
                   // Show save buttons for AI responses with plans
                   if (!message.isUser && message.hasSaveOption) ...[
                     const SizedBox(height: 12),
@@ -925,17 +950,22 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                         ElevatedButton.icon(
                           onPressed: () => _savePlan(message),
                           icon: Icon(
-                            message.isWorkoutPlan ? Icons.fitness_center : Icons.restaurant,
+                            message.isWorkoutPlan
+                                ? Icons.fitness_center
+                                : Icons.restaurant,
                             size: 16,
                           ),
                           label: Text(
-                            message.isWorkoutPlan ? 'Save Workout' : 'Save Meal Plan',
+                            message.isWorkoutPlan
+                                ? 'Save Workout'
+                                : 'Save Meal Plan',
                             style: const TextStyle(fontSize: 12),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: cs.primary,
                             foregroundColor: cs.onPrimary,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                             minimumSize: Size.zero,
                           ),
                         ),
@@ -943,24 +973,26 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                         TextButton.icon(
                           onPressed: () => _viewPlanDetails(message),
                           icon: const Icon(Icons.visibility, size: 16),
-                          label: const Text('View Details', style: TextStyle(fontSize: 12)),
+                          label: const Text('View Details',
+                              style: TextStyle(fontSize: 12)),
                           style: TextButton.styleFrom(
                             foregroundColor: cs.primary,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                             minimumSize: Size.zero,
                           ),
                         ),
                       ],
                     ),
                   ],
-                  
+
                   const SizedBox(height: 4),
                   Text(
                     _formatTime(message.timestamp),
                     style: TextStyle(
-                      color: message.isUser 
-                        ? cs.onPrimary.withValues(alpha: 0.7)
-                        : cs.onSurfaceVariant,
+                      color: message.isUser
+                          ? cs.onPrimary.withValues(alpha: 0.7)
+                          : cs.onSurfaceVariant,
                       fontSize: 10,
                     ),
                   ),
@@ -968,7 +1000,6 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               ),
             ),
           ),
-          
           if (message.isUser) ...<Widget>[
             const SizedBox(width: 8),
             Container(
@@ -988,7 +1019,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       ),
     );
   }
-  
+
   Widget _buildTypingIndicator(ColorScheme cs) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1030,7 +1061,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       ),
     );
   }
-  
+
   Widget _buildDot(ColorScheme cs, int index) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -1047,7 +1078,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       },
     );
   }
-  
+
   Widget _buildRecordingIndicator(ColorScheme cs) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1060,7 +1091,10 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: <Color>[cs.error.withValues(alpha: 0.1), cs.error.withValues(alpha: 0.05)],
+                  colors: <Color>[
+                    cs.error.withValues(alpha: 0.1),
+                    cs.error.withValues(alpha: 0.05)
+                  ],
                 ),
                 borderRadius: BorderRadius.circular(20).copyWith(
                   bottomRight: const Radius.circular(4),
@@ -1136,7 +1170,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       ),
     );
   }
-  
+
   Widget _buildInputArea(ColorScheme cs, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1174,7 +1208,7 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                 ),
               ),
             ),
-            
+
           // Input row
           Row(
             children: <Widget>[
@@ -1195,9 +1229,9 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _sendMessage(),
                     decoration: InputDecoration(
-                      hintText: _isListening 
-                        ? 'Listening...' 
-                        : 'Ask me about health, fitness, nutrition...',
+                      hintText: _isListening
+                          ? 'Listening...'
+                          : 'Ask me about health, fitness, nutrition...',
                       hintStyle: TextStyle(
                         color: cs.onSurfaceVariant,
                         fontSize: 14,
@@ -1215,9 +1249,9 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // Microphone button with compact pulse effect
               AnimatedBuilder(
                 animation: _pulseAnimation,
@@ -1228,18 +1262,22 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                       // Compact pulse ring that stays within 48x48
                       if (_isListening)
                         Container(
-                          width: 48 + (_pulseAnimation.value * 6), // Small pulse expansion
+                          width: 48 +
+                              (_pulseAnimation.value *
+                                  6), // Small pulse expansion
                           height: 48 + (_pulseAnimation.value * 6),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: cs.error.withValues(alpha: 0.15 - (_pulseAnimation.value * 0.1)),
+                            color: cs.error.withValues(
+                                alpha: 0.15 - (_pulseAnimation.value * 0.1)),
                             border: Border.all(
-                              color: cs.error.withValues(alpha: 0.4 - (_pulseAnimation.value * 0.2)),
+                              color: cs.error.withValues(
+                                  alpha: 0.4 - (_pulseAnimation.value * 0.2)),
                               width: 1,
                             ),
                           ),
                         ),
-                      
+
                       // Main microphone button (fixed size)
                       GestureDetector(
                         onTap: _toggleListening,
@@ -1253,7 +1291,9 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                               BoxShadow(
                                 color: (_isListening ? cs.error : cs.primary)
                                     .withValues(alpha: 0.3),
-                                blurRadius: _isListening ? 8 + (_pulseAnimation.value * 2) : 6,
+                                blurRadius: _isListening
+                                    ? 8 + (_pulseAnimation.value * 2)
+                                    : 6,
                                 offset: const Offset(0, 2),
                               ),
                             ],
@@ -1261,7 +1301,8 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                           child: Icon(
                             _isListening ? Icons.mic : Icons.mic_none,
                             color: _isListening ? cs.onError : cs.onPrimary,
-                            size: 18, // Smaller icon to accommodate pulse within same space
+                            size:
+                                18, // Smaller icon to accommodate pulse within same space
                           ),
                         ),
                       ),
@@ -1269,48 +1310,50 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
                   );
                 },
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // Send button
               GestureDetector(
-                onTap: _textController.text.trim().isNotEmpty ? _sendMessage : null,
+                onTap: _textController.text.trim().isNotEmpty
+                    ? _sendMessage
+                    : null,
                 child: Container(
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
                     color: _textController.text.trim().isNotEmpty
-                      ? cs.primary
-                      : cs.surfaceContainerHighest,
+                        ? cs.primary
+                        : cs.surfaceContainerHighest,
                     shape: BoxShape.circle,
                     boxShadow: _textController.text.trim().isNotEmpty
-                      ? <BoxShadow>[
-                          BoxShadow(
-                            color: cs.primary.withValues(alpha: 0.3),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
+                        ? <BoxShadow>[
+                            BoxShadow(
+                              color: cs.primary.withValues(alpha: 0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: _isSending
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            cs.onPrimary,
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              cs.onPrimary,
+                            ),
                           ),
+                        )
+                      : Icon(
+                          Icons.send,
+                          color: _textController.text.trim().isNotEmpty
+                              ? cs.onPrimary
+                              : cs.onSurfaceVariant,
+                          size: 18,
                         ),
-                      )
-                    : Icon(
-                        Icons.send,
-                        color: _textController.text.trim().isNotEmpty
-                          ? cs.onPrimary
-                          : cs.onSurfaceVariant,
-                        size: 18,
-                      ),
                 ),
               ),
             ],
@@ -1319,11 +1362,11 @@ class _MCPCommandChatState extends ConsumerState<MCPCommandChat>
       ),
     );
   }
-  
+
   String _formatTime(DateTime time) {
     final DateTime now = DateTime.now();
     final Duration difference = now.difference(time);
-    
+
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inMinutes < 60) {
@@ -1344,7 +1387,7 @@ class ChatMessage {
   final bool hasSaveOption;
   final bool isWorkoutPlan;
   final bool isMealPlan;
-  
+
   ChatMessage({
     required this.text,
     required this.isUser,

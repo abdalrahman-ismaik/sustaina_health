@@ -14,8 +14,10 @@ class NutritionHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<bool> apiHealthState =
         ref.watch(nutritionApiHealthProvider);
-    final AsyncValue<List<FoodLogEntry>> foodLogState = ref.watch(foodLogProvider);
-    final AsyncValue<List<SavedMealPlan>> savedMealPlansState = ref.watch(savedMealPlansProvider);
+    final AsyncValue<List<FoodLogEntry>> foodLogState =
+        ref.watch(foodLogProvider);
+    final AsyncValue<List<SavedMealPlan>> savedMealPlansState =
+        ref.watch(savedMealPlansProvider);
     final ThemeData theme = Theme.of(context);
     final ColorScheme cs = theme.colorScheme;
     final bool isDark = theme.brightness == Brightness.dark;
@@ -29,9 +31,11 @@ class NutritionHomeScreen extends ConsumerWidget {
           children: <Widget>[
             // API Status Indicator
             apiHealthState.when(
-              data: (bool isHealthy) => _buildApiStatusCard(context, cs, isDark, isHealthy),
+              data: (bool isHealthy) =>
+                  _buildApiStatusCard(context, cs, isDark, isHealthy),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (Object error, _) => _buildApiStatusCard(context, cs, isDark, false),
+              error: (Object error, _) =>
+                  _buildApiStatusCard(context, cs, isDark, false),
             ),
 
             // Welcome Section with Quick Stats
@@ -58,21 +62,22 @@ class NutritionHomeScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Today's Quick Stats
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark 
-                        ? cs.surfaceContainer
-                        : cs.surfaceContainerHighest,
+                      color: isDark
+                          ? cs.surfaceContainer
+                          : cs.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: cs.primary.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
-                    child: _NutritionHomeHelper.buildQuickStats(foodLogState, savedMealPlansState, cs),
+                    child: _NutritionHomeHelper.buildQuickStats(
+                        foodLogState, savedMealPlansState, cs),
                   ),
                   const SizedBox(height: 20),
 
@@ -86,10 +91,13 @@ class NutritionHomeScreen extends ConsumerWidget {
                           icon: Icons.psychology,
                           color: cs.primary,
                           onTap: () async {
-                            final bool? result = await context.push<bool>('/nutrition/ai-recognition');
+                            final bool? result = await context
+                                .push<bool>('/nutrition/ai-recognition');
                             if (result == true && context.mounted) {
-                              Future.delayed(const Duration(milliseconds: 300), () {
-                                AchievementPopupWidget.showNutritionLogged(context);
+                              Future.delayed(const Duration(milliseconds: 300),
+                                  () {
+                                AchievementPopupWidget.showNutritionLogged(
+                                    context);
                               });
                             }
                           },
@@ -166,7 +174,8 @@ class NutritionHomeScreen extends ConsumerWidget {
                     icon: Icons.camera_alt,
                     color: cs.primary,
                     onTap: () async {
-                      final bool? result = await context.push<bool>('/nutrition/ai-recognition');
+                      final bool? result =
+                          await context.push<bool>('/nutrition/ai-recognition');
                       if (result == true && context.mounted) {
                         Future.delayed(const Duration(milliseconds: 300), () {
                           AchievementPopupWidget.showNutritionLogged(context);
@@ -244,7 +253,8 @@ class NutritionHomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          final bool? result = await context.push<bool>('/nutrition/ai-recognition');
+          final bool? result =
+              await context.push<bool>('/nutrition/ai-recognition');
           if (result == true && context.mounted) {
             Future.delayed(const Duration(milliseconds: 300), () {
               AchievementPopupWidget.showNutritionLogged(context);
@@ -262,7 +272,8 @@ class NutritionHomeScreen extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _buildModernAppBar(BuildContext context, ColorScheme cs, bool isDark) {
+  PreferredSizeWidget _buildModernAppBar(
+      BuildContext context, ColorScheme cs, bool isDark) {
     return AppBar(
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -334,15 +345,20 @@ class NutritionHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildApiStatusCard(BuildContext context, ColorScheme cs, bool isDark, bool isHealthy) {
+  Widget _buildApiStatusCard(
+      BuildContext context, ColorScheme cs, bool isDark, bool isHealthy) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isHealthy ? cs.primaryContainer.withValues(alpha: 0.2) : cs.errorContainer.withValues(alpha: 0.2),
+        color: isHealthy
+            ? cs.primaryContainer.withValues(alpha: 0.2)
+            : cs.errorContainer.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isHealthy ? cs.primary.withValues(alpha: 0.3) : cs.error.withValues(alpha: 0.3),
+          color: isHealthy
+              ? cs.primary.withValues(alpha: 0.3)
+              : cs.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -351,7 +367,9 @@ class NutritionHomeScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: isHealthy ? cs.primary.withValues(alpha: 0.1) : cs.error.withValues(alpha: 0.1),
+              color: isHealthy
+                  ? cs.primary.withValues(alpha: 0.1)
+                  : cs.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -363,7 +381,9 @@ class NutritionHomeScreen extends ConsumerWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              isHealthy ? 'Nutrition API is healthy' : 'Nutrition API is unavailable',
+              isHealthy
+                  ? 'Nutrition API is healthy'
+                  : 'Nutrition API is unavailable',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: isHealthy ? cs.primary : cs.error,
@@ -379,7 +399,7 @@ class NutritionHomeScreen extends ConsumerWidget {
   void _showNutritionGuide(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme cs = theme.colorScheme;
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -406,7 +426,8 @@ class NutritionHomeScreen extends ConsumerWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Text(
                   'Nutrition Features Guide',
                   style: theme.textTheme.headlineSmall?.copyWith(
@@ -499,13 +520,11 @@ class _FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       height: 140, // Fixed height for equal sizing
       decoration: BoxDecoration(
-        color: isDark 
-          ? cs.surfaceContainer
-          : cs.surfaceContainerHighest,
+        color: isDark ? cs.surfaceContainer : cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: color.withValues(alpha: 0.4),
@@ -586,7 +605,7 @@ class _QuickStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    
+
     return Column(
       children: <Widget>[
         Container(
@@ -639,12 +658,10 @@ class _ActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
-        color: isDark 
-          ? cs.surfaceContainer
-          : cs.surfaceContainerHighest,
+        color: isDark ? cs.surfaceContainer : cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: color.withValues(alpha: 0.2),
@@ -724,13 +741,11 @@ class _KnowledgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark 
-          ? cs.surfaceContainer
-          : cs.surfaceContainerHighest,
+        color: isDark ? cs.surfaceContainer : cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: color.withValues(alpha: 0.3),
@@ -817,7 +832,8 @@ class _NutritionHomeHelper {
     );
   }
 
-  static String _calculateTotalScans(AsyncValue<List<FoodLogEntry>> foodLogState) {
+  static String _calculateTotalScans(
+      AsyncValue<List<FoodLogEntry>> foodLogState) {
     return foodLogState.when(
       data: (List<FoodLogEntry> entries) => entries.length.toString(),
       loading: () => '-',
@@ -825,7 +841,8 @@ class _NutritionHomeHelper {
     );
   }
 
-  static String _calculateSavedPlansCount(AsyncValue<List<SavedMealPlan>> savedMealPlansState) {
+  static String _calculateSavedPlansCount(
+      AsyncValue<List<SavedMealPlan>> savedMealPlansState) {
     return savedMealPlansState.when(
       data: (List<SavedMealPlan> plans) => plans.length.toString(),
       loading: () => '-',
@@ -833,14 +850,15 @@ class _NutritionHomeHelper {
     );
   }
 
-  static int _calculateEcoScorePercentage(AsyncValue<List<FoodLogEntry>> foodLogState) {
+  static int _calculateEcoScorePercentage(
+      AsyncValue<List<FoodLogEntry>> foodLogState) {
     return foodLogState.when(
       data: (List<FoodLogEntry> entries) {
         if (entries.isEmpty) return 0;
-        
+
         double totalScore = 0;
         int validEntries = 0;
-        
+
         for (final FoodLogEntry entry in entries) {
           // Calculate average sustainability score if available
           if (entry.sustainabilityScore != null) {
@@ -861,9 +879,9 @@ class _NutritionHomeHelper {
             validEntries++;
           }
         }
-        
+
         if (validEntries == 0) return 0;
-        
+
         // Return the average score as percentage
         final double averageScore = totalScore / validEntries;
         return averageScore.round().clamp(0, 100);
@@ -873,7 +891,8 @@ class _NutritionHomeHelper {
     );
   }
 
-  static Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  static Widget _buildStatCard(
+      String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

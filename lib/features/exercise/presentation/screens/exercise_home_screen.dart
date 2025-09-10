@@ -39,7 +39,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                         color: cs.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(Icons.fitness_center, color: cs.primary, size: 28),
+                      child: Icon(Icons.fitness_center,
+                          color: cs.primary, size: 28),
                     ),
                     Expanded(
                       child: Padding(
@@ -72,7 +73,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
               // Progress Overview
               completedWorkoutsAsync.when(
                 loading: () => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -121,16 +123,21 @@ class ExerciseHomeScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                error: (Object error, StackTrace stack) => _buildWeeklyProgressCard(cs, 0, 0, 0),
+                error: (Object error, StackTrace stack) =>
+                    _buildWeeklyProgressCard(cs, 0, 0, 0),
                 data: (List<ActiveWorkoutSession> completedWorkouts) {
-                  final Map<String, int> weeklyProgress = _calculateWeeklyProgress(completedWorkouts);
-                  final int completedThisWeek = weeklyProgress['completed'] ?? 0;
-                  final int targetWorkouts = weeklyProgress['target'] ?? 4; // Default target of 4 workouts per week
-                  final double progressPercentage = targetWorkouts > 0 
+                  final Map<String, int> weeklyProgress =
+                      _calculateWeeklyProgress(completedWorkouts);
+                  final int completedThisWeek =
+                      weeklyProgress['completed'] ?? 0;
+                  final int targetWorkouts = weeklyProgress['target'] ??
+                      4; // Default target of 4 workouts per week
+                  final double progressPercentage = targetWorkouts > 0
                       ? (completedThisWeek / targetWorkouts).clamp(0.0, 1.0)
                       : 0.0;
-                  
-                  return _buildWeeklyProgressCard(cs, completedThisWeek, targetWorkouts, progressPercentage);
+
+                  return _buildWeeklyProgressCard(cs, completedThisWeek,
+                      targetWorkouts, progressPercentage);
                 },
               ),
               // Dynamic Stats from completed workouts
@@ -177,7 +184,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 );
                               },
                               child: _StatCard(
-                                  title: 'Current Streak', 
+                                  title: 'Current Streak',
                                   value: '0 days',
                                   color: cs.primary,
                                   neonIntensity: 0.4),
@@ -196,7 +203,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 );
                               },
                               child: _StatCard(
-                                  title: 'Calories', 
+                                  title: 'Calories',
                                   value: '0',
                                   color: Colors.deepOrange,
                                   neonIntensity: 0.5),
@@ -210,7 +217,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           Expanded(
                             flex: 2,
                             child: _StatCard(
-                                title: 'Total', 
+                                title: 'Total',
                                 value: '0',
                                 color: Colors.teal,
                                 neonIntensity: 0.3),
@@ -219,7 +226,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                           Expanded(
                             flex: 3,
                             child: _StatCard(
-                                title: 'Avg Duration', 
+                                title: 'Avg Duration',
                                 value: '0 min',
                                 color: Colors.purple,
                                 neonIntensity: 0.6),
@@ -249,7 +256,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                               },
                               child: _StatCard(
                                   title: 'Current Streak',
-                                  value: _calculateCurrentStreak(completedWorkouts),
+                                  value: _calculateCurrentStreak(
+                                      completedWorkouts),
                                   color: cs.primary,
                                   neonIntensity: 0.4),
                             ),
@@ -268,7 +276,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                               },
                               child: _StatCard(
                                   title: 'Calories',
-                                  value: '${_calculateCaloriesToday(completedWorkouts)}',
+                                  value:
+                                      '${_calculateCaloriesToday(completedWorkouts)}',
                                   color: Colors.deepOrange,
                                   neonIntensity: 0.5),
                             ),
@@ -285,7 +294,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                             flex: 2, // Narrower
                             child: _StatCard(
                                 title: 'Total',
-                                value: '${_calculateTotalWorkouts(completedWorkouts)}',
+                                value:
+                                    '${_calculateTotalWorkouts(completedWorkouts)}',
                                 color: Colors.teal,
                                 neonIntensity: 0.3),
                           ),
@@ -294,7 +304,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                             flex: 3, // Wider for duration text
                             child: _StatCard(
                                 title: 'Avg Duration',
-                                value: _calculateAverageWorkoutDuration(completedWorkouts),
+                                value: _calculateAverageWorkoutDuration(
+                                    completedWorkouts),
                                 color: Colors.purple,
                                 neonIntensity: 0.6),
                           ),
@@ -460,7 +471,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
               ),
               // Storage Demo Button (Development Only)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
@@ -503,14 +515,17 @@ class ExerciseHomeScreen extends ConsumerWidget {
               ),
               // Recent Workouts & Outdoor Suggestions
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: const <Widget>[
-                      _TagChip(label: 'Recent: Yoga', icon: Icons.self_improvement),
+                      _TagChip(
+                          label: 'Recent: Yoga', icon: Icons.self_improvement),
                       SizedBox(width: 12),
-                      _TagChip(label: 'Recent: Running', icon: Icons.directions_run),
+                      _TagChip(
+                          label: 'Recent: Running', icon: Icons.directions_run),
                       SizedBox(width: 12),
                       _TagChip(label: 'Outdoor: Hiking', icon: Icons.terrain),
                     ],
@@ -767,7 +782,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                       borderRadius: BorderRadius.circular(12),
                                       boxShadow: <BoxShadow>[
                                         BoxShadow(
-                                          color: cs.primary.withValues(alpha: 0.3),
+                                          color:
+                                              cs.primary.withValues(alpha: 0.3),
                                           blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
@@ -791,7 +807,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                   Text(
                                     '(${workouts.length})',
                                     style: TextStyle(
-                                      color: cs.onPrimaryContainer.withValues(alpha: 0.8),
+                                      color: cs.onPrimaryContainer
+                                          .withValues(alpha: 0.8),
                                       fontSize: 12,
                                     ),
                                   ),
@@ -852,8 +869,10 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                       Container(
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(
-                                          color: Colors.red.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(8),
+                                          color:
+                                              Colors.red.withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: const Icon(
                                           Icons.favorite,
@@ -879,7 +898,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 12),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
                                     color: cs.secondary.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
@@ -904,7 +924,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 const Spacer(),
                                 Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: <Color>[
@@ -915,7 +936,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: <BoxShadow>[
                                       BoxShadow(
-                                        color: cs.primary.withValues(alpha: 0.3),
+                                        color:
+                                            cs.primary.withValues(alpha: 0.3),
                                         blurRadius: 6,
                                         offset: const Offset(0, 2),
                                       ),
@@ -1157,7 +1179,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                       borderRadius: BorderRadius.circular(12),
                                       boxShadow: <BoxShadow>[
                                         BoxShadow(
-                                          color: cs.tertiary.withValues(alpha: 0.3),
+                                          color: cs.tertiary
+                                              .withValues(alpha: 0.3),
                                           blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
@@ -1181,7 +1204,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                   Text(
                                     '(${completedWorkouts.where((ActiveWorkoutSession w) => w.isCompleted).length})',
                                     style: TextStyle(
-                                      color: cs.onTertiaryContainer.withValues(alpha: 0.8),
+                                      color: cs.onTertiaryContainer
+                                          .withValues(alpha: 0.8),
                                       fontSize: 12,
                                     ),
                                   ),
@@ -1250,7 +1274,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 12),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
                                     color: cs.tertiary.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
@@ -1303,7 +1328,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 const Spacer(),
                                 Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: <Color>[
@@ -1314,7 +1340,8 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: <BoxShadow>[
                                       BoxShadow(
-                                        color: Colors.green.withValues(alpha: 0.3),
+                                        color:
+                                            Colors.green.withValues(alpha: 0.3),
                                         blurRadius: 6,
                                         offset: const Offset(0, 2),
                                       ),
@@ -1409,9 +1436,9 @@ class _StatCard extends StatelessWidget {
   final String value;
   final Color color;
   final double neonIntensity;
-  
+
   const _StatCard({
-    required this.title, 
+    required this.title,
     required this.value,
     required this.color,
     this.neonIntensity = 0.3,
@@ -1421,7 +1448,7 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1447,25 +1474,28 @@ class _StatCard extends StatelessWidget {
             spreadRadius: 0,
           ),
           // Neon glow effect
-          if (isDark) BoxShadow(
-            color: color.withValues(alpha: neonIntensity * 0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 0),
-            spreadRadius: 2,
-          ),
-          if (isDark) BoxShadow(
-            color: color.withValues(alpha: neonIntensity * 0.2),
-            blurRadius: 30,
-            offset: const Offset(0, 0),
-            spreadRadius: 4,
-          ),
+          if (isDark)
+            BoxShadow(
+              color: color.withValues(alpha: neonIntensity * 0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 0),
+              spreadRadius: 2,
+            ),
+          if (isDark)
+            BoxShadow(
+              color: color.withValues(alpha: neonIntensity * 0.2),
+              blurRadius: 30,
+              offset: const Offset(0, 0),
+              spreadRadius: 4,
+            ),
           // Light mode subtle glow
-          if (!isDark) BoxShadow(
-            color: color.withValues(alpha: neonIntensity * 0.15),
-            blurRadius: 15,
-            offset: const Offset(0, 2),
-            spreadRadius: 1,
-          ),
+          if (!isDark)
+            BoxShadow(
+              color: color.withValues(alpha: neonIntensity * 0.15),
+              blurRadius: 15,
+              offset: const Offset(0, 2),
+              spreadRadius: 1,
+            ),
         ],
       ),
       child: Column(
@@ -1490,13 +1520,15 @@ class _StatCard extends StatelessWidget {
               fontSize: 24,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
-              shadows: isDark ? <Shadow>[
-                Shadow(
-                  color: color.withValues(alpha: neonIntensity * 0.8),
-                  blurRadius: 8,
-                  offset: const Offset(0, 0),
-                ),
-              ] : null,
+              shadows: isDark
+                  ? <Shadow>[
+                      Shadow(
+                        color: color.withValues(alpha: neonIntensity * 0.8),
+                        blurRadius: 8,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : null,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -1603,7 +1635,7 @@ class _CategoryCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
-              icon, 
+              icon,
               color: cs.primary,
               size: 24,
             ),
@@ -1745,24 +1777,28 @@ class _LoadingStatCard extends StatelessWidget {
   }
 }
 
-Map<String, int> _calculateWeeklyProgress(List<ActiveWorkoutSession> completedWorkouts) {
+Map<String, int> _calculateWeeklyProgress(
+    List<ActiveWorkoutSession> completedWorkouts) {
   final DateTime now = DateTime.now();
   final DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
   final DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
-  
-  final int completedThisWeek = completedWorkouts.where((ActiveWorkoutSession session) {
-    return session.startTime.isAfter(startOfWeek.subtract(const Duration(days: 1))) &&
-           session.startTime.isBefore(endOfWeek.add(const Duration(days: 1))) &&
-           session.isCompleted;
+
+  final int completedThisWeek =
+      completedWorkouts.where((ActiveWorkoutSession session) {
+    return session.startTime
+            .isAfter(startOfWeek.subtract(const Duration(days: 1))) &&
+        session.startTime.isBefore(endOfWeek.add(const Duration(days: 1))) &&
+        session.isCompleted;
   }).length;
-  
+
   return <String, int>{
     'completed': completedThisWeek,
     'target': 4, // Default weekly target
   };
 }
 
-Widget _buildWeeklyProgressCard(ColorScheme cs, int completed, int target, double percentage) {
+Widget _buildWeeklyProgressCard(
+    ColorScheme cs, int completed, int target, double percentage) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
     padding: const EdgeInsets.all(20),
@@ -1829,7 +1865,10 @@ Widget _buildWeeklyProgressCard(ColorScheme cs, int completed, int target, doubl
                 height: 10,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: <Color>[cs.primary, cs.primary.withValues(alpha: 0.8)],
+                    colors: <Color>[
+                      cs.primary,
+                      cs.primary.withValues(alpha: 0.8)
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(5),
                 ),
@@ -1923,7 +1962,8 @@ void _showExerciseGuide(BuildContext context) {
   );
 }
 
-Future<void> _showDeleteWorkoutDialog(BuildContext context, ActiveWorkoutSession workout, WidgetRef ref) async {
+Future<void> _showDeleteWorkoutDialog(
+    BuildContext context, ActiveWorkoutSession workout, WidgetRef ref) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: false, // User must tap button
@@ -1933,7 +1973,8 @@ Future<void> _showDeleteWorkoutDialog(BuildContext context, ActiveWorkoutSession
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
-              const Text('Are you sure you want to delete this workout session?'),
+              const Text(
+                  'Are you sure you want to delete this workout session?'),
               const SizedBox(height: 8),
               Text(
                 workout.workoutName,
@@ -1975,9 +2016,10 @@ Future<void> _showDeleteWorkoutDialog(BuildContext context, ActiveWorkoutSession
             onPressed: () async {
               Navigator.of(context).pop();
               // Delete the workout using the provider
-              final CompletedWorkoutsNotifier notifier = ref.read(completedWorkoutsProvider.notifier);
+              final CompletedWorkoutsNotifier notifier =
+                  ref.read(completedWorkoutsProvider.notifier);
               await notifier.deleteWorkout(workout.id);
-              
+
               // Show success message
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

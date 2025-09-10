@@ -383,23 +383,21 @@ final Provider<GoRouter> appRouterProvider =
                 path: 'settings',
                 builder: (BuildContext context, GoRouterState state) =>
                     ProfileSettingsScreen(),
-                routes: <RouteBase>[
-                  GoRoute(
-                    path: 'privacy',
-                    builder: (BuildContext context, GoRouterState state) =>
-                        const PrivacySecurityScreen(),
-                  ),
-                  GoRoute(
-                    path: 'app',
-                    builder: (BuildContext context, GoRouterState state) =>
-                        const AppPreferencesScreen(),
-                  ),
-                  GoRoute(
-                    path: 'language',
-                    builder: (BuildContext context, GoRouterState state) =>
-                        const LanguageSelectionScreen(),
-                  ),
-                ],
+              ),
+              GoRoute(
+                path: 'privacy',
+                builder: (BuildContext context, GoRouterState state) =>
+                    const PrivacySecurityScreen(),
+              ),
+              GoRoute(
+                path: 'app-preferences',
+                builder: (BuildContext context, GoRouterState state) =>
+                    const AppPreferencesScreen(),
+              ),
+              GoRoute(
+                path: 'language',
+                builder: (BuildContext context, GoRouterState state) =>
+                    const LanguageSelectionScreen(),
               ),
               GoRoute(
                 path: 'achievements',

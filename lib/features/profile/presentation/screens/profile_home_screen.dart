@@ -51,10 +51,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     return 'Male';
   }
 
-  bool _sustainabilityTipsEnabled = false;
-  bool _healthRemindersEnabled = false;
   bool _notificationsAllowed = false;
-  bool _isSyncing = false;
 
   @override
   void initState() {
@@ -147,26 +144,14 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     await _notificationService.initialize();
     final bool allowed = await _notificationService.areNotificationsEnabled();
 
-    // Load saved notification preferences
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool sustainabilityEnabled =
-        prefs.getBool('sustainability_tips_enabled') ?? false;
-    final bool healthEnabled =
-        prefs.getBool('health_reminders_enabled') ?? false;
-
     if (mounted) {
       setState(() {
         _notificationsAllowed = allowed;
-        _sustainabilityTipsEnabled = sustainabilityEnabled;
-        _healthRemindersEnabled = healthEnabled;
       });
     }
   }
 
-  Future<void> _saveNotificationPreference(String key, bool value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(key, value);
-  }
+
 
   Future<void> _syncLocalDataToCloud() async {
     try {
@@ -495,67 +480,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             ),
 
             // Statistics Cards
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    'Your Impact',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // First row of stats
-                  Row(
-                    children: <Widget>[
-                      _EnhancedStatCard(
-                        icon: Icons.eco,
-                        title: 'Carbon Saved',
-                        value: _calculateCarbonSaved(),
-                        unit: 'kg CO₂',
-                        color: Colors.green,
-                      ),
-                      const SizedBox(width: 12),
-                      _EnhancedStatCard(
-                        icon: Icons.local_fire_department,
-                        title: 'Current Streak',
-                        value: _getCurrentStreak(),
-                        unit: localizations.days,
-                        color: Colors.orange,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  // Second row of stats
-                  Row(
-                    children: <Widget>[
-                      _EnhancedStatCard(
-                        icon: Icons.fitness_center,
-                        title: localizations.workouts,
-                        value: _getWorkoutCount(),
-                        unit: 'total',
-                        color: Colors.blue,
-                      ),
-                      const SizedBox(width: 12),
-                      _EnhancedStatCard(
-                        icon: Icons.emoji_events,
-                        title: 'Achievements',
-                        value: _getAchievementCount(),
-                        unit: 'unlocked',
-                        color: Colors.purple,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
+            
             // Quick Personal Info
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -586,56 +511,6 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            TextButton.icon(
-                              onPressed: _isSyncing ? null : () async {
-                                setState(() {
-                                  _isSyncing = true;
-                                });
-                                
-                                try {
-                                  await _syncLocalDataToCloud();
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Data synced to cloud storage!'),
-                                        backgroundColor: Colors.blue,
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Sync failed: $e'),
-                                        backgroundColor: Colors.red,
-                                        duration: const Duration(seconds: 3),
-                                      ),
-                                    );
-                                  }
-                                } finally {
-                                  if (mounted) {
-                                    setState(() {
-                                      _isSyncing = false;
-                                    });
-                                  }
-                                }
-                              },
-                              icon: _isSyncing 
-                                  ? SizedBox(
-                                      width: 16, 
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
-                                      ),
-                                    )
-                                  : Icon(Icons.cloud_upload, size: 16, color: cs.primary),
-                              label: Text(
-                                _isSyncing ? 'Syncing...' : 'Sync',
-                                style: TextStyle(color: cs.primary),
-                              ),
-                            ),
                             TextButton.icon(
                               onPressed: () {
                                 _showEditPersonalInfoDialog();
@@ -723,7 +598,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               icon: Icons.lock_outline,
               label: 'Privacy & Security',
               description: 'Control your data and privacy',
-              onTap: () => context.go('/profile/settings/privacy'),
+              onTap: () => context.go('/profile/privacy'),
             ),
             _buildEnhancedQuickSettingTile(
               icon: Icons.person_outline,
@@ -735,13 +610,13 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               icon: Icons.settings_outlined,
               label: 'App Preferences',
               description: 'Customize your app experience',
-              onTap: () => context.go('/profile/settings/app'),
+              onTap: () => context.go('/profile/app-preferences'),
             ),
             _buildEnhancedQuickSettingTile(
               icon: Icons.language,
               label: 'Language / اللغة',
               description: 'Change app language / تغيير لغة التطبيق',
-              onTap: () => context.go('/profile/settings/language'),
+              onTap: () => context.go('/profile/language'),
             ),
             _buildEnhancedQuickSettingTile(
               icon: Icons.emoji_events,
@@ -823,37 +698,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     );
   }
 
-  // Helper methods for real data
-  String _calculateCarbonSaved() {
-    // Calculate based on saved workouts, sustainable choices, etc.
-    // This could connect to your actual data service
-    final double savedWorkouts = (_weightController.text.isNotEmpty ? double.tryParse(_weightController.text) : 70) ?? 70;
-    final int workoutDays = 30; // This should come from your workout data
-    final double carbonPerWorkout = 0.5; // kg CO2 saved per workout
-    return (savedWorkouts * carbonPerWorkout * workoutDays / 100).toStringAsFixed(1);
-  }
-
-  String _getCurrentStreak() {
-    // Get actual streak from your data service
-    // For now, calculate based on stored preferences
-    return '7'; // This should come from your actual streak data
-  }
-
-  String _getWorkoutCount() {
-    // Get actual workout count from your fitness data
-    return '45'; // This should come from your workout history
-  }
-
-  String _getAchievementCount() {
-    // Get actual achievement count
-    final bool hasBasicInfo = _weightController.text.isNotEmpty && 
-                             _heightController.text.isNotEmpty && 
-                             _ageController.text.isNotEmpty;
-    int count = 0;
-    if (hasBasicInfo) count += 2; // Profile completion achievements
-    if (_notificationsAllowed) count += 1; // Notification setup
-    return count.toString();
-  }
+  // Helper methods for real data removed - not currently used
 
   Widget _buildPersonalDetailRow(
     BuildContext context,
@@ -1066,356 +911,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     );
   }
 
-  Widget _buildNotificationSection() {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: _notificationsAllowed ? cs.primary : cs.error,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Icon(
-                _notificationsAllowed
-                    ? Icons.notifications_active
-                    : Icons.notifications_off,
-                color: _notificationsAllowed ? cs.primary : cs.error,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Notification Settings',
-                style: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (!_notificationsAllowed) ...<Widget>[
-            Text(
-              'Enable notifications to receive sustainability tips and health reminders',
-              style: TextStyle(
-                color: cs.onSurfaceVariant,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final bool granted =
-                      await _notificationService.requestPermissions();
-                  if (granted) {
-                    setState(() => _notificationsAllowed = true);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: cs.primary,
-                  foregroundColor: cs.onPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text('Enable Notifications'),
-              ),
-            ),
-          ] else ...<Widget>[
-            // Sustainability Tips
-            _buildNotificationOption(
-              title: 'Daily Sustainability Tips',
-              description:
-                  'Get tips for eco-friendly living throughout the day (automatic)',
-              value: _sustainabilityTipsEnabled,
-              onChanged: (bool value) async {
-                setState(() => _sustainabilityTipsEnabled = value);
-                await _saveNotificationPreference(
-                    'sustainability_tips_enabled', value);
-                // Note: Tips are now automatic when the app starts
-                if (!value) {
-                  await _notificationService
-                      .cancelNotificationsByChannel('sustainability_tips');
-                }
-              },
-            ),
 
-            const SizedBox(height: 16),
 
-            // Health Reminders
-            _buildNotificationOption(
-              title: 'Health Reminders',
-              description:
-                  'Get reminded about wellness and self-care (automatic)',
-              value: _healthRemindersEnabled,
-              onChanged: (bool value) async {
-                setState(() => _healthRemindersEnabled = value);
-                await _saveNotificationPreference(
-                    'health_reminders_enabled', value);
-                // Note: Reminders are now automatic when the app starts
-                if (!value) {
-                  await _notificationService
-                      .cancelNotificationsByChannel('health_reminders');
-                }
-              },
-            ),
-
-            const SizedBox(height: 24),
-
-            // Simple test notification button (optional)
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () async {
-                  await _notificationService.sendTestNotification();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Test notification sent!'),
-                      backgroundColor: cs.primary,
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: cs.primary,
-                  side: BorderSide(color: cs.primary),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text('Send Test Notification'),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotificationOption({
-    required String title,
-    required String description,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                title,
-                style: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                style: TextStyle(
-                  color: cs.onSurfaceVariant,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeColor: cs.primary,
-        ),
-      ],
-    );
-  }
-}
-
-class _EnhancedStatCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-  final String unit;
-  final Color color;
-  
-  const _EnhancedStatCard({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.unit,
-    required this.color,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: cs.outline.withOpacity(0.2),
-            width: 1,
-          ),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: cs.shadow.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 20,
-                  ),
-                ),
-                Text(
-                  unit,
-                  style: TextStyle(
-                    color: cs.onSurfaceVariant,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: TextStyle(
-                color: cs.onSurface,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: TextStyle(
-                color: cs.onSurfaceVariant,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  const _StatCard({required this.title, required this.value, Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-    final Color cardColor = cs.surfaceContainerHigh;
-    final Color borderColor = cs.outlineVariant;
-    final Color textColor = cs.onSurface;
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.all(4),
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor),
-        ),
-        child: Column(
-          children: <Widget>[
-            Text(title,
-                style: TextStyle(
-                    color: textColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500)),
-            const SizedBox(height: 4),
-            Text(value,
-                style: TextStyle(
-                    color: textColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickSettingTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Widget trailing;
-  final VoidCallback? onTap;
-  const _QuickSettingTile(
-      {required this.icon,
-      required this.label,
-      required this.trailing,
-      this.onTap,
-      Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme cs = Theme.of(context).colorScheme;
-    final Color bgColor = cs.surfaceContainerHigh;
-    final Color textColor = cs.onSurface;
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: <Widget>[
-            Icon(icon, color: textColor),
-            const SizedBox(width: 16),
-            Expanded(
-              child:
-                  Text(label, style: TextStyle(color: textColor, fontSize: 16)),
-            ),
-            trailing,
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 void _showProfileGuide(BuildContext context) {
