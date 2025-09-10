@@ -11,6 +11,9 @@ import '../../data/models/user_profile_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../achievements/presentation/screens/sustainability_achievements_screen.dart';
 import '../../../achievements/presentation/screens/achievement_test_screen.dart';
+import '../../data/services/carbon_footprint_service.dart';
+import '../../../exercise/data/services/hybrid_exercise_service.dart';
+import '../../../exercise/data/models/workout_models.dart';
 
 class ProfileHomeScreen extends ConsumerStatefulWidget {
   const ProfileHomeScreen({Key? key}) : super(key: key);
@@ -22,12 +25,20 @@ class ProfileHomeScreen extends ConsumerStatefulWidget {
 class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   final NotificationService _notificationService = NotificationService();
   final HybridProfileService _profileService = HybridProfileService();
+  final CarbonFootprintService _carbonService = CarbonFootprintService();
+  final HybridExerciseService _exerciseService = HybridExerciseService();
 
   // Personal info controllers
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   String _selectedSex = 'Male';
+
+  // Cache for real-time data
+  CarbonFootprintData? _carbonData;
+  List<ActiveWorkoutSession>? _completedWorkouts;
+  int? _currentStreak;
+  bool _isLoadingData = false;
 
   // Helper method to convert between internal and display values
   String _getLocalizedGender(
@@ -60,8 +71,83 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     super.initState();
     _initializeNotifications();
     _loadPersonalInfo();
+    _loadRealTimeData();
     // Automatically sync local data to cloud on app start
     _syncLocalDataToCloud();
+  }
+
+  /// Load real-time data for carbon footprint and workout statistics
+  Future<void> _loadRealTimeData() async {
+    if (mounted) {
+      setState(() {
+        _isLoadingData = true;
+      });
+    }
+
+    try {
+      // Load carbon footprint data
+      final CarbonFootprintData carbonData = await _carbonService.calculateTotalCarbonSaved();
+      
+      // Load workout data
+      final List<ActiveWorkoutSession> workouts = await _exerciseService.getCompletedWorkouts();
+      
+      // Calculate current streak
+      final int streak = _calculateCurrentStreakFromWorkouts(workouts);
+      
+      if (mounted) {
+        setState(() {
+          _carbonData = carbonData;
+          _completedWorkouts = workouts;
+          _currentStreak = streak;
+          _isLoadingData = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading real-time data: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingData = false;
+        });
+      }
+    }
+  }
+
+  /// Calculate current workout streak from workout data
+  int _calculateCurrentStreakFromWorkouts(List<ActiveWorkoutSession> workouts) {
+    if (workouts.isEmpty) return 0;
+
+    // Sort workouts by date (most recent first)
+    final List<ActiveWorkoutSession> sortedWorkouts = workouts
+        .where((ActiveWorkoutSession w) => w.isCompleted && w.endTime != null)
+        .toList()
+      ..sort((ActiveWorkoutSession a, ActiveWorkoutSession b) =>
+          b.endTime!.compareTo(a.endTime!));
+
+    if (sortedWorkouts.isEmpty) return 0;
+
+    int streak = 0;
+    DateTime currentDate = DateTime.now();
+
+    // Convert to date only (ignore time)
+    DateTime currentDateOnly = DateTime(currentDate.year, currentDate.month, currentDate.day);
+
+    for (final ActiveWorkoutSession workout in sortedWorkouts) {
+      final DateTime workoutDate = workout.endTime!;
+      final DateTime workoutDateOnly = DateTime(workoutDate.year, workoutDate.month, workoutDate.day);
+      
+      final int daysDifference = currentDateOnly.difference(workoutDateOnly).inDays;
+
+      if (daysDifference <= 1) {
+        // Workout was today or yesterday
+        streak++;
+        currentDateOnly = workoutDateOnly.subtract(const Duration(days: 1));
+      } else {
+        // Gap in workouts, streak is broken
+        break;
+      }
+    }
+
+    return streak;
   }
 
   @override
@@ -337,13 +423,21 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         centerTitle: true,
         actions: <Widget>[
           IconButton(
+            icon: Icon(Icons.refresh, color: cs.onSurface),
+            onPressed: _loadRealTimeData,
+            tooltip: 'Refresh data',
+          ),
+          IconButton(
             icon: Icon(Icons.help_outline, color: cs.onSurface),
             onPressed: () => _showProfileGuide(context),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
+      body: RefreshIndicator(
+        onRefresh: _loadRealTimeData,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             // Enhanced User Profile Header
@@ -475,27 +569,76 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       ],
                     ),
                   ),
-                  // Quick Action
-                  IconButton(
-                    onPressed: () {
-                      // Navigate to edit profile
-                    },
-                    icon: Icon(
-                      Icons.edit_outlined,
-                      color: cs.primary,
-                    ),
-                    style: IconButton.styleFrom(
-                      backgroundColor: cs.surface.withOpacity(0.8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
 
             // Statistics Cards
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    'Your Impact',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // First row of stats
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _showCarbonBreakdown,
+                          child: _EnhancedStatCard(
+                            icon: Icons.eco,
+                            title: 'Carbon Saved',
+                            value: _calculateCarbonSaved(),
+                            unit: 'kg CO₂',
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _EnhancedStatCard(
+                        icon: Icons.local_fire_department,
+                        title: 'Current Streak',
+                        value: _getCurrentStreak(),
+                        unit: localizations.days,
+                        color: Colors.orange,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Second row of stats
+                  Row(
+                    children: <Widget>[
+                      _EnhancedStatCard(
+                        icon: Icons.fitness_center,
+                        title: localizations.workouts,
+                        value: _getWorkoutCount(),
+                        unit: 'total',
+                        color: Colors.blue,
+                      ),
+                      const SizedBox(width: 12),
+                      _EnhancedStatCard(
+                        icon: Icons.emoji_events,
+                        title: 'Achievements',
+                        value: _getAchievementCount(),
+                        unit: 'unlocked',
+                        color: Colors.purple,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
 
             // Quick Personal Info
             Padding(
@@ -717,10 +860,285 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
-  // Helper methods for real data removed - not currently used
+  // Helper methods for real data
+  String _calculateCarbonSaved() {
+    if (_isLoadingData) {
+      return '...';
+    }
+    
+    if (_carbonData != null) {
+      return _carbonData!.formattedTotal;
+    }
+    
+    // Fallback calculation while data is loading
+    return '0.0';
+  }
+
+  String _getCurrentStreak() {
+    if (_isLoadingData) {
+      return '... days';
+    }
+    
+    if (_currentStreak != null) {
+      return '$_currentStreak day${_currentStreak != 1 ? 's' : ''}';
+    }
+    
+    // Fallback while data is loading
+    return '0 days';
+  }
+
+  String _getWorkoutCount() {
+    if (_isLoadingData) {
+      return '...';
+    }
+    
+    if (_completedWorkouts != null) {
+      return _completedWorkouts!.length.toString();
+    }
+    
+    // Fallback while data is loading
+    return '0';
+  }
+
+  String _getAchievementCount() {
+    if (_isLoadingData) {
+      return '...';
+    }
+    
+    // Calculate achievements based on real user data
+    int count = 0;
+    
+    // Profile completion achievements
+    final bool hasBasicInfo = _weightController.text.isNotEmpty && 
+                             _heightController.text.isNotEmpty && 
+                             _ageController.text.isNotEmpty;
+    if (hasBasicInfo) count += 1; // Profile setup achievement
+    
+    // Workout achievements
+    if (_completedWorkouts != null) {
+      final int workoutCount = _completedWorkouts!.length;
+      if (workoutCount >= 1) count += 1; // First workout
+      if (workoutCount >= 10) count += 1; // 10 workouts milestone
+      if (workoutCount >= 50) count += 1; // 50 workouts milestone
+      
+      // Streak achievements
+      if (_currentStreak != null) {
+        if (_currentStreak! >= 3) count += 1; // 3-day streak
+        if (_currentStreak! >= 7) count += 1; // Week streak
+        if (_currentStreak! >= 30) count += 1; // Month streak
+      }
+    }
+    
+    // Carbon footprint achievements
+    if (_carbonData != null) {
+      if (_carbonData!.totalKgCO2Saved >= 10) count += 1; // 10kg CO2 saved
+      if (_carbonData!.totalKgCO2Saved >= 50) count += 1; // 50kg CO2 saved
+      if (_carbonData!.totalKgCO2Saved >= 100) count += 1; // 100kg CO2 saved
+    }
+    
+    // Notification setup achievement
+    if (_notificationsAllowed) count += 1;
+    
+    return count.toString();
+  }
+
+  /// Show detailed breakdown of carbon savings
+  void _showCarbonBreakdown() {
+    if (_carbonData == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Carbon data is still loading...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final ColorScheme cs = Theme.of(context).colorScheme;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: <Widget>[
+              Icon(Icons.eco, color: Colors.green, size: 24),
+              const SizedBox(width: 8),
+              const Text('Carbon Footprint Breakdown'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Total Carbon Saved: ${_carbonData!.formattedTotal} kg CO₂',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Breakdown by category:',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                _buildCarbonBreakdownItem(
+                  'Workout Activities',
+                  _carbonData!.workoutContribution,
+                  'Saved by avoiding gym transportation',
+                  Icons.fitness_center,
+                  Colors.blue,
+                ),
+                _buildCarbonBreakdownItem(
+                  'Sustainable Food Choices',
+                  _carbonData!.foodContribution,
+                  'Health-conscious eating patterns',
+                  Icons.restaurant,
+                  Colors.green,
+                ),
+                _buildCarbonBreakdownItem(
+                  'Energy-Efficient Practices',
+                  _carbonData!.sleepContribution,
+                  'Eco-friendly habits and energy savings',
+                  Icons.bedtime,
+                  Colors.purple,
+                ),
+                const SizedBox(height: 16),
+                
+                // Specific Examples Section
+                if (_carbonData!.specificExamples.isNotEmpty) ...<Widget>[
+                  const Text(
+                    'Specific examples from your activities:',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceVariant.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _carbonData!.specificExamples
+                          .take(8) // Limit to prevent overflow
+                          .map((String example) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    const Text('• ', style: TextStyle(color: Colors.green)),
+                                    Expanded(
+                                      child: Text(
+                                        example,
+                                        style: const TextStyle(fontSize: 13),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'These calculations are based on your actual activity data and conservative scientific estimates. Keep tracking your activities to see more accurate carbon savings! 🌱',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Navigate to sustainability dashboard
+                context.go('/profile/sustainability');
+              },
+              child: const Text('View Details'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCarbonBreakdownItem(
+    String title,
+    double value,
+    String description,
+    IconData icon,
+    Color color,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, size: 16, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      '${value.toStringAsFixed(1)} kg',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildPersonalDetailRow(
     BuildContext context,
