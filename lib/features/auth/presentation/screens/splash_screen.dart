@@ -54,19 +54,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         // Check authentication status first
         final AsyncValue<UserEntity?> authState = ref.read(authStateProvider);
         final bool isLoggedIn = authState.hasValue && authState.value != null;
-
+        
         if (isLoggedIn) {
-          // User is authenticated - check mounted before navigation
-          if (!mounted) return;
-
           // User is authenticated - go to home (router will handle profile setup check)
           context.go('/home');
         } else {
           // User is not authenticated - always show onboarding for fresh start
           // This ensures new users or users who haven't completed signup see onboarding
-          final bool hasSeenOnboarding =
-              await OnboardingService.hasSeenOnboarding();
-
+          final bool hasSeenOnboarding = await OnboardingService.hasSeenOnboarding();
+          
           if (!hasSeenOnboarding) {
             // First time user - show onboarding
             context.go('/onboarding/welcome');
@@ -91,19 +87,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-
+    
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: isDark
-                ? <Color>[cs.surface, cs.surfaceContainerHighest]
-                : <Color>[
-                    cs.primary.withOpacity(0.1),
-                    cs.secondary.withOpacity(0.1)
-                  ],
+            colors: isDark 
+              ? <Color>[cs.surface, cs.surfaceContainerHighest]
+              : <Color>[cs.primary.withOpacity(0.1), cs.secondary.withOpacity(0.1)],
             stops: const <double>[0.0, 1.0],
           ),
         ),
@@ -160,35 +153,27 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                             Text(
                               'Ghiraas',
                               textAlign: TextAlign.center,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displaySmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: cs.onSurface,
-                                    letterSpacing: -0.5,
-                                  ),
+                              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                                letterSpacing: -0.5,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                               decoration: BoxDecoration(
                                 color: cs.primaryContainer.withOpacity(0.8),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: cs.primary.withOpacity(0.3)),
+                                border: Border.all(color: cs.primary.withOpacity(0.3)),
                               ),
                               child: Text(
                                 'AI-Powered Sustainable Wellness',
                                 textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: cs.onPrimaryContainer,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: cs.onPrimaryContainer,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
@@ -207,30 +192,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                           children: <Widget>[
                             Text(
                               'Initializing...',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: cs.onSurface.withOpacity(0.8),
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: cs.onSurface.withOpacity(0.8),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: cs.primaryContainer,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 '${(_loadingProgress * 100).toInt()}%',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(
-                                      color: cs.onPrimaryContainer,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  color: cs.onPrimaryContainer,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
@@ -264,20 +242,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               'Preparing AI models...',
                               'Setting up environment...',
                             ];
-                            int currentStep =
-                                (_loadingProgress * loadingSteps.length)
-                                    .floor();
-                            if (currentStep >= loadingSteps.length)
-                              currentStep = loadingSteps.length - 1;
-
+                            int currentStep = (_loadingProgress * loadingSteps.length).floor();
+                            if (currentStep >= loadingSteps.length) currentStep = loadingSteps.length - 1;
+                            
                             return Text(
                               loadingSteps[currentStep],
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
                             );
                           },
                         ),
@@ -296,10 +268,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        _buildFeatureIcon(
-                            context, Icons.fitness_center, 'Exercise'),
-                        _buildFeatureIcon(
-                            context, Icons.restaurant_menu, 'Nutrition'),
+                        _buildFeatureIcon(context, Icons.fitness_center, 'Exercise'),
+                        _buildFeatureIcon(context, Icons.restaurant_menu, 'Nutrition'),
                         _buildFeatureIcon(context, Icons.bedtime, 'Sleep'),
                         _buildFeatureIcon(context, Icons.eco, 'Eco-Friendly'),
                       ],
@@ -309,8 +279,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   Text(
                     'Version 1.0.0',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -321,10 +291,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       ),
     );
   }
-
+  
   Widget _buildFeatureIcon(BuildContext context, IconData icon, String label) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-
+    
     return AnimatedBuilder(
       animation: _animationController,
       builder: (BuildContext context, Widget? child) {
@@ -350,9 +320,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                      fontSize: 10,
-                    ),
+                  color: cs.onSurfaceVariant,
+                  fontSize: 10,
+                ),
               ),
             ],
           ),

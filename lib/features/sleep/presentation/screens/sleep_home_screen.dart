@@ -443,8 +443,7 @@ class SleepHomeScreen extends ConsumerWidget {
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (double value, TitleMeta meta) {
-                            final List<String> dayLabels =
-                                _getLast7DaysLabels();
+                            final List<String> dayLabels = _getLast7DaysLabels();
                             if (value >= 0 && value < dayLabels.length) {
                               return Text(
                                 dayLabels[value.toInt()],
@@ -590,13 +589,7 @@ class SleepHomeScreen extends ConsumerWidget {
     final DateTime now = DateTime.now();
     final List<String> labels = <String>[];
     const List<String> dayNames = <String>[
-      'Mon',
-      'Tue',
-      'Wed',
-      'Thu',
-      'Fri',
-      'Sat',
-      'Sun'
+      'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
     ];
 
     for (int i = 6; i >= 0; i--) {
