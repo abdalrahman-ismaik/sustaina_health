@@ -10,6 +10,7 @@ import 'package:ghiraas/features/exercise/data/models/workout_models.dart';
 import 'package:ghiraas/features/nutrition/presentation/providers/nutrition_providers.dart';
 import 'package:ghiraas/features/sleep/presentation/providers/sleep_providers.dart';
 import 'package:ghiraas/features/nutrition/data/models/nutrition_models.dart';
+import '../../../notifications/presentation/providers/notification_providers.dart';
 import '../widgets/mcp_command_chat.dart';
 
 class HomeDashboardScreen extends ConsumerStatefulWidget {
@@ -212,7 +213,10 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
         completedWorkoutsAsync.value;
     final int streak =
         completedWorkouts != null ? _calculateStreak(completedWorkouts) : 0;
-
+    
+    // Get real Firebase notifications count
+    final int unreadNotificationsCount = ref.watch(unreadNotificationsCountProvider);
+    
     // Nutrition & Sleep stats
     final AsyncValue<DailyNutritionSummary> dailySummaryAsync =
         ref.watch(dailyNutritionSummaryProvider);
@@ -233,9 +237,8 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
 
     return Scaffold(
       backgroundColor: cs.surface,
-      // Modern App Bar
-      appBar: _buildModernAppBar(
-          context, cs, isDark, user, 0), // Simplified: no dynamic count for now
+      // Modern App Bar with real Firebase notifications count
+      appBar: _buildModernAppBar(context, cs, isDark, user, unreadNotificationsCount),
       body: Stack(
         children: <Widget>[
           // Enhanced 3D Background Animation
@@ -1350,15 +1353,47 @@ class _HomeDashboardScreenState extends ConsumerState<HomeDashboardScreen>
     );
   }
 
-  // Demo function to create sample notifications
-  void _createSampleNotifications() {
-    // For now, just show a snackbar message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context)!.sampleNotificationsCreated),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  // Demo function to create sample Firebase notifications
+  void _createSampleNotifications() async {
+    try {
+      final firebaseActions = ref.read(firebaseNotificationActionsProvider);
+      
+      // Create sample notifications
+      await firebaseActions.createWorkoutNotification(
+        title: 'Workout Reminder',
+        message: 'Time for your daily exercise! Keep up the great work!',
+        actionRoute: '/exercise',
+      );
+      
+      await firebaseActions.createNutritionNotification(
+        title: 'Meal Logging',
+        message: 'Don\'t forget to log your lunch for better nutrition tracking.',
+        actionRoute: '/nutrition',
+      );
+      
+      await firebaseActions.createSustainabilityNotification(
+        title: 'Eco Tip',
+        message: 'Try using a reusable water bottle today to reduce plastic waste!',
+      );
+      
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sample Firebase notifications created!'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Fallback to local message if Firebase fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.sampleNotificationsCreated),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   // Calculate numeric streak (days) from completed workouts list
