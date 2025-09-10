@@ -10,7 +10,7 @@ class HybridProfileService {
   static const String _healthGoalsKey = 'health_goals';
   static const String _preferencesKey = 'user_preferences';
   static const String _achievementsKey = 'user_achievements';
-  
+
   final FirestoreProfileService _firestoreService = FirestoreProfileService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -21,7 +21,7 @@ class HybridProfileService {
     try {
       // Always save locally first
       await _saveProfileLocally(profile);
-      
+
       // Save to cloud if user is signed in
       if (_isUserSignedIn) {
         try {
@@ -41,7 +41,7 @@ class HybridProfileService {
     try {
       // Always save locally first
       await _saveHealthGoalsLocally(goals);
-      
+
       // Save to cloud if user is signed in
       if (_isUserSignedIn) {
         try {
@@ -86,7 +86,7 @@ class HybridProfileService {
     try {
       // Always save locally first
       await _savePreferencesLocally(preferences);
-      
+
       // Save to cloud if user is signed in
       if (_isUserSignedIn) {
         try {
@@ -106,7 +106,7 @@ class HybridProfileService {
     try {
       // Always save locally first
       await _saveAchievementLocally(achievement);
-      
+
       // Save to cloud if user is signed in
       if (_isUserSignedIn) {
         try {
@@ -123,28 +123,42 @@ class HybridProfileService {
 
   /// Get user profile (prioritizing cloud data if available)
   Future<UserProfile?> getUserProfile() async {
+    print('HybridProfileService: Getting user profile...');
+    print('HybridProfileService: User signed in: $_isUserSignedIn');
+
     if (_isUserSignedIn) {
       try {
-        final UserProfile? cloudProfile = await _firestoreService.getPersonalInfo();
+        print('HybridProfileService: Fetching from cloud...');
+        final UserProfile? cloudProfile =
+            await _firestoreService.getPersonalInfo();
+        print('HybridProfileService: Cloud profile: $cloudProfile');
+
         if (cloudProfile != null) {
           // Sync cloud data to local storage
           await _saveProfileLocally(cloudProfile);
+          print('HybridProfileService: Returning cloud profile');
           return cloudProfile;
+        } else {
+          print('HybridProfileService: No cloud profile found');
         }
       } catch (e) {
         print('Failed to fetch profile from cloud, using local: $e');
       }
     }
-    
+
     // Fallback to local storage
-    return await _getProfileLocally();
+    print('HybridProfileService: Fetching from local storage...');
+    final UserProfile? localProfile = await _getProfileLocally();
+    print('HybridProfileService: Local profile: $localProfile');
+    return localProfile;
   }
 
   /// Get health goals
   Future<Map<String, dynamic>?> getHealthGoals() async {
     if (_isUserSignedIn) {
       try {
-        final List<Map<String, dynamic>> cloudGoalsList = await _firestoreService.getHealthGoals();
+        final List<Map<String, dynamic>> cloudGoalsList =
+            await _firestoreService.getHealthGoals();
         if (cloudGoalsList.isNotEmpty) {
           // Convert list to map or take first goal as example
           final Map<String, dynamic> cloudGoals = cloudGoalsList.first;
@@ -155,7 +169,7 @@ class HybridProfileService {
         print('Failed to fetch health goals from cloud, using local: $e');
       }
     }
-    
+
     return await _getHealthGoalsLocally();
   }
 
@@ -163,7 +177,8 @@ class HybridProfileService {
   Future<Map<String, dynamic>?> getUserPreferences() async {
     if (_isUserSignedIn) {
       try {
-        final Map<String, dynamic>? cloudPreferences = await _firestoreService.getPreferences();
+        final Map<String, dynamic>? cloudPreferences =
+            await _firestoreService.getPreferences();
         if (cloudPreferences != null) {
           await _savePreferencesLocally(cloudPreferences);
           return cloudPreferences;
@@ -172,23 +187,23 @@ class HybridProfileService {
         print('Failed to fetch preferences from cloud, using local: $e');
       }
     }
-    
+
     return await _getPreferencesLocally();
   }
 
   /// Sync all local data to cloud
   Future<void> syncToCloud() async {
     if (!_isUserSignedIn) return;
-    
+
     try {
       await _firestoreService.ensureProfileModuleExists();
-      
+
       // Sync profile
       final UserProfile? localProfile = await _getProfileLocally();
       if (localProfile != null) {
         await _firestoreService.savePersonalInfo(localProfile);
       }
-      
+
       // Sync health goals
       final Map<String, dynamic>? localGoals = await _getHealthGoalsLocally();
       if (localGoals != null) {
@@ -204,13 +219,13 @@ class HybridProfileService {
           await _firestoreService.saveHealthGoal(localGoals);
         }
       }
-      
+
       // Sync preferences
-      final Map<String, dynamic>? localPreferences = await _getPreferencesLocally();
+      final Map<String, dynamic>? localPreferences =
+          await _getPreferencesLocally();
       if (localPreferences != null) {
         await _firestoreService.savePreferences(localPreferences);
       }
-      
     } catch (e) {
       print('Failed to sync profile data to cloud: $e');
     }
@@ -261,7 +276,8 @@ class HybridProfileService {
 
   Future<void> _saveAchievementLocally(Map<String, dynamic> achievement) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> achievements = prefs.getStringList(_achievementsKey) ?? <String>[];
+    final List<String> achievements =
+        prefs.getStringList(_achievementsKey) ?? <String>[];
     achievements.add(jsonEncode(achievement));
     await prefs.setStringList(_achievementsKey, achievements);
   }
@@ -269,16 +285,17 @@ class HybridProfileService {
   /// Get sync status for profile data
   Future<Map<String, int>> getSyncStatus() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    
+
     int itemCount = 0;
-    
+
     // Count profile data
     if (await _getProfileLocally() != null) itemCount++;
     if (await _getHealthGoalsLocally() != null) itemCount++;
     if (await _getPreferencesLocally() != null) itemCount++;
-    
+
     // Count achievements
-    final List<String> achievements = prefs.getStringList(_achievementsKey) ?? <String>[];
+    final List<String> achievements =
+        prefs.getStringList(_achievementsKey) ?? <String>[];
     itemCount += achievements.length;
 
     return <String, int>{

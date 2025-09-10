@@ -8,38 +8,42 @@ import 'package:go_router/go_router.dart';
 
 class PersonalInfoSetupScreen extends ConsumerStatefulWidget {
   final bool isFirstTime; // true for new users, false for updates
-  
+
   const PersonalInfoSetupScreen({
     Key? key,
     this.isFirstTime = true,
   }) : super(key: key);
 
   @override
-  ConsumerState<PersonalInfoSetupScreen> createState() => _PersonalInfoSetupScreenState();
+  ConsumerState<PersonalInfoSetupScreen> createState() =>
+      _PersonalInfoSetupScreenState();
 }
 
-class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScreen> {
+class _PersonalInfoSetupScreenState
+    extends ConsumerState<PersonalInfoSetupScreen> {
   final PageController _pageController = PageController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  
+
   // Profile data controllers
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-  
+
   // Profile selections
   String? _selectedSex;
   String? _selectedFitnessGoal;
   int? _selectedWorkoutsPerWeek;
   String? _selectedActivityLevel;
   List<String> _selectedEquipment = <String>[];
-  
+
   // Health goals
   List<HealthGoal> _healthGoals = <HealthGoal>[];
-  
+
   int _currentPage = 0;
   bool _isLoading = false;
-  
+  bool _isLoadingExistingData = true;
+  bool _hasPrefilledData = false;
+
   final HybridProfileService _profileService = HybridProfileService();
 
   // Predefined options
@@ -75,6 +79,62 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadExistingProfileData();
+  }
+
+  Future<void> _loadExistingProfileData() async {
+    setState(() {
+      _isLoadingExistingData = true;
+    });
+
+    try {
+      final UserProfile? existingProfile =
+          await _profileService.getUserProfile();
+
+      if (existingProfile != null) {
+        setState(() {
+          _hasPrefilledData = true;
+
+          // Pre-fill basic info
+          if (existingProfile.weight != null) {
+            _weightController.text = existingProfile.weight!.toString();
+          }
+          if (existingProfile.height != null) {
+            _heightController.text = existingProfile.height!.toString();
+          }
+          if (existingProfile.age != null) {
+            _ageController.text = existingProfile.age!.toString();
+          }
+
+          // Pre-fill selections
+          _selectedSex = existingProfile.sex;
+          _selectedFitnessGoal = existingProfile.fitnessGoal;
+          _selectedWorkoutsPerWeek = existingProfile.workoutsPerWeek;
+          _selectedActivityLevel = existingProfile.activityLevel;
+
+          // Pre-fill equipment
+          if (existingProfile.availableEquipment.isNotEmpty) {
+            _selectedEquipment =
+                List<String>.from(existingProfile.availableEquipment);
+          }
+
+          // Health goals are managed separately in this UI - keeping empty list for now
+          // since they are not part of the UserProfile model
+        });
+      }
+    } catch (e) {
+      print('Error loading existing profile data: $e');
+      // Continue with empty form if there's an error
+    } finally {
+      setState(() {
+        _isLoadingExistingData = false;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _weightController.dispose();
     _heightController.dispose();
@@ -86,21 +146,21 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: cs.surface,
         elevation: 0,
-        leading: _currentPage > 0 
-          ? IconButton(
-              icon: Icon(Icons.arrow_back, color: cs.onSurface),
-              onPressed: () => _pageController.previousPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              ),
-            )
-          : null,
+        leading: _currentPage > 0
+            ? IconButton(
+                icon: Icon(Icons.arrow_back, color: cs.onSurface),
+                onPressed: () => _pageController.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                ),
+              )
+            : null,
         title: Text(
           widget.isFirstTime ? 'Complete Your Profile' : 'Update Profile',
           style: TextStyle(
@@ -110,68 +170,126 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
         ),
         centerTitle: true,
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            // Progress indicator
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: LinearProgressIndicator(
-                value: (_currentPage + 1) / 4,
-                backgroundColor: cs.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
-              ),
-            ),
-            
-            // Page content
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (int page) => setState(() => _currentPage = page),
+      body: _isLoadingExistingData
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  _buildBasicInfoPage(cs),
-                  _buildFitnessPreferencesPage(cs),
-                  _buildEquipmentPage(cs),
-                  _buildHealthGoalsPage(cs),
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Loading your profile data...',
+                    style: TextStyle(
+                      color: cs.onSurfaceVariant,
+                      fontSize: 16,
+                    ),
+                  ),
                 ],
               ),
-            ),
-            
-            // Navigation buttons
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Row(
+            )
+          : Form(
+              key: _formKey,
+              child: Column(
                 children: <Widget>[
-                  if (_currentPage > 0)
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => _pageController.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
+                  // Info banner for pre-filled data
+                  if (_hasPrefilledData)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: cs.primary.withOpacity(0.3),
+                          width: 1,
                         ),
-                        child: const Text('Previous'),
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.info_outline,
+                            color: cs.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Your existing profile data has been loaded. You can update it below.',
+                              style: TextStyle(
+                                color: cs.onSurface,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  if (_currentPage > 0) const SizedBox(width: 16),
+
+                  // Progress indicator
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: LinearProgressIndicator(
+                      value: (_currentPage + 1) / 4,
+                      backgroundColor: cs.surfaceContainerHighest,
+                      valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                    ),
+                  ),
+
+                  // Page content
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleNextOrFinish,
-                      child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(_currentPage == 3 ? 'Complete Setup' : 'Next'),
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (int page) =>
+                          setState(() => _currentPage = page),
+                      children: <Widget>[
+                        _buildBasicInfoPage(cs),
+                        _buildFitnessPreferencesPage(cs),
+                        _buildEquipmentPage(cs),
+                        _buildHealthGoalsPage(cs),
+                      ],
+                    ),
+                  ),
+
+                  // Navigation buttons
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: <Widget>[
+                        if (_currentPage > 0)
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => _pageController.previousPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              ),
+                              child: const Text('Previous'),
+                            ),
+                          ),
+                        if (_currentPage > 0) const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _handleNextOrFinish,
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  )
+                                : Text(_currentPage == 3
+                                    ? 'Complete Setup'
+                                    : 'Next'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -198,7 +316,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Age
           TextFormField(
             controller: _ageController,
@@ -211,14 +329,16 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
               ),
             ),
             validator: (String? value) {
-              if (value == null || value.isEmpty) return 'Please enter your age';
+              if (value == null || value.isEmpty)
+                return 'Please enter your age';
               final int? age = int.tryParse(value);
-              if (age == null || age < 13 || age > 120) return 'Please enter a valid age';
+              if (age == null || age < 13 || age > 120)
+                return 'Please enter a valid age';
               return null;
             },
           ),
           const SizedBox(height: 16),
-          
+
           // Sex
           DropdownButtonFormField<String>(
             value: _selectedSex,
@@ -228,15 +348,18 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            items: _sexOptions.map((String sex) => DropdownMenuItem(
-              value: sex,
-              child: Text(sex),
-            )).toList(),
+            items: _sexOptions
+                .map((String sex) => DropdownMenuItem(
+                      value: sex,
+                      child: Text(sex),
+                    ))
+                .toList(),
             onChanged: (String? value) => setState(() => _selectedSex = value),
-            validator: (String? value) => value == null ? 'Please select your sex' : null,
+            validator: (String? value) =>
+                value == null ? 'Please select your sex' : null,
           ),
           const SizedBox(height: 16),
-          
+
           // Weight
           TextFormField(
             controller: _weightController,
@@ -249,14 +372,16 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
               ),
             ),
             validator: (String? value) {
-              if (value == null || value.isEmpty) return 'Please enter your weight';
+              if (value == null || value.isEmpty)
+                return 'Please enter your weight';
               final double? weight = double.tryParse(value);
-              if (weight == null || weight < 20 || weight > 300) return 'Please enter a valid weight';
+              if (weight == null || weight < 20 || weight > 300)
+                return 'Please enter a valid weight';
               return null;
             },
           ),
           const SizedBox(height: 16),
-          
+
           // Height
           TextFormField(
             controller: _heightController,
@@ -269,9 +394,11 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
               ),
             ),
             validator: (String? value) {
-              if (value == null || value.isEmpty) return 'Please enter your height';
+              if (value == null || value.isEmpty)
+                return 'Please enter your height';
               final int? height = int.tryParse(value);
-              if (height == null || height < 100 || height > 250) return 'Please enter a valid height';
+              if (height == null || height < 100 || height > 250)
+                return 'Please enter a valid height';
               return null;
             },
           ),
@@ -303,7 +430,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Fitness Goal
           Text(
             'Primary Fitness Goal',
@@ -317,14 +444,17 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _fitnessGoals.map((String goal) => FilterChip(
-              label: Text(goal),
-              selected: _selectedFitnessGoal == goal,
-              onSelected: (bool selected) => setState(() => _selectedFitnessGoal = goal),
-            )).toList(),
+            children: _fitnessGoals
+                .map((String goal) => FilterChip(
+                      label: Text(goal),
+                      selected: _selectedFitnessGoal == goal,
+                      onSelected: (bool selected) =>
+                          setState(() => _selectedFitnessGoal = goal),
+                    ))
+                .toList(),
           ),
           const SizedBox(height: 24),
-          
+
           // Activity Level
           Text(
             'Activity Level',
@@ -336,13 +466,14 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
           ),
           const SizedBox(height: 8),
           ..._activityLevels.map((String level) => RadioListTile<String>(
-            title: Text(level),
-            value: level,
-            groupValue: _selectedActivityLevel,
-            onChanged: (String? value) => setState(() => _selectedActivityLevel = value),
-          )),
+                title: Text(level),
+                value: level,
+                groupValue: _selectedActivityLevel,
+                onChanged: (String? value) =>
+                    setState(() => _selectedActivityLevel = value),
+              )),
           const SizedBox(height: 24),
-          
+
           // Workouts per week
           Text(
             'How many times per week do you want to workout?',
@@ -355,11 +486,14 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
-            children: _workoutFrequencies.map((int freq) => FilterChip(
-              label: Text('$freq${freq == 1 ? ' day' : ' days'}'),
-              selected: _selectedWorkoutsPerWeek == freq,
-              onSelected: (bool selected) => setState(() => _selectedWorkoutsPerWeek = freq),
-            )).toList(),
+            children: _workoutFrequencies
+                .map((int freq) => FilterChip(
+                      label: Text('$freq${freq == 1 ? ' day' : ' days'}'),
+                      selected: _selectedWorkoutsPerWeek == freq,
+                      onSelected: (bool selected) =>
+                          setState(() => _selectedWorkoutsPerWeek = freq),
+                    ))
+                .toList(),
           ),
         ],
       ),
@@ -389,23 +523,24 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             ),
           ),
           const SizedBox(height: 32),
-          
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _equipmentOptions.map((String equipment) => FilterChip(
-              label: Text(equipment),
-              selected: _selectedEquipment.contains(equipment),
-              onSelected: (bool selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedEquipment.add(equipment);
-                  } else {
-                    _selectedEquipment.remove(equipment);
-                  }
-                });
-              },
-            )).toList(),
+            children: _equipmentOptions
+                .map((String equipment) => FilterChip(
+                      label: Text(equipment),
+                      selected: _selectedEquipment.contains(equipment),
+                      onSelected: (bool selected) {
+                        setState(() {
+                          if (selected) {
+                            _selectedEquipment.add(equipment);
+                          } else {
+                            _selectedEquipment.remove(equipment);
+                          }
+                        });
+                      },
+                    ))
+                .toList(),
           ),
         ],
       ),
@@ -435,9 +570,12 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Health goals list
-          ..._healthGoals.asMap().entries.map((MapEntry<int, HealthGoal> entry) {
+          ..._healthGoals
+              .asMap()
+              .entries
+              .map((MapEntry<int, HealthGoal> entry) {
             final int index = entry.key;
             final HealthGoal goal = entry.value;
             return Card(
@@ -459,7 +597,8 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete),
-                          onPressed: () => setState(() => _healthGoals.removeAt(index)),
+                          onPressed: () =>
+                              setState(() => _healthGoals.removeAt(index)),
                         ),
                       ],
                     ),
@@ -470,7 +609,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
               ),
             );
           }),
-          
+
           // Add goal button
           OutlinedButton.icon(
             onPressed: _showAddGoalDialog,
@@ -486,7 +625,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
     final TextEditingController typeController = TextEditingController();
     final TextEditingController targetController = TextEditingController();
     final TextEditingController currentController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -502,14 +641,16 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             ),
             TextField(
               controller: targetController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: 'Target Value',
               ),
             ),
             TextField(
               controller: currentController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: 'Current Value',
               ),
@@ -530,7 +671,8 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
                   type: typeController.text,
                   target: double.parse(targetController.text),
                   current: double.parse(currentController.text),
-                  deadline: DateTime.now().add(const Duration(days: 90)), // 3 months default
+                  deadline: DateTime.now()
+                      .add(const Duration(days: 90)), // 3 months default
                 );
                 setState(() => _healthGoals.add(goal));
                 Navigator.pop(context);
@@ -548,7 +690,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
       // Validate current page
       if (_currentPage == 0 && !_validateBasicInfo()) return;
       if (_currentPage == 1 && !_validateFitnessPreferences()) return;
-      
+
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -587,7 +729,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
 
   Future<void> _saveProfileData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       // Create UserProfile object
       final UserProfile profile = UserProfile(
@@ -600,10 +742,10 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
         availableEquipment: _selectedEquipment,
         activityLevel: _selectedActivityLevel!,
       );
-      
+
       // Save profile using hybrid service
       await _profileService.saveUserProfile(profile);
-      
+
       // Save health goals to cloud storage
       for (final HealthGoal goal in _healthGoals) {
         try {
@@ -612,10 +754,10 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
           print('Failed to save health goal: ${goal.type}, error: $e');
         }
       }
-      
+
       // Invalidate the profile setup provider to refresh the state
       ref.invalidate(profileSetupCompletedProvider);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -623,7 +765,7 @@ class _PersonalInfoSetupScreenState extends ConsumerState<PersonalInfoSetupScree
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Navigate to main app
         if (widget.isFirstTime) {
           // Navigate to home - the router will handle this based on updated profile state
@@ -685,8 +827,10 @@ class HealthGoal {
       target: json['target'].toDouble(),
       current: json['current'].toDouble(),
       deadline: DateTime.parse(json['deadline']),
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 }

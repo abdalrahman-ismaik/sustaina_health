@@ -30,8 +30,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   String _selectedSex = 'Male';
 
   // Helper method to convert between internal and display values
-  String _getLocalizedGender(
-      String internalValue, AppLocalizations localizations) {
+  String _getLocalizedGender(String internalValue, AppLocalizations localizations) {
     switch (internalValue) {
       case 'Male':
         return localizations.male;
@@ -45,8 +44,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }
 
   // Helper method to convert from localized to internal value
-  String _getInternalGender(
-      String localizedValue, AppLocalizations localizations) {
+  String _getInternalGender(String localizedValue, AppLocalizations localizations) {
     if (localizedValue == localizations.male) return 'Male';
     if (localizedValue == localizations.female) return 'Female';
     if (localizedValue == localizations.other) return 'Other';
@@ -76,7 +74,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     try {
       // Try to load from hybrid service (which will check cloud first, then local)
       final UserProfile? profile = await _profileService.getUserProfile();
-
+      
       if (profile != null) {
         setState(() {
           _weightController.text = profile.weight?.toString() ?? '';
@@ -113,28 +111,22 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     try {
       // Create UserProfile object
       final UserProfile profile = UserProfile(
-        weight: _weightController.text.isNotEmpty
-            ? double.tryParse(_weightController.text)
-            : null,
-        height: _heightController.text.isNotEmpty
-            ? int.tryParse(_heightController.text)
-            : null,
-        age: _ageController.text.isNotEmpty
-            ? int.tryParse(_ageController.text)
-            : null,
+        weight: _weightController.text.isNotEmpty ? double.tryParse(_weightController.text) : null,
+        height: _heightController.text.isNotEmpty ? int.tryParse(_heightController.text) : null,
+        age: _ageController.text.isNotEmpty ? int.tryParse(_ageController.text) : null,
         sex: _selectedSex,
       );
 
       // Save using hybrid service (saves to both local and cloud)
       await _profileService.saveUserProfile(profile);
-
+      
       // Also save to SharedPreferences for backward compatibility
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('profile_weight', _weightController.text);
       await prefs.setString('profile_height', _heightController.text);
       await prefs.setString('profile_age', _ageController.text);
       await prefs.setString('profile_sex', _selectedSex);
-
+      
       print('✅ Personal info saved to both local storage and Firestore cloud!');
     } catch (e) {
       print('❌ Error saving personal info: $e');
@@ -157,6 +149,11 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         _notificationsAllowed = allowed;
       });
     }
+  }
+
+  Future<void> _saveNotificationPreference(String key, bool value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
   }
 
   Future<void> _syncLocalDataToCloud() async {
@@ -188,15 +185,13 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   Future<void> _showEditPersonalInfoDialog() async {
     String tempSelectedSex = _selectedSex;
     final AppLocalizations localizations = AppLocalizations.of(context)!;
-    String tempSelectedLocalizedSex =
-        _getLocalizedGender(_selectedSex, localizations);
-
+    String tempSelectedLocalizedSex = _getLocalizedGender(_selectedSex, localizations);
+    
     showDialog<void>(
       context: context,
       barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (BuildContext dialogContext) => StatefulBuilder(
-        builder: (BuildContext context, StateSetter setDialogState) =>
-            AlertDialog(
+        builder: (BuildContext context, StateSetter setDialogState) => AlertDialog(
           title: const Text('Edit Personal Info'),
           content: SingleChildScrollView(
             child: Column(
@@ -234,11 +229,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   decoration: InputDecoration(
                     labelText: localizations.sex,
                   ),
-                  items: [
-                    localizations.male,
-                    localizations.female,
-                    localizations.other
-                  ]
+                  items: [localizations.male, localizations.female, localizations.other]
                       .map((String value) => DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -247,8 +238,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   onChanged: (String? newValue) {
                     setDialogState(() {
                       tempSelectedLocalizedSex = newValue ?? localizations.male;
-                      tempSelectedSex = _getInternalGender(
-                          tempSelectedLocalizedSex, localizations);
+                      tempSelectedSex = _getInternalGender(tempSelectedLocalizedSex, localizations);
                     });
                   },
                 ),
@@ -270,19 +260,18 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 setState(() {
                   _selectedSex = tempSelectedSex;
                 });
-
+                
                 try {
                   await _savePersonalInfo();
-
+                  
                   if (Navigator.of(dialogContext).canPop()) {
                     Navigator.of(dialogContext).pop();
                   }
-
+                  
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content:
-                            Text('Personal information updated successfully!'),
+                        content: Text('Personal information updated successfully!'),
                         backgroundColor: Colors.green,
                         duration: Duration(seconds: 3),
                       ),
@@ -389,16 +378,15 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     child: CircleAvatar(
                       radius: 40,
                       backgroundColor: cs.surface,
-                      child: user?.photoURL != null &&
-                              user!.photoURL!.isNotEmpty
+                      child: user?.photoURL != null && user!.photoURL!.isNotEmpty
                           ? ClipOval(
                               child: Image.network(
                                 user.photoURL!,
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,
-                                errorBuilder: (BuildContext context,
-                                    Object error, StackTrace? stackTrace) {
+                                errorBuilder: (BuildContext context, Object error,
+                                    StackTrace? stackTrace) {
                                   return Icon(
                                     Icons.person,
                                     size: 40,
@@ -412,8 +400,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                                   return CircularProgressIndicator(
                                     value: loadingProgress.expectedTotalBytes !=
                                             null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
+                                        ? loadingProgress.cumulativeBytesLoaded /
                                             loadingProgress.expectedTotalBytes!
                                         : null,
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -446,7 +433,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                         const SizedBox(height: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: 8, 
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
@@ -496,7 +483,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             ),
 
             // Statistics Cards
-
+            
             // Quick Personal Info
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -531,8 +518,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                               onPressed: () {
                                 _showEditPersonalInfoDialog();
                               },
-                              icon:
-                                  Icon(Icons.edit, size: 16, color: cs.primary),
+                              icon: Icon(Icons.edit, size: 16, color: cs.primary),
                               label: Text(
                                 'Edit',
                                 style: TextStyle(color: cs.primary),
@@ -546,24 +532,24 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     _buildPersonalDetailRow(
                       context,
                       'Weight',
-                      _weightController.text.isEmpty
-                          ? 'Not set'
+                      _weightController.text.isEmpty 
+                          ? 'Not set' 
                           : '${_weightController.text} kg',
                       Icons.monitor_weight_outlined,
                     ),
                     _buildPersonalDetailRow(
                       context,
                       'Height',
-                      _heightController.text.isEmpty
-                          ? 'Not set'
+                      _heightController.text.isEmpty 
+                          ? 'Not set' 
                           : '${_heightController.text} cm',
                       Icons.height,
                     ),
                     _buildPersonalDetailRow(
                       context,
                       'Age',
-                      _ageController.text.isEmpty
-                          ? 'Not set'
+                      _ageController.text.isEmpty 
+                          ? 'Not set' 
                           : '${_ageController.text} years',
                       Icons.cake_outlined,
                     ),
@@ -607,8 +593,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               description: 'Manage your alerts and reminders',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      const NotificationSettingsScreen(),
+                  builder: (BuildContext context) => const NotificationSettingsScreen(),
                 ),
               ),
             ),
@@ -639,12 +624,10 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             _buildEnhancedQuickSettingTile(
               icon: Icons.emoji_events,
               label: 'Achievements & Rewards',
-              description:
-                  'Track your sustainability progress and earn rewards',
+              description: 'Track your sustainability progress and earn rewards',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      const SustainabilityAchievementsScreen(),
+                  builder: (BuildContext context) => const SustainabilityAchievementsScreen(),
                 ),
               ),
             ),
@@ -654,8 +637,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               description: 'Test the achievement system functionality',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      const AchievementTestScreen(),
+                  builder: (BuildContext context) => const AchievementTestScreen(),
                 ),
               ),
             ),
@@ -672,8 +654,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     title: const Text('Sign Out'),
-                    content: const Text(
-                        'Are you sure you want to sign out of your account?'),
+                    content: const Text('Are you sure you want to sign out of your account?'),
                     actions: <Widget>[
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
@@ -794,9 +775,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _notificationsAllowed
-              ? cs.primary.withOpacity(0.3)
-              : cs.outline.withOpacity(0.3),
+          color: _notificationsAllowed ? cs.primary.withOpacity(0.3) : cs.outline.withOpacity(0.3),
           width: 1,
         ),
         boxShadow: <BoxShadow>[
@@ -815,8 +794,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: (_notificationsAllowed ? cs.primary : cs.error)
-                      .withOpacity(0.1),
+                  color: (_notificationsAllowed ? cs.primary : cs.error).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -841,7 +819,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       ),
                     ),
                     Text(
-                      _notificationsAllowed
+                      _notificationsAllowed 
                           ? 'Stay updated with personalized tips'
                           : 'Enable for personalized reminders',
                       style: TextStyle(
@@ -855,8 +833,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               if (!_notificationsAllowed)
                 FilledButton.tonal(
                   onPressed: () async {
-                    final bool granted =
-                        await _notificationService.requestPermissions();
+                    final bool granted = await _notificationService.requestPermissions();
                     if (granted) {
                       setState(() => _notificationsAllowed = true);
                     }
@@ -886,7 +863,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final Color iconColor = isDestructive ? cs.error : cs.onSurfaceVariant;
     final Color labelColor = isDestructive ? cs.error : cs.onSurface;
-
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -932,6 +909,223 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+
+
+  Widget _buildNotificationOption({
+    required String title,
+    required String description,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                title,
+                style: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: TextStyle(
+                  color: cs.onSurfaceVariant,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: cs.primary,
+        ),
+      ],
+    );
+  }
+}
+
+class _EnhancedStatCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final String unit;
+  final Color color;
+  
+  const _EnhancedStatCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.unit,
+    required this.color,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: cs.outline.withOpacity(0.2),
+            width: 1,
+          ),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: cs.shadow.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 20,
+                  ),
+                ),
+                Text(
+                  unit,
+                  style: TextStyle(
+                    color: cs.onSurfaceVariant,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: TextStyle(
+                color: cs.onSurface,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  const _StatCard({required this.title, required this.value, Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final Color cardColor = cs.surfaceContainerHigh;
+    final Color borderColor = cs.outlineVariant;
+    final Color textColor = cs.onSurface;
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor),
+        ),
+        child: Column(
+          children: <Widget>[
+            Text(title,
+                style: TextStyle(
+                    color: textColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500)),
+            const SizedBox(height: 4),
+            Text(value,
+                style: TextStyle(
+                    color: textColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickSettingTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Widget trailing;
+  final VoidCallback? onTap;
+  const _QuickSettingTile(
+      {required this.icon,
+      required this.label,
+      required this.trailing,
+      this.onTap,
+      Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final Color bgColor = cs.surfaceContainerHigh;
+    final Color textColor = cs.onSurface;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: <Widget>[
+            Icon(icon, color: textColor),
+            const SizedBox(width: 16),
+            Expanded(
+              child:
+                  Text(label, style: TextStyle(color: textColor, fontSize: 16)),
+            ),
+            trailing,
+          ],
         ),
       ),
     );

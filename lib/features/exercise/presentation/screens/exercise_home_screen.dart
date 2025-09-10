@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'workout_history_screen.dart';
 import 'ai_workout_generator_screen.dart';
 import 'saved_workout_plans_screen.dart';
@@ -186,7 +187,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                   title: 'Current Streak',
                                   value: '0 days',
                                   color: cs.primary,
-                                  neonIntensity: 0.15),
+                                  neonIntensity: 0.4),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -205,7 +206,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                   title: 'Calories',
                                   value: '0',
                                   color: Colors.deepOrange,
-                                  neonIntensity: 0.1),
+                                  neonIntensity: 0.5),
                             ),
                           ),
                         ],
@@ -219,7 +220,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 title: 'Total',
                                 value: '0',
                                 color: Colors.teal,
-                                neonIntensity: 0.1),
+                                neonIntensity: 0.3),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -228,7 +229,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 title: 'Avg Duration',
                                 value: '0 min',
                                 color: Colors.purple,
-                                neonIntensity: 0.1),
+                                neonIntensity: 0.6),
                           ),
                         ],
                       ),
@@ -258,7 +259,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                   value: _calculateCurrentStreak(
                                       completedWorkouts),
                                   color: cs.primary,
-                                  neonIntensity: 0.15),
+                                  neonIntensity: 0.4),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -278,7 +279,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                   value:
                                       '${_calculateCaloriesToday(completedWorkouts)}',
                                   color: Colors.deepOrange,
-                                  neonIntensity: 0.1),
+                                  neonIntensity: 0.5),
                             ),
                           ),
                         ],
@@ -296,7 +297,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 value:
                                     '${_calculateTotalWorkouts(completedWorkouts)}',
                                 color: Colors.teal,
-                                neonIntensity: 0.1),
+                                neonIntensity: 0.3),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -306,7 +307,7 @@ class ExerciseHomeScreen extends ConsumerWidget {
                                 value: _calculateAverageWorkoutDuration(
                                     completedWorkouts),
                                 color: Colors.purple,
-                                neonIntensity: 0.1),
+                                neonIntensity: 0.6),
                           ),
                         ],
                       ),
@@ -349,10 +350,9 @@ class ExerciseHomeScreen extends ConsumerWidget {
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Row(
                   children: <Widget>[
-                    // AI Workout Button - Left box
                     Expanded(
                       child: Container(
-                        height: 100,
+                        height: 52,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -360,16 +360,14 @@ class ExerciseHomeScreen extends ConsumerWidget {
                             colors: <Color>[
                               cs.primary,
                               cs.primary.withValues(alpha: 0.8),
-                              cs.primaryContainer,
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           boxShadow: <BoxShadow>[
                             BoxShadow(
-                              color: cs.primary.withValues(alpha: 0.25),
+                              color: cs.primary.withValues(alpha: 0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
-                              spreadRadius: 1,
                             ),
                           ],
                         ),
@@ -387,40 +385,28 @@ class ExerciseHomeScreen extends ConsumerWidget {
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: Column(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.auto_awesome,
-                                  color: cs.onPrimary,
-                                  size: 24,
-                                ),
+                              Icon(
+                                Icons.smart_toy,
+                                color: cs.onPrimary,
+                                size: 18,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'AI Workout',
-                                style: TextStyle(
-                                  color: cs.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
-                              Text(
-                                'Generate',
-                                style: TextStyle(
-                                  color: cs.onPrimary.withValues(alpha: 0.9),
-                                  fontSize: 12,
-                                  letterSpacing: 0.1,
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'AI Workout',
+                                  style: TextStyle(
+                                    color: cs.onPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -428,32 +414,14 @@ class ExerciseHomeScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    // My Plans Button - Right box
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Container(
-                        height: 100,
+                        height: 52,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: <Color>[
-                              cs.surfaceContainerHigh,
-                              cs.surfaceContainer,
-                            ],
-                          ),
-                          border: Border.all(
-                            color: cs.primary.withValues(alpha: 0.4),
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              color: cs.shadow.withValues(alpha: 0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                          color: cs.surfaceContainerHigh,
+                          border: Border.all(color: cs.primary, width: 1.5),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: ElevatedButton(
                           onPressed: () {
@@ -469,40 +437,28 @@ class ExerciseHomeScreen extends ConsumerWidget {
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
+                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: Column(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: cs.primary.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  Icons.library_books,
-                                  color: cs.primary,
-                                  size: 24,
-                                ),
+                              Icon(
+                                Icons.bookmark,
+                                color: cs.primary,
+                                size: 18,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'My Plans',
-                                style: TextStyle(
-                                  color: cs.onSurface,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
-                              Text(
-                                'Saved workouts',
-                                style: TextStyle(
-                                  color: cs.onSurfaceVariant,
-                                  fontSize: 12,
-                                  letterSpacing: 0.1,
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'My Plans',
+                                  style: TextStyle(
+                                    color: cs.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -511,6 +467,69 @@ class ExerciseHomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
+                ),
+              ),
+              // Storage Demo Button (Development Only)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHigh,
+                    border: Border.all(color: cs.secondary, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.go('/exercise/storage-demo');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.storage,
+                          color: cs.secondary,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Storage Demo (Dev)',
+                          style: TextStyle(
+                            color: cs.secondary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Recent Workouts & Outdoor Suggestions
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: const <Widget>[
+                      _TagChip(
+                          label: 'Recent: Yoga', icon: Icons.self_improvement),
+                      SizedBox(width: 12),
+                      _TagChip(
+                          label: 'Recent: Running', icon: Icons.directions_run),
+                      SizedBox(width: 12),
+                      _TagChip(label: 'Outdoor: Hiking', icon: Icons.terrain),
+                    ],
+                  ),
                 ),
               ),
               // Saved Workout Plans Section
@@ -575,116 +594,57 @@ class ExerciseHomeScreen extends ConsumerWidget {
                 ),
               ),
               _buildRecentCompletedWorkoutsSection(context, ref),
-              // Eco Tips for Exercise - Moved to end
-              _buildEcoTipsWidget(cs),
+              // Workout Categories
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: cs.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.category,
+                        color: cs.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Workout Categories',
+                      style: TextStyle(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: const <Widget>[
+                    _CategoryCard(icon: Icons.favorite, label: 'Cardio'),
+                    _CategoryCard(
+                        icon: Icons.fitness_center, label: 'Strength'),
+                    _CategoryCard(
+                        icon: Icons.self_improvement, label: 'Flexibility'),
+                    _CategoryCard(icon: Icons.park, label: 'Outdoor'),
+                    _CategoryCard(
+                        icon: Icons.directions_bike, label: 'Eco-friendly'),
+                  ],
+                ),
+              ),
               const SizedBox(height: 80), // Extra space for bottom navigation
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildEcoTipsWidget(ColorScheme cs) {
-    final List<Map<String, dynamic>> ecoTips = [
-      {
-        'tip': 'Choose outdoor workouts to reduce gym energy consumption',
-        'icon': Icons.park_outlined,
-        'color': Colors.green,
-      },
-      {
-        'tip': 'Walk or bike to your workout location',
-        'icon': Icons.directions_bike,
-        'color': Colors.blue,
-      },
-      {
-        'tip': 'Use bodyweight exercises - no equipment needed!',
-        'icon': Icons.self_improvement,
-        'color': Colors.orange,
-      },
-    ];
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.green.withValues(alpha: 0.1),
-            Colors.blue.withValues(alpha: 0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.green.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.eco,
-                  color: Colors.green[700],
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Eco-Friendly Exercise Tips',
-                style: TextStyle(
-                  color: cs.onSurface,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  letterSpacing: -0.2,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...ecoTips.map((tip) => Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: tip['color'].withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  tip['icon'],
-                  color: tip['color'],
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    tip['tip'],
-                    style: TextStyle(
-                      color: cs.onSurface,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )),
-        ],
       ),
     );
   }
@@ -1579,6 +1539,126 @@ class _StatCard extends StatelessWidget {
   }
 }
 
+class _TagChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  const _TagChip({required this.label, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            cs.secondaryContainer,
+            cs.secondaryContainer.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: cs.secondary.withValues(alpha: 0.3),
+          width: 1,
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: cs.secondary.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(
+            icon,
+            size: 16,
+            color: cs.onSecondaryContainer,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: cs.onSecondaryContainer,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _CategoryCard({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    return Container(
+      width: 160,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            cs.surfaceContainerHigh,
+            cs.surfaceContainerHigh.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outlineVariant),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: cs.shadow.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              icon,
+              color: cs.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            label,
+            style: TextStyle(
+              color: cs.onSurface,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              letterSpacing: -0.1,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // Helper methods to calculate dynamic stats from completed workouts
 String _calculateCurrentStreak(List<ActiveWorkoutSession> completedWorkouts) {
   if (completedWorkouts.isEmpty) return '0 days';
@@ -1721,27 +1801,22 @@ Widget _buildWeeklyProgressCard(
     ColorScheme cs, int completed, int target, double percentage) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-    padding: const EdgeInsets.all(24),
+    padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: <Color>[
-          cs.surfaceContainerHigh,
-          cs.surfaceContainer,
-          cs.surfaceContainerLow,
+          cs.primaryContainer,
+          cs.primaryContainer.withValues(alpha: 0.8),
         ],
       ),
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(
-        color: cs.primary.withValues(alpha: 0.2),
-        width: 1.5,
-      ),
+      borderRadius: BorderRadius.circular(20),
       boxShadow: <BoxShadow>[
         BoxShadow(
-          color: cs.shadow.withValues(alpha: 0.08),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
+          color: cs.primary.withValues(alpha: 0.15),
+          blurRadius: 20,
+          offset: const Offset(0, 8),
           spreadRadius: 0,
         ),
       ],
@@ -1752,131 +1827,88 @@ Widget _buildWeeklyProgressCard(
         Row(
           children: <Widget>[
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [cs.primary, cs.primary.withValues(alpha: 0.8)],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: cs.primary.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                color: cs.primary,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 Icons.trending_up,
                 color: cs.onPrimary,
-                size: 24,
+                size: 20,
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Weekly Progress',
-                    style: TextStyle(
-                      color: cs.onSurface,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  Text(
-                    'Your fitness journey this week',
-                    style: TextStyle(
-                      color: cs.onSurfaceVariant,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+            const SizedBox(width: 12),
+            Text(
+              'Weekly Progress',
+              style: TextStyle(
+                color: cs.onPrimaryContainer,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: cs.primary.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: cs.primary.withValues(alpha: 0.1),
-              width: 1,
+        const SizedBox(height: 16),
+        Stack(
+          children: <Widget>[
+            Container(
+              height: 10,
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(5),
+              ),
             ),
-          ),
-          child: Column(
-            children: [
-              Stack(
-                children: <Widget>[
-                  Container(
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+            FractionallySizedBox(
+              widthFactor: percentage,
+              child: Container(
+                height: 10,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: <Color>[
+                      cs.primary,
+                      cs.primary.withValues(alpha: 0.8)
+                    ],
                   ),
-                  FractionallySizedBox(
-                    widthFactor: percentage,
-                    child: Container(
-                      height: 12,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: <Color>[cs.primary, cs.primary.withValues(alpha: 0.8)],
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                        boxShadow: [
-                          BoxShadow(
-                            color: cs.primary.withValues(alpha: 0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                  borderRadius: BorderRadius.circular(5),
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    '$completed of $target workouts completed',
-                    style: TextStyle(
-                      color: cs.onSurface,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${(percentage * 100).round()}%',
-                      style: TextStyle(
-                        color: cs.primary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(
+              '$completed of $target workouts completed',
+              style: TextStyle(
+                color: cs.onPrimaryContainer,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
-            ],
-          ),
+            ),
+            Text(
+              '${(percentage * 100).round()}%',
+              style: TextStyle(
+                color: cs.primary,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ],
     ),
   );
+}
+
+// Helper method to format welcome message based on time of day
+String _getTimeBasedGreeting() {
+  final int hour = DateTime.now().hour;
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
 }
 
 void _showExerciseGuide(BuildContext context) {
@@ -1930,4 +1962,75 @@ void _showExerciseGuide(BuildContext context) {
   );
 }
 
+Future<void> _showDeleteWorkoutDialog(
+    BuildContext context, ActiveWorkoutSession workout, WidgetRef ref) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // User must tap button
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Delete Workout'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              const Text(
+                  'Are you sure you want to delete this workout session?'),
+              const SizedBox(height: 8),
+              Text(
+                workout.workoutName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              if (workout.endTime != null) ...<Widget>[
+                const SizedBox(height: 4),
+                Text(
+                  'Completed on ${workout.endTime!.day}/${workout.endTime!.month}/${workout.endTime!.year}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 8),
+              const Text(
+                'This action cannot be undone.',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              // Delete the workout using the provider
+              final CompletedWorkoutsNotifier notifier =
+                  ref.read(completedWorkoutsProvider.notifier);
+              await notifier.deleteWorkout(workout.id);
 
+              // Show success message
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Workout deleted successfully'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    },
+  );
+}

@@ -443,18 +443,11 @@ class SleepHomeScreen extends ConsumerWidget {
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (double value, TitleMeta meta) {
-                            const List<String> days = <String>[
-                              'Mon',
-                              'Tue',
-                              'Wed',
-                              'Thu',
-                              'Fri',
-                              'Sat',
-                              'Sun'
-                            ];
-                            if (value >= 0 && value < days.length) {
+                            final List<String> dayLabels =
+                                _getLast7DaysLabels();
+                            if (value >= 0 && value < dayLabels.length) {
                               return Text(
-                                days[value.toInt()],
+                                dayLabels[value.toInt()],
                                 style: TextStyle(
                                   color: colorScheme.onSurfaceVariant,
                                   fontSize: 12,
@@ -591,6 +584,29 @@ class SleepHomeScreen extends ConsumerWidget {
     }
 
     return last7Days;
+  }
+
+  List<String> _getLast7DaysLabels() {
+    final DateTime now = DateTime.now();
+    final List<String> labels = <String>[];
+    const List<String> dayNames = <String>[
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat',
+      'Sun'
+    ];
+
+    for (int i = 6; i >= 0; i--) {
+      final DateTime date = now.subtract(Duration(days: i));
+      // Convert DateTime weekday (1=Monday, 7=Sunday) to our array index (0=Monday, 6=Sunday)
+      final int dayIndex = (date.weekday - 1) % 7;
+      labels.add(dayNames[dayIndex]);
+    }
+
+    return labels;
   }
 
   Widget _buildLatestSleepCard(BuildContext context, WidgetRef ref,

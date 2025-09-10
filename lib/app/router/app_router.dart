@@ -46,8 +46,8 @@ import '../../core/widgets/main_navigation_wrapper.dart';
 final Provider<GoRouter> appRouterProvider =
     Provider<GoRouter>((ProviderRef<GoRouter> ref) {
   final AsyncValue<UserEntity?> authState = ref.watch(authStateProvider);
-  final AsyncValue<bool> profileSetupCompleted =
-      ref.watch(profileSetupCompletedProvider);
+  final AsyncValue<bool> profileSetupCompleted = ref.watch(profileSetupCompletedProvider);
+  final AsyncValue<bool> hasExistingData = ref.watch(hasExistingProfileDataProvider);
 
   return GoRouter(
     initialLocation: RouteNames.splash,
@@ -62,9 +62,8 @@ final Provider<GoRouter> appRouterProvider =
         RouteNames.register,
         RouteNames.forgotPassword,
       ].contains(state.uri.path);
-
-      final bool isOnProfileSetupPage =
-          state.uri.path == RouteNames.personalInfoSetup;
+      
+      final bool isOnProfileSetupPage = state.uri.path == RouteNames.personalInfoSetup;
 
       // Allow splash screen to handle initial navigation logic
       // Don't redirect from splash screen - let it determine the flow
@@ -76,39 +75,54 @@ final Provider<GoRouter> appRouterProvider =
       if (!isLoggedIn && !isOnAuthPage && !isOnProfileSetupPage) {
         return RouteNames.login;
       }
-
+      
       // If logged in, check profile setup status
       if (isLoggedIn) {
         // Skip redirect if already on personal info setup page
         if (isOnProfileSetupPage) {
           return null;
         }
-
+        
         // Check if profile setup is completed
-        if (profileSetupCompleted.hasValue) {
+        if (profileSetupCompleted.hasValue && hasExistingData.hasValue) {
           final bool hasCompletedSetup = profileSetupCompleted.value ?? false;
-
-          // If profile not completed, redirect to profile setup (skip onboarding)
-          if (!hasCompletedSetup) {
-            return RouteNames.personalInfoSetup;
+          final bool hasData = hasExistingData.value ?? false;
+          
+          // If profile is completed, allow normal navigation
+          if (hasCompletedSetup) {
+            // If completed and on auth pages (except splash), redirect to home
+            if (isOnAuthPage && state.uri.path != RouteNames.splash) {
+              return RouteNames.home;
+            }
+            return null; // Allow normal navigation
           }
-
-          // If profile completed and on auth pages (except splash), redirect to home
-          if (hasCompletedSetup &&
-              isOnAuthPage &&
-              state.uri.path != RouteNames.splash) {
-            return RouteNames.home;
+          
+          // If profile not completed but user has some data, they can choose to:
+          // 1. Complete their profile setup
+          // 2. Continue using the app with partial data
+          // We'll still redirect to setup but the form will be pre-filled
+          if (!hasCompletedSetup && hasData) {
+            // Only redirect to setup from auth pages, allow app usage otherwise
+            if (isOnAuthPage && state.uri.path != RouteNames.splash) {
+              return RouteNames.personalInfoSetup;
+            }
+            return null; // Allow app usage with partial profile
+          }
+          
+          // If no profile data at all, require setup
+          if (!hasCompletedSetup && !hasData) {
+            return RouteNames.personalInfoSetup;
           }
         } else {
           // If profile setup status is still loading, wait for it
           // Don't redirect yet, let the provider load
-          if (profileSetupCompleted.isLoading &&
+          if ((profileSetupCompleted.isLoading || hasExistingData.isLoading) && 
               state.uri.path != RouteNames.splash) {
             return null; // Stay on current page while loading
           }
         }
       }
-
+      
       return null;
     },
     routes: <RouteBase>[
@@ -418,14 +432,14 @@ final Provider<GoRouter> appRouterProvider =
           ),
         ],
       ),
-
+      
       // Notifications
       GoRoute(
         path: RouteNames.notifications,
         builder: (BuildContext context, GoRouterState state) =>
             const NotificationsScreen(),
       ),
-
+      
       // Global routes
       GoRoute(
         path: RouteNames.privacy,
