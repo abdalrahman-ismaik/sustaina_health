@@ -30,7 +30,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   String _selectedSex = 'Male';
 
   // Helper method to convert between internal and display values
-  String _getLocalizedGender(String internalValue, AppLocalizations localizations) {
+  String _getLocalizedGender(
+      String internalValue, AppLocalizations localizations) {
     switch (internalValue) {
       case 'Male':
         return localizations.male;
@@ -44,7 +45,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   }
 
   // Helper method to convert from localized to internal value
-  String _getInternalGender(String localizedValue, AppLocalizations localizations) {
+  String _getInternalGender(
+      String localizedValue, AppLocalizations localizations) {
     if (localizedValue == localizations.male) return 'Male';
     if (localizedValue == localizations.female) return 'Female';
     if (localizedValue == localizations.other) return 'Other';
@@ -74,7 +76,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     try {
       // Try to load from hybrid service (which will check cloud first, then local)
       final UserProfile? profile = await _profileService.getUserProfile();
-      
+
       if (profile != null) {
         setState(() {
           _weightController.text = profile.weight?.toString() ?? '';
@@ -111,22 +113,28 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     try {
       // Create UserProfile object
       final UserProfile profile = UserProfile(
-        weight: _weightController.text.isNotEmpty ? double.tryParse(_weightController.text) : null,
-        height: _heightController.text.isNotEmpty ? int.tryParse(_heightController.text) : null,
-        age: _ageController.text.isNotEmpty ? int.tryParse(_ageController.text) : null,
+        weight: _weightController.text.isNotEmpty
+            ? double.tryParse(_weightController.text)
+            : null,
+        height: _heightController.text.isNotEmpty
+            ? int.tryParse(_heightController.text)
+            : null,
+        age: _ageController.text.isNotEmpty
+            ? int.tryParse(_ageController.text)
+            : null,
         sex: _selectedSex,
       );
 
       // Save using hybrid service (saves to both local and cloud)
       await _profileService.saveUserProfile(profile);
-      
+
       // Also save to SharedPreferences for backward compatibility
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('profile_weight', _weightController.text);
       await prefs.setString('profile_height', _heightController.text);
       await prefs.setString('profile_age', _ageController.text);
       await prefs.setString('profile_sex', _selectedSex);
-      
+
       print('✅ Personal info saved to both local storage and Firestore cloud!');
     } catch (e) {
       print('❌ Error saving personal info: $e');
@@ -150,8 +158,6 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
       });
     }
   }
-
-
 
   Future<void> _syncLocalDataToCloud() async {
     try {
@@ -182,13 +188,15 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
   Future<void> _showEditPersonalInfoDialog() async {
     String tempSelectedSex = _selectedSex;
     final AppLocalizations localizations = AppLocalizations.of(context)!;
-    String tempSelectedLocalizedSex = _getLocalizedGender(_selectedSex, localizations);
-    
+    String tempSelectedLocalizedSex =
+        _getLocalizedGender(_selectedSex, localizations);
+
     showDialog<void>(
       context: context,
       barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (BuildContext dialogContext) => StatefulBuilder(
-        builder: (BuildContext context, StateSetter setDialogState) => AlertDialog(
+        builder: (BuildContext context, StateSetter setDialogState) =>
+            AlertDialog(
           title: const Text('Edit Personal Info'),
           content: SingleChildScrollView(
             child: Column(
@@ -226,7 +234,11 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   decoration: InputDecoration(
                     labelText: localizations.sex,
                   ),
-                  items: [localizations.male, localizations.female, localizations.other]
+                  items: [
+                    localizations.male,
+                    localizations.female,
+                    localizations.other
+                  ]
                       .map((String value) => DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -235,7 +247,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                   onChanged: (String? newValue) {
                     setDialogState(() {
                       tempSelectedLocalizedSex = newValue ?? localizations.male;
-                      tempSelectedSex = _getInternalGender(tempSelectedLocalizedSex, localizations);
+                      tempSelectedSex = _getInternalGender(
+                          tempSelectedLocalizedSex, localizations);
                     });
                   },
                 ),
@@ -257,18 +270,19 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                 setState(() {
                   _selectedSex = tempSelectedSex;
                 });
-                
+
                 try {
                   await _savePersonalInfo();
-                  
+
                   if (Navigator.of(dialogContext).canPop()) {
                     Navigator.of(dialogContext).pop();
                   }
-                  
+
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Personal information updated successfully!'),
+                        content:
+                            Text('Personal information updated successfully!'),
                         backgroundColor: Colors.green,
                         duration: Duration(seconds: 3),
                       ),
@@ -375,15 +389,16 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     child: CircleAvatar(
                       radius: 40,
                       backgroundColor: cs.surface,
-                      child: user?.photoURL != null && user!.photoURL!.isNotEmpty
+                      child: user?.photoURL != null &&
+                              user!.photoURL!.isNotEmpty
                           ? ClipOval(
                               child: Image.network(
                                 user.photoURL!,
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,
-                                errorBuilder: (BuildContext context, Object error,
-                                    StackTrace? stackTrace) {
+                                errorBuilder: (BuildContext context,
+                                    Object error, StackTrace? stackTrace) {
                                   return Icon(
                                     Icons.person,
                                     size: 40,
@@ -397,7 +412,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                                   return CircularProgressIndicator(
                                     value: loadingProgress.expectedTotalBytes !=
                                             null
-                                        ? loadingProgress.cumulativeBytesLoaded /
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
                                             loadingProgress.expectedTotalBytes!
                                         : null,
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -430,7 +446,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                         const SizedBox(height: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8, 
+                            horizontal: 8,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
@@ -480,7 +496,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             ),
 
             // Statistics Cards
-            
+
             // Quick Personal Info
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -515,7 +531,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                               onPressed: () {
                                 _showEditPersonalInfoDialog();
                               },
-                              icon: Icon(Icons.edit, size: 16, color: cs.primary),
+                              icon:
+                                  Icon(Icons.edit, size: 16, color: cs.primary),
                               label: Text(
                                 'Edit',
                                 style: TextStyle(color: cs.primary),
@@ -529,24 +546,24 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                     _buildPersonalDetailRow(
                       context,
                       'Weight',
-                      _weightController.text.isEmpty 
-                          ? 'Not set' 
+                      _weightController.text.isEmpty
+                          ? 'Not set'
                           : '${_weightController.text} kg',
                       Icons.monitor_weight_outlined,
                     ),
                     _buildPersonalDetailRow(
                       context,
                       'Height',
-                      _heightController.text.isEmpty 
-                          ? 'Not set' 
+                      _heightController.text.isEmpty
+                          ? 'Not set'
                           : '${_heightController.text} cm',
                       Icons.height,
                     ),
                     _buildPersonalDetailRow(
                       context,
                       'Age',
-                      _ageController.text.isEmpty 
-                          ? 'Not set' 
+                      _ageController.text.isEmpty
+                          ? 'Not set'
                           : '${_ageController.text} years',
                       Icons.cake_outlined,
                     ),
@@ -590,7 +607,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               description: 'Manage your alerts and reminders',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (BuildContext context) => const NotificationSettingsScreen(),
+                  builder: (BuildContext context) =>
+                      const NotificationSettingsScreen(),
                 ),
               ),
             ),
@@ -621,10 +639,12 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
             _buildEnhancedQuickSettingTile(
               icon: Icons.emoji_events,
               label: 'Achievements & Rewards',
-              description: 'Track your sustainability progress and earn rewards',
+              description:
+                  'Track your sustainability progress and earn rewards',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (BuildContext context) => const SustainabilityAchievementsScreen(),
+                  builder: (BuildContext context) =>
+                      const SustainabilityAchievementsScreen(),
                 ),
               ),
             ),
@@ -634,7 +654,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               description: 'Test the achievement system functionality',
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (BuildContext context) => const AchievementTestScreen(),
+                  builder: (BuildContext context) =>
+                      const AchievementTestScreen(),
                 ),
               ),
             ),
@@ -651,7 +672,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     title: const Text('Sign Out'),
-                    content: const Text('Are you sure you want to sign out of your account?'),
+                    content: const Text(
+                        'Are you sure you want to sign out of your account?'),
                     actions: <Widget>[
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
@@ -772,7 +794,9 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
         color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _notificationsAllowed ? cs.primary.withOpacity(0.3) : cs.outline.withOpacity(0.3),
+          color: _notificationsAllowed
+              ? cs.primary.withOpacity(0.3)
+              : cs.outline.withOpacity(0.3),
           width: 1,
         ),
         boxShadow: <BoxShadow>[
@@ -791,7 +815,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: (_notificationsAllowed ? cs.primary : cs.error).withOpacity(0.1),
+                  color: (_notificationsAllowed ? cs.primary : cs.error)
+                      .withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -816,7 +841,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
                       ),
                     ),
                     Text(
-                      _notificationsAllowed 
+                      _notificationsAllowed
                           ? 'Stay updated with personalized tips'
                           : 'Enable for personalized reminders',
                       style: TextStyle(
@@ -830,7 +855,8 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               if (!_notificationsAllowed)
                 FilledButton.tonal(
                   onPressed: () async {
-                    final bool granted = await _notificationService.requestPermissions();
+                    final bool granted =
+                        await _notificationService.requestPermissions();
                     if (granted) {
                       setState(() => _notificationsAllowed = true);
                     }
@@ -860,7 +886,7 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final Color iconColor = isDestructive ? cs.error : cs.onSurfaceVariant;
     final Color labelColor = isDestructive ? cs.error : cs.onSurface;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -910,9 +936,6 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
       ),
     );
   }
-
-
-
 }
 
 void _showProfileGuide(BuildContext context) {

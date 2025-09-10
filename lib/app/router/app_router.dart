@@ -46,7 +46,8 @@ import '../../core/widgets/main_navigation_wrapper.dart';
 final Provider<GoRouter> appRouterProvider =
     Provider<GoRouter>((ProviderRef<GoRouter> ref) {
   final AsyncValue<UserEntity?> authState = ref.watch(authStateProvider);
-  final AsyncValue<bool> profileSetupCompleted = ref.watch(profileSetupCompletedProvider);
+  final AsyncValue<bool> profileSetupCompleted =
+      ref.watch(profileSetupCompletedProvider);
 
   return GoRouter(
     initialLocation: RouteNames.splash,
@@ -61,8 +62,9 @@ final Provider<GoRouter> appRouterProvider =
         RouteNames.register,
         RouteNames.forgotPassword,
       ].contains(state.uri.path);
-      
-      final bool isOnProfileSetupPage = state.uri.path == RouteNames.personalInfoSetup;
+
+      final bool isOnProfileSetupPage =
+          state.uri.path == RouteNames.personalInfoSetup;
 
       // Allow splash screen to handle initial navigation logic
       // Don't redirect from splash screen - let it determine the flow
@@ -74,36 +76,39 @@ final Provider<GoRouter> appRouterProvider =
       if (!isLoggedIn && !isOnAuthPage && !isOnProfileSetupPage) {
         return RouteNames.login;
       }
-      
+
       // If logged in, check profile setup status
       if (isLoggedIn) {
         // Skip redirect if already on personal info setup page
         if (isOnProfileSetupPage) {
           return null;
         }
-        
+
         // Check if profile setup is completed
         if (profileSetupCompleted.hasValue) {
           final bool hasCompletedSetup = profileSetupCompleted.value ?? false;
-          
+
           // If profile not completed, redirect to profile setup (skip onboarding)
           if (!hasCompletedSetup) {
             return RouteNames.personalInfoSetup;
           }
-          
+
           // If profile completed and on auth pages (except splash), redirect to home
-          if (hasCompletedSetup && isOnAuthPage && state.uri.path != RouteNames.splash) {
+          if (hasCompletedSetup &&
+              isOnAuthPage &&
+              state.uri.path != RouteNames.splash) {
             return RouteNames.home;
           }
         } else {
           // If profile setup status is still loading, wait for it
           // Don't redirect yet, let the provider load
-          if (profileSetupCompleted.isLoading && state.uri.path != RouteNames.splash) {
+          if (profileSetupCompleted.isLoading &&
+              state.uri.path != RouteNames.splash) {
             return null; // Stay on current page while loading
           }
         }
       }
-      
+
       return null;
     },
     routes: <RouteBase>[
@@ -413,14 +418,14 @@ final Provider<GoRouter> appRouterProvider =
           ),
         ],
       ),
-      
+
       // Notifications
       GoRoute(
         path: RouteNames.notifications,
         builder: (BuildContext context, GoRouterState state) =>
             const NotificationsScreen(),
       ),
-      
+
       // Global routes
       GoRoute(
         path: RouteNames.privacy,
