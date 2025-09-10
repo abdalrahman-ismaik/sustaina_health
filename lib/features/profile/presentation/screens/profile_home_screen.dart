@@ -10,7 +10,6 @@ import '../../data/services/hybrid_profile_service.dart';
 import '../../data/models/user_profile_model.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../achievements/presentation/screens/sustainability_achievements_screen.dart';
-import '../../../achievements/presentation/screens/achievement_test_screen.dart';
 
 class ProfileHomeScreen extends ConsumerStatefulWidget {
   const ProfileHomeScreen({Key? key}) : super(key: key);
@@ -628,16 +627,6 @@ class _ProfileHomeScreenState extends ConsumerState<ProfileHomeScreen> {
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (BuildContext context) => const SustainabilityAchievementsScreen(),
-                ),
-              ),
-            ),
-            _buildEnhancedQuickSettingTile(
-              icon: Icons.science,
-              label: 'Test Achievements',
-              description: 'Test the achievement system functionality',
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (BuildContext context) => const AchievementTestScreen(),
                 ),
               ),
             ),

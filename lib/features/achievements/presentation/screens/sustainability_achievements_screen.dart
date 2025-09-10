@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/models/achievement_model.dart';
-import '../../services/achievement_service.dart';
+import '../../services/real_data_achievement_service.dart';
 
 class SustainabilityAchievementsScreen extends StatefulWidget {
   const SustainabilityAchievementsScreen({Key? key}) : super(key: key);
@@ -11,7 +11,7 @@ class SustainabilityAchievementsScreen extends StatefulWidget {
 
 class _SustainabilityAchievementsScreenState extends State<SustainabilityAchievementsScreen>
     with TickerProviderStateMixin {
-  final AchievementService _achievementService = AchievementService();
+  final RealDataAchievementService _achievementService = RealDataAchievementService();
   late TabController _tabController;
 
   @override
