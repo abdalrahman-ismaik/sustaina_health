@@ -16,33 +16,17 @@ class FirestoreProfileService {
   }
 
   // Collection references - using new modular structure: users/{userId}/profile/data/subcollection
-  CollectionReference get _personalInfoCollection => _firestore
-      .collection('users')
-      .doc(_userId)
-      .collection('profile')
-      .doc('data')
-      .collection('personal_info');
+  CollectionReference get _personalInfoCollection =>
+      _firestore.collection('users').doc(_userId).collection('profile').doc('data').collection('personal_info');
 
-  CollectionReference get _healthGoalsCollection => _firestore
-      .collection('users')
-      .doc(_userId)
-      .collection('profile')
-      .doc('data')
-      .collection('health_goals');
+  CollectionReference get _healthGoalsCollection =>
+      _firestore.collection('users').doc(_userId).collection('profile').doc('data').collection('health_goals');
 
-  CollectionReference get _preferencesCollection => _firestore
-      .collection('users')
-      .doc(_userId)
-      .collection('profile')
-      .doc('data')
-      .collection('preferences');
+  CollectionReference get _preferencesCollection =>
+      _firestore.collection('users').doc(_userId).collection('profile').doc('data').collection('preferences');
 
-  CollectionReference get _achievementsCollection => _firestore
-      .collection('users')
-      .doc(_userId)
-      .collection('profile')
-      .doc('data')
-      .collection('achievements');
+  CollectionReference get _achievementsCollection =>
+      _firestore.collection('users').doc(_userId).collection('profile').doc('data').collection('achievements');
 
   /// Ensure profile module document exists
   Future<void> ensureProfileModuleExists() async {
@@ -51,7 +35,7 @@ class FirestoreProfileService {
         .doc(_userId)
         .collection('profile')
         .doc('data');
-
+    
     final DocumentSnapshot doc = await profileDoc.get();
     if (!doc.exists) {
       await profileDoc.set(<String, Object>{
@@ -66,7 +50,7 @@ class FirestoreProfileService {
   Future<String> savePersonalInfo(UserProfile profile) async {
     try {
       await ensureProfileModuleExists();
-
+      
       final Map<String, dynamic> data = profile.toJson();
       data['updatedAt'] = FieldValue.serverTimestamp();
 
@@ -79,30 +63,15 @@ class FirestoreProfileService {
 
   Future<UserProfile?> getPersonalInfo() async {
     try {
-      print(
-          'FirestoreProfileService: Getting personal info for user: $_userId');
-      print(
-          'FirestoreProfileService: Document path: users/$_userId/profile/data/personal_info/current');
-
-      final DocumentSnapshot doc =
-          await _personalInfoCollection.doc('current').get();
-
-      print('FirestoreProfileService: Document exists: ${doc.exists}');
-
+      final DocumentSnapshot doc = await _personalInfoCollection.doc('current').get();
+      
       if (!doc.exists) {
-        print('FirestoreProfileService: Document does not exist');
         return null;
       }
 
       final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      print('FirestoreProfileService: Document data: $data');
-
-      final UserProfile profile = UserProfile.fromJson(data);
-      print('FirestoreProfileService: Parsed profile: $profile');
-
-      return profile;
+      return UserProfile.fromJson(data);
     } catch (e) {
-      print('FirestoreProfileService: Error getting personal info: $e');
       throw Exception('Failed to get personal info: $e');
     }
   }
@@ -111,7 +80,7 @@ class FirestoreProfileService {
   Future<String> saveHealthGoal(Map<String, dynamic> goal) async {
     try {
       await ensureProfileModuleExists();
-
+      
       final Map<String, dynamic> data = <String, dynamic>{
         ...goal,
         'createdAt': FieldValue.serverTimestamp(),
@@ -142,8 +111,7 @@ class FirestoreProfileService {
     }
   }
 
-  Future<void> updateHealthGoal(
-      String goalId, Map<String, dynamic> updates) async {
+  Future<void> updateHealthGoal(String goalId, Map<String, dynamic> updates) async {
     try {
       final Map<String, dynamic> data = <String, dynamic>{
         ...updates,
@@ -168,7 +136,7 @@ class FirestoreProfileService {
   Future<String> savePreferences(Map<String, dynamic> preferences) async {
     try {
       await ensureProfileModuleExists();
-
+      
       final Map<String, dynamic> data = <String, dynamic>{
         ...preferences,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -183,9 +151,8 @@ class FirestoreProfileService {
 
   Future<Map<String, dynamic>?> getPreferences() async {
     try {
-      final DocumentSnapshot doc =
-          await _preferencesCollection.doc('current').get();
-
+      final DocumentSnapshot doc = await _preferencesCollection.doc('current').get();
+      
       if (!doc.exists) {
         return null;
       }
@@ -200,7 +167,7 @@ class FirestoreProfileService {
   Future<String> saveAchievement(Map<String, dynamic> achievement) async {
     try {
       await ensureProfileModuleExists();
-
+      
       final Map<String, dynamic> data = <String, dynamic>{
         ...achievement,
         'createdAt': FieldValue.serverTimestamp(),
@@ -233,10 +200,7 @@ class FirestoreProfileService {
 
   // Real-time streams
   Stream<UserProfile?> watchPersonalInfo() {
-    return _personalInfoCollection
-        .doc('current')
-        .snapshots()
-        .map((DocumentSnapshot<Object?> doc) {
+    return _personalInfoCollection.doc('current').snapshots().map((DocumentSnapshot<Object?> doc) {
       if (!doc.exists) return null;
       return UserProfile.fromJson(doc.data() as Map<String, dynamic>);
     });
@@ -270,9 +234,8 @@ class FirestoreProfileService {
   Future<Map<String, int>> getProfileAnalytics() async {
     try {
       await ensureProfileModuleExists();
-
-      final List<QuerySnapshot<Object?>> futures =
-          await Future.wait(<Future<QuerySnapshot<Object?>>>[
+      
+      final List<QuerySnapshot<Object?>> futures = await Future.wait(<Future<QuerySnapshot<Object?>>>[
         _healthGoalsCollection.get(),
         _achievementsCollection.get(),
       ]);
@@ -280,13 +243,11 @@ class FirestoreProfileService {
       return <String, int>{
         'totalHealthGoals': futures[0].size,
         'totalAchievements': futures[1].size,
-        'activeGoals':
-            futures[0].docs.where((QueryDocumentSnapshot<Object?> doc) {
+        'activeGoals': futures[0].docs.where((QueryDocumentSnapshot<Object?> doc) {
           final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
           return data['status'] == 'active' || data['isActive'] == true;
         }).length,
-        'completedAchievements':
-            futures[1].docs.where((QueryDocumentSnapshot<Object?> doc) {
+        'completedAchievements': futures[1].docs.where((QueryDocumentSnapshot<Object?> doc) {
           final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
           return data['completed'] == true || data['status'] == 'completed';
         }).length,
